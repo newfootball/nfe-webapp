@@ -1,0 +1,233 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SpamScore {
+  NONE
+  SUSPECT
+  SPAM
+}
+
+enum UserType {
+  USER
+  PLAYER
+  COACH
+  RECRUITER
+}
+
+enum Position {
+  GOALKEEPER
+  CENTRE_BACK
+  RIGHT_BACK
+  LEFT_BACK
+  DEFENSIVE_MIDFIELDER
+  CENTRE_MIDFIELDER
+  ATTACKING_MIDFIELDER
+  RIGHT_WINGER
+  LEFT_WINGER
+  CENTRE_FORWARD
+  STRIKER
+}
+
+enum Foot {
+  LEFT
+  RIGHT
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Gender {
+  male
+  female
+}
+
+enum MediaType {
+  landingImage
+  mainVideo
+  shortVideo
+}
+
+enum PostType {
+  video
+  shortVideo
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?   @unique
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+
+  birthday     DateTime?
+  fullName     String?
+  biography    String?
+  position     Position[]
+  foot         Foot[]
+  license      String?
+  contract     String?
+  size         Int?
+  weight       Int?
+  localisation String?
+  gender       Gender?
+  role         Role       @default(USER)
+  userType     UserType   @default(USER)
+
+  followers Follow[] @relation("follower")
+  followeds Follow[] @relation("followed")
+
+  accounts Account[]
+  sessions Session[]
+  posts    Post[]
+  likes    Like[]
+  comments Comment[]
+  notifications Notification[]
+  messages      Message[] @relation("fromUser")
+  messagesTo    Message[] @relation("toUser")
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime? @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  follower User @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  followed User @relation("followed", fields: [followingId], references: [id], onDelete: Cascade)
+}
+
+model Post {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  userId      String
+  title       String
+  type        PostType  @default(video)
+  description String
+  spamScore   SpamScore @default(NONE)
+
+  medias Media[]
+  likes  Like[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  expiresAt   DateTime?
+  validatedAt DateTime?
+  publishedAt DateTime?
+
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments    Comment[]
+}
+
+model Media {
+  id        String    @id @default(cuid())
+  type      MediaType @default(mainVideo)
+  postId    String
+  mimetype  String
+  url       String
+  filename  String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+  post Post @relation(fields: [postId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  content   String
+  link      String?
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  fromUserId String
+  toUserId String
+  content   String
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  fromUser User @relation("fromUser", fields: [fromUserId], references: [id])
+  toUser   User @relation("toUser", fields: [toUserId], references: [id])
+}

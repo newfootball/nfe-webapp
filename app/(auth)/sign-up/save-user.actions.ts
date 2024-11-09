@@ -36,7 +36,7 @@ export const saveUser = async (data: SignUpFormData) => {
 	});
 
 	// Ne pas renvoyer le mot de passe
-	const { password: _, ...userWithoutPassword } = user;
+	const userWithoutPassword = { ...user, password: undefined };
 
 	return userWithoutPassword;
 };

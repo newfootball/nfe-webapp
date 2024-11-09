@@ -13,35 +13,35 @@ import { Header } from "./header";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Next Football Experience",
-  description: "Next Football Experience - Football Social Media",
-  keywords: ["football", "social media", "experience", "social"],
+	title: "Next Football Experience",
+	description: "Next Football Experience - Football Social Media",
+	keywords: ["football", "social media", "experience", "social"],
 };
 
 export default function RootLayout({
-  children,
+	children,
 }: Readonly<{
-  children: React.ReactNode;
+	children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body className={cn(inter.className)}>
-        <SessionProvider>
-          <Header />
-          <main>{children}</main>
-          <Footer />
-          <Toaster
-            expand={false}
-            position="top-right"
-            closeButton
-            richColors
-            duration={2000}
-          />
-        </SessionProvider>
-        <Analytics />
-        <SpeedInsights />
-        <GoogleAnalytics gaId={env.GOOGLE_ANALYTICS_ID} />
-      </body>
-    </html>
-  );
+	return (
+		<html lang="en">
+			<body className={cn(inter.className)}>
+				<SessionProvider>
+					<Header />
+					<main>{children}</main>
+					<Footer />
+					<Toaster
+						expand={false}
+						position="top-right"
+						closeButton
+						richColors
+						duration={2000}
+					/>
+				</SessionProvider>
+				<Analytics />
+				<SpeedInsights />
+				<GoogleAnalytics gaId={env.GOOGLE_ANALYTICS_ID} />
+			</body>
+		</html>
+	);
 }

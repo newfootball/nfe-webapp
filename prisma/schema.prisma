@@ -118,14 +118,14 @@ model User {
   followers Follow[] @relation("follower")
   followeds Follow[] @relation("followed")
 
-  accounts Account[]
-  sessions Session[]
-  posts    Post[]
-  likes    Like[]
-  comments Comment[]
+  accounts      Account[]
+  sessions      Session[]
+  posts         Post[]
+  likes         Like[]
+  comments      Comment[]
   notifications Notification[]
-  messages      Message[] @relation("fromUser")
-  messagesTo    Message[] @relation("toUser")
+  messages      Message[]      @relation("fromUser")
+  messagesTo    Message[]      @relation("toUser")
 
   createdAt DateTime  @default(now())
   updatedAt DateTime? @updatedAt
@@ -168,8 +168,8 @@ model Post {
   validatedAt DateTime?
   publishedAt DateTime?
 
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  comments    Comment[]
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments Comment[]
 }
 
 model Media {
@@ -208,25 +208,25 @@ model Comment {
 }
 
 model Notification {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   userId    String
   content   String
   link      String?
   readAt    DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   user User @relation(fields: [userId], references: [id])
 }
 
 model Message {
-  id        String   @id @default(cuid())
+  id         String    @id @default(cuid())
   fromUserId String
-  toUserId String
-  content   String
-  readAt    DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  toUserId   String
+  content    String
+  readAt     DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   fromUser User @relation("fromUser", fields: [fromUserId], references: [id])
   toUser   User @relation("toUser", fields: [toUserId], references: [id])

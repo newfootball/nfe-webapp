@@ -7,7 +7,7 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"ignore": [".next", "node_modules", "public/*.js"]
+		"ignore": [".next", "node_modules", "public/*.js", "lib/prisma.ts"]
 	},
 	"formatter": {
 		"enabled": true,

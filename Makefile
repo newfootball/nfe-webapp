@@ -42,7 +42,7 @@ prisma: ## Generate prisma client
 	$(X_MANAGER) prisma generate
 
 prisma-seed: ## Generate prisma client
-	$(X_MANAGER) prisma:seed
+	$(PACKAGE_MANAGER) run prisma:seed
 
 prisma-migrate: ## Migrate prisma
 	$(X_MANAGER) prisma migrate dev --preview-feature

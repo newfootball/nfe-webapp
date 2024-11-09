@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Password } from "@/components/ui/password";
-import type { User } from "@prisma/client";
 import { useState } from "react";
 import { z } from "zod";
 
@@ -12,7 +11,7 @@ const changePasswordSchema = z.object({
 	confirmPassword: z.string(),
 });
 
-export const ChangePasswordForm = ({ user }: { user: User }) => {
+export const ChangePasswordForm = () => {
 	const [currentPassword, setCurrentPassword] = useState<string>("");
 	const [password, setPassword] = useState<string>("");
 	const [confirmPassword, setConfirmPassword] = useState<string>("");

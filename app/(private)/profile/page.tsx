@@ -11,16 +11,12 @@ import {
 import { Divider } from "@/components/ui/divider";
 import type { User } from "@prisma/client";
 import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
 import { ChangePasswordForm } from "./change-password-form";
 import { UserForm } from "./user-form";
 
 export default function ProfilePage() {
 	const { data: session } = useSession();
 
-	if (!session?.user) return redirect("/sign-in");
-
-	console.log(session);
 	return (
 		<Layout>
 			<Card className="mx-auto max-w-sm shadow-none border-none">
@@ -34,7 +30,7 @@ export default function ProfilePage() {
 					<div className="grid gap-4">
 						<UserForm user={session?.user as User} />
 						<Divider text="" />
-						<ChangePasswordForm user={session?.user as User} />
+						<ChangePasswordForm />
 					</div>
 				</CardContent>
 			</Card>

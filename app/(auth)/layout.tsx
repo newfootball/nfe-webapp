@@ -1,12 +1,16 @@
-import { auth } from "@/lib/auth";
+"use client";
+
+import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 
-export default async function AuthLayout({
+export default function AuthLayout({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
-	const session = await auth();
+	const session = useSession();
+
+	console.log(session);
 
 	if (session) {
 		redirect("/");

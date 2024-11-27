@@ -9,13 +9,16 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Divider } from "@/components/ui/divider";
-import type { User } from "@prisma/client";
 import { useSession } from "next-auth/react";
-import { ChangePasswordForm } from "./change-password-form";
+import Link from "next/link";
 import { UserForm } from "./user-form";
 
 export default function ProfilePage() {
 	const { data: session } = useSession();
+
+	if (!session?.user?.id) {
+		throw new Error("User not found");
+	}
 
 	return (
 		<Layout>
@@ -28,9 +31,11 @@ export default function ProfilePage() {
 				</CardHeader>
 				<CardContent>
 					<div className="grid gap-4">
-						<UserForm user={session?.user as User} />
+						<UserForm userId={session.user.id} />
 						<Divider text="" />
-						<ChangePasswordForm />
+						<div className="flex justify-center">
+							<Link href="/profile/change-password">Change Password</Link>
+						</div>
 					</div>
 				</CardContent>
 			</Card>

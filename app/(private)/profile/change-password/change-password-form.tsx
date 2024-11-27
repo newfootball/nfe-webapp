@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Password } from "@/components/ui/password";
+import Link from "next/link";
 import { useState } from "react";
 import { z } from "zod";
 
@@ -56,6 +57,9 @@ export const ChangePasswordForm = () => {
 			<Button className="w-full mt-2" type="submit">
 				Change password
 			</Button>
+			<div className="flex justify-center mt-4">
+				<Link href="/profile">Back to profile</Link>
+			</div>
 		</form>
 	);
 };

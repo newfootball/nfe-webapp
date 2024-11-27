@@ -38,13 +38,17 @@ const getUserLogin = async (email: string, password: string) => {
 const getUserSession = async (): Promise<User | null> => {
 	const session = await auth();
 
-	if (!session?.user) {
+	if (!session?.user?.id) {
 		return null;
 	}
 
+	return getUser(session.user.id);
+};
+
+const getUser = async (userId: string): Promise<User | null> => {
 	const user = await prisma.user.findUnique({
 		where: {
-			id: session.user.id,
+			id: userId,
 		},
 	});
 
@@ -55,4 +59,4 @@ const getUserSession = async (): Promise<User | null> => {
 	return user;
 };
 
-export { getUserLogin, getUserSession };
+export { getUser, getUserLogin, getUserSession };

@@ -8,6 +8,14 @@ export const env = createEnv({
 		GOOGLE_CLIENT_SECRET: z.string(),
 		GOOGLE_ANALYTICS_ID: z.string(),
 		NEXTAUTH_SECRET: z.string(),
+
+		// MinIO
+		MINIO_ENDPOINT: z.string(),
+		MINIO_PORT: z.number(),
+		MINIO_USE_SSL: z.string(),
+		MINIO_ACCESS_KEY: z.string(),
+		MINIO_SECRET_KEY: z.string(),
+		MINIO_BUCKET_NAME: z.string(),
 	},
 	client: {},
 	experimental__runtimeEnv: {
@@ -16,5 +24,13 @@ export const env = createEnv({
 		GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
 		GOOGLE_ANALYTICS_ID: process.env.GOOGLE_ANALYTICS_ID,
 		NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+
+		// MinIO
+		MINIO_ENDPOINT: process.env.MINIO_ENDPOINT,
+		MINIO_PORT: Number(process.env.MINIO_PORT),
+		MINIO_USE_SSL: process.env.MINIO_USE_SSL,
+		MINIO_ACCESS_KEY: process.env.MINIO_ACCESS_KEY,
+		MINIO_SECRET_KEY: process.env.MINIO_SECRET_KEY,
+		MINIO_BUCKET_NAME: process.env.MINIO_BUCKET_NAME,
 	},
 });

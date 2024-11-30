@@ -4,6 +4,10 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+generator nextAdmin {
+  provider = "next-admin-generator-prisma"
+}
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -24,6 +28,7 @@ enum UserType {
   PLAYER
   COACH
   RECRUITER
+  CLUB
 }
 
 enum Position {
@@ -150,14 +155,23 @@ model Follow {
   followed User @relation("followed", fields: [followingId], references: [id], onDelete: Cascade)
 }
 
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  REJECTED
+  PENDING
+  ARCHIVED
+}
+
 model Post {
-  id          String    @id @default(cuid())
-  slug        String    @unique
+  id          String      @id @default(cuid())
+  slug        String      @unique
   userId      String
   title       String
-  type        PostType  @default(video)
+  type        PostType?   @default(video)
+  status      PostStatus? @default(DRAFT)
   description String
-  spamScore   SpamScore @default(NONE)
+  spamScore   SpamScore?  @default(NONE)
 
   medias Media[]
   likes  Like[]

@@ -2,6 +2,7 @@ import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
 import { getUserLogin } from "@/query/user.query";
 import { PrismaAdapter } from "@auth/prisma-adapter";
+import { Role } from "@prisma/client";
 import NextAuth, { CredentialsSignin } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
@@ -9,6 +10,14 @@ import Google from "next-auth/providers/google";
 class InvalidLoginError extends CredentialsSignin {
 	code = "Invalid identifier or password";
 }
+
+export type SessionUser = {
+	id: string;
+	name?: string | null;
+	email: string;
+	role: string;
+	image?: string | null;
+};
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
 	adapter: PrismaAdapter(prisma),
@@ -23,7 +32,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 				email: { label: "Email", type: "email" },
 				password: { label: "Password", type: "password" },
 			},
-			authorize: async (credentials) => {
+			authorize: async (credentials): Promise<SessionUser> => {
 				if (!credentials?.email || !credentials?.password)
 					throw new CredentialsSignin("Invalid credentials");
 
@@ -33,16 +42,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 					credentials.password as string,
 				);
 
-				if (!user) throw new InvalidLoginError();
-
-				console.log({ user });
+				if (!user || !user.id || !user.email) throw new InvalidLoginError();
 
 				return {
-					id: user?.id as string,
-					name: user?.name,
-					email: user?.email,
-					role: user?.role,
-					image: user?.image,
+					id: user.id,
+					name: user.fullName,
+					email: user.email,
+					role: user.role ?? Role.USER,
+					image: user.image,
 				};
 			},
 		}),

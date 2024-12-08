@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 	title: "Next Football Experience",
 	description: "Next Football Experience - Football Social Media",
 	keywords: ["football", "social media", "experience", "social"],
+
 	icons: {
 		icon: "/logo.svg",
 	},

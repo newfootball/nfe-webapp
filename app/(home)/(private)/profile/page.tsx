@@ -6,12 +6,15 @@ import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import { redirect } from "next/navigation";
+import { toast } from "sonner";
 
 export default function ProfilePage() {
 	const { data: session } = useSession();
 
-	if (!session?.user?.id) {
-		throw new Error("User not found");
+	if (!session?.user?.id || session?.user?.id === null) {
+		toast.error("User not found");
+		redirect("/profile");
 	}
 
 	return (

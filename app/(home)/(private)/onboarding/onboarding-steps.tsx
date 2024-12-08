@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
 	Form,
 	FormControl,
@@ -197,14 +196,15 @@ export function OnboardingSteps() {
 										</FormControl>
 									</PopoverTrigger>
 									<PopoverContent className="w-auto p-0" align="start">
-										<Calendar
-											mode="single"
-											selected={field.value as Date}
-											onSelect={field.onChange}
-											disabled={(date) =>
-												date > new Date() || date < new Date("1900-01-01")
+										<Input
+											type="date"
+											placeholder="Select a date"
+											value={
+												field.value
+													? format(field.value, "yyyy-MM-dd")
+													: undefined
 											}
-											initialFocus
+											onChange={(e) => field.onChange(new Date(e.target.value))}
 										/>
 									</PopoverContent>
 								</Popover>
@@ -352,14 +352,15 @@ export function OnboardingSteps() {
 										</FormControl>
 									</PopoverTrigger>
 									<PopoverContent className="w-auto p-0" align="start">
-										<Calendar
-											mode="single"
-											selected={field.value}
-											onSelect={field.onChange}
-											disabled={(date) =>
-												date > new Date() || date < new Date("1900-01-01")
+										<Input
+											type="date"
+											placeholder="Select a date"
+											value={
+												field.value
+													? format(field.value, "yyyy-MM-dd")
+													: undefined
 											}
-											initialFocus
+											onChange={(e) => field.onChange(new Date(e.target.value))}
 										/>
 									</PopoverContent>
 								</Popover>

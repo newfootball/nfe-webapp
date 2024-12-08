@@ -70,7 +70,7 @@ export function SignInForm() {
 			{error && (
 				<Alert
 					variant="destructive"
-					className="text-red-500 mb-2 text-center border border-red-500 pb-2"
+					className="text-red-500 text-center border border-red-500 pb-2 my-4"
 				>
 					{error}
 				</Alert>

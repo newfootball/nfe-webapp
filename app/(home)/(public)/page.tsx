@@ -1,18 +1,27 @@
+"use client";
+
+import { getHasSeenSplash } from "@/actions/cookies.actions";
 import { Layout } from "@/components/layouts/layout";
-import { auth } from "@/lib/auth";
-import { cookies } from "next/headers";
+import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
+import { useEffect, useState } from "react";
 import Posts from "./posts";
 
-export default async function Home() {
-	const cookieStore = await cookies();
-	const hasSeenSplash = cookieStore.get("seen_splash")?.value === "true";
+export default function Home() {
+	const [hasSeenSplash, setHasSeenSplash] = useState<boolean | null>(null);
+	const { data: session } = useSession();
 
-	if (!hasSeenSplash) {
+	useEffect(() => {
+		const fetchHasSeenSplash = async () => {
+			const hasSeenSplash = await getHasSeenSplash();
+			setHasSeenSplash(hasSeenSplash);
+		};
+		fetchHasSeenSplash();
+	}, []);
+
+	if (hasSeenSplash === false) {
 		return redirect("/splash");
 	}
-
-	const session = await auth();
 
 	return (
 		<Layout>

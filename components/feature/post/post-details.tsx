@@ -4,10 +4,14 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { PostWithUserAndMedias } from "@/query/post.query";
 import { formatDistanceToNow } from "date-fns";
 import { Heart, MessageCircle } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 
 export const PostDetails = ({ post }: { post: PostWithUserAndMedias }) => {
+	const image = post.medias.find((media) => media.mimetype.includes("image"));
+	const video = post.medias.find((media) => media.mimetype.includes("video"));
+
+	console.log(post.medias);
+
 	return (
 		<Card>
 			<CardHeader className="flex-row items-center space-x-4 space-y-0 pb-4">
@@ -21,7 +25,7 @@ export const PostDetails = ({ post }: { post: PostWithUserAndMedias }) => {
 				<div className="flex-1">
 					<div className="flex items-center justify-between">
 						<Link
-							href={`/profile/${post.user.id}`}
+							href={`/user/${post.user.id}`}
 							className="font-semibold hover:underline"
 						>
 							{post.user.name}
@@ -40,20 +44,24 @@ export const PostDetails = ({ post }: { post: PostWithUserAndMedias }) => {
 				</div>
 			</CardHeader>
 			<CardContent className="space-y-4">
-				<div>
-					<h3 className="font-semibold">{post.title}</h3>
-					<p className="text-muted-foreground">{post.description}</p>
-				</div>
-				{post.medias?.[0] && (
+				{video && (
 					<div className="relative aspect-video overflow-hidden rounded-lg">
-						<Image
-							src={post.medias[0].url}
-							alt={post.title}
-							fill
-							className="object-cover"
-						/>
+						<Link href={`/post/${post.id}`}>
+							<video
+								muted={false}
+								className="w-full h-full object-cover"
+								poster={image?.url}
+								controls={false}
+								autoPlay={false}
+							>
+								<source src={video.url} type={video.mimetype} />
+							</video>
+						</Link>
 					</div>
 				)}
+				<div>
+					<h3 className="font-semibold">{post.title}</h3>
+				</div>
 				<div className="flex items-center space-x-4 pt-4">
 					<Button
 						variant="link"

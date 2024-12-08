@@ -27,10 +27,7 @@ export default function Posts({ userId }: { userId?: string | undefined }) {
 
 		const handleScroll = async () => {
 			const postElements = document.querySelectorAll("[data-post]");
-			if (postElements.length === 0) {
-				fetchPosts();
-				return;
-			}
+			if (postElements.length === 0) return;
 
 			const secondToLastPost = postElements[postElements.length - 2];
 			if (!secondToLastPost) return;
@@ -39,9 +36,13 @@ export default function Posts({ userId }: { userId?: string | undefined }) {
 			const isVisible = rect.top <= window.innerHeight;
 
 			if (isVisible && posts.length >= limit) {
-				fetchPosts();
+				console.log("fetching posts");
+				//fetchPosts();
 			}
 		};
+
+		// Fetch initial posts when component mounts
+		if (posts.length === 0) fetchPosts();
 
 		window.addEventListener("scroll", handleScroll);
 		return () => window.removeEventListener("scroll", handleScroll);

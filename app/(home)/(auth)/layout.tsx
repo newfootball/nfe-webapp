@@ -10,7 +10,7 @@ export default function AuthLayout({
 }) {
 	const session = useSession();
 
-	if (session) {
+	if (session.status === "authenticated") {
 		redirect("/");
 	}
 

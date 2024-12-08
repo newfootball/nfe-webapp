@@ -1,6 +1,7 @@
+import { FollowButton } from "@/components/feature/follow/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { getUser } from "@/query/user.query";
+import { getUser, getUserSession } from "@/query/user.query";
 import { Loader, Settings } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,10 +10,13 @@ import { StatsUser } from "./stats-user";
 
 export const UserProfile = async ({ userId }: { userId: string }) => {
 	const user = await getUser(userId);
+	const userSession = await getUserSession();
 
 	if (!user) {
 		throw new Error("User not found");
 	}
+
+	const isCurrentUser = userSession?.id === user.id;
 
 	return (
 		<>
@@ -52,16 +56,20 @@ export const UserProfile = async ({ userId }: { userId: string }) => {
 							</span>
 						))}
 					</div>
-					<div className="flex justify-center gap-2">
-						<Link href="/profile/edit-user">
-							<Button variant="outline" className="flex-1 max-w-[200px]">
-								Edit profile
+					{isCurrentUser && (
+						<div className="flex justify-center gap-2">
+							<Link href="/profile/edit-user">
+								<Button variant="outline" className="flex-1 max-w-[200px]">
+									Edit profile
+								</Button>
+							</Link>
+							<Button variant="outline" size="icon">
+								<Settings className="h-4 w-4" />
 							</Button>
-						</Link>
-						<Button variant="outline" size="icon">
-							<Settings className="h-4 w-4" />
-						</Button>
-					</div>
+						</div>
+					)}
+
+					{!isCurrentUser && <FollowButton userId={user.id} showText={true} />}
 				</div>
 
 				<Suspense fallback={<Loader className="animate-spin" />}>

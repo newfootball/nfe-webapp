@@ -40,8 +40,6 @@ export default function MakePostForm() {
 			image: selectedImage,
 		} as PostData;
 
-		console.log(data);
-
 		await savePost(data)
 			.catch((error) => {
 				setError(error.message);

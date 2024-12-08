@@ -11,13 +11,16 @@ import {
 import { Divider } from "@/components/ui/divider";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { toast } from "sonner";
 import { UserForm } from "./user-form";
 
 export default function EditUserPage() {
 	const { data: session } = useSession();
 
-	if (!session?.user?.id) {
-		throw new Error("User not found");
+	if (!session?.user?.id || session?.user?.id === null) {
+		toast.error("User not found");
+		redirect("/profile");
 	}
 
 	return (

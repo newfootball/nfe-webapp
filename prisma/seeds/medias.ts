@@ -14,25 +14,48 @@ export const seedMedias = async ({
 	for (const post of posts) {
 		if (!post.id) continue;
 
-		const dbMedia = await prisma.media.create({
-			data: {
-				postId: post.id,
-				url: video() as string,
-				mimetype: "video/mp4",
-				filename: faker.word.words(),
-				createdAt: faker.date.past(),
-			},
+		const data = {
+			postId: post.id,
+			mimetype: "video/mp4",
+			filename: faker.word.words(),
+			createdAt: faker.date.past(),
+		};
+
+		const { video, image } = randomVideo();
+
+		const dbVideo = await prisma.media.create({
+			data: { ...data, ...{ url: video, mimetype: "video/mp4" } },
 		});
 
-		medias.push(dbMedia);
+		const dbImage = await prisma.media.create({
+			data: { ...data, ...{ url: image, mimetype: "image/jpeg" } },
+		});
+
+		medias.push(dbVideo, dbImage);
 	}
 
 	return medias;
 };
 
-const video = () => {
+const randomVideo = (): { video: string; image: string } => {
 	return randomizer([
-		"http://localhost:9001/api/v1/download-shared-object/aHR0cDovLzEyNy4wLjAuMTo5MDAwL2xvY2FsLW5mZS9TY3JlZW4lMjBSZWNvcmRpbmclMjAyMDI0LTA5LTExJTIwYXQlMjAxMy4yNi4wOC5tb3Y_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD0yWUswSFQxTldJMzdUTjRTMzg0MyUyRjIwMjQwOTExJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI0MDkxMVQxMjMwMDdaJlgtQW16LUV4cGlyZXM9NDMxOTQmWC1BbXotU2VjdXJpdHktVG9rZW49ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmhZMk5sYzNOTFpYa2lPaUl5V1Vzd1NGUXhUbGRKTXpkVVRqUlRNemcwTXlJc0ltVjRjQ0k2TVRjeU5qRXdNREV6TVN3aWNHRnlaVzUwSWpvaVFVdEpRVWxQVTBaUFJFNU9OMFZZUVUxUVRFVWlmUS5BZUtTVWY0NjVHbm9DZkRGWHlLbEtaNTJxYlZsOV91bnNOWmdTcTFwY2JEQ1ZBeVlQS0FINVhuZEJBeV9RRUltRVY4N0F3WFExMTMxenFqUGRVVnhtUSZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmdmVyc2lvbklkPW51bGwmWC1BbXotU2lnbmF0dXJlPTk3ZmE5YmY0ZGNkMTIyOTM3OTU1YWFlNDNjNThiOWUwYjgyMzZmMDhiN2IxNjU4ZjQ1OTg2Y2UxMTFiOTE5ZTY",
-		"http://localhost:9001/api/v1/download-shared-object/aHR0cDovLzEyNy4wLjAuMTo5MDAwL2xvY2FsLW5mZS9TY3JlZW4lMjBSZWNvcmRpbmclMjAyMDI0LTA5LTExJTIwYXQlMjAxMy4zMy4wMi5tb3Y_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD0yWUswSFQxTldJMzdUTjRTMzg0MyUyRjIwMjQwOTExJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI0MDkxMVQxMjM3MjhaJlgtQW16LUV4cGlyZXM9NDMxOTkmWC1BbXotU2VjdXJpdHktVG9rZW49ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmhZMk5sYzNOTFpYa2lPaUl5V1Vzd1NGUXhUbGRKTXpkVVRqUlRNemcwTXlJc0ltVjRjQ0k2TVRjeU5qRXdNREV6TVN3aWNHRnlaVzUwSWpvaVFVdEpRVWxQVTBaUFJFNU9OMFZZUVUxUVRFVWlmUS5BZUtTVWY0NjVHbm9DZkRGWHlLbEtaNTJxYlZsOV91bnNOWmdTcTFwY2JEQ1ZBeVlQS0FINVhuZEJBeV9RRUltRVY4N0F3WFExMTMxenFqUGRVVnhtUSZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmdmVyc2lvbklkPW51bGwmWC1BbXotU2lnbmF0dXJlPWE3Mjk4Nzg4YTA2ZjBiNDRkOTI2OTc3MGUxMmExY2Q0M2UzYmU1ZWRjYmZkNGQ4NTJjYzVmYjc5YTY4ODI5Mzg",
-	]);
+		{
+			video:
+				"https://console-oog0coc0cc4ccss80ocwckk4.145.223.81.185.sslip.io/api/v1/download-shared-object/aHR0cHM6Ly9taW5pby1vb2cwY29jMGNjNGNjc3M4MG9jd2NrazQuMTQ1LjIyMy44MS4xODUuc3NsaXAuaW8vbmZlLXdlYmFwcC9DJTI3ZXN0JTIwbGUlMjBHRU5JRSUyMGR1JTIwZm9vdGJhbGwlMjBhbWF0ZXVyJTIwJUYwJTlGJUFBJTg0JTIwJTIwLSUyMExlJTIwWkFQJTIwZHUlMjB3ZWVrLWVuZCUyMCUyODIwJUUyJUE3JUI4MDklMjkubXA0P1gtQW16LUFsZ29yaXRobT1BV1M0LUhNQUMtU0hBMjU2JlgtQW16LUNyZWRlbnRpYWw9WkFaNzdNT0ZEWjBYQjNFSlM5R0ElMkYyMDI0MTIwMSUyRnVzLWVhc3QtMSUyRnMzJTJGYXdzNF9yZXF1ZXN0JlgtQW16LURhdGU9MjAyNDEyMDFUMTgzMDU4WiZYLUFtei1FeHBpcmVzPTQzMjAwJlgtQW16LVNlY3VyaXR5LVRva2VuPWV5SmhiR2NpT2lKSVV6VXhNaUlzSW5SNWNDSTZJa3BYVkNKOS5leUpoWTJObGMzTkxaWGtpT2lKYVFWbzNOMDFQUmtSYU1GaENNMFZLVXpsSFFTSXNJbVY0Y0NJNk1UY3pNekV5TURZMU1Dd2ljR0Z5Wlc1MElqb2libVpsSW4wLjVPWlhlRlROd3NpTjJqenROOWlkbTh3NnJZbjhNV3RRNHhpZFpNMGN5UE1XaFVSNGxXNHptVzJiNExMMXpNYmEzc0lxcTMtajJSUlVWYVVHQzMyVEZ3JlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCZ2ZXJzaW9uSWQ9bnVsbCZYLUFtei1TaWduYXR1cmU9MGVlZDVlMmIyYTIyZDg0ZTMzNzQ0ZTM1MDQ5YjUwMjQ5MDg2MjQxYjg1NzI2NDQ2MmI2MDAxOWRkMDliODAwOQ",
+			image:
+				"https://images.unsplash.com/photo-1504305754058-2f08ccd89a0a?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+		},
+		{
+			video:
+				"https://console-oog0coc0cc4ccss80ocwckk4.145.223.81.185.sslip.io/api/v1/buckets/nfe-webapp/objects/download?preview=true&prefix=C%27est%20le%20GENIE%20du%20football%20amateur%20%F0%9F%AA%84%20%20-%20Le%20ZAP%20du%20week-end%20(20%E2%A7%B809).mp4",
+			image:
+				"https://images.unsplash.com/photo-1504305754058-2f08ccd89a0a?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+		},
+		{
+			video:
+				"https://console-oog0coc0cc4ccss80ocwckk4.145.223.81.185.sslip.io/api/v1/download-shared-object/aHR0cHM6Ly9taW5pby1vb2cwY29jMGNjNGNjc3M4MG9jd2NrazQuMTQ1LjIyMy44MS4xODUuc3NsaXAuaW8vbmZlLXdlYmFwcC9DJTI3ZXN0JTIwbGUlMjBHRU5JRSUyMGR1JTIwZm9vdGJhbGwlMjBhbWF0ZXVyJTIwJUYwJTlGJUFBJTg0JTIwJTIwLSUyMExlJTIwWkFQJTIwZHUlMjB3ZWVrLWVuZCUyMCUyODIwJUUyJUE3JUI4MDklMjklMjAlMjgzJTI5Lm1wND9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPVpBWjc3TU9GRFowWEIzRUpTOUdBJTJGMjAyNDEyMDElMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQxMjAxVDIwMDEzN1omWC1BbXotRXhwaXJlcz00MzIwMCZYLUFtei1TZWN1cml0eS1Ub2tlbj1leUpoYkdjaU9pSklVelV4TWlJc0luUjVjQ0k2SWtwWFZDSjkuZXlKaFkyTmxjM05MWlhraU9pSmFRVm8zTjAxUFJrUmFNRmhDTTBWS1V6bEhRU0lzSW1WNGNDSTZNVGN6TXpFeU1EWTFNQ3dpY0dGeVpXNTBJam9pYm1abEluMC41T1pYZUZUTndzaU4yanp0TjlpZG04dzZyWW44TVd0UTR4aWRaTTBjeVBNV2hVUjRsVzR6bVcyYjRMTDF6TWJhM3NJcXEzLWoyUlJVVmFVR0MzMlRGdyZYLUFtei1TaWduZWRIZWFkZXJzPWhvc3QmdmVyc2lvbklkPW51bGwmWC1BbXotU2lnbmF0dXJlPTEwNDFmZGQxNThhMTNlZmY0MDJiYmU2MGE4YzEwNWNmMDIxMGQwMjRhNzQ5OGE1ZmE3NGI4ZDA5Zjg2MzhlYzg",
+			image:
+				"https://images.unsplash.com/photo-1504305754058-2f08ccd89a0a?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+		},
+	]) as { video: string; image: string };
 };

@@ -1,7 +1,6 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
 
 export default function AuthLayout({
 	children,
@@ -10,7 +9,9 @@ export default function AuthLayout({
 }) {
 	const { data: session } = useSession();
 
-	if (!session?.user) return redirect("/sign-in");
+	if (!session?.user) {
+		console.log({ session });
+	}
 
 	return <>{children}</>;
 }

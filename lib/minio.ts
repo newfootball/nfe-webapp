@@ -9,7 +9,14 @@ const minioClient = new Minio.Client({
 	secretKey: env.MINIO_SECRET_KEY,
 });
 
-export async function uploadToMinio(file: File) {
+export interface UploadedObjectInfo {
+	etag: string;
+	versionId: string | null;
+}
+
+export async function uploadToMinio(
+	file: File,
+): Promise<UploadedObjectInfo | null> {
 	try {
 		const bucketName = env.MINIO_BUCKET_NAME;
 
@@ -21,15 +28,15 @@ export async function uploadToMinio(file: File) {
 		}
 
 		// Uploader le fichier
-		await minioClient.putObject(
+		const result = await minioClient.putObject(
 			bucketName,
 			file.name,
 			Buffer.from(await file.arrayBuffer()),
 		);
 
-		return true;
+		return result;
 	} catch (error) {
 		console.error("MinIO Upload Error:", error);
-		return false;
+		return null;
 	}
 }

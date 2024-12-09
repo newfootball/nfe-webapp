@@ -3,9 +3,12 @@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import type { Post } from "@prisma/client";
 import { Ellipsis } from "lucide-react";
 import Image from "next/image";
+import { redirect } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import type { PostData } from "./post.schema";
@@ -14,7 +17,8 @@ import { savePost } from "./save-post.action";
 export default function MakePostForm() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const [selectedImage, setSelectedImage] = useState<string | null>(null);
+	const [selectedImage, setSelectedImage] = useState<File | null>(null);
+	const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
 	const [title, setTitle] = useState("");
 	const [description, setDescription] = useState("");
 
@@ -23,9 +27,16 @@ export default function MakePostForm() {
 		if (file) {
 			const reader = new FileReader();
 			reader.onloadend = () => {
-				setSelectedImage(reader.result as string);
+				setSelectedImage(file);
 			};
 			reader.readAsDataURL(file);
+		}
+	};
+
+	const handleVideoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+		const file = event.target.files?.[0];
+		if (file) {
+			setSelectedVideo(file);
 		}
 	};
 
@@ -38,9 +49,14 @@ export default function MakePostForm() {
 			title,
 			description,
 			image: selectedImage,
+			video: selectedVideo,
 		} as PostData;
 
-		await savePost(data)
+		savePost(data)
+			.then((post: Post) => {
+				toast.success("Post created successfully");
+				redirect(`/post/${post.id}`);
+			})
 			.catch((error) => {
 				setError(error.message);
 				toast.error(error.message);
@@ -51,7 +67,7 @@ export default function MakePostForm() {
 	};
 
 	return (
-		<main className="container max-w-md mx-auto p-4 space-y-4">
+		<main className="container max-w-md mx-auto p-4 space-y-4 mt-24">
 			<form onSubmit={handleSavePost}>
 				{error && (
 					<Alert variant="destructive">
@@ -60,28 +76,62 @@ export default function MakePostForm() {
 				)}
 				<div className="mb-4">
 					{selectedImage ? (
-						<div className="aspect-square relative rounded-2xl overflow-hidden bg-muted">
+						<div className="aspect-square relative rounded-2xl h-48 w-full overflow-hidden bg-muted">
 							<Image
-								src={selectedImage}
+								src={URL.createObjectURL(selectedImage)}
 								alt="Selected image"
 								fill
 								className="object-cover"
 							/>
 						</div>
 					) : (
-						<label className="block aspect-square rounded-2xl border-2 border-dashed border-muted-foreground/25 hover:border-muted-foreground/50 transition-colors cursor-pointer">
-							<input
+						<Label
+							className="block aspect-square rounded-2xl border-2 border-dashed h-24 mb-4 w-full border-muted-foreground/25 hover:border-muted-foreground/50 transition-colors cursor-pointer"
+							htmlFor="image"
+						>
+							<Input
+								id="image"
 								type="file"
 								accept="image/*"
 								className="hidden"
 								onChange={handleImageUpload}
 							/>
 							<div className="flex items-center justify-center h-full">
-								<span className="text-muted-foreground">
-									Click to upload file
+								<span className="text-muted-foreground text-center">
+									Click to upload image
 								</span>
 							</div>
-						</label>
+						</Label>
+					)}
+				</div>
+
+				<div className="mb-4">
+					{selectedVideo ? (
+						<div className="aspect-square relative rounded-2xl overflow-hidden bg-muted h-48 w-full">
+							<video
+								src={URL.createObjectURL(selectedVideo)}
+								className="object-cover"
+								muted
+							/>
+						</div>
+					) : (
+						<Label
+							className="block h-48 w-full aspect-square rounded-2xl border-2 border-dashed border-muted-foreground/25 hover:border-muted-foreground/50 transition-colors cursor-pointer"
+							htmlFor="video"
+						>
+							<Input
+								id="video"
+								type="file"
+								accept="video/*"
+								className="hidden"
+								onChange={handleVideoUpload}
+							/>
+							<div className="flex items-center justify-center h-full">
+								<span className="text-muted-foreground text-center">
+									Click to upload video
+								</span>
+							</div>
+						</Label>
 					)}
 				</div>
 

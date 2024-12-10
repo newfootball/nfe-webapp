@@ -1,22 +1,27 @@
+"use client";
+
 import { FollowButton } from "@/components/feature/follow/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { getUser, getUserSession } from "@/query/user.query";
+import type { User } from "@prisma/client";
 import { Loader, Settings } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
 import { StatsUser } from "./stats-user";
 
-export const UserProfile = async ({ userId }: { userId: string }) => {
-	const user = await getUser(userId);
-	const userSession = await getUserSession();
-
+export const UserProfile = ({
+	user,
+	userIdSession,
+}: {
+	user: User;
+	userIdSession: string;
+}) => {
 	if (!user) {
-		throw new Error("User not found");
+		return <div>Loading...</div>;
 	}
 
-	const isCurrentUser = userSession?.id === user.id;
+	const isCurrentUser = userIdSession === user?.id;
 
 	return (
 		<>
@@ -46,16 +51,7 @@ export const UserProfile = async ({ userId }: { userId: string }) => {
 				<div className="text-center mb- 6">
 					<h1 className="text-2xl font-bold mb-1">{user.name}</h1>
 					<p className="text-muted-foreground mb-4">@{user.email}</p>
-					<div className="flex justify-center gap-2 mb-4">
-						{["art", "music", "uidesign"].map((tag) => (
-							<span
-								key={tag}
-								className="px-3 py-1 bg-muted rounded-full text-sm"
-							>
-								#{tag}
-							</span>
-						))}
-					</div>
+
 					{isCurrentUser && (
 						<div className="flex justify-center gap-2">
 							<Link href="/profile/edit-user">

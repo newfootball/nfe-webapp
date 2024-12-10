@@ -3,24 +3,40 @@
 import { UserProfile } from "@/components/feature/user/user-profile";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { getUser } from "@/query/user.query";
+import type { User } from "@prisma/client";
 import { ChevronRight } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { redirect } from "next/navigation";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function ProfilePage() {
 	const { data: session } = useSession();
+	const [user, setUser] = useState<User | null>(null);
 
 	if (!session?.user?.id || session?.user?.id === null) {
 		toast.error("User not found");
-		redirect("/profile");
+		redirect("/sign-in");
 	}
+
+	useEffect(() => {
+		const fetchUser = async () => {
+			const user = await getUser(session?.user?.id ?? "");
+			setUser(user);
+		};
+
+		fetchUser();
+
+		return () => {};
+	}, [session?.user?.id]);
 
 	return (
 		<div className="min-h-screen bg-background flex flex-col">
-			{/* @ts-expect-error Async Server Component */}
-			<UserProfile userId={session?.user?.id ?? ""} />
+			{user && (
+				<UserProfile user={user} userIdSession={session?.user?.id ?? ""} />
+			)}
 
 			<div className="space-y-6">
 				<div>

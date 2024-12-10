@@ -7,6 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
 		description: "A social network for football fans",
 		start_url: "/",
 		display: "standalone",
+		orientation: "portrait",
 		background_color: "#ffffff",
 		theme_color: "#000000",
 		icons: [

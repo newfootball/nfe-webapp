@@ -5,7 +5,7 @@ import type { PostWithUserAndMedias } from "@/query/post.query";
 
 export const PostCard = ({ post }: { post: PostWithUserAndMedias }) => {
 	return (
-		<main className="flex-grow container max-w-md mx-auto p-4 space-y-4">
+		<article className="flex-grow mx-auto p-4 space-y-4">
 			<PostDetails post={post} />
 
 			<div className="space-y-3">
@@ -63,6 +63,6 @@ export const PostCard = ({ post }: { post: PostWithUserAndMedias }) => {
 					Post
 				</Button>
 			</div>
-		</main>
+		</article>
 	);
 };

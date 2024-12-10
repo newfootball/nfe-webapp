@@ -1,7 +1,6 @@
 "use client";
 
 import { getHasSeenSplash } from "@/actions/cookies.actions";
-import { Layout } from "@/components/layouts/layout";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -24,8 +23,8 @@ export default function Home() {
 	}
 
 	return (
-		<Layout>
+		<>
 			<Posts userId={session?.user?.id} />
-		</Layout>
+		</>
 	);
 }

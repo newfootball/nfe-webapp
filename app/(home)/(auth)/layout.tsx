@@ -14,5 +14,22 @@ export default function AuthLayout({
 		redirect("/");
 	}
 
-	return <>{children}</>;
+	return (
+		<div className="flex flex-col min-h-screen">
+			<main className="flex-1">{children}</main>
+			<footer className="py-6 text-center text-sm text-muted-foreground">
+				<div className="space-x-4">
+					<a href="/privacy" className="hover:text-foreground">
+						Privacy
+					</a>
+					<a href="/terms" className="hover:text-foreground">
+						Terms
+					</a>
+					<a href="/about-us" className="hover:text-foreground">
+						About Us
+					</a>
+				</div>
+			</footer>
+		</div>
+	);
 }

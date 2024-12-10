@@ -11,7 +11,7 @@ export const PageHeader = ({
 }) => {
 	return (
 		<header className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-			<div className="container flex items-center justify-between h-14">
+			<div className="flex items-center justify-between h-14">
 				{backLink && (
 					<Link
 						href={backLink}

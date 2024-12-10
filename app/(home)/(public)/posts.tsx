@@ -12,12 +12,15 @@ export default function Posts({ userId }: { userId?: string | undefined }) {
 
 	useEffect(() => {
 		const fetchPosts = async () => {
+			console.log("fetching posts", { offset, limit, userId });
 			const newOffset = offset + limit;
 			const newPosts = await getPosts({
 				userId,
 				offset: newOffset,
 				limit,
 			});
+
+			if (newPosts.length === 0) throw new Error("No posts found");
 
 			if (newPosts.length > 0) {
 				setPosts((prev) => [...prev, ...newPosts]);
@@ -49,10 +52,12 @@ export default function Posts({ userId }: { userId?: string | undefined }) {
 	}, [offset, posts.length, userId]);
 
 	return (
-		<>
+		<div className="flex flex-col gap-4">
 			{posts.map((post) => (
-				<PostDetails key={post.id} post={post} />
+				<div key={`post-${post.id}`}>
+					<PostDetails post={post} />
+				</div>
 			))}
-		</>
+		</div>
 	);
 }

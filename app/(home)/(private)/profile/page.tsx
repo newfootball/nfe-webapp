@@ -19,7 +19,8 @@ export default function ProfilePage() {
 
 	return (
 		<div className="min-h-screen bg-background flex flex-col">
-			<UserProfile userId={session.user.id} />
+			{/* @ts-expect-error Async Server Component */}
+			<UserProfile userId={session?.user?.id ?? ""} />
 
 			<div className="space-y-6">
 				<div>

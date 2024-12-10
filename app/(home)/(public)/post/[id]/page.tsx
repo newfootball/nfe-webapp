@@ -16,9 +16,9 @@ export default async function page({
 	}
 
 	return (
-		<div className="min-h-screen bg-background">
+		<>
 			<PageHeader title="Post" backLink="/" />
 			<PostCard post={post} />
-		</div>
+		</>
 	);
 }

@@ -10,7 +10,9 @@ export default function RootLayout({
 	return (
 		<main>
 			<Header />
-			<main className="min-h-screen pb-24">{children}</main>
+			<main className="pb-28 md:max-w-2xl max-w-md mx-auto mt-4 px-2">
+				{children}
+			</main>
 			<Footer />
 			<Toaster
 				expand={false}

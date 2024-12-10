@@ -10,16 +10,68 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-	title: "Next Football Experience",
+	applicationName: "Next Football Experience",
+	title: {
+		template: "%s | Next Football Experience",
+		default: "Next Football Experience",
+	},
 	description: "Next Football Experience - Football Social Media",
-	keywords: ["football", "social media", "experience", "social"],
-
+	keywords: [
+		"football",
+		"social media",
+		"experience",
+		"social",
+		"amateur",
+		"video",
+	],
+	openGraph: {
+		title: "Next Football Experience",
+		description: "Next Football Experience - Football Social Media",
+		url: "https://nfe-foot.com",
+		siteName: "Next Football Experience",
+		locale: "fr_FR",
+		type: "website",
+		images: [
+			{
+				url: "/logo.svg",
+				width: 1200,
+				height: 630,
+			},
+		],
+	},
+	authors: [
+		{
+			name: "Fahari.pro",
+			url: "https://fahari.pro",
+		},
+	],
+	appleWebApp: {
+		capable: true,
+		title: "Next Football Experience",
+		startupImage: "/logo.svg",
+	},
 	icons: {
 		icon: "/logo.svg",
+		shortcut: "/logo.svg",
+		apple: "/logo.svg",
 	},
 	robots: {
 		index: true,
 		follow: true,
+	},
+	manifest: "/manifest.json",
+	formatDetection: {
+		telephone: false,
+	},
+	twitter: {
+		card: "summary_large_image",
+		site: "@nfe_foot",
+		creator: "@nfe_foot",
+		title: {
+			template: "%s | Next Football Experience",
+			default: "Next Football Experience",
+		},
+		description: "Next Football Experience - Football Social Media",
 	},
 };
 

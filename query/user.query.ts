@@ -5,7 +5,7 @@ import { comparePassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
 import type { User } from "@prisma/client";
 
-const getUserLogin = async (email: string, password: string) => {
+export const getUserLogin = async (email: string, password: string) => {
 	try {
 		const user = await prisma.user.findFirst({
 			where: {
@@ -35,17 +35,24 @@ const getUserLogin = async (email: string, password: string) => {
 	}
 };
 
-const getUserSession = async (): Promise<User | null> => {
+/**
+ * Returns the user ID of the authenticated user, or null if there is no authenticated user.
+ */
+export const getUserSessionId = async (): Promise<string | null> => {
 	const session = await auth();
 
-	if (!session?.user?.id) {
-		return null;
-	}
-
-	return getUser(session.user.id);
+	return session?.user?.id ?? null;
 };
 
-const getUser = async (userId: string): Promise<User | null> => {
+export const getUserSession = async (): Promise<User | null> => {
+	const userId = await getUserSessionId();
+
+	if (userId) return getUser(userId);
+
+	return null;
+};
+
+export const getUser = async (userId: string): Promise<User | null> => {
 	const user = await prisma.user.findUnique({
 		where: {
 			id: userId,
@@ -58,5 +65,3 @@ const getUser = async (userId: string): Promise<User | null> => {
 
 	return user;
 };
-
-export { getUser, getUserLogin, getUserSession };

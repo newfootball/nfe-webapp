@@ -1,5 +1,3 @@
 import { twx } from "@/lib/twx";
 
-export const Layout = twx.div(() => [
-	"max-w-5xl w-full flex flex-col md:flex-row gap-4 mx-auto px-4 py-2",
-]);
+export const Layout = twx.div(() => ["max-w-2xl w-full mx-auto px-4 py-2"]);

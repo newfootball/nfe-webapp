@@ -17,6 +17,10 @@ export const getCountPosts = async (userId: string): Promise<number> => {
 export type PostWithUserAndMedias = Post & {
 	user: User;
 	medias: Media[];
+	_count: {
+		comments: number;
+		likes: number;
+	};
 };
 
 export const getPosts = async ({
@@ -37,6 +41,12 @@ export const getPosts = async ({
 		include: {
 			user: true,
 			medias: true,
+			_count: {
+				select: {
+					comments: true,
+					likes: true,
+				},
+			},
 		},
 		orderBy: {
 			createdAt: "desc",
@@ -54,6 +64,12 @@ export const getPost = async (
 		include: {
 			user: true,
 			medias: true,
+			_count: {
+				select: {
+					comments: true,
+					likes: true,
+				},
+			},
 		},
 	});
 

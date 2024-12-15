@@ -3,7 +3,7 @@
 import { uploadToMinio } from "@/lib/minio";
 import { prisma } from "@/lib/prisma";
 import { getUserSession } from "@/query/user.query";
-import { MediaType, PostType } from "@prisma/client";
+import { MediaType, PostStatus, PostType } from "@prisma/client";
 import { type PostData, postSchema } from "./post.schema";
 
 export const savePost = async (post: PostData) => {
@@ -14,8 +14,9 @@ export const savePost = async (post: PostData) => {
 	}
 
 	const result = postSchema.safeParse(post);
+
 	if (!result.success) {
-		throw new Error(result.error.errors[0].message);
+		throw new Error(`Validation error: ${result.error.errors[0].message}`);
 	}
 
 	const newPost = await prisma.post.create({
@@ -25,8 +26,11 @@ export const savePost = async (post: PostData) => {
 			userId: user.id,
 			slug: post.title.toLowerCase().replace(/ /g, "-"),
 			type: PostType.video,
+			status: PostStatus.DRAFT,
 		},
 	});
+
+	console.log({ newPost });
 
 	const imageUrl = await saveMedia({
 		mediaFile: post.image,

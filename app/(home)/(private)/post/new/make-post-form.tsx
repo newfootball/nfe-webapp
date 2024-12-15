@@ -67,14 +67,29 @@ export default function MakePostForm() {
 	};
 
 	return (
-		<main className="container max-w-md mx-auto p-4 space-y-4 mt-24">
+		<main className="container max-w-md mx-auto p-4 space-y-4 mt-20 md:mt-4">
 			<form onSubmit={handleSavePost}>
 				{error && (
-					<Alert variant="destructive">
+					<Alert variant="destructive" className="mb-4">
 						<AlertDescription>{error}</AlertDescription>
 					</Alert>
 				)}
 				<div className="mb-4">
+					<Input
+						type="text"
+						placeholder="Add a title"
+						className="text-lg font-semibold bg-transparent px-0 placeholder:text-muted-foreground mb-4 p-2"
+						value={title}
+						onChange={(e) => setTitle(e.target.value)}
+					/>
+
+					<Textarea
+						placeholder="Write a description..."
+						className="min-h-[100px] bg-transparent resize-none px-0 placeholder:text-muted-foreground mb-4 p-2"
+						value={description}
+						onChange={(e) => setDescription(e.target.value)}
+					/>
+
 					{selectedImage ? (
 						<div className="aspect-square relative rounded-2xl h-48 w-full overflow-hidden bg-muted">
 							<Image
@@ -135,21 +150,6 @@ export default function MakePostForm() {
 					)}
 				</div>
 
-				<Input
-					type="text"
-					placeholder="Add a title"
-					className="text-lg font-semibold bg-transparent border-none px-0 placeholder:text-muted-foreground mb-4 p-2"
-					value={title}
-					onChange={(e) => setTitle(e.target.value)}
-				/>
-
-				<Textarea
-					placeholder="Write a description..."
-					className="min-h-[100px] bg-transparent border-none resize-none px-0 placeholder:text-muted-foreground mb-4 p-2"
-					value={description}
-					onChange={(e) => setDescription(e.target.value)}
-				/>
-
 				{isLoading && (
 					<div className="flex items-center justify-center">
 						<Ellipsis className="w-4 h-4 animate-spin" />
@@ -157,11 +157,11 @@ export default function MakePostForm() {
 				)}
 
 				<Button
-					className="w-full bg-[#5B51E6] hover:bg-[#4A41D4] text-white"
+					className="w-full bg-primary hover:bg-primary/80 text-dark mt-2"
 					size="lg"
 					disabled={isLoading}
 				>
-					Continue
+					Submit
 				</Button>
 			</form>
 		</main>

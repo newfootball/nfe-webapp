@@ -1,34 +1,29 @@
+import { type SessionUser, auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
 export async function middleware(request: Request): Promise<NextResponse> {
-	/* // Liste des chemins protégés
-  const protectedPaths = ["/dashboard", "/profile", "/messages"]; // Ajoutez vos chemins protégés
-  const path = new URL(request.url).pathname;
+	const path = new URL(request.url).pathname;
 
-  console.log({ path });
-  if (protectedPaths.some((protectedPath) => path.startsWith(protectedPath))) {
-    const session = await auth();
+	// Check admin routes
+	if (path.startsWith("/admin")) {
+		const session = await auth();
 
-    console.log({ session });
+		if (!session?.user) {
+			const signInUrl = new URL("/sign-in", request.url);
+			signInUrl.searchParams.set("callbackUrl", path);
+			return NextResponse.redirect(signInUrl);
+		}
 
-    if (!session || !session?.user) {
-      // Redirection vers la page de connexion avec le retour prévu
-      const signInUrl = new URL("/sign-in", request.url);
-      signInUrl.searchParams.set("callbackUrl", path);
+		const user = session.user as SessionUser;
 
-      console.log("redirect to sign-in");
-
-      //return NextResponse.redirect(signInUrl);
-    }
-  } */
+		if (user.role !== "ADMIN") {
+			return NextResponse.redirect(new URL("/", request.url));
+		}
+	}
 
 	return NextResponse.next();
 }
 
 export const config = {
-	matcher: [
-		"/dashboard/:path*",
-		"/profile/:path*",
-		// Ajoutez d'autres chemins protégés ici
-	],
+	matcher: ["/dashboard/:path*", "/profile/:path*", "/admin/:path*"],
 };

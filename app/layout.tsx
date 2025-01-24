@@ -81,8 +81,8 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en" className={cn(inter.className)}>
-			<body>
+		<html lang="en" className={cn(inter.className, "h-full")}>
+			<body className="h-full">
 				<SessionProvider>{children}</SessionProvider>
 				<Analytics />
 				<SpeedInsights />

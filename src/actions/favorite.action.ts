@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { getUserSessionId } from "@/query/user.query";
+import { getUserSessionId } from "@/src/query/user.query";
 
 export const toggleFavorite = async ({
 	postId,

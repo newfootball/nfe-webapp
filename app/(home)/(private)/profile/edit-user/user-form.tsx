@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { getUser } from "@/query/user.query";
+import { getUser } from "@/src/query/user.query";
 import type { User } from "@prisma/client";
 import { Loader2 } from "lucide-react";
 import Link from "next/dist/client/link";

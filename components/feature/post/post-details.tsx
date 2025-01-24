@@ -1,10 +1,16 @@
 import { Card, CardContent } from "@/components/ui/card";
-import type { PostWithUserAndMedias } from "@/query/post.query";
+import type { PostWithUserAndMedias } from "@/src/query/post.query";
 import { PostActions } from "./post-actions";
 import { PostContent } from "./post-content";
 import { PostHeader } from "./post-header";
 
-export const PostDetails = ({ post }: { post: PostWithUserAndMedias }) => {
+export const PostDetails = ({
+	post,
+	children,
+}: {
+	post: PostWithUserAndMedias;
+	children?: React.ReactNode | null;
+}) => {
 	return (
 		<Card>
 			<PostHeader post={post} />
@@ -15,6 +21,7 @@ export const PostDetails = ({ post }: { post: PostWithUserAndMedias }) => {
 					comments={post._count.comments}
 					postId={post.id}
 				/>
+				{children}
 			</CardContent>
 		</Card>
 	);

@@ -26,8 +26,9 @@ export const getUserLogin = async (email: string, password: string) => {
 			return null;
 		}
 
-		// Ne pas renvoyer le mot de passe
 		const { password: _, ...userWithoutPassword } = user;
+		console.log({ userWithoutPassword });
+
 		return userWithoutPassword;
 	} catch (error) {
 		console.error("Error fetching user:", error);

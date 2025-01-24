@@ -2,7 +2,7 @@
 
 import { uploadToMinio } from "@/lib/minio";
 import { prisma } from "@/lib/prisma";
-import { getUserSession } from "@/query/user.query";
+import { getUserSession } from "@/src/query/user.query";
 import { MediaType, PostStatus, PostType } from "@prisma/client";
 import { type PostData, postSchema } from "./post.schema";
 

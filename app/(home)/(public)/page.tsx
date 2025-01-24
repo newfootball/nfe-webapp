@@ -1,6 +1,6 @@
 "use client";
 
-import { getHasSeenSplash } from "@/actions/cookies.actions";
+import { getHasSeenSplash } from "@/src/actions/cookies.actions";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";

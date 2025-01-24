@@ -47,7 +47,7 @@ export const UserProfile = ({
 				</div>
 			</div>
 
-			<main className="flex-grow pt-20 px-4">
+			<main className="pt-20 px-4">
 				<div className="text-center mb- 6">
 					<h1 className="text-2xl font-bold mb-1">{user.name}</h1>
 					<p className="text-muted-foreground mb-4">@{user.email}</p>

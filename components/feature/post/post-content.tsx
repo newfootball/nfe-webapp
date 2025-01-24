@@ -1,4 +1,4 @@
-import type { PostWithUserAndMedias } from "@/query/post.query";
+import type { PostWithUserAndMedias } from "@/src/query/post.query";
 import Link from "next/link";
 
 interface PostContentProps {

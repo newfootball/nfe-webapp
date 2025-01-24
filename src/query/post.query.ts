@@ -32,7 +32,11 @@ export const getPosts = async ({
 	limit?: number;
 	offset?: number;
 }): Promise<PostWithUserAndMedias[]> => {
-	const where = {};
+	const where: { userId?: string } = {};
+
+	if (userId) {
+		where.userId = userId;
+	}
 
 	const posts = await prisma.post.findMany({
 		where,

@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { CardHeader, CardTitle } from "@/components/ui/card";
-import type { PostWithUserAndMedias } from "@/query/post.query";
+import type { PostWithUserAndMedias } from "@/src/query/post.query";
 import { formatDistanceToNow } from "date-fns";
 import { MoreHorizontal, X } from "lucide-react";
 import Link from "next/link";

@@ -1,8 +1,8 @@
 "use client";
 
 import { PostDetails } from "@/components/feature/post/post-details";
-import type { PostWithUserAndMedias } from "@/query/post.query";
-import { getPosts } from "@/query/post.query";
+import type { PostWithUserAndMedias } from "@/src/query/post.query";
+import { getPosts } from "@/src/query/post.query";
 import { useEffect, useState } from "react";
 
 export default function Posts({ userId }: { userId?: string | undefined }) {
@@ -55,7 +55,7 @@ export default function Posts({ userId }: { userId?: string | undefined }) {
 		<div className="flex flex-col gap-4">
 			{posts.map((post) => (
 				<div key={`post-${post.id}`}>
-					<PostDetails post={post} />
+					<PostDetails post={post}>...</PostDetails>
 				</div>
 			))}
 		</div>

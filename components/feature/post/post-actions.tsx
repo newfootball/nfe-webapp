@@ -1,15 +1,18 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { hasFavorited } from "@/query/favorite.query";
-import { hasLiked } from "@/query/like.query";
+import { hasFavorited } from "@/src/query/favorite.query";
+import { hasLiked } from "@/src/query/like.query";
 import { Bookmark, MessageSquare, Share2, ThumbsUp } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { toggleFavorite } from "@/actions/favorite.action";
-import { toggleLike } from "@/actions/like.action";
 import { cn } from "@/lib/utils";
+import { toggleFavorite } from "@/src/actions/favorite.action";
+import { toggleLike } from "@/src/actions/like.action";
+import { useSession } from "next-auth/react";
+import { PostCommentsList } from "./post-comments-list";
+import { PostFormComment } from "./post-form-comment";
 
 interface PostActionsProps {
 	likes?: number;
@@ -22,6 +25,12 @@ export function PostActions({
 	comments = 0,
 	postId,
 }: PostActionsProps) {
+	const { data: session } = useSession();
+	console.log({ session });
+	const userId = session?.user?.id;
+
+	if (!userId) throw new Error("User not found");
+
 	const [showCommentForm, setShowCommentForm] = useState(false);
 	const [isLike, setIsLike] = useState(false);
 	const [isFavorite, setIsFavorite] = useState(false);
@@ -29,18 +38,18 @@ export function PostActions({
 	useEffect(() => {
 		(async () => {
 			const [resultLike, resultFavorite] = await Promise.all([
-				hasLiked({ postId }),
-				hasFavorited({ postId }),
+				hasLiked({ postId, userId }),
+				hasFavorited({ postId, userId }),
 			]);
 			console.log({ resultLike, resultFavorite });
 
 			setIsLike(resultLike);
 			setIsFavorite(resultFavorite);
 		})();
-	}, [postId]);
+	}, [postId, userId]);
 
 	const handleLike = () => {
-		toggleLike({ postId }).then((result: boolean) => {
+		toggleLike({ postId, userId }).then((result: boolean) => {
 			setIsLike(result);
 			if (result) {
 				likes += 1;
@@ -51,7 +60,7 @@ export function PostActions({
 	};
 
 	const handleFavorite = () => {
-		toggleFavorite({ postId }).then((result: boolean) => {
+		toggleFavorite({ postId, userId }).then((result: boolean) => {
 			setIsFavorite(result);
 		});
 	};
@@ -109,16 +118,10 @@ export function PostActions({
 				</Button>
 			</div>
 			{showCommentForm && (
-				<div className="mt-2">
-					<form>
-						<textarea
-							id="comment"
-							name="comment"
-							className="block w-full rounded-md border p-2 text-sm"
-							placeholder="Laisser un commentaire"
-						/>
-					</form>
-				</div>
+				<>
+					<PostFormComment postId={postId} userId={userId} />
+					<PostCommentsList postId={postId} />
+				</>
 			)}
 		</div>
 	);

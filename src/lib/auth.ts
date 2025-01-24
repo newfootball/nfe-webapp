@@ -1,6 +1,6 @@
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
-import { getUserLogin } from "@/query/user.query";
+import { getUserLogin } from "@/src/query/user.query";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { Role } from "@prisma/client";
 import NextAuth, { CredentialsSignin } from "next-auth";

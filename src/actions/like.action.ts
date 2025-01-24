@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { getUserSession } from "@/query/user.query";
+import { getUserSession } from "@/src/query/user.query";
 
 export const toggleLike = async ({
 	postId,

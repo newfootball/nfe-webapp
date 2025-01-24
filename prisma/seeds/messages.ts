@@ -1,6 +1,6 @@
+import { randomizer } from "@/lib/array";
 import { faker } from "@faker-js/faker/locale/fr";
 import type { Prisma, PrismaClient } from "@prisma/client";
-import { randomizer } from "../../lib/array";
 export const seedMessages = async ({
 	prisma,
 	users,

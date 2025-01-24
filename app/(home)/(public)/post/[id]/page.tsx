@@ -1,5 +1,5 @@
 import { PageHeader } from "@/components/feature/page-header";
-import { getPost } from "@/query/post.query";
+import { getPost } from "@/src/query/post.query";
 import { notFound } from "next/navigation";
 import { PostCard } from "./post-card";
 

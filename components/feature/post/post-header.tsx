@@ -11,7 +11,7 @@ import {
 import { deletePost } from "@/src/actions/post.action";
 import type { PostWithUserAndMedias } from "@/src/query/post.query";
 import { formatDistanceToNow } from "date-fns";
-import { MoreHorizontal } from "lucide-react";
+import { EyeClosed, FileEdit, FileText, MoreHorizontal } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -54,13 +54,21 @@ export function PostHeader({ post }: PostHeaderProps) {
                   <MoreHorizontal className="h-4 w-4" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem>Show</DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href={`/post/${post.id}`}>
+                      <FileText className="mr-2 h-4 w-4" /> Show
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-not-allowed">
-                    Hide
+                    <EyeClosed className="mr-2 h-4 w-4" /> Hide
                   </DropdownMenuItem>
                   {isOwner && (
                     <>
-                      <DropdownMenuItem>Edit</DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href={`/post/${post.id}/edit`}>
+                          <FileEdit className="mr-2 h-4 w-4" /> Edit
+                        </Link>
+                      </DropdownMenuItem>
                       <DropdownMenuItem
                         className="text-destructive"
                         onClick={handleDelete}

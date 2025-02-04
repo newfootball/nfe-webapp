@@ -1,8 +1,8 @@
 "use client";
 
 import { Layout } from "@/components/layouts/layout";
-import { LogInIcon, UserIcon, VideoIcon } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { LogInIcon, UserIcon, VideoIcon, LogOutIcon } from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -61,6 +61,13 @@ export const Header = () => {
                       <VideoIcon className="w-4 h-4" />
                       My Videos
                     </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => signOut()}
+                    className="flex items-center gap-2 text-destructive"
+                  >
+                    <LogOutIcon className="w-4 h-4" />
+                    Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

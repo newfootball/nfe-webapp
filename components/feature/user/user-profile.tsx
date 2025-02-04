@@ -3,75 +3,112 @@
 import { FollowButton } from "@/components/feature/follow/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { deleteUserAccount } from "@/src/actions/user.action";
 import type { User } from "@prisma/client";
 import { Loader, Settings } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { toast } from "sonner";
 import { StatsUser } from "./stats-user";
 
 export const UserProfile = ({
-	user,
-	userIdSession,
+  user,
+  userIdSession,
 }: {
-	user: User;
-	userIdSession: string;
+  user: User;
+  userIdSession?: string | null | undefined;
 }) => {
-	if (!user) {
-		return <div>Loading...</div>;
-	}
+  if (!user) {
+    return <div>Loading...</div>;
+  }
 
-	const isCurrentUser = userIdSession === user?.id;
+  const isCurrentUser = userIdSession === user?.id;
 
-	return (
-		<>
-			<div className="relative">
-				<div className="h-48 w-full relative">
-					<Image
-						src="https://images.unsplash.com/photo-1516567727245-ad8c68f3ec93?q=80&w=384&h=192&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-						alt="Cover"
-						className="object-cover"
-						fill
-					/>
-				</div>
-				<div className="absolute -bottom-16 left-1/2 -translate-x-1/2">
-					<Avatar className="w-32 h-32 border-4 border-background">
-						<AvatarImage src={user.image ?? ""} alt={user.name ?? ""} />
-						<AvatarFallback>
-							{user.name
-								?.split(" ")
-								.map((n: string) => n[0])
-								.join("")}
-						</AvatarFallback>
-					</Avatar>
-				</div>
-			</div>
+  return (
+    <>
+      <div className="relative">
+        <div className="h-48 w-full relative">
+          <Image
+            src="https://images.unsplash.com/photo-1516567727245-ad8c68f3ec93?q=80&w=384&h=192&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            alt="Cover"
+            className="object-cover"
+            fill
+          />
+        </div>
+        <div className="absolute -bottom-16 left-1/2 -translate-x-1/2">
+          <Avatar className="w-32 h-32 border-4 border-background">
+            <AvatarImage src={user.image ?? ""} alt={user.name ?? ""} />
+            <AvatarFallback>
+              {user.name
+                ?.split(" ")
+                .map((n: string) => n[0])
+                .join("")}
+            </AvatarFallback>
+          </Avatar>
+        </div>
+      </div>
 
-			<main className="pt-20 px-4">
-				<div className="text-center mb- 6">
-					<h1 className="text-2xl font-bold mb-1">{user.name}</h1>
-					<p className="text-muted-foreground mb-4">@{user.email}</p>
+      <main className="pt-20 px-4">
+        <div className="text-center mb- 6">
+          <h1 className="text-2xl font-bold mb-1">{user.name}</h1>
+          <p className="text-muted-foreground mb-4">@{user.email}</p>
 
-					{isCurrentUser && (
-						<div className="flex justify-center gap-2">
-							<Link href="/profile/edit-user">
-								<Button variant="outline" className="flex-1 max-w-[200px]">
-									Edit profile
-								</Button>
-							</Link>
-							<Button variant="outline" size="icon">
-								<Settings className="h-4 w-4" />
-							</Button>
-						</div>
-					)}
+          {isCurrentUser && (
+            <div className="flex justify-center gap-2">
+              <Link href="/profile/edit-user">
+                <Button variant="outline" className="flex-1 max-w-[200px]">
+                  Edit profile
+                </Button>
+              </Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <Settings className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    className="text-destructive"
+                    onClick={async () => {
+                      const confirmed = window.confirm(
+                        "Are you sure you want to delete your account? This action cannot be undone."
+                      );
+                      if (confirmed) {
+                        try {
+                          await deleteUserAccount();
+                          toast.success("Account deleted successfully");
+                          redirect("/sign-in");
+                        } catch (error) {
+                          toast.error("Failed to delete account");
+                          console.error(error);
+                        }
+                      }
+                    }}
+                  >
+                    Delete Account
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
 
-					{!isCurrentUser && <FollowButton userId={user.id} showText={true} />}
-				</div>
+          {!isCurrentUser && userIdSession && (
+            <FollowButton userId={user.id} showText={true} />
+          )}
+        </div>
 
-				<Suspense fallback={<Loader className="animate-spin" />}>
-					<StatsUser userId={user.id} />
-				</Suspense>
-			</main>
-		</>
-	);
+        <Suspense fallback={<Loader className="animate-spin" />}>
+          <StatsUser userId={user.id} />
+        </Suspense>
+      </main>
+    </>
+  );
 };

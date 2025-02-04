@@ -1,17 +1,25 @@
 import { UserProfile } from "@/components/feature/user/user-profile";
-import { Suspense } from "react";
+import { auth } from "@/src/lib/auth";
+import { getUser } from "@/src/query/user.query";
+import { notFound } from "next/navigation";
 
 export default async function page({
-	params,
+  params,
 }: {
-	params: Promise<{ id: string }>;
+  params: Promise<{ id: string }>;
 }) {
-	const { id } = await params;
+  const { id } = await params;
+  const session = await auth();
 
-	return (
-		<Suspense fallback={<div>Loading...</div>}>
-			{/* @ts-expect-error Async Server Component */}
-			<UserProfile userId={id} />
-		</Suspense>
-	);
+  if (!id) {
+    return notFound();
+  }
+
+  const user = await getUser(id);
+
+  return (
+    <>
+      <UserProfile user={user} userIdSession={session?.user?.id ?? ""} />
+    </>
+  );
 }

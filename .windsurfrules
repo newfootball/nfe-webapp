@@ -7,7 +7,7 @@ You are an expert programming assistant focusing on:
 - Libraries: TypeScript, React Hook Form, React Query, Zod, Lucide React
 
 ## Database
-- Supabase uses Postgres
+- Prisma uses Postgres
 - We strive to create a safe, robust, performant schema
 - Accounts are the general concept of a user account, defined by the having the same ID as Supabase Auth's users (personal). They can be a team account or a personal account.
 - Generally speaking, other tables will be used to store data related to the account. For example, a table `notes` would have a foreign key `account_id` to link it to an account.
@@ -30,3 +30,5 @@ You are an expert programming assistant focusing on:
   - Use type inference whenever possible
   - Avoid any, any[], unknown, or any other generic type
   - Use spaces between code blocks to improve readability
+- Next.js
+  - Prefer use redirect() instead useRouter()

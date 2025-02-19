@@ -5,24 +5,24 @@ import { PostContent } from "./post-content";
 import { PostHeader } from "./post-header";
 
 export const PostDetails = ({
-  post,
-  children,
+	post,
+	children,
 }: {
-  post: PostWithUserAndMedias;
-  children?: React.ReactNode | null;
+	post: PostWithUserAndMedias;
+	children?: React.ReactNode | null;
 }) => {
-  return (
-    <Card className="border-b border-x-0 border-t-0 rounded-none shadow-none">
-      <PostHeader post={post} />
-      <CardContent className="space-y-4 py-0">
-        <PostContent post={post} />
-        <PostActions
-          likes={post._count.likes}
-          comments={post._count.comments}
-          postId={post.id}
-        />
-        {children}
-      </CardContent>
-    </Card>
-  );
+	return (
+		<Card className="border-b border-x-0 border-t-0 rounded-none shadow-sm">
+			<PostHeader post={post} />
+			<CardContent className="space-y-4 py-0">
+				<PostContent post={post} />
+				<PostActions
+					likes={post._count.likes}
+					comments={post._count.comments}
+					postId={post.id}
+				/>
+				{children}
+			</CardContent>
+		</Card>
+	);
 };

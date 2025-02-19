@@ -31,7 +31,7 @@ install: ## Install dependencies
 	@test -f .env.local || cp .env .env.local
 	$(PACKAGE_MANAGER) install
 
-dev: ## Run the development server
+dev: docker-up install ## Run the development server
 	$(PACKAGE_MANAGER) dev -p $(NEXT_PORT)
 
 build: install ## Build the application
@@ -84,7 +84,8 @@ push: check auto-commit ## Ajoute, commit et pousse les modifications vers le d�
 
 ## —— Docker ———————————————————————————————————
 docker-up: ## Start docker
-	@docker compose up -d --wait
+	@docker compose ps -a | grep -q Up || \
+	docker compose up -d --wait
 
 docker-destroy: ## Destroy docker
 	@docker compose down --remove-orphans --volumes --rmi all
@@ -92,11 +93,11 @@ docker-destroy: ## Destroy docker
 docker-down: ## Stop docker
 	@docker compose down --remove-orphans
 
-docker-db:
+docker-db: docker-up ## Connect to database
 	@docker compose exec -ti database psql app password
 
-docker-logs:
+docker-logs: docker-up ## Connect to logs
 	@docker compose logs -f $(c)
 
-docker-ps:
+docker-ps: docker-up ## Show docker containers
 	@docker compose ps -a

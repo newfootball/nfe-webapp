@@ -25,5 +25,10 @@ export async function middleware(request: Request): Promise<NextResponse> {
 }
 
 export const config = {
-	matcher: ["/dashboard/:path*", "/profile/:path*", "/admin/:path*"],
+	matcher: [
+		"/dashboard/:path*",
+		"/profile/:path*",
+		"/admin/:path*",
+		"/((?!api|_next/static|_next/image|favicon.ico|manifest.json|workbox|sw|images).*)",
+	],
 };

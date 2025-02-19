@@ -32,6 +32,7 @@ export const getPosts = async ({
 	limit?: number;
 	offset?: number;
 }): Promise<PostWithUserAndMedias[]> => {
+	console.log({ userId, limit, offset });
 	const where: { userId?: string } = {};
 
 	if (userId) {

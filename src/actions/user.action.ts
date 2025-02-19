@@ -6,21 +6,21 @@ import { auth } from "../lib/auth";
 import { prisma } from "../lib/prisma";
 
 export const deleteUserAccount = async () => {
-  const session = await auth();
-  const userId = session?.user?.id;
+	const session = await auth();
+	const userId = session?.user?.id;
 
-  if (!userId) {
-    throw new Error("User not found");
-  }
+	if (!userId) {
+		throw new Error("User not found");
+	}
 
-  const user = await prisma.user.delete({
-    where: {
-      id: userId,
-    },
-  });
+	const user = await prisma.user.delete({
+		where: {
+			id: userId,
+		},
+	});
 
-  revalidatePath("/");
-  signOut();
+	revalidatePath("/");
+	signOut();
 
-  return user;
+	return user;
 };

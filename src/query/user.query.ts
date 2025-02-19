@@ -40,13 +40,13 @@ export const getUserLogin = async (email: string, password: string) => {
  * Returns the user ID of the authenticated user, or null if there is no authenticated user.
  */
 export const getUserSessionId = async (): Promise<string | null> => {
-  try {
-    const session = await auth();
-    return session?.user?.id ?? null;
-  } catch (error) {
-    console.error('Error getting user session:', error);
-    return null;
-  }
+	try {
+		const session = await auth();
+		return session?.user?.id ?? null;
+	} catch (error) {
+		console.error("Error getting user session:", error);
+		return null;
+	}
 };
 
 export const getUserSession = async (): Promise<User | null> => {

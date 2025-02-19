@@ -1,30 +1,18 @@
-"use client";
-
 import { getHasSeenSplash } from "@/src/actions/cookies.actions";
-import { useSession } from "next-auth/react";
+import { getPosts } from "@/src/query/post.query";
 import { redirect } from "next/navigation";
-import { useEffect, useState } from "react";
 import Posts from "./posts";
 
-export default function Home() {
-	const [hasSeenSplash, setHasSeenSplash] = useState<boolean | null>(null);
-	const { data: session } = useSession();
-
-	useEffect(() => {
-		const fetchHasSeenSplash = async () => {
-			const hasSeenSplash = await getHasSeenSplash();
-			setHasSeenSplash(hasSeenSplash);
-		};
-		fetchHasSeenSplash();
-	}, []);
-
-	if (hasSeenSplash === false) {
+export default async function Home() {
+	if ((await getHasSeenSplash()) === false) {
 		return redirect("/splash");
 	}
 
+	const posts = await getPosts({});
+
 	return (
 		<>
-			<Posts userId={session?.user?.id} />
+			<Posts posts={posts} />
 		</>
 	);
 }

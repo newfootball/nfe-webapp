@@ -4,22 +4,22 @@ import { getUser } from "@/src/query/user.query";
 import { notFound } from "next/navigation";
 
 export default async function page({
-  params,
+	params,
 }: {
-  params: Promise<{ id: string }>;
+	params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
-  const session = await auth();
+	const { id } = await params;
+	const session = await auth();
 
-  if (!id) {
-    return notFound();
-  }
+	if (!id) {
+		return notFound();
+	}
 
-  const user = await getUser(id);
+	const user = await getUser(id);
 
-  return (
-    <>
-      <UserProfile user={user} userIdSession={session?.user?.id ?? ""} />
-    </>
-  );
+	return (
+		<>
+			<UserProfile user={user} userIdSession={session?.user?.id ?? ""} />
+		</>
+	);
 }

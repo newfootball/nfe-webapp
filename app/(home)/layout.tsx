@@ -8,7 +8,7 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<main>
+		<>
 			<Header />
 			<main className="pb-28 md:max-w-2xl max-w-md mx-auto mt-4 px-2">
 				{children}
@@ -21,6 +21,6 @@ export default function RootLayout({
 				richColors
 				duration={2000}
 			/>
-		</main>
+		</>
 	);
 }

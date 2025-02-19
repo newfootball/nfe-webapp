@@ -79,14 +79,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 			}
 			return token;
 		},
-
-		async redirect({ url, baseUrl }) {
-			// Redirection après authentification
-			if (url.startsWith(baseUrl)) {
-				return url; // Rediriger vers la page d'origine
-			}
-			return "/"; // Rediriger par défaut vers /dashboard
-		},
 	},
 	session: {
 		strategy: "jwt",

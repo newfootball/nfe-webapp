@@ -95,26 +95,28 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?   @unique
-  email         String?   @unique
+  id            String     @id @default(cuid())
+  name          String?    @unique
+  email         String?    @unique
   emailVerified DateTime?
   image         String?
   password      String?
-
-  birthday     DateTime?
-  fullName     String?
-  biography    String?
-  position     Position[]
-  foot         Foot[]
-  license      String?
-  contract     String?
-  size         Int?
-  weight       Int?
-  localisation String?
-  gender       Gender?
-  role         Role       @default(USER)
-  userType     UserType   @default(USER)
+  birthday      DateTime?
+  fullName      String?
+  biography     String?
+  position      Position[]
+  foot          Foot[]
+  license       String?
+  contract      String?
+  size          Int?
+  weight        Int?
+  localisation  String?
+  gender        Gender?
+  role          Role       @default(USER)
+  userType      UserType   @default(USER)
+  isOnboarded   Boolean    @default(false)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime?  @updatedAt
 
   followers Follow[] @relation("follower")
   followeds Follow[] @relation("followed")
@@ -128,9 +130,6 @@ model User {
   notifications Notification[]
   messages      Message[]      @relation("fromUser")
   messagesTo    Message[]      @relation("toUser")
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime? @updatedAt
 }
 
 model VerificationToken {

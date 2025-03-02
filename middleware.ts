@@ -1,24 +1,25 @@
-import { type SessionUser, auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export async function middleware(request: Request): Promise<NextResponse> {
+export async function middleware(request: NextRequest): Promise<NextResponse> {
 	const path = new URL(request.url).pathname;
 
 	// Check admin routes
 	if (path.startsWith("/admin")) {
-		const session = await auth();
+		// Instead of directly using auth() which uses Prisma in Edge,
+		// check for the session cookie and redirect if not present
+		const sessionCookie =
+			request.cookies.get("next-auth.session-token") ||
+			request.cookies.get("__Secure-next-auth.session-token");
 
-		if (!session?.user) {
+		if (!sessionCookie) {
 			const signInUrl = new URL("/sign-in", request.url);
 			signInUrl.searchParams.set("callbackUrl", path);
 			return NextResponse.redirect(signInUrl);
 		}
 
-		const user = session.user as SessionUser;
-
-		if (user.role !== "ADMIN") {
-			return NextResponse.redirect(new URL("/", request.url));
-		}
+		// For role-based access, we'll let the page handle this check
+		// since we can't safely decode the JWT in Edge without proper libraries
 	}
 
 	return NextResponse.next();

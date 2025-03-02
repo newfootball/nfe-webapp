@@ -2,14 +2,16 @@
 
 import { uploadToMinio } from "@/lib/minio";
 import { prisma } from "@/lib/prisma";
-import { getUserSession } from "@/src/query/user.query";
+import { auth } from "@/src/lib/auth";
 import { MediaType, PostStatus, PostType } from "@prisma/client";
 import { type PostData, postSchema } from "./post.schema";
 
 export const savePost = async (post: PostData) => {
-	const user = await getUserSession();
+	const session = await auth();
 
-	if (!user?.id) {
+	console.log({ session });
+
+	if (!session?.user?.id) {
 		throw new Error("User not found");
 	}
 
@@ -23,7 +25,7 @@ export const savePost = async (post: PostData) => {
 		data: {
 			title: post.title,
 			description: post.description,
-			userId: user.id,
+			userId: session.user.id,
 			slug: post.title.toLowerCase().replace(/ /g, "-"),
 			type: PostType.video,
 			status: PostStatus.DRAFT,

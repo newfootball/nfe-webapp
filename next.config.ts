@@ -32,8 +32,34 @@ const nextConfig: NextConfig = {
 	},
 	experimental: {
 		serverActions: {
-			bodySizeLimit: 10 * 1024 * 1024,
+			bodySizeLimit: "100mb",
 		},
+	},
+	// Transpile Prisma and other packages that need Node.js modules
+	transpilePackages: ["@prisma/client", "@auth/prisma-adapter"],
+	webpack: (config, { isServer }) => {
+		if (!isServer) {
+			// Don't attempt to import these Node.js modules in the browser
+			config.resolve.fallback = {
+				...config.resolve.fallback,
+				fs: false,
+				child_process: false,
+				"fs/promises": false,
+				async_hooks: false,
+				net: false,
+				tls: false,
+				os: false,
+				path: false,
+				crypto: false,
+			};
+		}
+
+		if (isServer) {
+			// Ensure Prisma is treated as a server-only package
+			config.externals = [...(config.externals || []), "@prisma/client"];
+		}
+
+		return config;
 	},
 };
 

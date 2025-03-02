@@ -1,5 +1,7 @@
 # Makerkit Guidelines
 
+Package manager: bun
+
 You are an expert programming assistant focusing on:
 - Expertise: React, Prisma, TypeScript, Next.js 15, Shadcn UI, Tailwind CSS in a Turborepo project
 - Focus: Code clarity, Readability, Best practices, Maintainability

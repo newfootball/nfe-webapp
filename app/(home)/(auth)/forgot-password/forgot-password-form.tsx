@@ -4,34 +4,27 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Password } from "@/components/ui/password";
 import { LoaderCircle } from "lucide-react";
-import { CredentialsSignin } from "next-auth";
-import { signIn } from "next-auth/react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { z } from "zod";
 
 const schema = z.object({
 	email: z.string().email({ message: "Invalid email address" }),
-	password: z
-		.string()
-		.min(8, { message: "Password must be at least 8 characters" }),
 });
 
-export function SignInForm() {
-	const router = useRouter();
+export function ForgotPasswordForm() {
 	const [error, setError] = useState<string | null>(null);
+	const [success, setSuccess] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
-	const [password, setPassword] = useState("");
 	const [email, setEmail] = useState("");
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setIsLoading(true);
+		setError(null);
+		setSuccess(null);
 
-		const result = schema.safeParse({ email, password });
+		const result = schema.safeParse({ email });
 		if (!result.success) {
 			setError(result.error.errors.map((error) => error.message).join("\n"));
 			setIsLoading(false);
@@ -39,27 +32,19 @@ export function SignInForm() {
 		}
 
 		try {
-			const res = await signIn("credentials", {
-				email,
-				password,
-				redirect: false,
-			});
+			// TODO: Implement the actual password reset request
+			// This would typically call an API endpoint to send a reset email
 
-			console.info({ res });
+			// For now, simulate a successful response
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 
-			if (res?.error) {
-				setError(res?.code ?? "Invalid credentials");
-				return;
-			}
-
-			return router.push("/");
+			setSuccess(
+				"Password reset instructions have been sent to your email address",
+			);
+			setEmail("");
 		} catch (error) {
 			console.error({ error });
-			setError(
-				error instanceof CredentialsSignin
-					? error.message
-					: "Une erreur s'est produite",
-			);
+			setError("An error occurred while processing your request");
 		} finally {
 			setIsLoading(false);
 		}
@@ -75,6 +60,13 @@ export function SignInForm() {
 					{error}
 				</Alert>
 			)}
+
+			{success && (
+				<Alert className="text-green-500 text-center border border-green-500 pb-2 my-4">
+					{success}
+				</Alert>
+			)}
+
 			<div className="grid gap-2 my-2">
 				<Label htmlFor="email">Email</Label>
 				<Input
@@ -87,26 +79,12 @@ export function SignInForm() {
 					onChange={(e) => setEmail(e.target.value)}
 				/>
 			</div>
-			<Password
-				id="password"
-				required
-				label="Password"
-				value={password}
-				onChange={(e) => setPassword(e.target.value)}
-			/>
-			<div className="text-center">
-				<Link
-					href="/forgot-password"
-					className="ml-auto inline-block text-sm underline"
-				>
-					Forgot your password?
-				</Link>
-			</div>
-			<Button type="submit" className="w-full mt-2" disabled={isLoading}>
+
+			<Button type="submit" className="w-full mt-4" disabled={isLoading}>
 				{isLoading ? (
 					<LoaderCircle className="w-4 h-4 animate-spin" />
 				) : (
-					"Login"
+					"Send Reset Instructions"
 				)}
 			</Button>
 		</form>

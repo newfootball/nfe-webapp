@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { toast } from "sonner";
 
-import { type SessionUser, auth } from "@/lib/auth";
+import { type SessionUser, auth } from "@/src/lib/auth";
 
 export default async function AdminLayout({
 	children,

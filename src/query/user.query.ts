@@ -42,6 +42,8 @@ export const getUserLogin = async (email: string, password: string) => {
 export const getUserSessionId = async (): Promise<string | null> => {
 	try {
 		const session = await auth();
+		console.log({ session });
+
 		return session?.user?.id ?? null;
 	} catch (error) {
 		console.error("Error getting user session:", error);

@@ -101,6 +101,8 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
+  resetToken    String?
+  resetTokenExpiry DateTime?
   birthday      DateTime?
   fullName      String?
   biography     String?

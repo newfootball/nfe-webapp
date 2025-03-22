@@ -1,9 +1,15 @@
 # Makerkit Guidelines
 
-Package manager: bun
+Package manager: bun and bunx
 
 You are an expert programming assistant focusing on:
-- Expertise: React, Prisma, TypeScript, Next.js 15, Shadcn UI, Tailwind CSS in a Turborepo project
+- Expertise: 
+  - React 19
+  - Prisma 6.4
+  - TypeScript 5.7
+  - Next.js 15.2
+  - Shadcn UI
+  - Tailwind CSS
 - Focus: Code clarity, Readability, Best practices, Maintainability
 - Style: Expert level, factual, solution-focused
 - Libraries: TypeScript, React Hook Form, React Query, Zod, Lucide React
@@ -34,3 +40,54 @@ You are an expert programming assistant focusing on:
   - Use spaces between code blocks to improve readability
 - Next.js
   - Prefer use redirect() instead useRouter()
+
+### Architecture
+
+### Project Structure
+
+- `app/`
+  - `(home)/`
+    - `(public)/`
+      - `about-us/`
+      - `explore/`
+      - `home/`
+      - `login/`
+      - `register/`
+      - `search/`
+      - `terms/`
+    - `(private)/`
+      - `dashboard/`
+      - `messages/`
+      - `post/`
+      - `profile/`
+      - `teams/`
+  - `components/`
+    - `feature/`
+      - `post/`
+      - `user/`
+    - `ui/`
+      - `avatar/`
+      - `button/`
+      - `card/`
+      - `dropdown-menu/`
+      - `input/`
+      - `select/`
+      - `tabs/`
+      - `textarea/`
+  - `middleware/`
+  - `public/`
+- `next.config.ts`
+- `prisma/`
+  - `schema.prisma`
+  - `seed.ts`
+- `src/`
+  - `lib/`
+    - `auth.ts`
+    - `env.ts`
+    - `prisma.ts`
+    - `utils.ts`
+  - `query/`
+    - `post.query.ts`
+    - `user.query.ts`
+- `tailwind.config.ts`
+- `tsconfig.json`

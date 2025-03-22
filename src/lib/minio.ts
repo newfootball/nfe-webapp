@@ -2,28 +2,45 @@ import { env } from "@/lib/env";
 import * as Minio from "minio";
 
 // Extract hostname from the endpoint URL
-const getEndpointDetails = (url: string) => {
+const getEndpointDetails = (url: string | undefined) => {
+	// Default values if URL is not provided
+	if (!url) {
+		console.warn("MinIO endpoint URL not provided, using default configuration");
+		return {
+			endPoint: "localhost",
+			port: 9000,
+			useSSL: false,
+		};
+	}
+
 	try {
 		const urlObj = new URL(url);
 		return {
 			endPoint: urlObj.hostname,
-			port: urlObj.port ? Number.parseInt(urlObj.port) : 443,
+			port: urlObj.port ? Number.parseInt(urlObj.port) : urlObj.protocol === "https:" ? 443 : 80,
 			useSSL: urlObj.protocol === "https:",
 		};
 	} catch (error) {
 		console.error("Invalid MinIO endpoint URL:", error);
-		throw new Error("Invalid MinIO endpoint configuration");
+		console.warn("Using default MinIO configuration");
+		return {
+			endPoint: "localhost",
+			port: 9000,
+			useSSL: false,
+		};
 	}
 };
 
+// Get endpoint details safely
 const endpointDetails = getEndpointDetails(env.MINIO_ENDPOINT);
 
+// Create MinIO client with safe defaults for missing values
 const minioClient = new Minio.Client({
 	endPoint: endpointDetails.endPoint,
 	port: endpointDetails.port,
 	useSSL: endpointDetails.useSSL,
-	accessKey: env.MINIO_ACCESS_KEY,
-	secretKey: env.MINIO_SECRET_KEY,
+	accessKey: env.MINIO_ACCESS_KEY || "minioadmin",
+	secretKey: env.MINIO_SECRET_KEY || "minioadmin",
 });
 
 export interface UploadedObjectInfo {
@@ -35,7 +52,7 @@ export async function uploadToMinio(
 	file: File,
 ): Promise<UploadedObjectInfo | null> {
 	try {
-		const bucketName = env.MINIO_BUCKET_NAME;
+		const bucketName = env.MINIO_BUCKET_NAME || "uploads";
 
 		if (!bucketName) {
 			throw new Error("MinIO bucket name is not configured");

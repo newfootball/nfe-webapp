@@ -95,30 +95,30 @@ model Session {
 }
 
 model User {
-  id            String     @id @default(cuid())
-  name          String?    @unique
-  email         String?    @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  resetToken    String?
+  id               String     @id @default(cuid())
+  name             String?    @unique
+  email            String?    @unique
+  emailVerified    DateTime?
+  image            String?
+  password         String?
+  resetToken       String?
   resetTokenExpiry DateTime?
-  birthday      DateTime?
-  fullName      String?
-  biography     String?
-  position      Position[]
-  foot          Foot[]
-  license       String?
-  contract      String?
-  size          Int?
-  weight        Int?
-  localisation  String?
-  gender        Gender?
-  role          Role       @default(USER)
-  userType      UserType   @default(USER)
-  isOnboarded   Boolean    @default(false)
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime?  @updatedAt
+  birthday         DateTime?
+  fullName         String?
+  biography        String?
+  position         Position[]
+  foot             Foot[]
+  license          String?
+  contract         String?
+  size             Int?
+  weight           Int?
+  localisation     String?
+  gender           Gender?
+  role             Role       @default(USER)
+  userType         UserType   @default(USER)
+  isOnboarded      Boolean    @default(false)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime?  @updatedAt
 
   followers Follow[] @relation("follower")
   followeds Follow[] @relation("followed")

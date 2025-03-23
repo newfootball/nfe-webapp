@@ -7,59 +7,59 @@ import { useState } from "react";
 import { z } from "zod";
 
 const changePasswordSchema = z.object({
-  currentPassword: z.string(),
-  password: z.string(),
-  confirmPassword: z.string(),
+	currentPassword: z.string(),
+	password: z.string(),
+	confirmPassword: z.string(),
 });
 
 export const ChangePasswordForm = () => {
-  const [currentPassword, setCurrentPassword] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [confirmPassword, setConfirmPassword] = useState<string>("");
+	const [currentPassword, setCurrentPassword] = useState<string>("");
+	const [password, setPassword] = useState<string>("");
+	const [confirmPassword, setConfirmPassword] = useState<string>("");
 
-  const result = changePasswordSchema.safeParse({
-    currentPassword,
-    password,
-    confirmPassword,
-  });
+	const result = changePasswordSchema.safeParse({
+		currentPassword,
+		password,
+		confirmPassword,
+	});
 
-  if (!result.success) {
-    throw new Error(result.error.errors[0].message);
-  }
+	if (!result.success) {
+		throw new Error(result.error.errors[0].message);
+	}
 
-  return (
-    <form action="">
-      <div className="grid w-full max-w-sm items-center">
-        <Password
-          label="Current password"
-          id="password"
-          name="currentPassword"
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-        />
+	return (
+		<form action="">
+			<div className="grid w-full max-w-sm items-center">
+				<Password
+					label="Current password"
+					id="password"
+					name="currentPassword"
+					value={currentPassword}
+					onChange={(e) => setCurrentPassword(e.target.value)}
+				/>
 
-        <Password
-          label="New password"
-          id="password"
-          name="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+				<Password
+					label="New password"
+					id="password"
+					name="password"
+					value={password}
+					onChange={(e) => setPassword(e.target.value)}
+				/>
 
-        <Password
-          label="Confirm new password"
-          id="confirmPassword"
-          name="confirmPassword"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-        />
-      </div>
-      <Button className="w-full mt-2" type="submit">
-        Change password
-      </Button>
-      <div className="flex justify-center mt-4">
-        <Link href="/profile">Back to profile</Link>
-      </div>
-    </form>
-  );
+				<Password
+					label="Confirm new password"
+					id="confirmPassword"
+					name="confirmPassword"
+					value={confirmPassword}
+					onChange={(e) => setConfirmPassword(e.target.value)}
+				/>
+			</div>
+			<Button className="w-full mt-2" type="submit">
+				Change password
+			</Button>
+			<div className="flex justify-center mt-4">
+				<Link href="/profile">Back to profile</Link>
+			</div>
+		</form>
+	);
 };

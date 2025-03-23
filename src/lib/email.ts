@@ -6,30 +6,30 @@ import { Resend } from "resend";
 let resendInstance: Resend | null = null;
 
 export const getResend = async (): Promise<Resend> => {
-  if (!resendInstance) {
-    if (!env.RESEND_API_KEY) {
-      throw new Error("RESEND_API_KEY is not defined in environment variables");
-    }
-    resendInstance = new Resend(env.RESEND_API_KEY);
-  }
-  return resendInstance;
+	if (!resendInstance) {
+		if (!env.RESEND_API_KEY) {
+			throw new Error("RESEND_API_KEY is not defined in environment variables");
+		}
+		resendInstance = new Resend(env.RESEND_API_KEY);
+	}
+	return resendInstance;
 };
 
 export const sendPasswordResetEmail = async (
-  email: string,
-  resetToken: string
+	email: string,
+	resetToken: string,
 ) => {
-  const resend = await getResend();
-  const resetUrl = `${
-    process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-  }/reset-password?token=${resetToken}`;
+	const resend = await getResend();
+	const resetUrl = `${
+		process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+	}/reset-password?token=${resetToken}`;
 
-  try {
-    const { data, error } = await resend.emails.send({
-      from: "NFE <noreply@newfootball.pro>",
-      to: email,
-      subject: "Reset your password",
-      html: `
+	try {
+		const { data, error } = await resend.emails.send({
+			from: "NFE <noreply@newfootball.pro>",
+			to: email,
+			subject: "Reset your password",
+			html: `
         <div>
           <h1>Reset Your Password</h1>
           <p>You requested a password reset for your NFE account.</p>
@@ -38,16 +38,16 @@ export const sendPasswordResetEmail = async (
           <p>If you didn't request this, please ignore this email.</p>
         </div>
       `,
-    });
+		});
 
-    if (error) {
-      console.error("Error sending reset email:", error);
-      throw new Error(`Failed to send reset email: ${error.message}`);
-    }
+		if (error) {
+			console.error("Error sending reset email:", error);
+			throw new Error(`Failed to send reset email: ${error.message}`);
+		}
 
-    return { success: true, data };
-  } catch (error) {
-    console.error("Error sending reset email:", error);
-    throw error;
-  }
+		return { success: true, data };
+	} catch (error) {
+		console.error("Error sending reset email:", error);
+		throw error;
+	}
 };

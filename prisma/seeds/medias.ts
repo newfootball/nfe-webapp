@@ -17,7 +17,8 @@ export const seedMedias = async ({
 		const data = {
 			postId: post.id,
 			mimetype: "video/mp4",
-			filename: faker.word.words(),
+			filename: Math.random().toString(36).substring(2, 15),
+			label: faker.word.words(),
 			createdAt: faker.date.past(),
 		};
 

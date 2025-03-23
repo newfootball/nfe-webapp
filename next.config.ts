@@ -28,6 +28,10 @@ const nextConfig: NextConfig = {
 				protocol: "https",
 				hostname: "console-oog0coc0cc4ccss80ocwckk4.145.223.81.185.sslip.io",
 			},
+			{
+				protocol: "https",
+				hostname: "res.cloudinary.com",
+			},
 		],
 	},
 	experimental: {

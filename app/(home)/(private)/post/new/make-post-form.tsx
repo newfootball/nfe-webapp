@@ -8,13 +8,14 @@ import { Textarea } from "@/components/ui/textarea";
 import type { Post } from "@prisma/client";
 import { Ellipsis } from "lucide-react";
 import Image from "next/image";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import type { PostData } from "./post.schema";
 import { savePost } from "./save-post.action";
 
 export default function MakePostForm() {
+	const router = useRouter();
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -55,7 +56,7 @@ export default function MakePostForm() {
 		savePost(data)
 			.then((post: Post) => {
 				toast.success("Post created successfully");
-				redirect(`/post/${post.id}`);
+				router.push(`/post/${post.id}`);
 			})
 			.catch((error) => {
 				setError(error.message);

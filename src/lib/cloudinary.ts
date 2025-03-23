@@ -79,15 +79,13 @@ export async function uploadToCloudinary(
 					? "video"
 					: "auto");
 
-		// Prépare les options d'upload
 		const uploadOptions = {
 			folder: options.folder || env.CLOUDINARY_FOLDER || "uploads",
 			resource_type: resourceType,
-			public_id: file.name.split(".")[0], // Utilise le nom du fichier sans extension
+			public_id: Math.random().toString(36).substring(2, 15),
 			transformation: options.transformation || [],
 		};
 
-		// Conversion en base64 pour l'upload
 		const base64Data = buffer.toString("base64");
 		const dataURI = `data:${file.type};base64,${base64Data}`;
 

@@ -82,15 +82,14 @@ const saveMedia = async ({
 		throw new Error("Échec du téléchargement du fichier média");
 	}
 
-	const mediaUrl = upload.secure_url;
-
 	const media = await prisma.media.create({
 		data: {
-			url: mediaUrl,
+			url: upload.secure_url,
 			postId: postId,
 			mimetype: mediaFile.type,
 			type: type,
-			filename: mediaFile.name,
+			filename: upload.public_id,
+			label: mediaFile.name,
 			metadata: {
 				width: upload.width,
 				height: upload.height,

@@ -129,9 +129,9 @@ export function PostActions({
 					<span className="hidden md:inline">Enregistrer</span>
 				</Button>
 			</div>
-			{showCommentForm && userId && (
+			{showCommentForm && (
 				<>
-					<PostFormComment postId={postId} userId={userId} />
+					<PostFormComment postId={postId} />
 					<PostCommentsList postId={postId} />
 				</>
 			)}

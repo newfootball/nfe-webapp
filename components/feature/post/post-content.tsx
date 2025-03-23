@@ -10,26 +10,10 @@ interface PostContentProps {
 export function PostContent({ post }: PostContentProps) {
 	const image = post.medias.find((media) => media.mimetype.includes("image"));
 	const video = post.medias.find((media) => media.mimetype.includes("video"));
-
-	console.log(video);
-
-	if (!video) {
-		return (
-			<div className="relative aspect-video overflow-hidden rounded-lg">
-				{image ? (
-					<Image src={image?.url} alt={post.title} fill />
-				) : (
-					<div className="w-full h-full bg-gray-200" />
-				)}
-			</div>
-		);
-	}
-
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [canPlayVideo, setCanPlayVideo] = useState(true);
 	const videoRef = useRef<HTMLVideoElement>(null);
 
-	// Vérifier si le navigateur peut lire le format vidéo
 	useEffect(() => {
 		if (videoRef.current) {
 			const videoElement = videoRef.current;
@@ -40,9 +24,7 @@ export function PostContent({ post }: PostContentProps) {
 				setCanPlayVideo(false);
 			};
 
-			// Vérifier si le format est supporté
-			if (video.mimetype === "video/quicktime") {
-				// Test de compatibilité pour QuickTime
+			if (video?.mimetype === "video/quicktime") {
 				const canPlay = videoElement.canPlayType(video.mimetype);
 				// Si canPlay est vide (""), cela signifie que le format n'est pas supporté
 				if (canPlay === "") {
@@ -56,7 +38,19 @@ export function PostContent({ post }: PostContentProps) {
 				videoElement.removeEventListener("error", handleError);
 			};
 		}
-	}, [video.mimetype]);
+	}, [video]);
+
+	if (!video) {
+		return (
+			<div className="relative aspect-video overflow-hidden rounded-lg">
+				{image ? (
+					<Image src={image?.url} alt={post.title} fill />
+				) : (
+					<div className="w-full h-full bg-gray-200" />
+				)}
+			</div>
+		);
+	}
 
 	const togglePlay = () => {
 		if (videoRef.current && canPlayVideo) {
@@ -72,9 +66,7 @@ export function PostContent({ post }: PostContentProps) {
 		}
 	};
 
-	// Détermine le type MIME adapté pour la source
 	const getSourceType = () => {
-		// Pour QuickTime, on peut essayer avec video/mp4 comme type alternatif
 		if (video.mimetype === "video/quicktime") {
 			return "video/mp4";
 		}
@@ -137,8 +129,8 @@ export function PostContent({ post }: PostContentProps) {
 											Format vidéo non pris en charge
 										</p>
 										<p className="text-sm text-gray-600 mt-1">
-											Le format {video.mimetype} n'est pas compatible avec votre
-											navigateur
+											Le format {video.mimetype} n&apos;est pas compatible avec
+											votre navigateur
 										</p>
 									</div>
 								</div>

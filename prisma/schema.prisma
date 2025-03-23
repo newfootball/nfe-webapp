@@ -151,6 +151,8 @@ model Follow {
 
   follower User @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
   followed User @relation("followed", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
 }
 
 enum PostStatus {

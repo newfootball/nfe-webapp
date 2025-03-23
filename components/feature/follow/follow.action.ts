@@ -1,29 +1,37 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { getUserSession } from "@/src/query/user.query";
-
+import { getUserSessionId } from "@/src/query/user.query";
+import { revalidatePath } from "next/cache";
 export const addFollow = async ({
-	userToFollowId,
-	userId = null,
+  userToFollowId,
+  userId = null,
 }: {
-	userToFollowId: string;
-	userId?: string | null;
+  userToFollowId: string;
+  userId?: string | null;
 }) => {
-	if (!userId) {
-		const user = await getUserSession();
+  if (!userId) {
+    userId = await getUserSessionId();
+  }
 
-		if (!user) throw new Error("User not found");
+  if (!userId) {
+    console.log("User not found", userId);
+    throw new Error("User not found");
+  }
 
-		userId = user?.id;
-	}
+  try {
+    const follow = await prisma.follow.create({
+      data: {
+        followerId: userId,
+        followingId: userToFollowId,
+      },
+    });
 
-	const follow = await prisma.follow.create({
-		data: {
-			followerId: userId,
-			followingId: userToFollowId,
-		},
-	});
+    revalidatePath(`/user/${userToFollowId}`);
 
-	return follow;
+    return follow;
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to follow user");
+  }
 };

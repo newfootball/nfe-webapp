@@ -191,6 +191,7 @@ model Media {
   mimetype  String
   url       String
   filename  String?
+  metadata  Json?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 

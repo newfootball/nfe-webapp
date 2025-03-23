@@ -40,19 +40,22 @@ export const savePost = async (post: PostData) => {
     });
   }
 
-  const imageUrl = await saveMedia({
-    mediaFile: post.image,
-    postId: newPost.id,
-    type: MediaType.landingImage,
-  });
+  const [imageUrl, videoUrl] = await Promise.all([
+    saveMedia({
+      mediaFile: post.image,
+      postId: newPost.id,
+      type: MediaType.landingImage,
+    }),
+    saveMedia({
+      mediaFile: post.video,
+      postId: newPost.id,
+      type: MediaType.mainVideo,
+    }),
+  ]);
 
-  const videoUrl = await saveMedia({
-    mediaFile: post.video,
-    postId: newPost.id,
-    type: MediaType.mainVideo,
-  });
-
-  console.log({ imageUrl, videoUrl });
+  if (!imageUrl || !videoUrl) {
+    throw new Error("Échec du téléchargement du fichier média");
+  }
 
   return newPost;
 };
@@ -78,7 +81,6 @@ const saveMedia = async ({
   }
 
   const mediaUrl = upload.secure_url;
-  const mediaPublicId = upload.public_id;
 
   const media = await prisma.media.create({
     data: {
@@ -87,6 +89,14 @@ const saveMedia = async ({
       mimetype: mediaFile.type,
       type: type,
       filename: mediaFile.name,
+      metadata: {
+        width: upload.width,
+        height: upload.height,
+        format: upload.format,
+        resource_type: upload.resource_type,
+        public_id: upload.public_id,
+        duration: upload.duration,
+      },
     },
   });
 

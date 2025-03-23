@@ -11,9 +11,13 @@ import { ZodError } from "zod";
 
 interface PostFormCommentProps {
 	postId: string;
+	onCommentPosted?: () => void;
 }
 
-export const PostFormComment = ({ postId }: PostFormCommentProps) => {
+export const PostFormComment = ({
+	postId,
+	onCommentPosted,
+}: PostFormCommentProps) => {
 	const { data: session } = useSession();
 	const userId = session?.user?.id;
 
@@ -56,6 +60,11 @@ export const PostFormComment = ({ postId }: PostFormCommentProps) => {
 			}
 
 			setComment("");
+
+			// Appeler la fonction onCommentPosted si elle existe
+			if (onCommentPosted) {
+				onCommentPosted();
+			}
 		} catch (error) {
 			if (error instanceof ZodError) {
 				setError(
@@ -80,7 +89,7 @@ export const PostFormComment = ({ postId }: PostFormCommentProps) => {
 				</p>
 			) : (
 				<form onSubmit={handleSaveComment}>
-					<div className="flex items-start space-x-3 pt-4 border-t">
+					<div className="flex items-center space-x-3">
 						<Avatar className="w-8 h-8 mt-1">
 							<AvatarImage
 								src={session?.user?.image || undefined}
@@ -90,7 +99,7 @@ export const PostFormComment = ({ postId }: PostFormCommentProps) => {
 								{session?.user?.name?.charAt(0).toUpperCase() || "?"}
 							</AvatarFallback>
 						</Avatar>
-						<div className="flex-grow">
+						<div className="flex-grow ">
 							<textarea
 								id="comment"
 								name="comment"

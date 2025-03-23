@@ -104,8 +104,6 @@ export async function uploadToCloudinary(
 			);
 		});
 
-		console.log(`Fichier téléchargé avec succès: ${file.name}`);
-
 		return {
 			public_id: result.public_id,
 			url: result.url,

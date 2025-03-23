@@ -32,7 +32,7 @@ export async function checkIsFollowing(
 		const session = await auth();
 
 		if (!session || !session.user?.id) {
-			console.log("User not found", session);
+			console.warn("No session found");
 			return false;
 		}
 

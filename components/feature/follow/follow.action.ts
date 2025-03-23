@@ -15,7 +15,6 @@ export const addFollow = async ({
 	}
 
 	if (!userId) {
-		console.log("User not found", userId);
 		throw new Error("User not found");
 	}
 

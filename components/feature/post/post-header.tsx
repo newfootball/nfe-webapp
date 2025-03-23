@@ -42,8 +42,6 @@ export function PostHeader({ post }: PostHeaderProps) {
 	const { data: session } = useSession();
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-	console.log({ session, post });
-
 	const isOwner = session?.user?.id === post.user.id;
 
 	const openDeleteDialog = () => {

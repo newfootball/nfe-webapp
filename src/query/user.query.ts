@@ -27,7 +27,6 @@ export const getUserLogin = async (email: string, password: string) => {
 		}
 
 		const { password: _, ...userWithoutPassword } = user;
-		console.log({ userWithoutPassword });
 
 		return userWithoutPassword;
 	} catch (error) {
@@ -42,7 +41,6 @@ export const getUserLogin = async (email: string, password: string) => {
 export const getUserSessionId = async (): Promise<string | null> => {
 	try {
 		const session = await auth();
-		console.log({ session });
 
 		return session?.user?.id ?? null;
 	} catch (error) {

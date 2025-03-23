@@ -25,7 +25,6 @@ export default function Posts({
 			try {
 				setIsLoading(true);
 				setError(null);
-				console.log("fetching posts", { offset, limit, userId });
 				const newOffset = offset + limit;
 				const newPosts = await getPosts({
 					userId,

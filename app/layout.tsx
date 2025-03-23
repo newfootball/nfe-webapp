@@ -9,7 +9,10 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nfe-foot.com";
+
 export const metadata: Metadata = {
+	metadataBase: new URL(baseUrl),
 	applicationName: "Next Football Experience",
 	title: {
 		template: "%s | Next Football Experience",
@@ -86,7 +89,7 @@ export default function RootLayout({
 				<SessionProvider>{children}</SessionProvider>
 				<Analytics />
 				<SpeedInsights />
-				<GoogleAnalytics gaId={env.GOOGLE_ANALYTICS_ID} />
+				<GoogleAnalytics gaId={env.GOOGLE_ANALYTICS_ID ?? ""} />
 			</body>
 		</html>
 	);

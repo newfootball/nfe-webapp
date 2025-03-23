@@ -35,6 +35,19 @@ const nextConfig: NextConfig = {
 			bodySizeLimit: 10 * 1024 * 1024,
 		},
 	},
+	webpack: (config, { isServer }) => {
+		if (!isServer) {
+			// Ne pas inclure les modules server-only dans le bundle client
+			config.resolve.fallback = {
+				fs: false,
+				path: false,
+				child_process: false,
+				"fs/promises": false,
+				async_hooks: false,
+			};
+		}
+		return config;
+	},
 };
 
 export default nextConfig;

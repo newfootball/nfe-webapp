@@ -8,7 +8,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 
 class InvalidLoginError extends CredentialsSignin {
-	code = "Invalid identifier or password";
+	override code = "Invalid identifier or password";
 }
 
 export type SessionUser = {

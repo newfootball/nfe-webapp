@@ -3,6 +3,10 @@ import { ResetPasswordForm } from "./reset-password-form";
 export const metadata = {
 	title: "Reset Password | NFE",
 	description: "Reset your password for your NFE account",
+	openGraph: {
+		title: "Reset Password | NFE",
+		description: "Reset your password for your NFE account",
+	},
 };
 
 export default function ResetPasswordPage() {

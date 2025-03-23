@@ -36,9 +36,11 @@ export const PostFormComment = ({ postId, userId }: PostFormCommentProps) => {
 			});
 
 			if (!result.success) {
+				const defaultErrorMessage =
+					"Une erreur non spécifiée s'est produite lors de l'enregistrement du commentaire";
 				const errorMessage = Array.isArray(result.error)
-					? result.error[0]?.message
-					: "Une erreur s'est produite";
+					? (result.error[0]?.message ?? defaultErrorMessage)
+					: defaultErrorMessage;
 				setError(errorMessage);
 				return;
 			}
@@ -46,7 +48,10 @@ export const PostFormComment = ({ postId, userId }: PostFormCommentProps) => {
 			setComment("");
 		} catch (error) {
 			if (error instanceof ZodError) {
-				setError(error.errors[0]?.message);
+				setError(
+					error.errors[0]?.message ??
+						"Une erreur non spécifiée s'est produite lors de l'enregistrement du commentaire",
+				);
 			} else {
 				setError(
 					"Une erreur s'est produite lors de l'enregistrement du commentaire",

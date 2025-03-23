@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LoaderCircle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { z } from "zod";
 import { resetPassword } from "./actions";
 
@@ -22,7 +22,7 @@ const schema = z
 		path: ["confirmPassword"],
 	});
 
-export function ResetPasswordForm() {
+function ResetPasswordFormContent() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const token = searchParams.get("token");
@@ -56,7 +56,9 @@ export function ResetPasswordForm() {
 			const resetResponse = await resetPassword(token, password);
 
 			if (resetResponse.success) {
-				setSuccess(resetResponse.message);
+				setSuccess(
+					resetResponse.message ?? "Mot de passe réinitialisé avec succès",
+				);
 				// Redirect to login page after 3 seconds
 				setTimeout(() => {
 					router.push("/login");
@@ -122,5 +124,13 @@ export function ResetPasswordForm() {
 				)}
 			</Button>
 		</form>
+	);
+}
+
+export function ResetPasswordForm() {
+	return (
+		<Suspense fallback={<div className="text-center">Chargement...</div>}>
+			<ResetPasswordFormContent />
+		</Suspense>
 	);
 }

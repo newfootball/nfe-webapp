@@ -16,7 +16,9 @@ export const savePost = async (post: PostData) => {
 	const result = postSchema.safeParse(post);
 
 	if (!result.success) {
-		throw new Error(`Validation error: ${result.error.errors[0].message}`);
+		throw new Error(
+			`Validation error: ${result.error.errors[0]?.message ?? "Unknown error"}`,
+		);
 	}
 
 	const slug = post.title.toLowerCase().replace(/ /g, "-");

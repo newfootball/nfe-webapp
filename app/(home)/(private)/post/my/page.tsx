@@ -3,6 +3,9 @@ import { getPosts } from "@/src/query/post.query";
 import { getUserSession } from "@/src/query/user.query";
 import { redirect } from "next/navigation";
 
+// Rendre cette page dynamique car elle utilise des fonctionnalités dynamiques (headers via auth)
+export const dynamic = "force-dynamic";
+
 export default async function MyPostsPage() {
 	const user = await getUserSession();
 

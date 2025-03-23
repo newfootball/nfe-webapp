@@ -12,7 +12,7 @@ export const env = createEnv({
 		GOOGLE_CLIENT_SECRET: z.string().optional(),
 		GOOGLE_ANALYTICS_ID: z.string().optional(),
 		NEXTAUTH_SECRET: z.string().optional(),
-		WEBSITE_URL: z.string().url().min(1).startsWith("https://").optional(),
+		WEBSITE_URL: z.string().url().min(1).startsWith("https://"),
 
 		// Resend
 		RESEND_API_KEY: z.string().min(1),

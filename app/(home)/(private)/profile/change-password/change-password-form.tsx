@@ -24,7 +24,9 @@ export const ChangePasswordForm = () => {
 	});
 
 	if (!result.success) {
-		throw new Error(result.error.errors[0].message);
+		throw new Error(
+			`Validation error: ${result.error.errors[0]?.message ?? "Error on change password"}`,
+		);
 	}
 
 	return (

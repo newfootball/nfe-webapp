@@ -52,14 +52,14 @@ export const PostCommentsList = ({ postId }: PostCommentsListProps) => {
 
 	if (comments.length === 0) {
 		return (
-			<div className="mt-4 text-sm text-muted-foreground">
+			<div className="mt-4 text-sm text-muted-foreground text-center py-4">
 				Aucun commentaire
 			</div>
 		);
 	}
 
 	return (
-		<div className="mt-4 space-y-4">
+		<div className="my-4 py-4 space-y-4">
 			{comments.map((comment) => (
 				<div key={comment.id} className="flex gap-3">
 					<Avatar className="h-8 w-8">

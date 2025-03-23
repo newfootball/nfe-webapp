@@ -27,7 +27,7 @@ export function PostContent({ post }: PostContentProps) {
 				</div>
 			)}
 			<div>
-				<h3 className="font-semibold">{post.title}</h3>
+				<h3 className="font-semibold pl-2">{post.title}</h3>
 			</div>
 		</>
 	);

@@ -1,82 +1,94 @@
 "use server";
 
-import { uploadToMinio } from "@/lib/minio";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/src/lib/auth";
 import { MediaType, PostStatus, PostType } from "@prisma/client";
 import { type PostData, postSchema } from "./post.schema";
 
 export const savePost = async (post: PostData) => {
-	const session = await auth();
+  const session = await auth();
 
-	console.log({ session });
+  if (!session?.user?.id) {
+    throw new Error("User not found");
+  }
 
-	if (!session?.user?.id) {
-		throw new Error("User not found");
-	}
+  const result = postSchema.safeParse(post);
 
-	const result = postSchema.safeParse(post);
+  if (!result.success) {
+    throw new Error(`Validation error: ${result.error.errors[0].message}`);
+  }
 
-	if (!result.success) {
-		throw new Error(`Validation error: ${result.error.errors[0].message}`);
-	}
+  const slug = post.title.toLowerCase().replace(/ /g, "-");
 
-	const newPost = await prisma.post.create({
-		data: {
-			title: post.title,
-			description: post.description,
-			userId: session.user.id,
-			slug: post.title.toLowerCase().replace(/ /g, "-"),
-			type: PostType.video,
-			status: PostStatus.DRAFT,
-		},
-	});
+  let newPost = await prisma.post.findUnique({
+    where: {
+      slug: slug,
+    },
+  });
 
-	console.log({ newPost });
+  if (!newPost) {
+    newPost = await prisma.post.create({
+      data: {
+        title: post.title,
+        description: post.description,
+        userId: session.user.id,
+        slug: slug,
+        type: PostType.video,
+        status: PostStatus.DRAFT,
+      },
+    });
+  }
 
-	const imageUrl = await saveMedia({
-		mediaFile: post.image,
-		postId: newPost.id,
-		type: MediaType.landingImage,
-	});
+  const imageUrl = await saveMedia({
+    mediaFile: post.image,
+    postId: newPost.id,
+    type: MediaType.landingImage,
+  });
 
-	const videoUrl = await saveMedia({
-		mediaFile: post.video,
-		postId: newPost.id,
-		type: MediaType.mainVideo,
-	});
+  const videoUrl = await saveMedia({
+    mediaFile: post.video,
+    postId: newPost.id,
+    type: MediaType.mainVideo,
+  });
 
-	console.log({ imageUrl, videoUrl });
+  console.log({ imageUrl, videoUrl });
 
-	return newPost;
+  return newPost;
 };
 
 const saveMedia = async ({
-	mediaFile,
-	postId,
-	type,
+  mediaFile,
+  postId,
+  type,
 }: {
-	mediaFile?: File | null | undefined;
-	postId: string;
-	type: MediaType;
+  mediaFile?: File | null | undefined;
+  postId: string;
+  type: MediaType;
 }) => {
-	if (!mediaFile) return null;
+  if (!mediaFile) return null;
 
-	const upload = await uploadToMinio(mediaFile);
+  const upload = await uploadToCloudinary(mediaFile, {
+    folder: "posts",
+    transformation: [{ width: 1200, crop: "limit" }],
+  });
 
-	console.log("upload", upload);
+  if (!upload) {
+    throw new Error("Échec du téléchargement du fichier média");
+  }
 
-	if (!upload) return null;
+  const mediaUrl = upload.secure_url;
+  const mediaPublicId = upload.public_id;
 
-	const media = await prisma.media.create({
-		data: {
-			url: upload.etag,
-			postId: postId,
-			mimetype: mediaFile.type,
-			type: type,
-			filename: mediaFile.name,
-		},
-	});
+  const media = await prisma.media.create({
+    data: {
+      url: mediaUrl,
+      postId: postId,
+      mimetype: mediaFile.type,
+      type: type,
+      filename: mediaFile.name,
+    },
+  });
 
-	return media;
+  return media;
 };

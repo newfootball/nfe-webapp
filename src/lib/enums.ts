@@ -1,0 +1,13 @@
+export enum SignalStatus {
+  PENDING = "PENDING",
+  REVIEWED = "REVIEWED",
+  DISMISSED = "DISMISSED"
+}
+
+export enum SignalReason {
+  INAPPROPRIATE = "INAPPROPRIATE",
+  SPAM = "SPAM",
+  OFFENSIVE = "OFFENSIVE",
+  MISLEADING = "MISLEADING",
+  OTHER = "OTHER"
+}

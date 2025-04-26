@@ -25,6 +25,7 @@ import {
 	EyeClosed,
 	FileEdit,
 	FileText,
+	Flag,
 	MoreHorizontal,
 	Trash2,
 } from "lucide-react";
@@ -33,6 +34,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { PostSignalForm } from "./post-signal-form";
 
 interface PostHeaderProps {
 	post: PostWithUserAndMedias;
@@ -41,6 +43,7 @@ interface PostHeaderProps {
 export function PostHeader({ post }: PostHeaderProps) {
 	const { data: session } = useSession();
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+	const [showSignalDialog, setShowSignalDialog] = useState(false);
 
 	const isOwner = session?.user?.id === post.user.id;
 
@@ -69,7 +72,6 @@ export function PostHeader({ post }: PostHeaderProps) {
 				<div className="flex items-start justify-between p-4 pb-2 border-b mx-4 text-gray-500 font-light text-sm">
 					<div>Suggestion</div>
 					<div className="flex items-center gap-2">
-						<Link href={`/post/${post.id}`}>
 							<DropdownMenu>
 								<DropdownMenuTrigger asChild>
 									<MoreHorizontal className="h-4 w-4" />
@@ -82,6 +84,9 @@ export function PostHeader({ post }: PostHeaderProps) {
 									</DropdownMenuItem>
 									<DropdownMenuItem className="cursor-not-allowed">
 										<EyeClosed className="mr-2 h-4 w-4" /> Hide
+									</DropdownMenuItem>
+									<DropdownMenuItem onClick={() => setShowSignalDialog(true)}>
+										<Flag className="mr-2 h-4 w-4" /> Signal
 									</DropdownMenuItem>
 									{isOwner && (
 										<>
@@ -100,7 +105,6 @@ export function PostHeader({ post }: PostHeaderProps) {
 									)}
 								</DropdownMenuContent>
 							</DropdownMenu>
-						</Link>
 					</div>
 				</div>
 			</CardTitle>
@@ -157,6 +161,12 @@ export function PostHeader({ post }: PostHeaderProps) {
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
+
+			<PostSignalForm 
+				postId={post.id}
+				open={showSignalDialog}
+				onOpenChange={setShowSignalDialog}
+			/>
 		</>
 	);
 }

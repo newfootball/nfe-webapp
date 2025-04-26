@@ -67,6 +67,22 @@ enum PostType {
   shortVideo
 }
 
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  REJECTED
+  PENDING
+  ARCHIVED
+}
+
+enum SignalReason {
+  INAPPROPRIATE
+  SPAM
+  OFFENSIVE
+  MISLEADING
+  OTHER
+}
+
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -132,6 +148,7 @@ model User {
   notifications Notification[]
   messages      Message[]      @relation("fromUser")
   messagesTo    Message[]      @relation("toUser")
+  signals       PostSignal[]
 }
 
 model VerificationToken {
@@ -155,14 +172,6 @@ model Follow {
   @@unique([followerId, followingId])
 }
 
-enum PostStatus {
-  DRAFT
-  PUBLISHED
-  REJECTED
-  PENDING
-  ARCHIVED
-}
-
 model Post {
   id          String      @id @default(cuid())
   slug        String      @unique
@@ -184,6 +193,7 @@ model Post {
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   comments  Comment[]
   favorites Favorite[]
+  signals   PostSignal[]
 }
 
 model Media {
@@ -262,4 +272,26 @@ model Message {
 
   fromUser User @relation("fromUser", fields: [fromUserId], references: [id])
   toUser   User @relation("toUser", fields: [toUserId], references: [id])
+}
+
+enum SignalStatus {
+  PENDING
+  REVIEWED
+  DISMISSED
+}
+
+model PostSignal {
+  id        String       @id @default(cuid())
+  userId    String
+  postId    String
+  reason    SignalReason
+  details   String?
+  status    SignalStatus @default(PENDING)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+  post Post @relation(fields: [postId], references: [id])
+
+  @@unique([postId, userId])
 }

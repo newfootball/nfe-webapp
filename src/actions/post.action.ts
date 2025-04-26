@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { SignalReason, SignalStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { getUserSessionId } from "../query/user.query";
 
@@ -33,5 +34,65 @@ export async function deletePost(postId: string) {
 	} catch (error) {
 		console.error("Error deleting post:", error);
 		return { error: "Failed to delete post" };
+	}
+}
+
+export async function signalPost(
+	postId: string,
+	reason: SignalReason,
+	details?: string
+) {
+	try {
+		const userId = await getUserSessionId();
+		if (!userId) {
+			return { error: "Vous devez être connecté pour signaler un post" };
+		}
+
+		// Check if the user has already signaled this post
+		const existingSignal = await prisma.postSignal.findFirst({
+			where: {
+				postId,
+				userId,
+			},
+		});
+
+		if (existingSignal) {
+			return { error: "Vous avez déjà signalé ce post" };
+		}
+
+		// Create the signal
+		await prisma.postSignal.create({
+			data: {
+				postId,
+				userId,
+				reason,
+				details,
+				status: SignalStatus.PENDING,
+			},
+		});
+
+		// Update the post's spam score if there are multiple signals
+		const signalCount = await prisma.postSignal.count({
+			where: { postId },
+		});
+
+		if (signalCount >= 5) {
+			await prisma.post.update({
+				where: { id: postId },
+				data: { spamScore: "SUSPECT" },
+			});
+		}
+
+		if (signalCount >= 10) {
+			await prisma.post.update({
+				where: { id: postId },
+				data: { spamScore: "SPAM" },
+			});
+		}
+
+		return { success: true, message: "Post signalé avec succès" };
+	} catch (error) {
+		console.error("Error signaling post:", error);
+		return { error: "Échec du signalement du post" };
 	}
 }

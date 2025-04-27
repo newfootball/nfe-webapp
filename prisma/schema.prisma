@@ -190,7 +190,7 @@ model Post {
 
   medias    Media[]
   likes     Like[]
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   comments  Comment[]
   favorites Favorite[]
   signals   PostSignal[]

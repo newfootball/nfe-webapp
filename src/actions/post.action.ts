@@ -40,12 +40,31 @@ export async function deletePost(postId: string) {
 export async function signalPost(
 	postId: string,
 	reason: SignalReason,
-	details?: string
+	details?: string,
 ) {
 	try {
 		const userId = await getUserSessionId();
 		if (!userId) {
 			return { error: "Vous devez être connecté pour signaler un post" };
+		}
+
+		// Verify that both the user and post exist
+		const user = await prisma.user.findUnique({
+			where: { id: userId },
+			select: { id: true },
+		});
+
+		if (!user) {
+			return { error: "Utilisateur non trouvé" };
+		}
+
+		const post = await prisma.post.findUnique({
+			where: { id: postId },
+			select: { id: true },
+		});
+
+		if (!post) {
+			return { error: "Post non trouvé" };
 		}
 
 		// Check if the user has already signaled this post

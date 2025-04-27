@@ -72,39 +72,39 @@ export function PostHeader({ post }: PostHeaderProps) {
 				<div className="flex items-start justify-between p-4 pb-2 border-b mx-4 text-gray-500 font-light text-sm">
 					<div>Suggestion</div>
 					<div className="flex items-center gap-2">
-							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<MoreHorizontal className="h-4 w-4" />
-								</DropdownMenuTrigger>
-								<DropdownMenuContent align="end">
-									<DropdownMenuItem asChild>
-										<Link href={`/post/${post.id}`}>
-											<FileText className="mr-2 h-4 w-4" /> Show
-										</Link>
-									</DropdownMenuItem>
-									<DropdownMenuItem className="cursor-not-allowed">
-										<EyeClosed className="mr-2 h-4 w-4" /> Hide
-									</DropdownMenuItem>
-									<DropdownMenuItem onClick={() => setShowSignalDialog(true)}>
-										<Flag className="mr-2 h-4 w-4" /> Signal
-									</DropdownMenuItem>
-									{isOwner && (
-										<>
-											<DropdownMenuItem asChild>
-												<Link href={`/post/${post.id}/edit`}>
-													<FileEdit className="mr-2 h-4 w-4" /> Edit
-												</Link>
-											</DropdownMenuItem>
-											<DropdownMenuItem
-												className="text-destructive"
-												onClick={openDeleteDialog}
-											>
-												<Trash2 className="mr-2 h-4 w-4" /> Delete
-											</DropdownMenuItem>
-										</>
-									)}
-								</DropdownMenuContent>
-							</DropdownMenu>
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<MoreHorizontal className="h-4 w-4" />
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="end">
+								<DropdownMenuItem asChild>
+									<Link href={`/post/${post.id}`}>
+										<FileText className="mr-2 h-4 w-4" /> Show
+									</Link>
+								</DropdownMenuItem>
+								<DropdownMenuItem className="cursor-not-allowed">
+									<EyeClosed className="mr-2 h-4 w-4" /> Hide
+								</DropdownMenuItem>
+								<DropdownMenuItem onClick={() => setShowSignalDialog(true)}>
+									<Flag className="mr-2 h-4 w-4" /> Signal
+								</DropdownMenuItem>
+								{isOwner && (
+									<>
+										<DropdownMenuItem asChild>
+											<Link href={`/post/${post.id}/edit`}>
+												<FileEdit className="mr-2 h-4 w-4" /> Edit
+											</Link>
+										</DropdownMenuItem>
+										<DropdownMenuItem
+											className="text-destructive"
+											onClick={openDeleteDialog}
+										>
+											<Trash2 className="mr-2 h-4 w-4" /> Delete
+										</DropdownMenuItem>
+									</>
+								)}
+							</DropdownMenuContent>
+						</DropdownMenu>
 					</div>
 				</div>
 			</CardTitle>
@@ -162,7 +162,7 @@ export function PostHeader({ post }: PostHeaderProps) {
 				</AlertDialogContent>
 			</AlertDialog>
 
-			<PostSignalForm 
+			<PostSignalForm
 				postId={post.id}
 				open={showSignalDialog}
 				onOpenChange={setShowSignalDialog}

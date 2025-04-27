@@ -8,7 +8,8 @@
 		"start": "next start",
 		"lint": "next lint",
 		"prisma:seed": "prisma db seed",
-		"vercel-build": "prisma generate && prisma migrate deploy && next build"
+		"vercel-build": "prisma generate && prisma migrate deploy && next build",
+		"prepare": "husky install"
 	},
 	"dependencies": {
 		"@auth/prisma-adapter": "^2.9.0",
@@ -66,6 +67,7 @@
 		"@types/react-dom": "^19.1.2",
 		"eslint": "^9.25.1",
 		"eslint-config-next": "^15.3.1",
+		"husky": "^9.1.7",
 		"postcss": "^8.5.3",
 		"tailwindcss": "^3.4.17",
 		"typescript": "^5.8.3"

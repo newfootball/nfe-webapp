@@ -7,14 +7,20 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LayoutDashboard, LogInIcon, LogOutIcon, UserIcon, VideoIcon } from "lucide-react";
+import {
+	LayoutDashboard,
+	LogInIcon,
+	LogOutIcon,
+	UserIcon,
+	VideoIcon,
+} from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 
 export const Header = () => {
 	const { data: session } = useSession();
-	
+
 	return (
 		<header className="w-full border-b border-border shadow-sm px-2">
 			<Layout>
@@ -68,7 +74,7 @@ export const Header = () => {
 												<LayoutDashboard className="w-4 h-4" />
 												Admin
 											</Link>
-									</DropdownMenuItem>
+										</DropdownMenuItem>
 									)}
 									<DropdownMenuItem
 										onClick={() => signOut()}

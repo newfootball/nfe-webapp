@@ -44,7 +44,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
 				if (!user || !user.id || !user.email) throw new InvalidLoginError();
 
-				console.log({user});
+				console.log({ user });
 
 				return {
 					id: user.id,

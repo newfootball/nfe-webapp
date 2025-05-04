@@ -1,9 +1,9 @@
 import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
-import { getUserLogin } from "@/src/query/user.query";
+import { getUserLogin, getUserRole } from "@/src/query/user.query";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { Role } from "@prisma/client";
-import NextAuth, { CredentialsSignin } from "next-auth";
+import NextAuth, { CredentialsSignin, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 
@@ -32,7 +32,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 				email: { label: "Email", type: "email" },
 				password: { label: "Password", type: "password" },
 			},
-			authorize: async (credentials): Promise<SessionUser> => {
+			authorize: async (credentials): Promise<User> => {
 				if (!credentials?.email || !credentials?.password)
 					throw new CredentialsSignin("Invalid credentials");
 
@@ -43,8 +43,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 				);
 
 				if (!user || !user.id || !user.email) throw new InvalidLoginError();
-
-				console.log({ user });
 
 				return {
 					id: user.id,
@@ -66,10 +64,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 		signIn: "/sign-in",
 	},
 	callbacks: {
-		async session({ session, token }) {
+		async session({ session, user, token }) {
 			if (session.user) {
 				session.user.id = token.sub as string; // Associer l'ID utilisateur à la session
 				session.user.name = token.name || null;
+				session.user.role = (await getUserRole(session.user.id)) as Role;
 			}
 			return session;
 		},

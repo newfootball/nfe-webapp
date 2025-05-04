@@ -70,3 +70,31 @@ export const getUser = async (userId: string): Promise<User | null> => {
 
 	return user;
 };
+
+export const getUserRole = async (userId: string): Promise<string | null> => {
+	const user = await prisma.user.findUnique({
+		where: {
+			id: userId,
+		},
+		select: {
+			role: true,
+		},
+	});
+
+	return user?.role ?? null;
+};
+
+export const getUsers = async ({
+	page,
+	limit = 10,
+}: { page: number; limit: number }): Promise<User[]> => {
+	const users = await prisma.user.findMany({
+		skip: (page - 1) * limit,
+		take: limit,
+		orderBy: {
+			createdAt: "desc",
+		},
+	});
+
+	return users;
+};

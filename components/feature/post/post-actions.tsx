@@ -13,6 +13,7 @@ import { toggleLike } from "@/src/actions/like.action";
 import { useSession } from "next-auth/react";
 import { PostCommentsList } from "./post-comments-list";
 import { PostFormComment } from "./post-form-comment";
+import { PostActionShare } from "./post-actions/post-action-share";
 
 interface PostActionsProps {
 	likes?: number;
@@ -113,10 +114,7 @@ export function PostActions({
 					<MessageSquare className="mr-2 h-4 w-4" />
 					<span className="hidden md:inline">Commenter</span>
 				</Button>
-				<Button variant="ghost" size="sm" className="flex-1">
-					<Share2 className="mr-2 h-4 w-4" />
-					<span className="hidden md:inline">Partager</span>
-				</Button>
+				<PostActionShare />
 				<Button
 					variant="ghost"
 					size="sm"

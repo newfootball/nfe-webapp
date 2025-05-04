@@ -1,4 +1,3 @@
-import { PageHeader } from "@/components/feature/page-header";
 import { getPost } from "@/src/query/post.query";
 import { notFound } from "next/navigation";
 import { PostCard } from "./post-card";
@@ -17,7 +16,6 @@ export default async function page({
 
 	return (
 		<>
-			<PageHeader title="Post" backLink="/" />
 			<PostCard post={post} />
 		</>
 	);

@@ -3,14 +3,12 @@
 import { PostCommentsList } from "@/components/feature/post/post-comments-list";
 import { PostDetails } from "@/components/feature/post/post-details";
 import { PostFormComment } from "@/components/feature/post/post-form-comment";
-import type { PostWithUserAndMedias } from "@/src/query/post.query";
+import { PostWithUserAndMedias } from "@/src/types/post.types";
 import { useState } from "react";
 
 export const PostCard = ({ post }: { post: PostWithUserAndMedias }) => {
-	// État pour forcer le rafraîchissement des commentaires
 	const [refreshComments, setRefreshComments] = useState(0);
 
-	// Fonction pour déclencher le rafraîchissement
 	const handleCommentPosted = () => {
 		setRefreshComments((prev) => prev + 1);
 	};

@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 import { SessionProvider } from "next-auth/react";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { ReactQueryProvider } from "./providers/react-query-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nfe-foot.com";
@@ -86,10 +87,12 @@ export default function RootLayout({
 	return (
 		<html lang="en" className={cn(inter.className, "h-full")}>
 			<body className="h-full">
-				<SessionProvider>{children}</SessionProvider>
-				<Analytics />
-				<SpeedInsights />
-				<GoogleAnalytics gaId={env.GOOGLE_ANALYTICS_ID ?? ""} />
+				<ReactQueryProvider>
+					<SessionProvider>{children}</SessionProvider>
+					<Analytics />
+					<SpeedInsights />
+					<GoogleAnalytics gaId={env.GOOGLE_ANALYTICS_ID ?? ""} />
+				</ReactQueryProvider>
 			</body>
 		</html>
 	);

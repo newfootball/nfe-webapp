@@ -60,6 +60,7 @@ You are an expert programming assistant focusing on:
       - `messages/`
       - `post/`
       - `profile/`
+      - `admin/`
       - `teams/`
   - `components/`
     - `feature/`

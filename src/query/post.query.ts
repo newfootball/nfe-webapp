@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import type { Media, Post, User } from "@prisma/client";
+import { PostWithUserAndMedias } from "@/src/types/post.types";
 
 export const getCountPosts = async (userId: string): Promise<number> => {
 	if (!userId) return 0;
@@ -12,15 +12,6 @@ export const getCountPosts = async (userId: string): Promise<number> => {
 	});
 
 	return countPosts;
-};
-
-export type PostWithUserAndMedias = Post & {
-	user: User;
-	medias: Media[];
-	_count: {
-		comments: number;
-		likes: number;
-	};
 };
 
 export const getPosts = async ({

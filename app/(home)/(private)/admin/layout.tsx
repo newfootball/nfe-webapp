@@ -14,6 +14,7 @@ export default async function AdminLayout({
 	const user = session?.user as SessionUser;
 
 	if (!user.role || user.role !== "ADMIN") {
+		console.log(user);
 		toast.error("You must be an admin to access this page.");
 		redirect("/");
 	}

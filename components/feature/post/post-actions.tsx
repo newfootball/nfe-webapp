@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { hasFavorited } from "@/src/query/favorite.query";
 import { hasLiked } from "@/src/query/like.query";
-import { Bookmark, MessageSquare, Share2, ThumbsUp } from "lucide-react";
+import { Bookmark, MessageSquare, ThumbsUp } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -11,9 +11,9 @@ import { cn } from "@/lib/utils";
 import { toggleFavorite } from "@/src/actions/favorite.action";
 import { toggleLike } from "@/src/actions/like.action";
 import { useSession } from "next-auth/react";
+import { PostActionShare } from "./post-actions/post-action-share";
 import { PostCommentsList } from "./post-comments-list";
 import { PostFormComment } from "./post-form-comment";
-import { PostActionShare } from "./post-actions/post-action-share";
 
 interface PostActionsProps {
 	likes?: number;

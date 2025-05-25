@@ -19,7 +19,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { deletePost } from "@/src/actions/post.action";
-import type { PostWithUserAndMedias } from "@/src/query/post.query";
+import type { PostWithUserAndMedias } from "@/src/types/post.types";
 import { formatDistanceToNow } from "date-fns";
 import {
 	EyeClosed,

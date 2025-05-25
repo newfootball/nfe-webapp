@@ -1,8 +1,8 @@
 "use client";
 
 import { PostDetails } from "@/components/feature/post/post-details";
-import type { PostWithUserAndMedias } from "@/src/query/post.query";
 import { getPosts } from "@/src/query/post.query";
+import type { PostWithUserAndMedias } from "@/src/types/post.types";
 import { useEffect, useState } from "react";
 
 export default function Posts({

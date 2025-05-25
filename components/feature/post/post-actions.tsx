@@ -10,6 +10,10 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { toggleFavorite } from "@/src/actions/favorite.action";
 import { toggleLike } from "@/src/actions/like.action";
+import {
+	useCommentCount,
+	useInvalidateCommentQueries,
+} from "@/src/hooks/use-comment-query";
 import { useSession } from "next-auth/react";
 import { PostActionShare } from "./post-actions/post-action-share";
 import { PostCommentsList } from "./post-comments-list";
@@ -23,7 +27,7 @@ interface PostActionsProps {
 
 export function PostActions({
 	likes = 0,
-	comments = 0,
+	comments: initialComments = 0,
 	postId,
 }: PostActionsProps) {
 	const { data: session } = useSession();
@@ -32,6 +36,16 @@ export function PostActions({
 	const [showCommentForm, setShowCommentForm] = useState(false);
 	const [isLike, setIsLike] = useState(false);
 	const [isFavorite, setIsFavorite] = useState(false);
+
+	// Use Tanstack Query to fetch and cache comment count
+	const { data: commentData } = useCommentCount(postId);
+	const { invalidateCommentQueries } = useInvalidateCommentQueries();
+
+	// Use the cached count or fall back to initial count
+	const comments =
+		commentData?.success && commentData.count !== undefined
+			? commentData.count
+			: initialComments;
 
 	useEffect(() => {
 		if (!userId) return;
@@ -78,6 +92,10 @@ export function PostActions({
 		setShowCommentForm(!showCommentForm);
 	};
 
+	const updateCommentCount = () => {
+		invalidateCommentQueries(postId);
+	};
+
 	return (
 		<div className="px- py-2">
 			{(likes > 0 || comments > 0) && (
@@ -114,7 +132,7 @@ export function PostActions({
 					<MessageSquare className="mr-2 h-4 w-4" />
 					<span className="hidden md:inline">Commenter</span>
 				</Button>
-				<PostActionShare />
+				<PostActionShare postId={postId} />
 				<Button
 					variant="ghost"
 					size="sm"
@@ -129,7 +147,10 @@ export function PostActions({
 			</div>
 			{showCommentForm && (
 				<>
-					<PostFormComment postId={postId} />
+					<PostFormComment
+						postId={postId}
+						onCommentPosted={updateCommentCount}
+					/>
 					<PostCommentsList postId={postId} />
 				</>
 			)}

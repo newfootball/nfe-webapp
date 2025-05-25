@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import type { PostWithUserAndMedias } from "@/src/query/post.query";
+import type { PostWithUserAndMedias } from "@/src/types/post.types";
 import { PostActions } from "./post-actions";
 import { PostContent } from "./post-content";
 import { PostHeader } from "./post-header";

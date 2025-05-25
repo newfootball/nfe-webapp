@@ -1,5 +1,5 @@
 "use client";
-import type { PostWithUserAndMedias } from "@/src/query/post.query";
+import type { PostWithUserAndMedias } from "@/src/types/post.types";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 

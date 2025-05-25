@@ -14,7 +14,7 @@ export default function OnboardingPage() {
 		const checkProfile = async () => {
 			const session = await auth();
 			if (!session?.user) {
-				router.push("/auth/login");
+				router.push("/auth/sign-in");
 				return;
 			}
 

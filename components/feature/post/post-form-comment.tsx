@@ -3,7 +3,10 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { saveComment } from "@/src/actions/comment.action";
+import { useInvalidateCommentQueries } from "@/src/hooks/use-comment-query";
+import { commentKeys } from "@/src/hooks/use-comment-query";
 import { CommentSchema } from "@/src/schemas/comment.schema";
+import { useQueryClient } from "@tanstack/react-query";
 import { Loader2, Send } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { type FormEvent, useState } from "react";
@@ -20,6 +23,8 @@ export const PostFormComment = ({
 }: PostFormCommentProps) => {
 	const { data: session } = useSession();
 	const userId = session?.user?.id;
+	const queryClient = useQueryClient();
+	const { invalidateCommentQueries } = useInvalidateCommentQueries();
 
 	const [comment, setComment] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,7 +40,6 @@ export const PostFormComment = ({
 		}
 
 		try {
-			// Validate the form data
 			CommentSchema.parse({
 				postId,
 				userId,
@@ -60,6 +64,10 @@ export const PostFormComment = ({
 			}
 
 			setComment("");
+
+			// Optimistic update for comments list
+			queryClient.invalidateQueries({ queryKey: commentKeys.list(postId) });
+			queryClient.invalidateQueries({ queryKey: commentKeys.count(postId) });
 
 			// Appeler la fonction onCommentPosted si elle existe
 			if (onCommentPosted) {

@@ -16,6 +16,32 @@ export type CommentWithUser = Comment & {
 	};
 };
 
+export type CommentCountResult = {
+	success: boolean;
+	count?: number;
+	error?: string;
+};
+
+export const getCommentCount = async (
+	postId: string,
+): Promise<CommentCountResult> => {
+	try {
+		const count = await prisma.comment.count({
+			where: {
+				postId,
+			},
+		});
+
+		return { success: true, count };
+	} catch (error) {
+		console.error("Error counting comments:", error);
+		return {
+			success: false,
+			error: "Une erreur s'est produite lors du comptage des commentaires",
+		};
+	}
+};
+
 export const getLastComments = async (
 	postId: string,
 	limit = 5,

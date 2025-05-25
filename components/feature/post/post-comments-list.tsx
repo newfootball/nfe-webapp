@@ -1,42 +1,28 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-	type CommentWithUser,
-	getLastComments,
-} from "@/src/query/comment.query";
-import { useEffect, useState } from "react";
+import { useLastComments } from "@/src/hooks/use-comment-query";
 
 interface PostCommentsListProps {
 	postId: string;
 }
 
 export const PostCommentsList = ({ postId }: PostCommentsListProps) => {
-	const [comments, setComments] = useState<CommentWithUser[]>([]);
-	const [isLoading, setIsLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
+	// Use Tanstack Query to fetch and cache comments
+	const {
+		data: commentsResult,
+		isLoading,
+		error: queryError,
+	} = useLastComments(postId);
 
-	useEffect(() => {
-		const fetchComments = async () => {
-			try {
-				const result = await getLastComments(postId);
-				if (result.success) {
-					setComments(result.data ?? []);
-				} else {
-					setError(result.error ?? "Une erreur s'est produite");
-				}
-			} catch (error) {
-				console.error("Error fetching comments:", error);
-				setError(
-					"Une erreur s'est produite lors de la récupération des commentaires",
-				);
-			} finally {
-				setIsLoading(false);
-			}
-		};
-
-		fetchComments();
-	}, [postId]);
+	// Extract comments from the query result
+	const comments = commentsResult?.success ? (commentsResult.data ?? []) : [];
+	// Extract error message from the query result
+	const error = queryError
+		? "Une erreur s'est produite lors de la récupération des commentaires"
+		: commentsResult?.success
+			? null
+			: (commentsResult?.error ?? null);
 
 	if (isLoading) {
 		return (

@@ -55,7 +55,7 @@ export default function Posts({
 			const isVisible = rect.top <= window.innerHeight;
 
 			if (isVisible && posts.length >= limit) {
-				console.log("fetching posts");
+				console.warn("fetching posts");
 				//fetchPosts();
 			}
 		};

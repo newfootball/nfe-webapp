@@ -26,6 +26,7 @@ export const getUserLogin = async (email: string, password: string) => {
 			return null;
 		}
 
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		const { password: _, ...userWithoutPassword } = user;
 
 		return userWithoutPassword;

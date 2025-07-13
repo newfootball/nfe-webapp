@@ -48,7 +48,7 @@ export function SignUpForm() {
 		}
 
 		saveUser({ email, password })
-			.then((user) => {
+			.then(() => {
 				signIn("credentials", {
 					email,
 					password,

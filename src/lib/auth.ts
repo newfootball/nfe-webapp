@@ -64,7 +64,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 		signIn: "/sign-in",
 	},
 	callbacks: {
-		async session({ session, user, token }) {
+		async session({ session, token }) {
 			if (session.user) {
 				session.user.id = token.sub as string; // Associer l'ID utilisateur à la session
 				session.user.name = token.name || null;

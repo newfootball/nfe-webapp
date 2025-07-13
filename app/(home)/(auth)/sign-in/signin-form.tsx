@@ -45,8 +45,6 @@ export function SignInForm() {
 				redirect: false,
 			});
 
-			console.info({ res });
-
 			if (res?.error) {
 				setError(res?.code ?? "Invalid credentials");
 				return;

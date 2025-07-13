@@ -10,7 +10,7 @@ interface UserListProps {
 	onUserSelect?: (user: MessageUser) => void;
 }
 
-export function UserList({ users, onUserSelect }: UserListProps) {
+export function UserList({ users }: UserListProps) {
 	return (
 		<ScrollArea className="w-full whitespace-nowrap mb-6">
 			<div className="flex gap-4">

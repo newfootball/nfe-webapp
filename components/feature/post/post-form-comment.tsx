@@ -3,7 +3,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { saveComment } from "@/src/actions/comment.action";
-import { useInvalidateCommentQueries } from "@/src/hooks/use-comment-query";
 import { commentKeys } from "@/src/hooks/use-comment-query";
 import { CommentSchema } from "@/src/schemas/comment.schema";
 import { useQueryClient } from "@tanstack/react-query";
@@ -24,7 +23,6 @@ export const PostFormComment = ({
 	const { data: session } = useSession();
 	const userId = session?.user?.id;
 	const queryClient = useQueryClient();
-	const { invalidateCommentQueries } = useInvalidateCommentQueries();
 
 	const [comment, setComment] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);

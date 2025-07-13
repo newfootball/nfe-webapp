@@ -5,19 +5,6 @@ import { User } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
-type UserType = {
-	id: string;
-	name: string;
-	email: string;
-};
-
-type UsersResponseType = {
-	users: UserType[];
-	total: number;
-	page: number;
-	limit: number;
-};
-
 export default function UsersList() {
 	const [page, setPage] = useState(1);
 	const limit = 10;

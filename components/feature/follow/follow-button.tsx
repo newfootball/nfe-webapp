@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { checkIsFollowing } from "@/src/query/follow.query";
-import type { Follow } from "@prisma/client";
 import { UserCheck, UserRoundPlus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -38,7 +37,7 @@ export const FollowButton = ({
 
 		setIsLoading(true);
 		addFollow({ userToFollowId: userId })
-			.then((follow: Follow) => {
+			.then(() => {
 				toast.success("You are now following this user");
 				setIsFollowing(true);
 				setIsLoading(false);

@@ -7,7 +7,14 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"ignore": [".next", "node_modules", "public/*.js", "lib/prisma.ts", "build"]
+		"ignore": [
+			".next",
+			"node_modules",
+			"public/*.js",
+			"lib/prisma.ts",
+			"build",
+			"prisma/generated/*"
+		]
 	},
 	"formatter": {
 		"enabled": true,

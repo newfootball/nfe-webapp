@@ -20,9 +20,7 @@
 			"prisma validate",
 			"prisma format"
 		],
-		"*.{json,js,ts,jsx,tsx,html}": [
-			"prettier --write --ignore-unknown"
-		]
+		"*.{json,js,ts,jsx,tsx,html}": ["prettier --write --ignore-unknown"]
 	},
 	"dependencies": {
 		"@auth/prisma-adapter": "^2.10.0",

@@ -1,51 +1,51 @@
 {
-	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-	"vcs": {
-		"enabled": false,
-		"clientKind": "git",
-		"useIgnoreFile": false
-	},
-	"files": {
-		"ignoreUnknown": false,
-		"ignore": [
-			".next",
-			"node_modules",
-			"public/*.js",
-			"lib/prisma.ts",
-			"build",
-			"prisma/generated/*"
-		]
-	},
-	"formatter": {
-		"enabled": true,
-		"indentStyle": "tab"
-	},
-	"organizeImports": {
-		"enabled": true
-	},
-	"linter": {
-		"enabled": true,
-		"rules": {
-			"recommended": false,
-			"suspicious": {
-				"noImplicitAnyLet": "warn",
-				"noDuplicateObjectKeys": "warn"
-			},
-			"performance": {
-				"noDelete": "error"
-			},
-			"complexity": {
-				"noUselessSwitchCase": "warn",
-				"noUselessTypeConstraint": "warn"
-			},
-			"correctness": {
-				"noUnusedImports": "warn"
-			}
-		}
-	},
-	"javascript": {
-		"formatter": {
-			"quoteStyle": "double"
-		}
-	}
+  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "vcs": {
+    "enabled": false,
+    "clientKind": "git",
+    "useIgnoreFile": false
+  },
+  "files": {
+    "ignoreUnknown": false,
+    "ignore": [
+      ".next",
+      "node_modules",
+      "public/*.js",
+      "lib/prisma.ts",
+      "build",
+      "prisma/generated/*"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "tab"
+  },
+  "organizeImports": {
+    "enabled": true
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": false,
+      "suspicious": {
+        "noImplicitAnyLet": "warn",
+        "noDuplicateObjectKeys": "warn"
+      },
+      "performance": {
+        "noDelete": "error"
+      },
+      "complexity": {
+        "noUselessSwitchCase": "warn",
+        "noUselessTypeConstraint": "warn"
+      },
+      "correctness": {
+        "noUnusedImports": "warn"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double"
+    }
+  }
 }

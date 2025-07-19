@@ -3,9 +3,11 @@
 import { getUsers } from "@/src/query/user.query";
 import { User } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 export default function UsersList() {
+	const t = useTranslations("admin.users");
 	const [page, setPage] = useState(1);
 	const limit = 10;
 
@@ -22,29 +24,29 @@ export default function UsersList() {
 		return (
 			<div className="flex items-center justify-center h-40">
 				<span className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mr-2"></span>
-				<span className="text-gray-700">Chargement…</span>
+				<span className="text-gray-700">{t("loading")}</span>
 			</div>
 		);
 
 	if (isError)
 		return (
 			<div className="flex items-center justify-center h-40 text-red-600 font-semibold">
-				Erreur lors du chargement
+				{t("error-loading")}
 			</div>
 		);
 
 	return (
 		<div className="w-full max-w-3xl mx-auto mt-8">
-			<h2 className="text-2xl font-bold mb-4 text-gray-800">Utilisateurs</h2>
+			<h2 className="text-2xl font-bold mb-4 text-gray-800">{t("users")}</h2>
 			<div className="overflow-x-auto">
 				<table className="min-w-full divide-y divide-gray-200">
 					<thead className="bg-gray-50">
 						<tr>
 							<th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-								Nom
+								{t("name")}
 							</th>
 							<th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-								Email
+								{t("email")}
 							</th>
 						</tr>
 					</thead>
@@ -64,9 +66,11 @@ export default function UsersList() {
 					disabled={page === 1}
 					className={`px-4 py-2 rounded-md border border-gray-300 bg-gray-100 text-gray-700 font-medium transition-colors hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed`}
 				>
-					Précédent
+					{t("previous")}
 				</button>
-				<span className="text-gray-700 font-semibold">Page {page}</span>
+				<span className="text-gray-700 font-semibold">
+					{t("page")} {page}
+				</span>
 				<button
 					onClick={() =>
 						setPage((p) => (users && users.length === limit ? p + 1 : p))
@@ -74,7 +78,7 @@ export default function UsersList() {
 					disabled={users && users.length < limit}
 					className={`px-4 py-2 rounded-md border border-gray-300 bg-gray-100 text-gray-700 font-medium transition-colors hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed`}
 				>
-					Suivant
+					{t("next")}
 				</button>
 			</div>
 		</div>

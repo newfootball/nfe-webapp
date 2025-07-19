@@ -171,5 +171,19 @@
 		"send-reset-instructions": "Send Reset Instructions",
 		"reset-instructions-sent": "If your email is registered, you will receive reset instructions",
 		"error-processing-request": "An error occurred while processing your request"
+	},
+	"admin": {
+		"users": {
+			"title": "Users",
+			"description": "Welcome to the users admin dashboard",
+			"users": "Users",
+			"name": "Name",
+			"email": "Email",
+			"loading": "Loading...",
+			"error-loading": "Error loading users",
+			"previous": "Previous",
+			"next": "Next",
+			"page": "Page"
+		}
 	}
 }

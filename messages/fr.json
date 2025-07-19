@@ -171,5 +171,19 @@
 		"send-reset-instructions": "Envoyer les instructions de réinitialisation",
 		"reset-instructions-sent": "Si votre email est enregistré, vous recevrez les instructions de réinitialisation",
 		"error-processing-request": "Une erreur s'est produite lors du traitement de votre demande"
+	},
+	"admin": {
+		"users": {
+			"title": "Utilisateurs",
+			"description": "Bienvenue sur le tableau de bord d'administration des utilisateurs",
+			"users": "Utilisateurs",
+			"name": "Nom",
+			"email": "Email",
+			"loading": "Chargement...",
+			"error-loading": "Erreur lors du chargement des utilisateurs",
+			"previous": "Précédent",
+			"next": "Suivant",
+			"page": "Page"
+		}
 	}
 }

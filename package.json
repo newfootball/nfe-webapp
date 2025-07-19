@@ -2,6 +2,7 @@
   "name": "nfe-webapp",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -13,13 +14,12 @@
   },
   "packageManager": "bun@1.2.17",
   "lint-staged": {
-    "*.{js, jsx,ts,tsx}": [
+    "*.{js,jsx,ts,tsx}": [
       "biome check --fix --unsafe",
       "biome check --write",
       "eslint --fix --max-warnings 0",
       "prisma validate",
-      "prisma format",
-      "bun build --target node20 --output ./dist/server"
+      "prisma format"
     ],
     "*.{json,js,ts,jsx,tsx,html}": [
       "prettier --write --ignore-unknown"
@@ -79,11 +79,15 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
+    "@next/eslint-plugin-next": "^15.4.2",
     "@types/node": "^22.16.5",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
+    "@typescript-eslint/eslint-plugin": "^8.37.0",
+    "@typescript-eslint/parser": "^8.37.0",
     "eslint": "^9.31.0",
     "eslint-config-next": "^15.4.2",
+    "globals": "^16.3.0",
     "husky": "^9.1.7",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",

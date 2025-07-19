@@ -1,227 +1,259 @@
 {
-	"posts": {
-		"no-posts-available": "Aucun post disponible",
-		"failed-to-fetch-posts": "Erreur lors de la récupération des posts",
-		"post-actions": {
-			"like": "J'aime",
-			"comments-count": "{count, plural, =0 {Aucun commentaire} one {1 commentaire} other {{count} commentaires}}",
-			"comment": "Commenter",
-			"save": "Enregistrer",
-			"share": {
-				"share-label": "Partager",
-				"share-post": "Partager ce post",
-				"share-post-description": "Choisissez une option pour partager ce post :",
-				"share-on-facebook": "Partager sur Facebook",
-				"share-on-instagram": "Partager sur Instagram",
-				"share-on-whatsapp": "Partager sur WhatsApp",
-				"copy-link": "Copier le lien",
-				"link-copied": "Lien copié !",
-				"close": "Fermer"
-			}
-		},
-		"new": {
-			"add-a-title": "Ajouter un titre",
-			"write-a-description": "Écrire une description...",
-			"selected-image": "Image sélectionnée",
-			"click-to-upload-image": "Cliquer pour télécharger une image",
-			"click-to-upload-video": "Cliquer pour télécharger une vidéo",
-			"submit": "Envoyer",
-			"post-created-successfully": "Post créé avec succès"
-		},
-		"post-comments-list": {
-			"error-loading-comments": "Une erreur s'est produite lors de la récupération des commentaires",
-			"loading-comments": "Chargement des commentaires...",
-			"no-comments": "Aucun commentaire",
-			"user": "Utilisateur"
-		},
-		"post-form-comment": {
-			"you-must-be-logged-in-to-comment": "Vous devez être connecté pour commenter",
-			"an-error-occurred-while-saving-the-comment": "Une erreur s'est produite lors de l'enregistrement du commentaire",
-			"your-avatar": "Votre Avatar",
-			"share-your-opinion": "Partagez votre opinion..."
-		},
-		"post-header": {
-			"suggestion": "Suggestion",
-			"show": "Afficher",
-			"hide": "Masquer",
-			"edit": "Modifier",
-			"delete": "Supprimer",
-			"confirm-deletion": "Confirmer la suppression",
-			"confirm-deletion-description": "Êtes-vous sûr de vouloir supprimer ce post ? Cette action est irréversible.",
-			"cancel": "Annuler",
-			"post-deleted-successfully": "Post supprimé avec succès",
-			"post-deletion-failed": "Échec de la suppression du post",
-			"signal": "Signaler"
-		},
-		"post-content": {
-			"video-playback-error": "Erreur de lecture vidéo:",
-			"video-unsupported": "Format vidéo non pris en charge",
-			"video-unsupported-description": "Le format {format} n'est pas compatible avec votre navigateur"
-		},
-		"post-signal-form": {
-			"report-post": "Signaler ce post",
-			"please-indicate-the-reason-for-reporting-this-post": "Veuillez indiquer la raison pour laquelle vous signalez ce post.",
-			"reason": "Raison",
-			"select-reason": "Sélectionnez une raison",
-			"spam": "Spam",
-			"misleading-information": "Information trompeuse",
-			"offensive-content": "Contenu offensant",
-			"other": "Autre",
-			"details": "Détails (optionnel)",
-			"provide-more-details-on-your-report": "Fournissez plus de détails sur votre signalement",
-			"report": "Signaler",
-			"post-reported-successfully": "Post signalé avec succès",
-			"post-reporting-failed": "Échec du signalement du post",
-			"cancel": "Annuler"
-		},
-		"my-posts": {
-			"my-posts": "Mes Posts",
-			"you-have-no-posts": "Vous n'avez pas de posts"
-		}
-	},
-	"footer": {
-		"home": "Accueil",
-		"search": "Rechercher",
-		"messages": "Messages",
-		"profile": "Profil",
-		"sign-in": "Connexion"
-	},
-	"splash": {
-		"get-started": "Commencer",
-		"new-way-to-experience-football": "Une nouvelle façon d'expériencer le football.",
-		"title": "New Football Experience"
-	},
-	"follow-button": {
-		"you-are-now-following-this-user": "Vous suivez maintenant cet utilisateur",
-		"an-error-occurred": "Une erreur est survenue",
-		"error-checking-follow-status": "Erreur lors de la vérification du statut de suivi",
-		"following": "Suivi",
-		"follow": "Suivre",
-		"failed-to-follow-user": "Échec du suivi de l'utilisateur",
-		"user-not-found": "Utilisateur non trouvé"
-	},
-	"auth-layout": {
-		"privacy": "Vie privée",
-		"terms": "Conditions d'utilisation",
-		"about-us": "À propos de nous"
-	},
-	"not-found": {
-		"not-found": "Page non trouvée",
-		"not-found-description": "La page que vous cherchez n'existe pas.",
-		"go-back-to-home": "Retour à l'accueil"
-	},
-	"error": {
-		"error": "Une erreur est survenue",
-		"error-description": "Une erreur est survenue lors de la récupération de la page.",
-		"try-again": "Réessayer",
-		"go-back-to-home": "Retour à l'accueil"
-	},
-	"sign-up": {
-		"create-account": "Créer un compte",
-		"enter-your-email-below-to-create-your-account": "Entrez votre email ci-dessous pour créer votre compte",
-		"or-continue-with": "Ou continuer avec",
-		"sign-in": "Connexion",
-		"already-have-an-account": "Vous avez déjà un compte ?",
-		"email": "Email",
-		"password": "Mot de passe",
-		"confirm-password": "Confirmer le mot de passe",
-		"passwords-do-not-match": "Les mots de passe ne correspondent pas",
-		"user-already-exists": "L'utilisateur existe déjà",
-		"invalid-email": "Adresse email invalide",
-		"password-too-short": "Le mot de passe doit contenir au moins 8 caractères",
-		"confirm-password-too-short": "La confirmation du mot de passe doit contenir au moins 8 caractères"
-	},
-	"sign-in": {
-		"sign-in": "Se connecter",
-		"enter-your-email-below-to-sign-in": "Entrez votre email ci-dessous pour vous connecter à votre compte",
-		"or-continue-with": "Ou continuer avec",
-		"dont-have-an-account": "Vous n'avez pas de compte ?",
-		"sign-up": "S'inscrire",
-		"email": "Email",
-		"password": "Mot de passe",
-		"invalid-email": "Adresse email invalide",
-		"password-too-short": "Le mot de passe doit contenir au moins 8 caractères",
-		"invalid-credentials": "Identifiants invalides",
-		"an-error-occurred": "Une erreur s'est produite",
-		"forgot-your-password": "Mot de passe oublié ?",
-		"login": "Se connecter"
-	},
-	"reset-password": {
-		"reset-your-password": "Réinitialiser votre mot de passe",
-		"enter-your-new-password-below": "Entrez votre nouveau mot de passe ci-dessous",
-		"new-password": "Nouveau mot de passe",
-		"confirm-password": "Confirmer le mot de passe",
-		"reset-password": "Réinitialiser le mot de passe",
-		"password-too-short": "Le mot de passe doit contenir au moins 8 caractères",
-		"passwords-do-not-match": "Les mots de passe ne correspondent pas",
-		"invalid-or-missing-reset-token": "Token de réinitialisation invalide ou manquant",
-		"password-reset-success": "Mot de passe réinitialisé avec succès",
-		"password-reset-success-redirect": "Votre mot de passe a été réinitialisé avec succès. Redirection vers la connexion...",
-		"error-resetting-password": "Une erreur s'est produite lors de la réinitialisation de votre mot de passe",
-		"token-required": "Le token est requis",
-		"invalid-or-expired-reset-token": "Token de réinitialisation invalide ou expiré"
-	},
-	"forgot-password": {
-		"forgot-password": "Mot de passe oublié",
-		"enter-your-email-for-reset-instructions": "Entrez votre adresse email et nous vous enverrons les instructions pour réinitialiser votre mot de passe",
-		"remember-your-password": "Vous vous souvenez de votre mot de passe ?",
-		"sign-in": "Se connecter",
-		"email": "Email",
-		"invalid-email": "Adresse email invalide",
-		"send-reset-instructions": "Envoyer les instructions de réinitialisation",
-		"reset-instructions-sent": "Si votre email est enregistré, vous recevrez les instructions de réinitialisation",
-		"error-processing-request": "Une erreur s'est produite lors du traitement de votre demande"
-	},
-	"admin": {
-		"users": {
-			"title": "Utilisateurs",
-			"description": "Bienvenue sur le tableau de bord d'administration des utilisateurs",
-			"users": "Utilisateurs",
-			"name": "Nom",
-			"email": "Email",
-			"loading": "Chargement...",
-			"error-loading": "Erreur lors du chargement des utilisateurs",
-			"previous": "Précédent",
-			"next": "Suivant",
-			"page": "Page"
-		}
-	},
-	"onboarding": {
-		"complete-your-profile": "Compléter votre profil",
-		"tell-us-more-about-yourself": "Dites-nous plus sur vous pour commencer",
-		"i-am-a": "Je suis un...",
-		"select-your-role": "Sélectionnez votre rôle",
-		"fan": "Fan",
-		"player": "Joueur",
-		"coach": "Entraîneur",
-		"trainer": "Préparateur physique",
-		"club": "Club",
-		"continue": "Continuer",
-		"date-of-birth": "Date de naissance",
-		"pick-a-date": "Choisir une date",
-		"select-a-date": "Sélectionner une date",
-		"city": "Ville",
-		"enter-your-city": "Entrez votre ville",
-		"position": "Poste",
-		"select-your-position": "Sélectionnez votre poste",
-		"goalkeeper": "Gardien de but",
-		"defender": "Défenseur",
-		"midfielder": "Milieu de terrain",
-		"forward": "Attaquant",
-		"preferred-foot": "Pied préféré",
-		"select-your-preferred-foot": "Sélectionnez votre pied préféré",
-		"left": "Gauche",
-		"right": "Droite",
-		"both": "Les deux",
-		"license-number-optional": "Numéro de licence (optionnel)",
-		"enter-your-license-number": "Entrez votre numéro de licence",
-		"club-name": "Nom du club",
-		"enter-your-club-name": "Entrez le nom de votre club",
-		"number-of-members": "Nombre de membres",
-		"enter-club-size": "Entrez la taille du club",
-		"league-position": "Position en championnat",
-		"enter-your-league-position": "Entrez votre position en championnat",
-		"complete-profile": "Compléter le profil",
-		"something-went-wrong": "Une erreur s'est produite"
-	}
+  "posts": {
+    "no-posts-available": "Aucun post disponible",
+    "failed-to-fetch-posts": "Erreur lors de la récupération des posts",
+    "post-actions": {
+      "like": "J'aime",
+      "comments-count": "{count, plural, =0 {Aucun commentaire} one {1 commentaire} other {{count} commentaires}}",
+      "comment": "Commenter",
+      "save": "Enregistrer",
+      "share": {
+        "share-label": "Partager",
+        "share-post": "Partager ce post",
+        "share-post-description": "Choisissez une option pour partager ce post :",
+        "share-on-facebook": "Partager sur Facebook",
+        "share-on-instagram": "Partager sur Instagram",
+        "share-on-whatsapp": "Partager sur WhatsApp",
+        "copy-link": "Copier le lien",
+        "link-copied": "Lien copié !",
+        "close": "Fermer"
+      }
+    },
+    "new": {
+      "add-a-title": "Ajouter un titre",
+      "write-a-description": "Écrire une description...",
+      "selected-image": "Image sélectionnée",
+      "click-to-upload-image": "Cliquer pour télécharger une image",
+      "click-to-upload-video": "Cliquer pour télécharger une vidéo",
+      "submit": "Envoyer",
+      "post-created-successfully": "Post créé avec succès"
+    },
+    "post-comments-list": {
+      "error-loading-comments": "Une erreur s'est produite lors de la récupération des commentaires",
+      "loading-comments": "Chargement des commentaires...",
+      "no-comments": "Aucun commentaire",
+      "user": "Utilisateur"
+    },
+    "post-form-comment": {
+      "you-must-be-logged-in-to-comment": "Vous devez être connecté pour commenter",
+      "an-error-occurred-while-saving-the-comment": "Une erreur s'est produite lors de l'enregistrement du commentaire",
+      "your-avatar": "Votre Avatar",
+      "share-your-opinion": "Partagez votre opinion..."
+    },
+    "post-header": {
+      "suggestion": "Suggestion",
+      "show": "Afficher",
+      "hide": "Masquer",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "confirm-deletion": "Confirmer la suppression",
+      "confirm-deletion-description": "Êtes-vous sûr de vouloir supprimer ce post ? Cette action est irréversible.",
+      "cancel": "Annuler",
+      "post-deleted-successfully": "Post supprimé avec succès",
+      "post-deletion-failed": "Échec de la suppression du post",
+      "signal": "Signaler"
+    },
+    "post-content": {
+      "video-playback-error": "Erreur de lecture vidéo:",
+      "video-unsupported": "Format vidéo non pris en charge",
+      "video-unsupported-description": "Le format {format} n'est pas compatible avec votre navigateur"
+    },
+    "post-signal-form": {
+      "report-post": "Signaler ce post",
+      "please-indicate-the-reason-for-reporting-this-post": "Veuillez indiquer la raison pour laquelle vous signalez ce post.",
+      "reason": "Raison",
+      "select-reason": "Sélectionnez une raison",
+      "spam": "Spam",
+      "misleading-information": "Information trompeuse",
+      "offensive-content": "Contenu offensant",
+      "other": "Autre",
+      "details": "Détails (optionnel)",
+      "provide-more-details-on-your-report": "Fournissez plus de détails sur votre signalement",
+      "report": "Signaler",
+      "post-reported-successfully": "Post signalé avec succès",
+      "post-reporting-failed": "Échec du signalement du post",
+      "cancel": "Annuler"
+    },
+    "my-posts": {
+      "my-posts": "Mes Posts",
+      "you-have-no-posts": "Vous n'avez pas de posts"
+    }
+  },
+  "footer": {
+    "home": "Accueil",
+    "search": "Rechercher",
+    "messages": "Messages",
+    "profile": "Profil",
+    "sign-in": "Connexion"
+  },
+  "splash": {
+    "get-started": "Commencer",
+    "new-way-to-experience-football": "Une nouvelle façon d'expériencer le football.",
+    "title": "New Football Experience"
+  },
+  "follow-button": {
+    "you-are-now-following-this-user": "Vous suivez maintenant cet utilisateur",
+    "an-error-occurred": "Une erreur est survenue",
+    "error-checking-follow-status": "Erreur lors de la vérification du statut de suivi",
+    "following": "Suivi",
+    "follow": "Suivre",
+    "failed-to-follow-user": "Échec du suivi de l'utilisateur",
+    "user-not-found": "Utilisateur non trouvé"
+  },
+  "auth-layout": {
+    "privacy": "Vie privée",
+    "terms": "Conditions d'utilisation",
+    "about-us": "À propos de nous"
+  },
+  "not-found": {
+    "not-found": "Page non trouvée",
+    "not-found-description": "La page que vous cherchez n'existe pas.",
+    "go-back-to-home": "Retour à l'accueil"
+  },
+  "error": {
+    "error": "Une erreur est survenue",
+    "error-description": "Une erreur est survenue lors de la récupération de la page.",
+    "try-again": "Réessayer",
+    "go-back-to-home": "Retour à l'accueil"
+  },
+  "sign-up": {
+    "create-account": "Créer un compte",
+    "enter-your-email-below-to-create-your-account": "Entrez votre email ci-dessous pour créer votre compte",
+    "or-continue-with": "Ou continuer avec",
+    "sign-in": "Connexion",
+    "already-have-an-account": "Vous avez déjà un compte ?",
+    "email": "Email",
+    "password": "Mot de passe",
+    "confirm-password": "Confirmer le mot de passe",
+    "passwords-do-not-match": "Les mots de passe ne correspondent pas",
+    "user-already-exists": "L'utilisateur existe déjà",
+    "invalid-email": "Adresse email invalide",
+    "password-too-short": "Le mot de passe doit contenir au moins 8 caractères",
+    "confirm-password-too-short": "La confirmation du mot de passe doit contenir au moins 8 caractères"
+  },
+  "sign-in": {
+    "sign-in": "Se connecter",
+    "enter-your-email-below-to-sign-in": "Entrez votre email ci-dessous pour vous connecter à votre compte",
+    "or-continue-with": "Ou continuer avec",
+    "dont-have-an-account": "Vous n'avez pas de compte ?",
+    "sign-up": "S'inscrire",
+    "email": "Email",
+    "password": "Mot de passe",
+    "invalid-email": "Adresse email invalide",
+    "password-too-short": "Le mot de passe doit contenir au moins 8 caractères",
+    "invalid-credentials": "Identifiants invalides",
+    "an-error-occurred": "Une erreur s'est produite",
+    "forgot-your-password": "Mot de passe oublié ?",
+    "login": "Se connecter"
+  },
+  "reset-password": {
+    "reset-your-password": "Réinitialiser votre mot de passe",
+    "enter-your-new-password-below": "Entrez votre nouveau mot de passe ci-dessous",
+    "new-password": "Nouveau mot de passe",
+    "confirm-password": "Confirmer le mot de passe",
+    "reset-password": "Réinitialiser le mot de passe",
+    "password-too-short": "Le mot de passe doit contenir au moins 8 caractères",
+    "passwords-do-not-match": "Les mots de passe ne correspondent pas",
+    "invalid-or-missing-reset-token": "Token de réinitialisation invalide ou manquant",
+    "password-reset-success": "Mot de passe réinitialisé avec succès",
+    "password-reset-success-redirect": "Votre mot de passe a été réinitialisé avec succès. Redirection vers la connexion...",
+    "error-resetting-password": "Une erreur s'est produite lors de la réinitialisation de votre mot de passe",
+    "token-required": "Le token est requis",
+    "invalid-or-expired-reset-token": "Token de réinitialisation invalide ou expiré"
+  },
+  "forgot-password": {
+    "forgot-password": "Mot de passe oublié",
+    "enter-your-email-for-reset-instructions": "Entrez votre adresse email et nous vous enverrons les instructions pour réinitialiser votre mot de passe",
+    "remember-your-password": "Vous vous souvenez de votre mot de passe ?",
+    "sign-in": "Se connecter",
+    "email": "Email",
+    "invalid-email": "Adresse email invalide",
+    "send-reset-instructions": "Envoyer les instructions de réinitialisation",
+    "reset-instructions-sent": "Si votre email est enregistré, vous recevrez les instructions de réinitialisation",
+    "error-processing-request": "Une erreur s'est produite lors du traitement de votre demande"
+  },
+  "admin": {
+    "users": {
+      "title": "Utilisateurs",
+      "description": "Bienvenue sur le tableau de bord d'administration des utilisateurs",
+      "users": "Utilisateurs",
+      "name": "Nom",
+      "email": "Email",
+      "loading": "Chargement...",
+      "error-loading": "Erreur lors du chargement des utilisateurs",
+      "previous": "Précédent",
+      "next": "Suivant",
+      "page": "Page"
+    }
+  },
+  "onboarding": {
+    "complete-your-profile": "Compléter votre profil",
+    "tell-us-more-about-yourself": "Dites-nous plus sur vous pour commencer",
+    "i-am-a": "Je suis un...",
+    "select-your-role": "Sélectionnez votre rôle",
+    "fan": "Fan",
+    "player": "Joueur",
+    "coach": "Entraîneur",
+    "trainer": "Préparateur physique",
+    "club": "Club",
+    "continue": "Continuer",
+    "date-of-birth": "Date de naissance",
+    "pick-a-date": "Choisir une date",
+    "select-a-date": "Sélectionner une date",
+    "city": "Ville",
+    "enter-your-city": "Entrez votre ville",
+    "position": "Poste",
+    "select-your-position": "Sélectionnez votre poste",
+    "goalkeeper": "Gardien de but",
+    "defender": "Défenseur",
+    "midfielder": "Milieu de terrain",
+    "forward": "Attaquant",
+    "preferred-foot": "Pied préféré",
+    "select-your-preferred-foot": "Sélectionnez votre pied préféré",
+    "left": "Gauche",
+    "right": "Droite",
+    "both": "Les deux",
+    "license-number-optional": "Numéro de licence (optionnel)",
+    "enter-your-license-number": "Entrez votre numéro de licence",
+    "club-name": "Nom du club",
+    "enter-your-club-name": "Entrez le nom de votre club",
+    "number-of-members": "Nombre de membres",
+    "enter-club-size": "Entrez la taille du club",
+    "league-position": "Position en championnat",
+    "enter-your-league-position": "Entrez votre position en championnat",
+    "complete-profile": "Compléter le profil",
+    "something-went-wrong": "Une erreur s'est produite"
+  },
+  "profile": {
+    "my-last-posts": "Mes derniers posts",
+    "last-liked-posts": "Derniers posts likés",
+    "change-password": {
+      "change-password": "Changer le mot de passe",
+      "enter-current-and-new-password": "Entrez votre mot de passe actuel et votre nouveau mot de passe ci-dessous",
+      "current-password": "Mot de passe actuel",
+      "new-password": "Nouveau mot de passe",
+      "confirm-new-password": "Confirmer le nouveau mot de passe",
+      "current-password-required": "Le mot de passe actuel est requis",
+      "password-too-short": "Le mot de passe doit contenir au moins 8 caractères",
+      "confirm-password-too-short": "La confirmation du mot de passe doit contenir au moins 8 caractères",
+      "passwords-do-not-match": "Les mots de passe ne correspondent pas",
+      "error-on-change-password": "Erreur lors du changement de mot de passe",
+      "back-to-profile": "Retour au profil"
+    },
+    "edit-user": {
+      "edit-profile": "Modifier le profil",
+      "enter-email-to-edit-profile": "Entrez votre email ci-dessous pour modifier votre profil",
+      "user-not-found": "Utilisateur non trouvé",
+      "user-updated-successfully": "Utilisateur mis à jour avec succès",
+      "email": "Email",
+      "full-name": "Nom complet",
+      "birthday": "Date de naissance",
+      "biography": "Biographie",
+      "invalid-email": "Adresse email invalide",
+      "full-name-required": "Le nom complet est requis",
+      "save": "Enregistrer",
+      "back-to-profile": "Retour au profil",
+      "change-password": "Changer le mot de passe"
+    }
+  }
 }

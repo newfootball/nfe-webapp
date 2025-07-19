@@ -1,12 +1,13 @@
 import { PostDetails } from "@/components/feature/post/post-details";
 import { getPosts } from "@/src/query/post.query";
 import { getUserSession } from "@/src/query/user.query";
+import { getTranslations } from "next-intl/server";
 import { redirect } from "next/navigation";
 
-// Rendre cette page dynamique car elle utilise des fonctionnalités dynamiques (headers via auth)
 export const dynamic = "force-dynamic";
 
 export default async function MyPostsPage() {
+	const t = await getTranslations("posts.my-posts");
 	const user = await getUserSession();
 
 	if (!user?.id) {
@@ -20,9 +21,9 @@ export default async function MyPostsPage() {
 
 	return (
 		<div className="container mx-auto py-8">
-			<h1 className="text-2xl font-bold mb-6">My Posts</h1>
+			<h1 className="text-2xl font-bold mb-6">{t("my-posts")}</h1>
 			{posts.length === 0 && (
-				<p className="text-muted-foreground">You have no posts</p>
+				<p className="text-muted-foreground">{t("you-have-no-posts")}</p>
 			)}
 			{posts.map((post) => (
 				<div key={post.id} data-post className="mb-4">

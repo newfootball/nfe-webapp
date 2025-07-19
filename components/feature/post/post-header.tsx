@@ -30,6 +30,7 @@ import {
 	Trash2,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { useState } from "react";
@@ -42,6 +43,7 @@ interface PostHeaderProps {
 
 export function PostHeader({ post }: PostHeaderProps) {
 	const { data: session } = useSession();
+	const t = useTranslations("posts.post-header");
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 	const [showSignalDialog, setShowSignalDialog] = useState(false);
 
@@ -57,12 +59,12 @@ export function PostHeader({ post }: PostHeaderProps) {
 			if (result.error) {
 				toast.error(result.error);
 			} else {
-				toast.success("Post supprimé avec succès");
+				toast.success(t("post-deleted-successfully"));
 				redirect("/post/my");
 			}
 		} catch (error) {
 			console.error(error);
-			toast.error("Échec de la suppression du post");
+			toast.error(t("post-deletion-failed"));
 		}
 	};
 
@@ -70,7 +72,7 @@ export function PostHeader({ post }: PostHeaderProps) {
 		<>
 			<CardTitle className="leading-none tracking-tight py-0">
 				<div className="flex items-start justify-between p-4 pb-2 border-b mx-4 text-gray-500 font-light text-sm">
-					<div>Suggestion</div>
+					<div>{t("suggestion")}</div>
 					<div className="flex items-center gap-2">
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
@@ -79,27 +81,27 @@ export function PostHeader({ post }: PostHeaderProps) {
 							<DropdownMenuContent align="end">
 								<DropdownMenuItem asChild>
 									<Link href={`/post/${post.id}`}>
-										<FileText className="mr-2 h-4 w-4" /> Show
+										<FileText className="mr-2 h-4 w-4" /> {t("show")}
 									</Link>
 								</DropdownMenuItem>
 								<DropdownMenuItem className="cursor-not-allowed">
-									<EyeClosed className="mr-2 h-4 w-4" /> Hide
+									<EyeClosed className="mr-2 h-4 w-4" /> {t("hide")}
 								</DropdownMenuItem>
 								<DropdownMenuItem onClick={() => setShowSignalDialog(true)}>
-									<Flag className="mr-2 h-4 w-4" /> Signal
+									<Flag className="mr-2 h-4 w-4" /> {t("signal")}
 								</DropdownMenuItem>
 								{isOwner && (
 									<>
 										<DropdownMenuItem asChild>
 											<Link href={`/post/${post.id}/edit`}>
-												<FileEdit className="mr-2 h-4 w-4" /> Edit
+												<FileEdit className="mr-2 h-4 w-4" /> {t("edit")}
 											</Link>
 										</DropdownMenuItem>
 										<DropdownMenuItem
 											className="text-destructive"
 											onClick={openDeleteDialog}
 										>
-											<Trash2 className="mr-2 h-4 w-4" /> Delete
+											<Trash2 className="mr-2 h-4 w-4" /> {t("delete")}
 										</DropdownMenuItem>
 									</>
 								)}
@@ -144,19 +146,18 @@ export function PostHeader({ post }: PostHeaderProps) {
 			<AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
 				<AlertDialogContent>
 					<AlertDialogHeader>
-						<AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+						<AlertDialogTitle>{t("confirm-deletion")}</AlertDialogTitle>
 						<AlertDialogDescription>
-							Êtes-vous sûr de vouloir supprimer ce post ? Cette action est
-							irréversible.
+							{t("confirm-deletion-description")}
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel>Annuler</AlertDialogCancel>
+						<AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
 						<AlertDialogAction
 							onClick={handleDelete}
 							className="bg-destructive text-destructive-foreground"
 						>
-							Supprimer
+							{t("delete")}
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

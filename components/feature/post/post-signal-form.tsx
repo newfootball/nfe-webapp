@@ -28,6 +28,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { signalPost } from "@/src/actions/post.action";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SignalReason } from "@prisma/client";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -50,6 +51,7 @@ export function PostSignalForm({
 	open,
 	onOpenChange,
 }: PostSignalFormProps) {
+	const t = useTranslations("posts.post-signal-form");
 	const form = useForm<SignalFormValues>({
 		resolver: zodResolver(signalFormSchema),
 		defaultValues: {
@@ -65,13 +67,13 @@ export function PostSignalForm({
 			if (result.error) {
 				toast.error(result.error);
 			} else {
-				toast.success(result.message || "Post signalé avec succès");
+				toast.success(result.message || t("post-reported-successfully"));
 				onOpenChange(false);
 				form.reset();
 			}
 		} catch (error) {
 			console.error(error);
-			toast.error("Échec du signalement du post");
+			toast.error(t("post-reporting-failed"));
 		}
 	};
 
@@ -79,9 +81,9 @@ export function PostSignalForm({
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
-					<DialogTitle>Signaler ce post</DialogTitle>
+					<DialogTitle>{t("report-post")}</DialogTitle>
 					<DialogDescription>
-						Veuillez indiquer la raison pour laquelle vous signalez ce post.
+						{t("please-indicate-the-reason-for-reporting-this-post")}
 					</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
@@ -91,28 +93,32 @@ export function PostSignalForm({
 							name="reason"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Raison</FormLabel>
+									<FormLabel>{t("reason")}</FormLabel>
 									<Select
 										onValueChange={field.onChange}
 										defaultValue={field.value}
 									>
 										<FormControl>
 											<SelectTrigger>
-												<SelectValue placeholder="Sélectionnez une raison" />
+												<SelectValue placeholder={t("select-reason")} />
 											</SelectTrigger>
 										</FormControl>
 										<SelectContent>
 											<SelectItem value={SignalReason.INAPPROPRIATE}>
-												Contenu inapproprié
+												{t("inappropriate-content")}
 											</SelectItem>
-											<SelectItem value={SignalReason.SPAM}>Spam</SelectItem>
+											<SelectItem value={SignalReason.SPAM}>
+												{t("spam")}
+											</SelectItem>
 											<SelectItem value={SignalReason.OFFENSIVE}>
-												Contenu offensant
+												{t("offensive-content")}
 											</SelectItem>
 											<SelectItem value={SignalReason.MISLEADING}>
-												Information trompeuse
+												{t("misleading-information")}
 											</SelectItem>
-											<SelectItem value={SignalReason.OTHER}>Autre</SelectItem>
+											<SelectItem value={SignalReason.OTHER}>
+												{t("other")}
+											</SelectItem>
 										</SelectContent>
 									</Select>
 									<FormMessage />
@@ -124,10 +130,10 @@ export function PostSignalForm({
 							name="details"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Détails (optionnel)</FormLabel>
+									<FormLabel>{t("details")}</FormLabel>
 									<FormControl>
 										<Textarea
-											placeholder="Fournissez plus de détails sur votre signalement"
+											placeholder={t("provide-more-details-on-your-report")}
 											{...field}
 										/>
 									</FormControl>
@@ -141,9 +147,9 @@ export function PostSignalForm({
 								variant="outline"
 								onClick={() => onOpenChange(false)}
 							>
-								Annuler
+								{t("cancel")}
 							</Button>
-							<Button type="submit">Signaler</Button>
+							<Button type="submit">{t("report")}</Button>
 						</DialogFooter>
 					</form>
 				</Form>

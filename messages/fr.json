@@ -1,0 +1,119 @@
+{
+	"posts": {
+		"no-posts-available": "Aucun post disponible",
+		"failed-to-fetch-posts": "Erreur lors de la récupération des posts",
+		"post-actions": {
+			"like": "J'aime",
+			"comments-count": "{count, plural, =0 {Aucun commentaire} one {1 commentaire} other {{count} commentaires}}",
+			"comment": "Commenter",
+			"save": "Enregistrer",
+			"share": {
+				"share-label": "Partager",
+				"share-post": "Partager ce post",
+				"share-post-description": "Choisissez une option pour partager ce post :",
+				"share-on-facebook": "Partager sur Facebook",
+				"share-on-instagram": "Partager sur Instagram",
+				"share-on-whatsapp": "Partager sur WhatsApp",
+				"copy-link": "Copier le lien",
+				"link-copied": "Lien copié !",
+				"close": "Fermer"
+			}
+		},
+		"new": {
+			"add-a-title": "Ajouter un titre",
+			"write-a-description": "Écrire une description...",
+			"selected-image": "Image sélectionnée",
+			"click-to-upload-image": "Cliquer pour télécharger une image",
+			"click-to-upload-video": "Cliquer pour télécharger une vidéo",
+			"submit": "Envoyer",
+			"post-created-successfully": "Post créé avec succès"
+		},
+		"post-comments-list": {
+			"error-loading-comments": "Une erreur s'est produite lors de la récupération des commentaires",
+			"loading-comments": "Chargement des commentaires...",
+			"no-comments": "Aucun commentaire",
+			"user": "Utilisateur"
+		},
+		"post-form-comment": {
+			"you-must-be-logged-in-to-comment": "Vous devez être connecté pour commenter",
+			"an-error-occurred-while-saving-the-comment": "Une erreur s'est produite lors de l'enregistrement du commentaire",
+			"your-avatar": "Votre Avatar",
+			"share-your-opinion": "Partagez votre opinion..."
+		},
+		"post-header": {
+			"suggestion": "Suggestion",
+			"show": "Afficher",
+			"hide": "Masquer",
+			"edit": "Modifier",
+			"delete": "Supprimer",
+			"confirm-deletion": "Confirmer la suppression",
+			"confirm-deletion-description": "Êtes-vous sûr de vouloir supprimer ce post ? Cette action est irréversible.",
+			"cancel": "Annuler",
+			"post-deleted-successfully": "Post supprimé avec succès",
+			"post-deletion-failed": "Échec de la suppression du post",
+			"signal": "Signaler"
+		},
+		"post-content": {
+			"video-playback-error": "Erreur de lecture vidéo:",
+			"video-unsupported": "Format vidéo non pris en charge",
+			"video-unsupported-description": "Le format {format} n'est pas compatible avec votre navigateur"
+		},
+		"post-signal-form": {
+			"report-post": "Signaler ce post",
+			"please-indicate-the-reason-for-reporting-this-post": "Veuillez indiquer la raison pour laquelle vous signalez ce post.",
+			"reason": "Raison",
+			"select-reason": "Sélectionnez une raison",
+			"spam": "Spam",
+			"misleading-information": "Information trompeuse",
+			"offensive-content": "Contenu offensant",
+			"other": "Autre",
+			"details": "Détails (optionnel)",
+			"provide-more-details-on-your-report": "Fournissez plus de détails sur votre signalement",
+			"report": "Signaler",
+			"post-reported-successfully": "Post signalé avec succès",
+			"post-reporting-failed": "Échec du signalement du post",
+			"cancel": "Annuler"
+		},
+		"my-posts": {
+			"my-posts": "Mes Posts",
+			"you-have-no-posts": "Vous n'avez pas de posts"
+		}
+	},
+	"footer": {
+		"home": "Accueil",
+		"search": "Rechercher",
+		"messages": "Messages",
+		"profile": "Profil",
+		"sign-in": "Connexion"
+	},
+	"splash": {
+		"get-started": "Commencer",
+		"new-way-to-experience-football": "Une nouvelle façon d'expériencer le football.",
+		"title": "New Football Experience"
+	},
+	"follow-button": {
+		"you-are-now-following-this-user": "Vous suivez maintenant cet utilisateur",
+		"an-error-occurred": "Une erreur est survenue",
+		"error-checking-follow-status": "Erreur lors de la vérification du statut de suivi",
+		"following": "Suivi",
+		"follow": "Suivre",
+		"failed-to-follow-user": "Échec du suivi de l'utilisateur",
+		"user-not-found": "Utilisateur non trouvé"
+	},
+	"auth-layout": {
+		"privacy": "Vie privée",
+		"terms": "Conditions d'utilisation",
+		"about-us": "À propos de nous"
+	},
+	"not-found": {
+		"not-found": "Page non trouvée",
+		"not-found-description": "La page que vous cherchez n'existe pas.",
+		"go-back-to-home": "Retour à l'accueil"
+	},
+	"error": {
+		"error": "Une erreur est survenue",
+		"error-description": "Une erreur est survenue lors de la récupération de la page.",
+		"try-again": "Réessayer",
+		"go-back-to-home": "Retour à l'accueil"
+	}
+}

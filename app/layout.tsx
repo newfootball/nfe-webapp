@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { SessionProvider } from "next-auth/react";
+import { NextIntlClientProvider } from "next-intl";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ReactQueryProvider } from "./providers/react-query-provider";
@@ -87,12 +88,14 @@ export default function RootLayout({
 	return (
 		<html lang="en" className={cn(inter.className, "h-full")}>
 			<body className="h-full">
-				<ReactQueryProvider>
-					<SessionProvider>{children}</SessionProvider>
-					<Analytics />
-					<SpeedInsights />
-					<GoogleAnalytics gaId={env.GOOGLE_ANALYTICS_ID ?? ""} />
-				</ReactQueryProvider>
+				<NextIntlClientProvider>
+					<ReactQueryProvider>
+						<SessionProvider>{children}</SessionProvider>
+					</ReactQueryProvider>
+				</NextIntlClientProvider>
+				<Analytics />
+				<SpeedInsights />
+				<GoogleAnalytics gaId={env.GOOGLE_ANALYTICS_ID ?? ""} />
 			</body>
 		</html>
 	);

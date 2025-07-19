@@ -1,5 +1,6 @@
 "use client";
 import type { PostWithUserAndMedias } from "@/src/types/post.types";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
@@ -8,6 +9,7 @@ interface PostContentProps {
 }
 
 export function PostContent({ post }: PostContentProps) {
+	const t = useTranslations("posts.post-content");
 	const image = post.medias.find((media) => media.mimetype.includes("image"));
 	const video = post.medias.find((media) => media.mimetype.includes("video"));
 	const [isPlaying, setIsPlaying] = useState(false);
@@ -18,15 +20,13 @@ export function PostContent({ post }: PostContentProps) {
 		if (videoRef.current) {
 			const videoElement = videoRef.current;
 
-			// Gestionnaire d'erreur pour les problèmes de lecture
 			const handleError = () => {
-				console.error("Erreur de lecture vidéo:", videoElement.error);
+				console.error(t("video-playback-error"), videoElement.error);
 				setCanPlayVideo(false);
 			};
 
 			if (video?.mimetype === "video/quicktime") {
 				const canPlay = videoElement.canPlayType(video.mimetype);
-				// Si canPlay est vide (""), cela signifie que le format n'est pas supporté
 				if (canPlay === "") {
 					setCanPlayVideo(false);
 				}
@@ -38,7 +38,7 @@ export function PostContent({ post }: PostContentProps) {
 				videoElement.removeEventListener("error", handleError);
 			};
 		}
-	}, [video]);
+	}, [video, t]);
 
 	if (!video) {
 		return (
@@ -58,7 +58,7 @@ export function PostContent({ post }: PostContentProps) {
 				videoRef.current.pause();
 			} else {
 				videoRef.current.play().catch((error) => {
-					console.error("Échec de lecture:", error);
+					console.error(t("video-playback-error"), error);
 					setCanPlayVideo(false);
 				});
 			}
@@ -89,12 +89,10 @@ export function PostContent({ post }: PostContentProps) {
 								preload="metadata"
 							>
 								<source src={video.url} type={getSourceType()} />
-								{/* Essayer avec un type alternatif si c'est QuickTime */}
 								{video.mimetype === "video/quicktime" && (
 									<source src={video.url} type="video/quicktime" />
 								)}
-								Votre navigateur ne prend pas en charge la lecture de cette
-								vidéo.
+								{t("video-unsupported")}
 							</video>
 							{!isPlaying && (
 								<div className="absolute inset-0 flex items-center justify-center">
@@ -126,17 +124,18 @@ export function PostContent({ post }: PostContentProps) {
 								<div className="w-full h-full bg-gray-200 flex items-center justify-center">
 									<div className="text-center p-4">
 										<p className="text-red-500 font-medium">
-											Format vidéo non pris en charge
+											{t("video-unsupported")}
 										</p>
 										<p className="text-sm text-gray-600 mt-1">
-											Le format {video.mimetype} n&apos;est pas compatible avec
-											votre navigateur
+											{t("video-unsupported-description", {
+												format: video.mimetype,
+											})}
 										</p>
 									</div>
 								</div>
 							)}
 							<div className="absolute bottom-4 right-4 bg-red-500 text-white px-2 py-1 rounded-md text-xs">
-								Vidéo non lisible
+								{t("video-unsupported")}
 							</div>
 						</div>
 					)}

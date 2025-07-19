@@ -23,7 +23,7 @@ import Link from "next/link";
 export const Header = ({ userId }: { userId?: string }) => {
 	return (
 		<header className="w-full border-b border-border shadow-sm px-2">
-			<Layout>
+			<Layout asChild>
 				<div className="flex items-center justify-between h-16 py-2">
 					<h1 className="flex-1 relative">
 						<Link href="/" className="absolute left-0 -top-6 z-50">

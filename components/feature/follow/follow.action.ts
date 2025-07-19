@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getUserSessionId } from "@/src/query/user.query";
+import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 export const addFollow = async ({
 	userToFollowId,
@@ -10,12 +11,13 @@ export const addFollow = async ({
 	userToFollowId: string;
 	userId?: string | null;
 }) => {
+	const t = await getTranslations("follow-button");
 	if (!userId) {
 		userId = await getUserSessionId();
 	}
 
 	if (!userId) {
-		throw new Error("User not found");
+		throw new Error(t("user-not-found"));
 	}
 
 	try {
@@ -31,6 +33,6 @@ export const addFollow = async ({
 		return follow;
 	} catch (error) {
 		console.error(error);
-		throw new Error("Failed to follow user");
+		throw new Error(t("failed-to-follow-user"));
 	}
 };

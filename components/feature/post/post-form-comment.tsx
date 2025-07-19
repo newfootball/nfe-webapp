@@ -8,6 +8,7 @@ import { CommentSchema } from "@/src/schemas/comment.schema";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2, Send } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { type FormEvent, useState } from "react";
 import { ZodError } from "zod";
 
@@ -20,6 +21,7 @@ export const PostFormComment = ({
 	postId,
 	onCommentPosted,
 }: PostFormCommentProps) => {
+	const t = useTranslations("posts.post-form-comment");
 	const { data: session } = useSession();
 	const userId = session?.user?.id;
 	const queryClient = useQueryClient();
@@ -33,7 +35,7 @@ export const PostFormComment = ({
 		setError(null);
 
 		if (!userId) {
-			setError("Vous devez être connecté pour commenter");
+			setError(t("you-must-be-logged-in-to-comment"));
 			return;
 		}
 
@@ -52,8 +54,9 @@ export const PostFormComment = ({
 			});
 
 			if (!result.success) {
-				const defaultErrorMessage =
-					"Une erreur non spécifiée s'est produite lors de l'enregistrement du commentaire";
+				const defaultErrorMessage = t(
+					"an-error-occurred-while-saving-the-comment",
+				);
 				const errorMessage = Array.isArray(result.error)
 					? (result.error[0]?.message ?? defaultErrorMessage)
 					: defaultErrorMessage;
@@ -75,12 +78,10 @@ export const PostFormComment = ({
 			if (error instanceof ZodError) {
 				setError(
 					error.errors[0]?.message ??
-						"Une erreur non spécifiée s'est produite lors de l'enregistrement du commentaire",
+						t("an-error-occurred-while-saving-the-comment"),
 				);
 			} else {
-				setError(
-					"Une erreur s'est produite lors de l'enregistrement du commentaire",
-				);
+				setError(t("an-error-occurred-while-saving-the-comment"));
 			}
 		} finally {
 			setIsSubmitting(false);
@@ -91,7 +92,7 @@ export const PostFormComment = ({
 		<div className="mt-2">
 			{!userId ? (
 				<p className="text-sm text-center text-muted-foreground">
-					Connectez-vous pour commenter
+					{t("you-must-be-logged-in-to-comment")}
 				</p>
 			) : (
 				<form onSubmit={handleSaveComment}>
@@ -99,7 +100,7 @@ export const PostFormComment = ({
 						<Avatar className="w-8 h-8 mt-1">
 							<AvatarImage
 								src={session?.user?.image || undefined}
-								alt="Votre Avatar"
+								alt={t("your-avatar")}
 							/>
 							<AvatarFallback>
 								{session?.user?.name?.charAt(0).toUpperCase() || "?"}
@@ -111,7 +112,7 @@ export const PostFormComment = ({
 								name="comment"
 								value={comment}
 								onChange={(e) => setComment(e.target.value)}
-								placeholder="Partagez votre opinion..."
+								placeholder={t("share-your-opinion")}
 								className="w-full bg-transparent text-sm focus:outline-none min-h-[40px] resize-y"
 								disabled={isSubmitting}
 								rows={1}

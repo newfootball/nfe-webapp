@@ -2,24 +2,25 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLastComments } from "@/src/hooks/use-comment-query";
+import { useTranslations } from "next-intl";
 
 interface PostCommentsListProps {
 	postId: string;
 }
 
 export const PostCommentsList = ({ postId }: PostCommentsListProps) => {
-	// Use Tanstack Query to fetch and cache comments
+	const t = useTranslations("posts.post-comments-list");
+
 	const {
 		data: commentsResult,
 		isLoading,
 		error: queryError,
 	} = useLastComments(postId);
 
-	// Extract comments from the query result
 	const comments = commentsResult?.success ? (commentsResult.data ?? []) : [];
-	// Extract error message from the query result
+
 	const error = queryError
-		? "Une erreur s'est produite lors de la récupération des commentaires"
+		? t("error-loading-comments")
 		: commentsResult?.success
 			? null
 			: (commentsResult?.error ?? null);
@@ -27,7 +28,7 @@ export const PostCommentsList = ({ postId }: PostCommentsListProps) => {
 	if (isLoading) {
 		return (
 			<div className="mt-4 text-sm text-muted-foreground">
-				Chargement des commentaires...
+				{t("loading-comments")}
 			</div>
 		);
 	}
@@ -39,7 +40,7 @@ export const PostCommentsList = ({ postId }: PostCommentsListProps) => {
 	if (comments.length === 0) {
 		return (
 			<div className="mt-4 text-sm text-muted-foreground text-center py-4">
-				Aucun commentaire
+				{t("no-comments")}
 			</div>
 		);
 	}
@@ -57,7 +58,7 @@ export const PostCommentsList = ({ postId }: PostCommentsListProps) => {
 					<div className="flex-1">
 						<div className="flex items-center gap-2">
 							<span className="font-medium">
-								{comment.user.name || "Utilisateur"}
+								{comment.user.name || t("user")}
 							</span>
 							<span className="text-xs text-muted-foreground">
 								{new Date(comment.createdAt).toLocaleDateString()}

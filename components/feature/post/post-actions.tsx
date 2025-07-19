@@ -15,6 +15,7 @@ import {
 	useInvalidateCommentQueries,
 } from "@/src/hooks/use-comment-query";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { PostActionShare } from "./post-actions/post-action-share";
 import { PostCommentsList } from "./post-comments-list";
 import { PostFormComment } from "./post-form-comment";
@@ -36,6 +37,7 @@ export function PostActions({
 	const [showCommentForm, setShowCommentForm] = useState(false);
 	const [isLike, setIsLike] = useState(false);
 	const [isFavorite, setIsFavorite] = useState(false);
+	const t = useTranslations("posts.post-actions");
 
 	// Use Tanstack Query to fetch and cache comment count
 	const { data: commentData } = useCommentCount(postId);
@@ -105,7 +107,9 @@ export function PostActions({
 						<span>{likes}</span>
 					</div>
 					{comments > 0 && (
-						<Link href={`/post/${postId}`}>{comments} commentaires</Link>
+						<Link href={`/post/${postId}`}>
+							{t("comments-count", { count: comments })}
+						</Link>
 					)}
 				</div>
 			)}
@@ -121,7 +125,7 @@ export function PostActions({
 							"fill-current": isLike,
 						})}
 					/>
-					<span className="hidden md:inline">J&apos;aime</span>
+					<span className="hidden md:inline">{t("like")}</span>
 				</Button>
 				<Button
 					variant="ghost"
@@ -130,7 +134,7 @@ export function PostActions({
 					onClick={handleComment}
 				>
 					<MessageSquare className="mr-2 h-4 w-4" />
-					<span className="hidden md:inline">Commenter</span>
+					<span className="hidden md:inline">{t("comment")}</span>
 				</Button>
 				<PostActionShare postId={postId} />
 				<Button
@@ -142,7 +146,7 @@ export function PostActions({
 					<Bookmark
 						className={cn("mr-2 h-4 w-4", { "fill-current": isFavorite })}
 					/>
-					<span className="hidden md:inline">Enregistrer</span>
+					<span className="hidden md:inline">{t("save")}</span>
 				</Button>
 			</div>
 			{showCommentForm && (

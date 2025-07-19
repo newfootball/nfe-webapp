@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { Post } from "@prisma/client";
 import { Ellipsis } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -15,6 +16,7 @@ import type { PostData } from "./post.schema";
 import { savePost } from "./save-post.action";
 
 export default function MakePostForm() {
+	const t = useTranslations("posts.new");
 	const router = useRouter();
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -55,7 +57,7 @@ export default function MakePostForm() {
 
 		savePost(data)
 			.then((post: Post) => {
-				toast.success("Post created successfully");
+				toast.success(t("post-created-successfully"));
 				router.push(`/post/${post.id}`);
 			})
 			.catch((error) => {
@@ -78,14 +80,14 @@ export default function MakePostForm() {
 				<div className="mb-4">
 					<Input
 						type="text"
-						placeholder="Add a title"
+						placeholder={t("add-a-title")}
 						className="text-lg font-semibold bg-transparent px-0 placeholder:text-muted-foreground mb-4 p-2"
 						value={title}
 						onChange={(e) => setTitle(e.target.value)}
 					/>
 
 					<Textarea
-						placeholder="Write a description..."
+						placeholder={t("write-a-description")}
 						className="min-h-[100px] bg-transparent resize-none px-0 placeholder:text-muted-foreground mb-4 p-2"
 						value={description}
 						onChange={(e) => setDescription(e.target.value)}
@@ -95,7 +97,7 @@ export default function MakePostForm() {
 						<div className="aspect-square relative rounded-2xl h-48 w-full overflow-hidden bg-muted">
 							<Image
 								src={URL.createObjectURL(selectedImage)}
-								alt="Selected image"
+								alt={t("selected-image")}
 								fill
 								className="object-cover"
 							/>
@@ -114,7 +116,7 @@ export default function MakePostForm() {
 							/>
 							<div className="flex items-center justify-center h-full">
 								<span className="text-muted-foreground text-center">
-									Click to upload image
+									{t("click-to-upload-image")}
 								</span>
 							</div>
 						</Label>
@@ -144,7 +146,7 @@ export default function MakePostForm() {
 							/>
 							<div className="flex items-center justify-center h-full">
 								<span className="text-muted-foreground text-center">
-									Click to upload video
+									{t("click-to-upload-video")}
 								</span>
 							</div>
 						</Label>
@@ -162,7 +164,7 @@ export default function MakePostForm() {
 					size="lg"
 					disabled={isLoading}
 				>
-					Submit
+					{t("submit")}
 				</Button>
 			</form>
 		</main>

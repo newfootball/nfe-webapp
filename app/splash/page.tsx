@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { setCookie } from "cookies-next";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,6 +17,7 @@ const SPLASH_IMAGES = [
 export default function SplashPage() {
 	const [currentImage, setCurrentImage] = useState(0);
 	const router = useRouter();
+	const t = useTranslations("splash");
 
 	useEffect(() => {
 		const interval = setInterval(() => {
@@ -59,13 +61,13 @@ export default function SplashPage() {
 						priority
 					/>
 					<h1 className="text-4xl font-bold text-center text-white">
-						New Football Experience
+						{t("title")}
 					</h1>
 					<small className="text-gray-300">
-						A new way to experience football.
+						{t("new-way-to-experience-football")}
 					</small>
 					<Link href="/">
-						<Button>Get Started</Button>
+						<Button>{t("get-started")}</Button>
 					</Link>
 				</div>
 			</div>

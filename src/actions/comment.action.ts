@@ -2,35 +2,37 @@
 
 import { prisma } from "@/lib/prisma";
 import {
-	type CommentFormData,
-	CommentSchema,
+  type CommentFormData,
+  CommentSchema,
 } from "@/src/schemas/comment.schema";
+import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 
 export const saveComment = async (data: CommentFormData) => {
-	try {
-		// Validate the input data
-		const validatedData = CommentSchema.parse(data);
+  const t = await getTranslations("actions.comment");
 
-		const comment = await prisma.comment.create({
-			data: validatedData,
-		});
+  try {
+    // Validate the input data
+    const validatedData = CommentSchema.parse(data);
 
-		return { success: true, data: comment };
-	} catch (error) {
-		if (error instanceof z.ZodError) {
-			return { success: false, error: error.errors };
-		}
-		console.error("Error saving comment:", error);
+    const comment = await prisma.comment.create({
+      data: validatedData,
+    });
 
-		return {
-			success: false,
-			error: [
-				{
-					message:
-						"Une erreur s'est produite lors de l'enregistrement du commentaire",
-				},
-			],
-		};
-	}
+    return { success: true, data: comment };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { success: false, error: error.errors };
+    }
+    console.error("Error saving comment:", error);
+
+    return {
+      success: false,
+      error: [
+        {
+          message: t("error-saving-comment"),
+        },
+      ],
+    };
+  }
 };

@@ -255,5 +255,69 @@
       "back-to-profile": "Retour au profil",
       "change-password": "Changer le mot de passe"
     }
+  },
+  "auth": {
+    "sign-out": "Se déconnecter"
+  },
+  "feature": {
+    "loading": {
+      "loading": "Chargement..."
+    },
+    "page-header": {
+      "go-back": "Retour",
+      "more-options": "Plus d'options"
+    },
+    "user": {
+      "stats": {
+        "posts": "posts",
+        "followers": "abonnés",
+        "following": "abonnements"
+      },
+      "profile": {
+        "loading": "Chargement...",
+        "cover-image": "Image de couverture",
+        "edit-profile": "Modifier le profil",
+        "confirm-delete-account": "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action ne peut pas être annulée.",
+        "account-deleted-successfully": "Compte supprimé avec succès",
+        "failed-to-delete-account": "Échec de la suppression du compte",
+        "delete-account": "Supprimer le compte"
+      },
+      "suggestions": {
+        "suggestions": "Suggestions",
+        "more-options": "Plus d'options",
+        "close": "Fermer",
+        "connect": "Se connecter"
+      }
+    }
+  },
+  "actions": {
+    "comment": {
+      "error-saving-comment": "Une erreur s'est produite lors de l'enregistrement du commentaire"
+    },
+    "favorite": {
+      "user-not-found": "Utilisateur non trouvé"
+    },
+    "like": {
+      "user-not-found": "Utilisateur non trouvé"
+    },
+    "post": {
+      "unauthorized": "Non autorisé",
+      "unauthorized-to-delete-post": "Non autorisé à supprimer ce post",
+      "failed-to-delete-post": "Échec de la suppression du post",
+      "must-be-logged-in-to-report": "Vous devez être connecté pour signaler un post",
+      "user-not-found": "Utilisateur non trouvé",
+      "post-not-found": "Post non trouvé",
+      "already-reported-this-post": "Vous avez déjà signalé ce post",
+      "post-reported-successfully": "Post signalé avec succès",
+      "failed-to-report-post": "Échec du signalement du post"
+    },
+    "user": {
+      "user-not-found": "Utilisateur non trouvé"
+    }
+  },
+  "hooks": {
+    "messages": {
+      "user-not-authenticated": "Utilisateur non authentifié"
+    }
   }
 }

@@ -2,43 +2,46 @@
 
 import { prisma } from "@/lib/prisma";
 import { getUserSession } from "@/src/query/user.query";
+import { getTranslations } from "next-intl/server";
 
 export const toggleLike = async ({
-	postId,
-	userId,
+  postId,
+  userId,
 }: {
-	postId: string;
-	userId?: string | null;
+  postId: string;
+  userId?: string | null;
 }) => {
-	if (!userId) {
-		const user = await getUserSession();
-		if (!user?.id) throw new Error("User not found");
+  const t = await getTranslations("actions.like");
 
-		userId = user.id;
-	}
+  if (!userId) {
+    const user = await getUserSession();
+    if (!user?.id) throw new Error(t("user-not-found"));
 
-	const like = await prisma.like.findFirst({
-		where: {
-			postId,
-			userId,
-		},
-	});
+    userId = user.id;
+  }
 
-	if (like) {
-		await prisma.like.delete({
-			where: {
-				id: like.id,
-			},
-		});
+  const like = await prisma.like.findFirst({
+    where: {
+      postId,
+      userId,
+    },
+  });
 
-		return false;
-	}
-	await prisma.like.create({
-		data: {
-			postId,
-			userId,
-		},
-	});
+  if (like) {
+    await prisma.like.delete({
+      where: {
+        id: like.id,
+      },
+    });
 
-	return true;
+    return false;
+  }
+  await prisma.like.create({
+    data: {
+      postId,
+      userId,
+    },
+  });
+
+  return true;
 };

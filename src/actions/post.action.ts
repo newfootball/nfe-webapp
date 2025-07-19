@@ -2,116 +2,121 @@
 
 import { prisma } from "@/lib/prisma";
 import { SignalReason, SignalStatus } from "@prisma/client";
+import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
 import { getUserSessionId } from "../query/user.query";
 
 export async function deletePost(postId: string) {
-	try {
-		const userId = await getUserSessionId();
-		if (!userId) {
-			throw new Error("Unauthorized");
-		}
+  const t = await getTranslations("actions.post");
 
-		// Verify the post belongs to the user
-		const post = await prisma.post.findUnique({
-			where: { id: postId },
-			select: { userId: true },
-		});
+  try {
+    const userId = await getUserSessionId();
+    if (!userId) {
+      throw new Error(t("unauthorized"));
+    }
 
-		if (!post || post.userId !== userId) {
-			throw new Error("Unauthorized to delete this post");
-		}
+    // Verify the post belongs to the user
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { userId: true },
+    });
 
-		// Delete the post and all related data (comments, likes, favorites)
-		await prisma.post.delete({
-			where: { id: postId },
-		});
+    if (!post || post.userId !== userId) {
+      throw new Error(t("unauthorized-to-delete-post"));
+    }
 
-		revalidatePath("/post/my");
-		revalidatePath("/");
+    // Delete the post and all related data (comments, likes, favorites)
+    await prisma.post.delete({
+      where: { id: postId },
+    });
 
-		return { success: true };
-	} catch (error) {
-		console.error("Error deleting post:", error);
-		return { error: "Failed to delete post" };
-	}
+    revalidatePath("/post/my");
+    revalidatePath("/");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    return { error: t("failed-to-delete-post") };
+  }
 }
 
 export async function signalPost(
-	postId: string,
-	reason: SignalReason,
-	details?: string,
+  postId: string,
+  reason: SignalReason,
+  details?: string,
 ) {
-	try {
-		const userId = await getUserSessionId();
-		if (!userId) {
-			return { error: "Vous devez être connecté pour signaler un post" };
-		}
+  const t = await getTranslations("actions.post");
 
-		// Verify that both the user and post exist
-		const user = await prisma.user.findUnique({
-			where: { id: userId },
-			select: { id: true },
-		});
+  try {
+    const userId = await getUserSessionId();
+    if (!userId) {
+      return { error: t("must-be-logged-in-to-report") };
+    }
 
-		if (!user) {
-			return { error: "Utilisateur non trouvé" };
-		}
+    // Verify that both the user and post exist
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true },
+    });
 
-		const post = await prisma.post.findUnique({
-			where: { id: postId },
-			select: { id: true },
-		});
+    if (!user) {
+      return { error: t("user-not-found") };
+    }
 
-		if (!post) {
-			return { error: "Post non trouvé" };
-		}
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: { id: true },
+    });
 
-		// Check if the user has already signaled this post
-		const existingSignal = await prisma.postSignal.findFirst({
-			where: {
-				postId,
-				userId,
-			},
-		});
+    if (!post) {
+      return { error: t("post-not-found") };
+    }
 
-		if (existingSignal) {
-			return { error: "Vous avez déjà signalé ce post" };
-		}
+    // Check if the user has already signaled this post
+    const existingSignal = await prisma.postSignal.findFirst({
+      where: {
+        postId,
+        userId,
+      },
+    });
 
-		// Create the signal
-		await prisma.postSignal.create({
-			data: {
-				postId,
-				userId,
-				reason,
-				details,
-				status: SignalStatus.PENDING,
-			},
-		});
+    if (existingSignal) {
+      return { error: t("already-reported-this-post") };
+    }
 
-		// Update the post's spam score if there are multiple signals
-		const signalCount = await prisma.postSignal.count({
-			where: { postId },
-		});
+    // Create the signal
+    await prisma.postSignal.create({
+      data: {
+        postId,
+        userId,
+        reason,
+        details,
+        status: SignalStatus.PENDING,
+      },
+    });
 
-		if (signalCount >= 5) {
-			await prisma.post.update({
-				where: { id: postId },
-				data: { spamScore: "SUSPECT" },
-			});
-		}
+    // Update the post's spam score if there are multiple signals
+    const signalCount = await prisma.postSignal.count({
+      where: { postId },
+    });
 
-		if (signalCount >= 10) {
-			await prisma.post.update({
-				where: { id: postId },
-				data: { spamScore: "SPAM" },
-			});
-		}
+    if (signalCount >= 5) {
+      await prisma.post.update({
+        where: { id: postId },
+        data: { spamScore: "SUSPECT" },
+      });
+    }
 
-		return { success: true, message: "Post signalé avec succès" };
-	} catch (error) {
-		console.error("Error signaling post:", error);
-		return { error: "Échec du signalement du post" };
-	}
+    if (signalCount >= 10) {
+      await prisma.post.update({
+        where: { id: postId },
+        data: { spamScore: "SPAM" },
+      });
+    }
+
+    return { success: true, message: t("post-reported-successfully") };
+  } catch (error) {
+    console.error("Error signaling post:", error);
+    return { error: t("failed-to-report-post") };
+  }
 }

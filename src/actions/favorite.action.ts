@@ -2,41 +2,44 @@
 
 import { prisma } from "@/lib/prisma";
 import { getUserSessionId } from "@/src/query/user.query";
+import { getTranslations } from "next-intl/server";
 
 export const toggleFavorite = async ({
-	postId,
-	userId,
+  postId,
+  userId,
 }: {
-	postId: string;
-	userId?: string | null;
+  postId: string;
+  userId?: string | null;
 }) => {
-	if (!userId) {
-		userId = await getUserSessionId();
-		if (!userId) throw new Error("User not found");
-	}
+  const t = await getTranslations("actions.favorite");
 
-	const favorite = await prisma.favorite.findFirst({
-		where: {
-			postId,
-			userId,
-		},
-	});
+  if (!userId) {
+    userId = await getUserSessionId();
+    if (!userId) throw new Error(t("user-not-found"));
+  }
 
-	if (favorite) {
-		await prisma.favorite.delete({
-			where: {
-				id: favorite.id,
-			},
-		});
+  const favorite = await prisma.favorite.findFirst({
+    where: {
+      postId,
+      userId,
+    },
+  });
 
-		return false;
-	}
-	await prisma.favorite.create({
-		data: {
-			postId,
-			userId,
-		},
-	});
+  if (favorite) {
+    await prisma.favorite.delete({
+      where: {
+        id: favorite.id,
+      },
+    });
 
-	return true;
+    return false;
+  }
+  await prisma.favorite.create({
+    data: {
+      postId,
+      userId,
+    },
+  });
+
+  return true;
 };

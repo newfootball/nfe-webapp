@@ -255,5 +255,69 @@
       "back-to-profile": "Back to profile",
       "change-password": "Change Password"
     }
+  },
+  "auth": {
+    "sign-out": "Sign Out"
+  },
+  "feature": {
+    "loading": {
+      "loading": "Loading..."
+    },
+    "page-header": {
+      "go-back": "Go back",
+      "more-options": "More options"
+    },
+    "user": {
+      "stats": {
+        "posts": "posts",
+        "followers": "followers",
+        "following": "following"
+      },
+      "profile": {
+        "loading": "Loading...",
+        "cover-image": "Cover image",
+        "edit-profile": "Edit profile",
+        "confirm-delete-account": "Are you sure you want to delete your account? This action cannot be undone.",
+        "account-deleted-successfully": "Account deleted successfully",
+        "failed-to-delete-account": "Failed to delete account",
+        "delete-account": "Delete Account"
+      },
+      "suggestions": {
+        "suggestions": "Suggestions",
+        "more-options": "More options",
+        "close": "Close",
+        "connect": "Connect"
+      }
+    }
+  },
+  "actions": {
+    "comment": {
+      "error-saving-comment": "An error occurred while saving the comment"
+    },
+    "favorite": {
+      "user-not-found": "User not found"
+    },
+    "like": {
+      "user-not-found": "User not found"
+    },
+    "post": {
+      "unauthorized": "Unauthorized",
+      "unauthorized-to-delete-post": "Unauthorized to delete this post",
+      "failed-to-delete-post": "Failed to delete post",
+      "must-be-logged-in-to-report": "You must be logged in to report a post",
+      "user-not-found": "User not found",
+      "post-not-found": "Post not found",
+      "already-reported-this-post": "You have already reported this post",
+      "post-reported-successfully": "Post reported successfully",
+      "failed-to-report-post": "Failed to report post"
+    },
+    "user": {
+      "user-not-found": "User not found"
+    }
+  },
+  "hooks": {
+    "messages": {
+      "user-not-authenticated": "User not authenticated"
+    }
   }
 }

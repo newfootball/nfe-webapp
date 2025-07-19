@@ -12,6 +12,7 @@ import {
 import { deleteUserAccount } from "@/src/actions/user.action";
 import type { User } from "@prisma/client";
 import { Loader, Settings } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -26,8 +27,10 @@ export const UserProfile = ({
 	user: User | null;
 	userIdSession?: string | null | undefined;
 }) => {
+	const t = useTranslations("feature.user.profile");
+
 	if (!user) {
-		return <div>Loading...</div>;
+		return <div>{t("loading")}</div>;
 	}
 
 	const isCurrentUser = userIdSession === user?.id;
@@ -38,7 +41,7 @@ export const UserProfile = ({
 				<div className="h-48 w-full relative">
 					<Image
 						src="https://images.unsplash.com/photo-1516567727245-ad8c68f3ec93?q=80&w=384&h=192&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-						alt="Cover"
+						alt={t("cover-image")}
 						className="object-cover"
 						fill
 					/>
@@ -65,7 +68,7 @@ export const UserProfile = ({
 						<div className="flex justify-center gap-2">
 							<Link href="/profile/edit-user">
 								<Button variant="outline" className="flex-1 max-w-[200px]">
-									Edit profile
+									{t("edit-profile")}
 								</Button>
 							</Link>
 							<DropdownMenu>
@@ -79,21 +82,21 @@ export const UserProfile = ({
 										className="text-destructive"
 										onClick={async () => {
 											const confirmed = window.confirm(
-												"Are you sure you want to delete your account? This action cannot be undone.",
+												t("confirm-delete-account"),
 											);
 											if (confirmed) {
 												try {
 													await deleteUserAccount();
-													toast.success("Account deleted successfully");
+													toast.success(t("account-deleted-successfully"));
 													redirect("/sign-in");
 												} catch (error) {
-													toast.error("Failed to delete account");
+													toast.error(t("failed-to-delete-account"));
 													console.error(error);
 												}
 											}
 										}}
 									>
-										Delete Account
+										{t("delete-account")}
 									</DropdownMenuItem>
 								</DropdownMenuContent>
 							</DropdownMenu>

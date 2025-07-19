@@ -115,5 +115,61 @@
 		"error-description": "An error occurred while fetching the page.",
 		"try-again": "Try again",
 		"go-back-to-home": "Go back to home"
+	},
+	"sign-up": {
+		"create-account": "Create account",
+		"enter-your-email-below-to-create-your-account": "Enter your email below to create your account",
+		"or-continue-with": "Or continue with",
+		"sign-in": "Sign in",
+		"already-have-an-account": "Already have an account?",
+		"email": "Email",
+		"password": "Password",
+		"confirm-password": "Confirm password",
+		"passwords-do-not-match": "Passwords do not match",
+		"user-already-exists": "User already exists",
+		"invalid-email": "Invalid email address",
+		"password-too-short": "Password must be at least 8 characters",
+		"confirm-password-too-short": "Password confirmation must be at least 8 characters"
+	},
+	"sign-in": {
+		"sign-in": "Sign in",
+		"enter-your-email-below-to-sign-in": "Enter your email below to sign in to your account",
+		"or-continue-with": "Or continue with",
+		"dont-have-an-account": "Don't have an account?",
+		"sign-up": "Sign up",
+		"email": "Email",
+		"password": "Password",
+		"invalid-email": "Invalid email address",
+		"password-too-short": "Password must be at least 8 characters",
+		"invalid-credentials": "Invalid credentials",
+		"an-error-occurred": "An error occurred",
+		"forgot-your-password": "Forgot your password?",
+		"login": "Login"
+	},
+	"reset-password": {
+		"reset-your-password": "Reset your password",
+		"enter-your-new-password-below": "Enter your new password below",
+		"new-password": "New Password",
+		"confirm-password": "Confirm Password",
+		"reset-password": "Reset Password",
+		"password-too-short": "Password must be at least 8 characters",
+		"passwords-do-not-match": "Passwords do not match",
+		"invalid-or-missing-reset-token": "Invalid or missing reset token",
+		"password-reset-success": "Password reset successfully",
+		"password-reset-success-redirect": "Your password has been reset successfully. Redirecting to login...",
+		"error-resetting-password": "An error occurred while resetting your password",
+		"token-required": "Token is required",
+		"invalid-or-expired-reset-token": "Invalid or expired reset token"
+	},
+	"forgot-password": {
+		"forgot-password": "Forgot Password",
+		"enter-your-email-for-reset-instructions": "Enter your email address and we'll send you instructions to reset your password",
+		"remember-your-password": "Remember your password?",
+		"sign-in": "Sign in",
+		"email": "Email",
+		"invalid-email": "Invalid email address",
+		"send-reset-instructions": "Send Reset Instructions",
+		"reset-instructions-sent": "If your email is registered, you will receive reset instructions",
+		"error-processing-request": "An error occurred while processing your request"
 	}
 }

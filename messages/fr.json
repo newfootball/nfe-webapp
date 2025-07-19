@@ -115,5 +115,61 @@
 		"error-description": "Une erreur est survenue lors de la récupération de la page.",
 		"try-again": "Réessayer",
 		"go-back-to-home": "Retour à l'accueil"
+	},
+	"sign-up": {
+		"create-account": "Créer un compte",
+		"enter-your-email-below-to-create-your-account": "Entrez votre email ci-dessous pour créer votre compte",
+		"or-continue-with": "Ou continuer avec",
+		"sign-in": "Connexion",
+		"already-have-an-account": "Vous avez déjà un compte ?",
+		"email": "Email",
+		"password": "Mot de passe",
+		"confirm-password": "Confirmer le mot de passe",
+		"passwords-do-not-match": "Les mots de passe ne correspondent pas",
+		"user-already-exists": "L'utilisateur existe déjà",
+		"invalid-email": "Adresse email invalide",
+		"password-too-short": "Le mot de passe doit contenir au moins 8 caractères",
+		"confirm-password-too-short": "La confirmation du mot de passe doit contenir au moins 8 caractères"
+	},
+	"sign-in": {
+		"sign-in": "Se connecter",
+		"enter-your-email-below-to-sign-in": "Entrez votre email ci-dessous pour vous connecter à votre compte",
+		"or-continue-with": "Ou continuer avec",
+		"dont-have-an-account": "Vous n'avez pas de compte ?",
+		"sign-up": "S'inscrire",
+		"email": "Email",
+		"password": "Mot de passe",
+		"invalid-email": "Adresse email invalide",
+		"password-too-short": "Le mot de passe doit contenir au moins 8 caractères",
+		"invalid-credentials": "Identifiants invalides",
+		"an-error-occurred": "Une erreur s'est produite",
+		"forgot-your-password": "Mot de passe oublié ?",
+		"login": "Se connecter"
+	},
+	"reset-password": {
+		"reset-your-password": "Réinitialiser votre mot de passe",
+		"enter-your-new-password-below": "Entrez votre nouveau mot de passe ci-dessous",
+		"new-password": "Nouveau mot de passe",
+		"confirm-password": "Confirmer le mot de passe",
+		"reset-password": "Réinitialiser le mot de passe",
+		"password-too-short": "Le mot de passe doit contenir au moins 8 caractères",
+		"passwords-do-not-match": "Les mots de passe ne correspondent pas",
+		"invalid-or-missing-reset-token": "Token de réinitialisation invalide ou manquant",
+		"password-reset-success": "Mot de passe réinitialisé avec succès",
+		"password-reset-success-redirect": "Votre mot de passe a été réinitialisé avec succès. Redirection vers la connexion...",
+		"error-resetting-password": "Une erreur s'est produite lors de la réinitialisation de votre mot de passe",
+		"token-required": "Le token est requis",
+		"invalid-or-expired-reset-token": "Token de réinitialisation invalide ou expiré"
+	},
+	"forgot-password": {
+		"forgot-password": "Mot de passe oublié",
+		"enter-your-email-for-reset-instructions": "Entrez votre adresse email et nous vous enverrons les instructions pour réinitialiser votre mot de passe",
+		"remember-your-password": "Vous vous souvenez de votre mot de passe ?",
+		"sign-in": "Se connecter",
+		"email": "Email",
+		"invalid-email": "Adresse email invalide",
+		"send-reset-instructions": "Envoyer les instructions de réinitialisation",
+		"reset-instructions-sent": "Si votre email est enregistré, vous recevrez les instructions de réinitialisation",
+		"error-processing-request": "Une erreur s'est produite lors du traitement de votre demande"
 	}
 }

@@ -10,25 +10,26 @@ import { LoaderCircle } from "lucide-react";
 
 import { Alert } from "@/components/ui/alert";
 import { signIn } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { z } from "zod";
 import { saveUser } from "./save-user.actions";
 
-const signUpSchema = z.object({
-	email: z.string().email({ message: "Invalid email address" }),
-	password: z
-		.string()
-		.min(8, { message: "Password must be at least 8 characters" }),
-	confirmPassword: z
-		.string()
-		.min(8, { message: "Password confirmation must be at least 8 characters" }),
-});
-
 export function SignUpForm() {
+	const t = useTranslations("sign-up");
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
+
+	// Créer le schéma avec les traductions
+	const signUpSchema = z.object({
+		email: z.string().email({ message: t("invalid-email") }),
+		password: z.string().min(8, { message: t("password-too-short") }),
+		confirmPassword: z.string().min(8, {
+			message: t("confirm-password-too-short"),
+		}),
+	});
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -42,7 +43,7 @@ export function SignUpForm() {
 		}
 
 		if (password !== confirmPassword) {
-			setError("Passwords do not match");
+			setError(t("passwords-do-not-match"));
 			setIsLoading(false);
 			return;
 		}
@@ -74,7 +75,7 @@ export function SignUpForm() {
 				</Alert>
 			)}
 			<div className="grid gap-2 my-2">
-				<Label htmlFor="email">Email</Label>
+				<Label htmlFor="email">{t("email")}</Label>
 				<Input
 					id="email"
 					type="email"
@@ -86,7 +87,7 @@ export function SignUpForm() {
 				/>
 			</div>
 			<Password
-				label="Password"
+				label={t("password")}
 				id="password"
 				name="password"
 				value={password}
@@ -94,7 +95,7 @@ export function SignUpForm() {
 				required
 			/>
 			<Password
-				label="Confirm password"
+				label={t("confirm-password")}
 				id="confirmPassword"
 				name="confirmPassword"
 				value={confirmPassword}
@@ -105,7 +106,7 @@ export function SignUpForm() {
 				{isLoading ? (
 					<LoaderCircle className="w-4 h-4 animate-spin" />
 				) : (
-					"Create account"
+					t("create-account")
 				)}
 			</Button>
 		</form>

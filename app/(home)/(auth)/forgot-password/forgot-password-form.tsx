@@ -5,19 +5,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LoaderCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { z } from "zod";
 import { requestPasswordReset } from "./actions";
 
-const schema = z.object({
-	email: z.string().email({ message: "Invalid email address" }),
-});
-
 export function ForgotPasswordForm() {
+	const t = useTranslations("forgot-password");
 	const [error, setError] = useState<string | null>(null);
 	const [success, setSuccess] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
 	const [email, setEmail] = useState("");
+
+	// Créer le schéma avec les traductions
+	const schema = z.object({
+		email: z.string().email({ message: t("invalid-email") }),
+	});
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -37,20 +40,14 @@ export function ForgotPasswordForm() {
 			const resetResponse = await requestPasswordReset(email);
 
 			if (resetResponse.success) {
-				setSuccess(
-					resetResponse.message ||
-						"If your email is registered, you will receive reset instructions",
-				);
+				setSuccess(resetResponse.message || t("reset-instructions-sent"));
 				setEmail("");
 			} else {
-				setError(
-					resetResponse.error ||
-						"An error occurred while processing your request",
-				);
+				setError(resetResponse.error || t("error-processing-request"));
 			}
 		} catch (error) {
 			console.error({ error });
-			setError("An error occurred while processing your request");
+			setError(t("error-processing-request"));
 		} finally {
 			setIsLoading(false);
 		}
@@ -74,7 +71,7 @@ export function ForgotPasswordForm() {
 			)}
 
 			<div className="grid gap-2 my-2">
-				<Label htmlFor="email">Email</Label>
+				<Label htmlFor="email">{t("email")}</Label>
 				<Input
 					id="email"
 					type="email"
@@ -90,7 +87,7 @@ export function ForgotPasswordForm() {
 				{isLoading ? (
 					<LoaderCircle className="w-4 h-4 animate-spin" />
 				) : (
-					"Send Reset Instructions"
+					t("send-reset-instructions")
 				)}
 			</Button>
 		</form>

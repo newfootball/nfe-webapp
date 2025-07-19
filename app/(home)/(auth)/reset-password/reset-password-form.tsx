@@ -5,24 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LoaderCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { z } from "zod";
 import { resetPassword } from "./actions";
 
-const schema = z
-	.object({
-		password: z
-			.string()
-			.min(8, { message: "Password must be at least 8 characters" }),
-		confirmPassword: z.string(),
-	})
-	.refine((data) => data.password === data.confirmPassword, {
-		message: "Passwords do not match",
-		path: ["confirmPassword"],
-	});
-
 function ResetPasswordFormContent() {
+	const t = useTranslations("reset-password");
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const token = searchParams.get("token");
@@ -33,6 +23,17 @@ function ResetPasswordFormContent() {
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 
+	// Créer le schéma avec les traductions
+	const schema = z
+		.object({
+			password: z.string().min(8, { message: t("password-too-short") }),
+			confirmPassword: z.string(),
+		})
+		.refine((data) => data.password === data.confirmPassword, {
+			message: t("passwords-do-not-match"),
+			path: ["confirmPassword"],
+		});
+
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setIsLoading(true);
@@ -40,7 +41,7 @@ function ResetPasswordFormContent() {
 		setSuccess(null);
 
 		if (!token) {
-			setError("Invalid or missing reset token");
+			setError(t("invalid-or-missing-reset-token"));
 			setIsLoading(false);
 			return;
 		}
@@ -56,22 +57,17 @@ function ResetPasswordFormContent() {
 			const resetResponse = await resetPassword(token, password);
 
 			if (resetResponse.success) {
-				setSuccess(
-					resetResponse.message ?? "Mot de passe réinitialisé avec succès",
-				);
+				setSuccess(resetResponse.message ?? t("password-reset-success"));
 				// Redirect to login page after 3 seconds
 				setTimeout(() => {
 					router.push("/login");
 				}, 3000);
 			} else {
-				setError(
-					resetResponse.error ||
-						"An error occurred while resetting your password",
-				);
+				setError(resetResponse.error || t("error-resetting-password"));
 			}
 		} catch (error) {
 			console.error({ error });
-			setError("An error occurred while resetting your password");
+			setError(t("error-resetting-password"));
 		} finally {
 			setIsLoading(false);
 		}
@@ -95,7 +91,7 @@ function ResetPasswordFormContent() {
 			)}
 
 			<div className="grid gap-2 my-2">
-				<Label htmlFor="password">New Password</Label>
+				<Label htmlFor="password">{t("new-password")}</Label>
 				<Input
 					id="password"
 					type="password"
@@ -106,7 +102,7 @@ function ResetPasswordFormContent() {
 			</div>
 
 			<div className="grid gap-2 my-2">
-				<Label htmlFor="confirmPassword">Confirm Password</Label>
+				<Label htmlFor="confirmPassword">{t("confirm-password")}</Label>
 				<Input
 					id="confirmPassword"
 					type="password"
@@ -120,7 +116,7 @@ function ResetPasswordFormContent() {
 				{isLoading ? (
 					<LoaderCircle className="w-4 h-4 animate-spin" />
 				) : (
-					"Reset Password"
+					t("reset-password")
 				)}
 			</Button>
 		</form>

@@ -2,17 +2,18 @@
 
 import { hashPassword } from "@/src/lib/password";
 import { prisma } from "@/src/lib/prisma";
+import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 
-const resetSchema = z.object({
-	token: z.string().min(1, { message: "Token is required" }),
-	password: z
-		.string()
-		.min(8, { message: "Password must be at least 8 characters" }),
-});
-
 export async function resetPassword(token: string, password: string) {
+	const t = await getTranslations("reset-password");
+
 	try {
+		const resetSchema = z.object({
+			token: z.string().min(1, { message: t("token-required") }),
+			password: z.string().min(8, { message: t("password-too-short") }),
+		});
+
 		const result = resetSchema.safeParse({ token, password });
 
 		if (!result.success) {
@@ -35,7 +36,7 @@ export async function resetPassword(token: string, password: string) {
 		if (!user) {
 			return {
 				success: false,
-				error: "Invalid or expired reset token",
+				error: t("invalid-or-expired-reset-token"),
 			};
 		}
 
@@ -54,14 +55,13 @@ export async function resetPassword(token: string, password: string) {
 
 		return {
 			success: true,
-			message:
-				"Your password has been reset successfully. Redirecting to login...",
+			message: t("password-reset-success-redirect"),
 		};
 	} catch (error) {
 		console.error("Password reset error:", error);
 		return {
 			success: false,
-			error: "An error occurred while resetting your password",
+			error: t("error-resetting-password"),
 		};
 	}
 }

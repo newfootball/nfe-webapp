@@ -1,20 +1,23 @@
 "use server";
 
-import { randomBytes } from "node:crypto";
 import { sendPasswordResetEmail } from "@/src/lib/email";
 import { prisma } from "@/src/lib/prisma";
+import { getTranslations } from "next-intl/server";
+import { randomBytes } from "node:crypto";
 import { z } from "zod";
-
-const requestSchema = z.object({
-	email: z.string().email({ message: "Invalid email address" }),
-});
 
 export async function requestPasswordReset(email: string): Promise<{
 	success: boolean;
 	message?: string;
 	error?: string;
 }> {
+	const t = await getTranslations("forgot-password");
+
 	try {
+		const requestSchema = z.object({
+			email: z.string().email({ message: t("invalid-email") }),
+		});
+
 		const result = requestSchema.safeParse({ email });
 
 		if (!result.success) {
@@ -33,8 +36,7 @@ export async function requestPasswordReset(email: string): Promise<{
 			// Don't reveal that the user doesn't exist for security reasons
 			return {
 				success: true,
-				message:
-					"If your email is registered, you will receive reset instructions",
+				message: t("reset-instructions-sent"),
 			};
 		}
 
@@ -56,14 +58,13 @@ export async function requestPasswordReset(email: string): Promise<{
 
 		return {
 			success: true,
-			message:
-				"If your email is registered, you will receive reset instructions",
+			message: t("reset-instructions-sent"),
 		};
 	} catch (error) {
 		console.error("Password reset request error:", error);
 		return {
 			success: false,
-			error: "An error occurred while processing your request",
+			error: t("error-processing-request"),
 		};
 	}
 }

@@ -5,18 +5,20 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { ForgotPasswordForm } from "./forgot-password-form";
 
 export default function ForgotPasswordPage() {
+	const t = useTranslations("forgot-password");
+
 	return (
 		<div className="flex justify-center items-center pt-20">
 			<Card className="mx-auto max-w-sm shadow-none border-none">
 				<CardHeader>
-					<CardTitle className="text-2xl">Forgot Password</CardTitle>
+					<CardTitle className="text-2xl">{t("forgot-password")}</CardTitle>
 					<CardDescription>
-						Enter your email address and we&apos;ll send you instructions to
-						reset your password
+						{t("enter-your-email-for-reset-instructions")}
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
@@ -25,9 +27,9 @@ export default function ForgotPasswordPage() {
 					</div>
 
 					<div className="mt-4 text-center text-sm">
-						Remember your password?{" "}
+						{t("remember-your-password")}{" "}
 						<Link href="/sign-in" className="underline">
-							Sign in
+							{t("sign-in")}
 						</Link>
 					</div>
 				</CardContent>

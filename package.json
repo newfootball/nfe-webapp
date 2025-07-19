@@ -94,6 +94,6 @@
     "typescript": "5.7.2"
   },
   "prisma": {
-    "seed": "bunx ts-node --compiler-options {\"module\":\"CommonJS\"} ./prisma/seeds.ts"
+    "seed": "bun run ./prisma/seeds.ts"
   }
 }

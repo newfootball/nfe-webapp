@@ -2,11 +2,13 @@
 
 import { Shell } from "@/components/shell";
 import { auth } from "@/lib/auth";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { OnboardingSteps } from "./onboarding-steps";
 
 export default function OnboardingPage() {
+	const t = useTranslations("onboarding");
 	const router = useRouter();
 	const [isLoading, setIsLoading] = useState(true);
 
@@ -40,10 +42,10 @@ export default function OnboardingPage() {
 		<Shell className="max-w-xl">
 			<div className="flex flex-col space-y-2 text-center">
 				<h1 className="text-2xl font-semibold tracking-tight">
-					Complete Your Profile
+					{t("complete-your-profile")}
 				</h1>
 				<p className="text-sm text-muted-foreground">
-					Tell us more about yourself to get started
+					{t("tell-us-more-about-yourself")}
 				</p>
 			</div>
 			<OnboardingSteps />

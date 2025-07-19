@@ -27,6 +27,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { UserType } from "@prisma/client";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { type ControllerRenderProps, useForm } from "react-hook-form";
@@ -64,6 +65,7 @@ type CoachInfoValues = z.infer<typeof coachInfoSchema>;
 type ClubInfoValues = z.infer<typeof clubInfoSchema>;
 
 export function OnboardingSteps() {
+	const t = useTranslations("onboarding");
 	const [step, setStep] = useState(1);
 	const [userType, setUserType] = useState<UserType>();
 	const router = useRouter();
@@ -109,7 +111,7 @@ export function OnboardingSteps() {
 			router.push("/feed");
 		} catch (error) {
 			console.error(error);
-			toast.error("Something went wrong");
+			toast.error(t("something-went-wrong"));
 		}
 	};
 
@@ -129,22 +131,22 @@ export function OnboardingSteps() {
 							field: ControllerRenderProps<UserTypeValues>;
 						}) => (
 							<FormItem>
-								<FormLabel>I am a...</FormLabel>
+								<FormLabel>{t("i-am-a")}</FormLabel>
 								<Select
 									onValueChange={field.onChange}
 									defaultValue={field.value}
 								>
 									<FormControl>
 										<SelectTrigger>
-											<SelectValue placeholder="Select your role" />
+											<SelectValue placeholder={t("select-your-role")} />
 										</SelectTrigger>
 									</FormControl>
 									<SelectContent>
-										<SelectItem value="USER">Fan</SelectItem>
-										<SelectItem value="PLAYER">Player</SelectItem>
-										<SelectItem value="COACH">Coach</SelectItem>
-										<SelectItem value="TRAINER">Trainer</SelectItem>
-										<SelectItem value="CLUB">Club</SelectItem>
+										<SelectItem value="USER">{t("fan")}</SelectItem>
+										<SelectItem value="PLAYER">{t("player")}</SelectItem>
+										<SelectItem value="COACH">{t("coach")}</SelectItem>
+										<SelectItem value="TRAINER">{t("trainer")}</SelectItem>
+										<SelectItem value="CLUB">{t("club")}</SelectItem>
 									</SelectContent>
 								</Select>
 								<FormMessage />
@@ -152,7 +154,7 @@ export function OnboardingSteps() {
 						)}
 					/>
 					<Button type="submit" className="w-full">
-						Continue
+						{t("continue")}
 					</Button>
 				</form>
 			</Form>
@@ -175,7 +177,7 @@ export function OnboardingSteps() {
 							field: ControllerRenderProps<PlayerInfoValues>;
 						}) => (
 							<FormItem className="flex flex-col">
-								<FormLabel>Date of birth</FormLabel>
+								<FormLabel>{t("date-of-birth")}</FormLabel>
 								<Popover>
 									<PopoverTrigger asChild>
 										<FormControl>
@@ -189,7 +191,7 @@ export function OnboardingSteps() {
 												{field.value ? (
 													format(field.value, "PPP")
 												) : (
-													<span>Pick a date</span>
+													<span>{t("pick-a-date")}</span>
 												)}
 												<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
 											</Button>
@@ -198,7 +200,7 @@ export function OnboardingSteps() {
 									<PopoverContent className="w-auto p-0" align="start">
 										<Input
 											type="date"
-											placeholder="Select a date"
+											placeholder={t("select-a-date")}
 											value={
 												field.value
 													? format(field.value, "yyyy-MM-dd")
@@ -221,11 +223,11 @@ export function OnboardingSteps() {
 							field: ControllerRenderProps<PlayerInfoValues>;
 						}) => (
 							<FormItem>
-								<FormLabel>City</FormLabel>
+								<FormLabel>{t("city")}</FormLabel>
 								<FormControl>
 									<Input
 										type="text"
-										placeholder="Enter your city"
+										placeholder={t("enter-your-city")}
 										value={field.value as string}
 										onChange={field.onChange}
 									/>
@@ -239,21 +241,25 @@ export function OnboardingSteps() {
 						name="position"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Position</FormLabel>
+								<FormLabel>{t("position")}</FormLabel>
 								<Select
 									onValueChange={field.onChange}
 									defaultValue={field.value}
 								>
 									<FormControl>
 										<SelectTrigger>
-											<SelectValue placeholder="Select your position" />
+											<SelectValue placeholder={t("select-your-position")} />
 										</SelectTrigger>
 									</FormControl>
 									<SelectContent>
-										<SelectItem value="GOALKEEPER">Goalkeeper</SelectItem>
-										<SelectItem value="DEFENDER">Defender</SelectItem>
-										<SelectItem value="MIDFIELDER">Midfielder</SelectItem>
-										<SelectItem value="FORWARD">Forward</SelectItem>
+										<SelectItem value="GOALKEEPER">
+											{t("goalkeeper")}
+										</SelectItem>
+										<SelectItem value="DEFENDER">{t("defender")}</SelectItem>
+										<SelectItem value="MIDFIELDER">
+											{t("midfielder")}
+										</SelectItem>
+										<SelectItem value="FORWARD">{t("forward")}</SelectItem>
 									</SelectContent>
 								</Select>
 								<FormMessage />
@@ -269,20 +275,22 @@ export function OnboardingSteps() {
 							field: ControllerRenderProps<PlayerInfoValues>;
 						}) => (
 							<FormItem>
-								<FormLabel>Preferred Foot</FormLabel>
+								<FormLabel>{t("preferred-foot")}</FormLabel>
 								<Select
 									onValueChange={field.onChange}
 									defaultValue={field.value as string}
 								>
 									<FormControl>
 										<SelectTrigger>
-											<SelectValue placeholder="Select your preferred foot" />
+											<SelectValue
+												placeholder={t("select-your-preferred-foot")}
+											/>
 										</SelectTrigger>
 									</FormControl>
 									<SelectContent>
-										<SelectItem value="LEFT">Left</SelectItem>
-										<SelectItem value="RIGHT">Right</SelectItem>
-										<SelectItem value="BOTH">Both</SelectItem>
+										<SelectItem value="LEFT">{t("left")}</SelectItem>
+										<SelectItem value="RIGHT">{t("right")}</SelectItem>
+										<SelectItem value="BOTH">{t("both")}</SelectItem>
 									</SelectContent>
 								</Select>
 								<FormMessage />
@@ -298,11 +306,11 @@ export function OnboardingSteps() {
 							field: ControllerRenderProps<PlayerInfoValues>;
 						}) => (
 							<FormItem>
-								<FormLabel>License Number (Optional)</FormLabel>
+								<FormLabel>{t("license-number-optional")}</FormLabel>
 								<FormControl>
 									<Input
 										type="text"
-										placeholder="Enter your license number"
+										placeholder={t("enter-your-license-number")}
 										value={field.value as string}
 										onChange={field.onChange}
 									/>
@@ -312,7 +320,7 @@ export function OnboardingSteps() {
 						)}
 					/>
 					<Button type="submit" className="w-full">
-						Complete Profile
+						{t("complete-profile")}
 					</Button>
 				</form>
 			</Form>
@@ -331,7 +339,7 @@ export function OnboardingSteps() {
 						name="birthDate"
 						render={({ field }) => (
 							<FormItem className="flex flex-col">
-								<FormLabel>Date of birth</FormLabel>
+								<FormLabel>{t("date-of-birth")}</FormLabel>
 								<Popover>
 									<PopoverTrigger asChild>
 										<FormControl>
@@ -345,7 +353,7 @@ export function OnboardingSteps() {
 												{field.value ? (
 													format(field.value, "PPP")
 												) : (
-													<span>Pick a date</span>
+													<span>{t("pick-a-date")}</span>
 												)}
 												<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
 											</Button>
@@ -354,7 +362,7 @@ export function OnboardingSteps() {
 									<PopoverContent className="w-auto p-0" align="start">
 										<Input
 											type="date"
-											placeholder="Select a date"
+											placeholder={t("select-a-date")}
 											value={
 												field.value
 													? format(field.value, "yyyy-MM-dd")
@@ -373,9 +381,9 @@ export function OnboardingSteps() {
 						name="city"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>City</FormLabel>
+								<FormLabel>{t("city")}</FormLabel>
 								<FormControl>
-									<Input placeholder="Enter your city" {...field} />
+									<Input placeholder={t("enter-your-city")} {...field} />
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -386,16 +394,16 @@ export function OnboardingSteps() {
 						name="clubName"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Club Name</FormLabel>
+								<FormLabel>{t("club-name")}</FormLabel>
 								<FormControl>
-									<Input placeholder="Enter your club name" {...field} />
+									<Input placeholder={t("enter-your-club-name")} {...field} />
 								</FormControl>
 								<FormMessage />
 							</FormItem>
 						)}
 					/>
 					<Button type="submit" className="w-full">
-						Complete Profile
+						{t("complete-profile")}
 					</Button>
 				</form>
 			</Form>
@@ -414,9 +422,9 @@ export function OnboardingSteps() {
 						name="clubName"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Club Name</FormLabel>
+								<FormLabel>{t("club-name")}</FormLabel>
 								<FormControl>
-									<Input placeholder="Enter your club name" {...field} />
+									<Input placeholder={t("enter-your-club-name")} {...field} />
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -427,9 +435,9 @@ export function OnboardingSteps() {
 						name="city"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>City</FormLabel>
+								<FormLabel>{t("city")}</FormLabel>
 								<FormControl>
-									<Input placeholder="Enter your city" {...field} />
+									<Input placeholder={t("enter-your-city")} {...field} />
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -440,11 +448,11 @@ export function OnboardingSteps() {
 						name="clubSize"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Number of Members</FormLabel>
+								<FormLabel>{t("number-of-members")}</FormLabel>
 								<FormControl>
 									<Input
 										type="number"
-										placeholder="Enter club size"
+										placeholder={t("enter-club-size")}
 										{...field}
 										onChange={(e) =>
 											field.onChange(Number.parseInt(e.target.value, 10))
@@ -460,16 +468,19 @@ export function OnboardingSteps() {
 						name="clubPosition"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>League Position</FormLabel>
+								<FormLabel>{t("league-position")}</FormLabel>
 								<FormControl>
-									<Input placeholder="Enter your league position" {...field} />
+									<Input
+										placeholder={t("enter-your-league-position")}
+										{...field}
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
 						)}
 					/>
 					<Button type="submit" className="w-full">
-						Complete Profile
+						{t("complete-profile")}
 					</Button>
 				</form>
 			</Form>

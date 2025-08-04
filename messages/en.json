@@ -1,5 +1,13 @@
 {
+  "common": {
+    "change-language": "Change language",
+    "language": "Language",
+    "select-language": "Select your language",
+    "english": "English",
+    "french": "French"
+  },
   "posts": {
+    "loading": "Loading posts...",
     "no-posts-available": "No posts available",
     "failed-to-fetch-posts": "Failed to fetch posts",
     "post-actions": {
@@ -249,6 +257,8 @@
       "full-name": "Full name",
       "birthday": "Birthday",
       "biography": "Biography",
+      "language": "Language",
+      "select-language": "Select your language",
       "invalid-email": "Invalid email address",
       "full-name-required": "Full name is required",
       "save": "Save",

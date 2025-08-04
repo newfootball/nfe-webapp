@@ -9,13 +9,14 @@ import { Password } from "@/components/ui/password";
 import { LoaderCircle } from "lucide-react";
 
 import { Alert } from "@/components/ui/alert";
-import { signIn } from "next-auth/react";
+import { signUp } from "@/src/lib/auth-client";
 import { useTranslations } from "next-intl";
+import { useRouter } from "next/navigation";
 import { z } from "zod";
-import { saveUser } from "./save-user.actions";
 
 export function SignUpForm() {
 	const t = useTranslations("sign-up");
+	const router = useRouter();
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [email, setEmail] = useState("");
@@ -48,20 +49,27 @@ export function SignUpForm() {
 			return;
 		}
 
-		saveUser({ email, password })
-			.then(() => {
-				signIn("credentials", {
-					email,
-					password,
-					redirect: false,
-				});
-			})
-			.catch((error) => {
-				setError(error.message);
-			})
-			.finally(() => {
-				setIsLoading(false);
+		try {
+			const { data, error } = await signUp.email({
+				email,
+				password,
+				name: email?.split("@")[0] || "User", // Use email prefix as default name
 			});
+
+			if (error) {
+				setError(error.message ?? t("an-error-occurred"));
+				return;
+			}
+
+			if (data) {
+				router.push("/");
+			}
+		} catch (error) {
+			console.error({ error });
+			setError(t("an-error-occurred"));
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	return (

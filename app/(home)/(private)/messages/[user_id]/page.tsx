@@ -1,4 +1,4 @@
-import { auth } from "@/src/lib/auth";
+import { getSession } from "@/src/lib/auth-server";
 import { prisma } from "@/src/lib/prisma";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -11,7 +11,7 @@ export default async function page({
 }: {
 	params: Promise<{ user_id: string }>;
 }) {
-	const session = await auth();
+	const session = await getSession();
 
 	if (!session) {
 		redirect("/login");

@@ -1,5 +1,5 @@
 import { Toaster } from "@/components/ui/sonner";
-import { auth } from "@/src/lib/auth";
+import { getSession } from "@/src/lib/auth-server";
 import { Footer } from "./footer";
 import { Header } from "./header";
 
@@ -10,7 +10,7 @@ export default async function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const session = await auth();
+	const session = await getSession();
 	return (
 		<>
 			<Header userId={session?.user.id} />

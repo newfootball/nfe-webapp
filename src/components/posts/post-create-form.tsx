@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { usePostsActions } from "@/src/store/posts.store";
 import { PostWithUserAndMedias } from "@/src/types/post.types";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/src/lib/auth-client";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -58,6 +58,7 @@ export const PostCreateForm = ({ onSuccess }: PostCreateFormProps) => {
           birthday: null,
           fullName: null,
           biography: null,
+          language: null,
           position: [],
           foot: [],
           license: null,

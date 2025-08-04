@@ -1,14 +1,14 @@
 "use server";
 
-import { signOut } from "next-auth/react";
 import { getTranslations } from "next-intl/server";
 import { revalidatePath } from "next/cache";
-import { auth } from "../lib/auth";
+import { redirect } from "next/navigation";
+import { getSession } from "../lib/auth-server";
 import { prisma } from "../lib/prisma";
 
 export const deleteUserAccount = async () => {
   const t = await getTranslations("actions.user");
-  const session = await auth();
+  const session = await getSession();
   const userId = session?.user?.id;
 
   if (!userId) {
@@ -22,7 +22,7 @@ export const deleteUserAccount = async () => {
   });
 
   revalidatePath("/");
-  signOut();
+  redirect("/sign-in");
 
   return user;
 };

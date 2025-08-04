@@ -1,12 +1,12 @@
 "use server";
 
-import { auth } from "@/src/lib/auth";
+import { getSession } from "@/src/lib/auth-server";
 import { prisma } from "@/src/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 export async function sendMessage(formData: FormData) {
 	try {
-		const session = await auth();
+		const session = await getSession();
 
 		if (!session) {
 			throw new Error("Non autorisé");

@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { getSession } from "@/src/lib/auth-server";
 import { comparePassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
 import type { User } from "@prisma/client";
@@ -41,7 +41,7 @@ export const getUserLogin = async (email: string, password: string) => {
  */
 export const getUserSessionId = async (): Promise<string | null> => {
   try {
-    const session = await auth();
+    const session = await getSession();
 
     return session?.user?.id ?? null;
   } catch (error) {

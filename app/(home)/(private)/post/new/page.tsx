@@ -1,15 +1,15 @@
 "use client";
 
 import { PageHeader } from "@/components/feature/page-header";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/src/lib/auth-client";
 import { redirect } from "next/navigation";
 import type React from "react";
 import MakePostForm from "./make-post-form";
 
 export default function PostNewPage(): React.ReactElement {
-	const session = useSession();
+	const { data: session } = useSession();
 
-	if (session.status !== "authenticated") {
+	if (!session) {
 		redirect("/sign-in");
 	}
 

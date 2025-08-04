@@ -1,15 +1,13 @@
-import { auth } from "@/lib/auth";
+import { getSession } from "@/src/lib/auth-server";
 import { redirect } from "next/navigation";
-import { toast } from "sonner";
 import { LastPostsLiked } from "./_components/last-posts-liked";
 import { MyLastPost } from "./_components/my-last-post";
 import { MyProfile } from "./_components/my-profile";
 
 export default async function ProfilePage() {
-	const session = await auth();
+	const session = await getSession();
 
-	if (!session?.user?.id || session?.user?.id === null) {
-		toast.error("User not found");
+	if (!session?.user?.id) {
 		redirect("/sign-in");
 	}
 

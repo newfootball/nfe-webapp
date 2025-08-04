@@ -8,7 +8,7 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Divider } from "@/components/ui/divider";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/src/lib/auth-client";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -19,7 +19,7 @@ export default function EditUserPage() {
   const t = useTranslations("profile.edit-user");
   const { data: session } = useSession();
 
-  if (!session?.user?.id || session?.user?.id === null) {
+  if (!session?.user?.id) {
     toast.error(t("user-not-found"));
     redirect("/profile");
   }

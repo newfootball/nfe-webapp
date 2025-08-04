@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/lib/auth";
+import { getSession } from "@/src/lib/auth-server";
 import { prisma } from "@/lib/prisma";
 
 export const getCountFollowers = async (userId: string): Promise<number> => {
@@ -29,7 +29,7 @@ export async function checkIsFollowing(
 	userToFollowId: string,
 ): Promise<boolean> {
 	try {
-		const session = await auth();
+		const session = await getSession();
 
 		if (!session || !session.user?.id) {
 			console.warn("No session found");

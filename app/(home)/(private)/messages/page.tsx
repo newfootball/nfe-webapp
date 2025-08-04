@@ -1,12 +1,12 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/src/lib/auth-server";
 import { MessageHeader } from "./components/message-header";
 import { MessageList } from "./components/message-list";
 import { UserList } from "./components/user-list";
 import { getMessagesGroupedByUser, getUsersWithMessages } from "./queries";
 
 export default async function MessagesPage() {
-	const session = await auth();
+	const session = await getSession();
 	const users = session?.user?.id
 		? await getUsersWithMessages(session.user.id)
 		: [];

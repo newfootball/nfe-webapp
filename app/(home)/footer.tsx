@@ -2,7 +2,7 @@
 
 import { Layout } from "@/components/layouts/layout";
 import { Home, MessageSquare, Plus, Search, User } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/src/lib/auth-client";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 

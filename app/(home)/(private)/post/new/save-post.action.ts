@@ -2,12 +2,12 @@
 
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/src/lib/auth";
+import { getSession } from "@/src/lib/auth-server";
 import { MediaType, PostStatus, PostType } from "@prisma/client";
 import { type PostData, postSchema } from "./post.schema";
 
 export const savePost = async (post: PostData) => {
-	const session = await auth();
+	const session = await getSession();
 
 	if (!session?.user?.id) {
 		throw new Error("User not found");

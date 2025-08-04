@@ -4,7 +4,6 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
-import { SessionProvider } from "next-auth/react";
 import { NextIntlClientProvider } from "next-intl";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -90,7 +89,7 @@ export default function RootLayout({
 			<body className="h-full">
 				<NextIntlClientProvider>
 					<ReactQueryProvider>
-						<SessionProvider>{children}</SessionProvider>
+						{children}
 					</ReactQueryProvider>
 				</NextIntlClientProvider>
 				<Analytics />

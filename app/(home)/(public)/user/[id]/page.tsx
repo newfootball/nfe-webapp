@@ -1,5 +1,5 @@
 import { UserProfile } from "@/components/feature/user/user-profile";
-import { auth } from "@/src/lib/auth";
+import { getSession } from "@/src/lib/auth-server";
 import { getUser } from "@/src/query/user.query";
 import { notFound } from "next/navigation";
 
@@ -9,7 +9,7 @@ export default async function page({
 	params: Promise<{ id: string }>;
 }) {
 	const { id } = await params;
-	const session = await auth();
+	const session = await getSession();
 
 	if (!id) {
 		return notFound();

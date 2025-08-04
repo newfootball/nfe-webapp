@@ -15,7 +15,7 @@ import {
   useInvalidateCommentQueries,
 } from "@/src/hooks/use-comment-query";
 import { usePostsActions } from "@/src/store/posts.store";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/src/lib/auth-client";
 import { useTranslations } from "next-intl";
 import { PostActionShare } from "./post-actions/post-action-share";
 import { PostCommentsList } from "./post-comments-list";

@@ -29,7 +29,7 @@ import {
 	MoreHorizontal,
 	Trash2,
 } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/src/lib/auth-client";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { redirect } from "next/navigation";

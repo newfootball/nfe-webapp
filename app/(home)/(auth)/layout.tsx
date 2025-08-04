@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useSession } from "@/src/lib/auth-client";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -11,9 +11,9 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   const t = useTranslations("auth-layout");
-  const session = useSession();
+  const { data: session } = useSession();
 
-  if (session.status === "authenticated") {
+  if (session) {
     redirect("/");
   }
 

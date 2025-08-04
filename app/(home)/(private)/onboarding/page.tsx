@@ -1,7 +1,7 @@
 "use client";
 
 import { Shell } from "@/components/shell";
-import { auth } from "@/lib/auth";
+import { getSession } from "@/src/lib/auth-client";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -14,13 +14,13 @@ export default function OnboardingPage() {
 
 	useEffect(() => {
 		const checkProfile = async () => {
-			const session = await auth();
-			if (!session?.user) {
+			const session = await getSession();
+			if (!session || !session.data?.user) {
 				router.push("/auth/sign-in");
 				return;
 			}
 
-			const response = await fetch(`/api/users/${session.user.id}/profile`);
+			const response = await fetch(`/api/users/${session.data.user.id}/profile`);
 			const profile = await response.json();
 
 			if (profile?.userType) {

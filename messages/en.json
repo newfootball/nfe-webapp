@@ -2,10 +2,12 @@
   "common": {
     "change-language": "Change language",
     "language": "Language",
+    "select-language": "Select your language",
     "english": "English",
     "french": "French"
   },
   "posts": {
+    "loading": "Loading posts...",
     "no-posts-available": "No posts available",
     "failed-to-fetch-posts": "Failed to fetch posts",
     "post-actions": {

@@ -1,11 +1,10 @@
-import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/src/lib/locale";
-import createMiddleware from "next-intl/middleware";
+import { NextResponse } from "next/server";
 
-export default createMiddleware({
-  locales: SUPPORTED_LOCALES,
-  defaultLocale: DEFAULT_LOCALE,
-  localePrefix: "never",
-});
+export async function middleware(): Promise<NextResponse> {
+  // Allow next-intl to handle locale detection through request configuration
+  // The actual locale detection is handled in src/i18n/request.ts
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: [

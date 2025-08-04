@@ -1,45 +1,51 @@
 import { GoogleButton } from "@/components/auth/google-button";
 import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 import { Divider } from "@/components/ui/divider";
+import { AuthLanguageSelector } from "@/src/components/language/auth-language-selector";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import { SignUpForm } from "./signup-form";
 
 export default async function SignUpPage() {
-	const t = await getTranslations("sign-up");
+  const t = await getTranslations("sign-up");
 
-	return (
-		<div className="flex justify-center items-center pt-20">
-			<Card className="mx-auto max-w-sm shadow-none border-none">
-				<CardHeader>
-					<CardTitle className="text-2xl">{t("create-account")}</CardTitle>
-					<CardDescription>
-						{t("enter-your-email-below-to-create-your-account")}
-					</CardDescription>
-				</CardHeader>
-				<CardContent>
-					<div className="grid gap-4">
-						<SignUpForm />
+  return (
+    <div className="flex justify-center items-center pt-20">
+      <Card className="mx-auto max-w-sm shadow-none border-none">
+        <CardHeader>
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <CardTitle className="text-2xl">{t("create-account")}</CardTitle>
+              <CardDescription>
+                {t("enter-your-email-below-to-create-your-account")}
+              </CardDescription>
+            </div>
+            <AuthLanguageSelector />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4">
+            <SignUpForm />
 
-						<Divider text={t("or-continue-with")} />
+            <Divider text={t("or-continue-with")} />
 
-						<GoogleButton />
-					</div>
+            <GoogleButton />
+          </div>
 
-					<div className="mt-4 text-center text-sm">
-						{t("already-have-an-account")}
-						<Link href="/sign-in" className="underline">
-							{t("sign-in")}
-						</Link>
-					</div>
-				</CardContent>
-			</Card>
-		</div>
-	);
+          <div className="mt-4 text-center text-sm">
+            {t("already-have-an-account")}
+            <Link href="/sign-in" className="underline">
+              {t("sign-in")}
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }

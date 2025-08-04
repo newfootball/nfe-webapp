@@ -7,7 +7,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LanguageSelector } from "@/src/components/language/language-selector";
 import { getUser } from "@/src/query/user.query";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -38,7 +37,6 @@ export const Header = ({ userId }: { userId?: string }) => {
             </Link>
           </h1>
           <div className="flex items-center gap-2 mr-4">
-            <LanguageSelector />
             {userId ? (
               <HeaderDropdown userId={userId} />
             ) : (

@@ -16,7 +16,6 @@ type ChangeFrequency =
   | "never";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // Pages statiques principales
   const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: WEBSITE_URL,
@@ -51,7 +50,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // Pages par position de joueur
   const positions = [
     "goalkeeper",
     "centre-back",
@@ -73,7 +71,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  // Pages par type d'utilisateur
   const userTypes = ["players", "coaches", "recruiters", "clubs"];
   const userTypeRoutes: MetadataRoute.Sitemap = userTypes.map((type) => ({
     url: `${WEBSITE_URL}/${type}`,
@@ -82,7 +79,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  // Pages de localisation (exemples de villes principales)
   const locations = [
     "paris",
     "marseille",
@@ -103,7 +99,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  // Pages de profils utilisateurs dynamiques (limité aux plus actifs)
   try {
     const activeUsers = await getUsersForSitemap();
     const userRoutes: MetadataRoute.Sitemap = activeUsers.map((user) => ({
@@ -113,7 +108,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     }));
 
-    // Pages de posts populaires
     const popularPosts = await getPopularPostsForSitemap();
     const postRoutes: MetadataRoute.Sitemap = popularPosts.map((post) => ({
       url: `${WEBSITE_URL}/post/${post.id}`,
@@ -122,7 +116,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     }));
 
-    // Générer les routes depuis getSeo() si nécessaire
     const seoRoutes: MetadataRoute.Sitemap = getSeo().map((route) => ({
       url: `${WEBSITE_URL}${route.path}`,
       lastModified: new Date().toISOString(),
@@ -130,18 +123,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
 
-    // Combiner toutes les routes
     return [
       ...staticRoutes,
       ...positionRoutes,
       ...userTypeRoutes,
       ...locationRoutes,
-      ...userRoutes.slice(0, 500), // Limiter à 500 profils utilisateurs
-      ...postRoutes.slice(0, 1000), // Limiter à 1000 posts
+      ...userRoutes.slice(0, 500),
+      ...postRoutes.slice(0, 1000),
       ...seoRoutes,
     ];
   } catch (error) {
-    // En cas d'erreur, retourner au moins les routes statiques
     console.error("Error generating dynamic sitemap routes:", error);
     return [
       ...staticRoutes,

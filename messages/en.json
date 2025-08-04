@@ -255,6 +255,8 @@
       "full-name": "Full name",
       "birthday": "Birthday",
       "biography": "Biography",
+      "language": "Language",
+      "select-language": "Select your language",
       "invalid-email": "Invalid email address",
       "full-name-required": "Full name is required",
       "save": "Save",

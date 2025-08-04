@@ -1,3 +1,4 @@
+import { isSupportedLocale } from "@/src/lib/locale";
 import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 
@@ -9,6 +10,13 @@ export const createUserSchema = async () => {
     fullName: z.string().min(1, { message: t("full-name-required") }),
     biography: z.string().optional().nullable(),
     birthday: z.date().optional().nullable(),
+    language: z
+      .string()
+      .refine((val) => isSupportedLocale(val), {
+        message: "Invalid language",
+      })
+      .optional()
+      .nullable(),
   });
 };
 
@@ -17,6 +25,13 @@ export const userSchema = z.object({
   fullName: z.string(),
   biography: z.string().optional().nullable(),
   birthday: z.date().optional().nullable(),
+  language: z
+    .string()
+    .refine((val) => isSupportedLocale(val), {
+      message: "Invalid language",
+    })
+    .optional()
+    .nullable(),
 });
 
 export type UserDataForm = z.infer<typeof userSchema>;

@@ -5,7 +5,15 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { LOCALE_LABELS, SUPPORTED_LOCALES } from "@/src/lib/locale";
 import { getUser } from "@/src/query/user.query";
 import type { User } from "@prisma/client";
 import { Loader2 } from "lucide-react";
@@ -112,6 +120,28 @@ export const UserForm = ({ userId }: { userId: string }) => {
             setUser({ ...user, biography: e.target.value } as User)
           }
         />
+      </InputLayout>
+
+      <InputLayout>
+        <Label htmlFor="language">{t("language")}</Label>
+        <Select
+          value={user?.language || "en"}
+          onValueChange={(value) =>
+            setUser({ ...user, language: value } as User)
+          }
+        >
+          <SelectTrigger>
+            <SelectValue placeholder={t("select-language")} />
+          </SelectTrigger>
+          <SelectContent>
+            {SUPPORTED_LOCALES.map((locale) => (
+              <SelectItem key={locale} value={locale}>
+                <span className="mr-2">{locale === "en" ? "🇺🇸" : "🇫🇷"}</span>
+                {LOCALE_LABELS[locale]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </InputLayout>
 
       <Button className="w-full mt-2" type="submit" disabled={isLoading}>

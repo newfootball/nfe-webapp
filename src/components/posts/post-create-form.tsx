@@ -69,6 +69,7 @@ export const PostCreateForm = ({ onSuccess }: PostCreateFormProps) => {
           role: "USER" as const,
           userType: "USER" as const,
           isOnboarded: false,
+          language: "en",
           createdAt: new Date(),
           updatedAt: null,
         },

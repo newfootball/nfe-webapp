@@ -1,4 +1,10 @@
 {
+  "common": {
+    "change-language": "Changer de langue",
+    "language": "Langue",
+    "english": "Anglais",
+    "french": "Français"
+  },
   "posts": {
     "no-posts-available": "Aucun post disponible",
     "failed-to-fetch-posts": "Erreur lors de la récupération des posts",

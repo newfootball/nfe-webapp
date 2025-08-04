@@ -130,6 +130,7 @@ model User {
   weight           Int?
   localisation     String?
   gender           Gender?
+  language         String?    @default("en")
   role             Role       @default(USER)
   userType         UserType   @default(USER)
   isOnboarded      Boolean    @default(false)

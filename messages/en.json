@@ -1,4 +1,10 @@
 {
+  "common": {
+    "change-language": "Change language",
+    "language": "Language",
+    "english": "English",
+    "french": "French"
+  },
   "posts": {
     "no-posts-available": "No posts available",
     "failed-to-fetch-posts": "Failed to fetch posts",

@@ -1,14 +1,14 @@
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
+import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "@/src/lib/locale";
+import createMiddleware from "next-intl/middleware";
 
-export async function middleware(request: NextRequest): Promise<NextResponse> {
-	const path = new URL(request.url).pathname;
-
-	return NextResponse.next();
-}
+export default createMiddleware({
+  locales: SUPPORTED_LOCALES,
+  defaultLocale: DEFAULT_LOCALE,
+  localePrefix: "never",
+});
 
 export const config = {
-	matcher: [
-		"/((?!api|_next/static|_next/image|favicon.ico|manifest.json|workbox|sw|images).*)",
-	],
+  matcher: [
+    "/((?!api|_next/static|_next/image|favicon.ico|manifest.json|workbox|sw|images).*)",
+  ],
 };

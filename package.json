@@ -10,9 +10,9 @@
     "lint": "next lint",
     "prisma:seed": "prisma db seed",
     "vercel-build": "prisma generate && prisma migrate deploy && next build",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
-  "packageManager": "bun@1.2.17",
+  "packageManager": "bun@1.3.3",
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "biome check --fix --unsafe",

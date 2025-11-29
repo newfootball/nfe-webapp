@@ -2,6 +2,7 @@
   "posts": {
     "no-posts-available": "Aucun post disponible",
     "failed-to-fetch-posts": "Erreur lors de la récupération des posts",
+    "loading": "Chargement...",
     "post-actions": {
       "like": "J'aime",
       "comments-count": "{count, plural, =0 {Aucun commentaire} one {1 commentaire} other {{count} commentaires}}",

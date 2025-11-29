@@ -2,6 +2,7 @@
   "posts": {
     "no-posts-available": "No posts available",
     "failed-to-fetch-posts": "Failed to fetch posts",
+    "loading": "Loading...",
     "post-actions": {
       "like": "Like",
       "comments-count": "{count, plural, =0 {No comments} one {1 comment} other {{count} comments}}",

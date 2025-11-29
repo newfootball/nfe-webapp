@@ -80,6 +80,13 @@
       "you-have-no-posts": "Vous n'avez pas de posts"
     }
   },
+  "header": {
+    "profile": "Profil",
+    "my-videos": "Mes Vidéos",
+    "admin": "Admin",
+    "logout": "Déconnexion",
+    "sign-in": "Connexion"
+  },
   "footer": {
     "home": "Accueil",
     "search": "Rechercher",

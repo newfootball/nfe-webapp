@@ -5,9 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Password } from "@/components/ui/password";
+import { signIn } from "@/src/lib/auth-client";
 import { LoaderCircle } from "lucide-react";
-import { CredentialsSignin } from "next-auth";
-import { signIn } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -40,25 +39,22 @@ export function SignInForm() {
 		}
 
 		try {
-			const res = await signIn("credentials", {
+			const { data, error } = await signIn.email({
 				email,
 				password,
-				redirect: false,
 			});
 
-			if (res?.error) {
-				setError(res?.code ?? t("invalid-credentials"));
+			if (error) {
+				setError(error.message ?? t("invalid-credentials"));
 				return;
 			}
 
-			return router.push("/");
+			if (data) {
+				router.push("/");
+			}
 		} catch (error) {
 			console.error({ error });
-			setError(
-				error instanceof CredentialsSignin
-					? error.message
-					: t("an-error-occurred"),
-			);
+			setError(t("an-error-occurred"));
 		} finally {
 			setIsLoading(false);
 		}

@@ -1,12 +1,15 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { signIn } from "@/src/lib/auth-client";
 import { SiGoogle } from "@icons-pack/react-simple-icons";
-import { signIn } from "next-auth/react";
 
 export const GoogleButton = () => {
-	const handleClick = () => {
-		signIn("google", { callbackUrl: "/" });
+	const handleClick = async () => {
+		await signIn.social({
+			provider: "google",
+			callbackURL: "/",
+		});
 	};
 
 	return (

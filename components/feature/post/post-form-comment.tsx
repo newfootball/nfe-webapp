@@ -7,7 +7,7 @@ import { commentKeys } from "@/src/hooks/use-comment-query";
 import { CommentSchema } from "@/src/schemas/comment.schema";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2, Send } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/src/lib/auth-client";
 import { useTranslations } from "next-intl";
 import { type FormEvent, useState } from "react";
 import { ZodError } from "zod";

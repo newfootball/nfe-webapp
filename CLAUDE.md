@@ -166,3 +166,7 @@ Currently no test suite configured. When adding tests:
 - Database queries use Prisma (prevents SQL injection)
 - File uploads validated and processed through Cloudinary
 - Environment variables validated on startup
+
+## Development Workflow Memories
+
+- Avant de créer une pull request, lance la commande `make sync` pour remettre à zéro la base de données et l'environnement

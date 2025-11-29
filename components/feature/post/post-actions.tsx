@@ -5,6 +5,7 @@ import { hasFavorited } from "@/src/query/favorite.query";
 import { hasLiked } from "@/src/query/like.query";
 import { Bookmark, MessageSquare, ThumbsUp } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
@@ -14,8 +15,8 @@ import {
   useCommentCount,
   useInvalidateCommentQueries,
 } from "@/src/hooks/use-comment-query";
+import { useSession } from "@/src/lib/auth-client";
 import { usePostsActions } from "@/src/store/posts.store";
-import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { PostActionShare } from "./post-actions/post-action-share";
 import { PostCommentsList } from "./post-comments-list";
@@ -32,8 +33,9 @@ export function PostActions({
   comments: initialComments = 0,
   postId,
 }: PostActionsProps) {
-  const { data: session } = useSession();
+  const { data: session, isPending } = useSession();
   const userId = session?.user?.id;
+  const router = useRouter();
 
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [isLike, setIsLike] = useState(false);
@@ -65,8 +67,16 @@ export function PostActions({
 
   const { likePost, unlikePost } = usePostsActions();
 
+  const redirectToSignIn = () => {
+    router.push("/sign-in");
+  };
+
   const handleLike = async () => {
-    if (!userId) return;
+    if (isPending) return;
+    if (!userId) {
+      redirectToSignIn();
+      return;
+    }
 
     try {
       const result = await toggleLike({ postId, userId });
@@ -83,7 +93,11 @@ export function PostActions({
   };
 
   const handleFavorite = async () => {
-    if (!userId) return;
+    if (isPending) return;
+    if (!userId) {
+      redirectToSignIn();
+      return;
+    }
 
     try {
       const result = await toggleFavorite({ postId, userId });
@@ -94,7 +108,11 @@ export function PostActions({
   };
 
   const handleComment = () => {
-    if (!userId) return;
+    if (isPending) return;
+    if (!userId) {
+      redirectToSignIn();
+      return;
+    }
     setShowCommentForm(!showCommentForm);
   };
 
@@ -103,7 +121,7 @@ export function PostActions({
   };
 
   return (
-    <div className="px- py-2">
+    <div className="px-2 py-2">
       {(likes > 0 || comments > 0) && (
         <div className="flex items-center justify-between border-b py-2 text-sm text-muted-foreground">
           <div className="flex items-center gap-1">

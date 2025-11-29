@@ -3,9 +3,9 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useSession } from "@/src/lib/auth-client";
 import { usePostsActions } from "@/src/store/posts.store";
 import { PostWithUserAndMedias } from "@/src/types/post.types";
-import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 
@@ -50,7 +50,7 @@ export const PostCreateForm = ({ onSuccess }: PostCreateFormProps) => {
           id: session.user.id,
           name: session.user.name || null,
           email: session.user.email || null,
-          emailVerified: null,
+          emailVerified: false,
           image: session.user.image || null,
           password: null,
           resetToken: null,

@@ -16,7 +16,7 @@ import {
 	UserIcon,
 	VideoIcon,
 } from "lucide-react";
-import { signOut } from "next-auth/react";
+import { signOut } from "@/src/lib/auth-client";
 import Image from "next/image";
 import Link from "next/link";
 

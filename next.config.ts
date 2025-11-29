@@ -2,7 +2,6 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const nextConfig: NextConfig = {
-	/* config options here */
 	images: {
 		remotePatterns: [
 			{
@@ -42,24 +41,12 @@ const nextConfig: NextConfig = {
 				hostname: "cdn.jsdelivr.net",
 			},
 		],
+		dangerouslyAllowLocalIP: true,
 	},
 	experimental: {
 		serverActions: {
-			bodySizeLimit: 10 * 1024 * 1024,
+			bodySizeLimit: "10mb",
 		},
-	},
-	webpack: (config, { isServer }) => {
-		if (!isServer) {
-			// Ne pas inclure les modules server-only dans le bundle client
-			config.resolve.fallback = {
-				fs: false,
-				path: false,
-				child_process: false,
-				"fs/promises": false,
-				async_hooks: false,
-			};
-		}
-		return config;
 	},
 };
 

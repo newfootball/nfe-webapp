@@ -4,12 +4,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { saveComment } from "@/src/actions/comment.action";
 import { commentKeys } from "@/src/hooks/use-comment-query";
+import { useSession } from "@/src/lib/auth-client";
 import { CommentSchema } from "@/src/schemas/comment.schema";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2, Send } from "lucide-react";
-import { useSession } from "@/src/lib/auth-client";
 import { useTranslations } from "next-intl";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { ZodError } from "zod";
 
 interface PostFormCommentProps {
@@ -26,9 +26,14 @@ export const PostFormComment = ({
 	const userId = session?.user?.id;
 	const queryClient = useQueryClient();
 
+	const [mounted, setMounted] = useState(false);
 	const [comment, setComment] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+
+	useEffect(() => {
+		setMounted(true);
+	}, []);
 
 	const handleSaveComment = async (e: FormEvent) => {
 		e.preventDefault();
@@ -87,6 +92,14 @@ export const PostFormComment = ({
 			setIsSubmitting(false);
 		}
 	};
+
+	if (!mounted) {
+		return (
+			<div className="mt-2">
+				<div className="h-10" />
+			</div>
+		);
+	}
 
 	return (
 		<div className="mt-2">

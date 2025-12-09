@@ -3,6 +3,16 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--border);
+  }
+}
+
 :root {
 	--background: hsl(0 0% 100%);
 	--foreground: hsl(20 14.3% 4.1%);

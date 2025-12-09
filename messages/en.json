@@ -26,8 +26,19 @@
       "selected-image": "Selected image",
       "click-to-upload-image": "Click to upload image",
       "click-to-upload-video": "Click to upload video",
-      "submit": "Submit",
-      "post-created-successfully": "Post created successfully"
+      "submit": "Publish",
+      "publishing": "Publishing...",
+      "post-created-successfully": "Post created successfully",
+      "video-required": "Please select a video",
+      "drag-drop-video": "Drag and drop your video here",
+      "or-click-to-browse": "or click to browse",
+      "supported-formats": "MP4, MOV, WebM • Max 100 MB",
+      "cover-image": "Cover image",
+      "upload-custom": "Upload",
+      "selected-thumbnail": "Selected thumbnail",
+      "select-from-video": "Or select a frame from the video:",
+      "thumbnail": "Thumbnail",
+      "generating-thumbnails": "Generating thumbnails..."
     },
     "post-comments-list": {
       "error-loading-comments": "An error occurred while loading comments",
@@ -79,6 +90,13 @@
       "my-posts": "My Posts",
       "you-have-no-posts": "You have no posts"
     }
+  },
+  "header": {
+    "profile": "Profile",
+    "my-videos": "My Videos",
+    "admin": "Admin",
+    "logout": "Logout",
+    "sign-in": "Sign In"
   },
   "footer": {
     "home": "Home",

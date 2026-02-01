@@ -1,5 +1,9 @@
 "use client";
 
+import { SiFacebook, SiInstagram, SiX } from "@icons-pack/react-simple-icons";
+import { Copy, Share2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
 import { WhatsappIcon } from "@/components/icons/whatsapp";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,10 +15,6 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
-import { SiFacebook, SiInstagram, SiX } from "@icons-pack/react-simple-icons";
-import { Copy, Share2 } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useState } from "react";
 
 export const PostActionShare = ({ postId }: { postId: string }) => {
 	const t = useTranslations("posts.post-actions.share");

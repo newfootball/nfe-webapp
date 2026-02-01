@@ -1,9 +1,9 @@
-import { getSession } from "@/src/lib/auth-server";
-import { prisma } from "@/src/lib/prisma";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import Image from "next/image";
 import { redirect } from "next/navigation";
+import { getSession } from "@/src/lib/auth-server";
+import { prisma } from "@/src/lib/prisma";
 import { MessageForm } from "./MessageForm";
 
 export default async function page({

@@ -1,4 +1,4 @@
-import { Media, Post, Prisma, User } from "@prisma/client";
+import type { Media, Post, Prisma, User } from "@prisma/client";
 
 export type PostWithMedias = Prisma.PostGetPayload<{
 	include: {

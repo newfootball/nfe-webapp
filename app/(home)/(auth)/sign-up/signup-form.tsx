@@ -1,18 +1,16 @@
 "use client";
 
+import { LoaderCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
-
+import { z } from "zod";
+import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Password } from "@/components/ui/password";
-import { LoaderCircle } from "lucide-react";
-
-import { Alert } from "@/components/ui/alert";
 import { signUp } from "@/src/lib/auth-client";
-import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
-import { z } from "zod";
 
 export function SignUpForm() {
 	const t = useTranslations("sign-up");

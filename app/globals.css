@@ -4,13 +4,13 @@
 @custom-variant dark (&:is(.dark *));
 
 @layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--border);
-  }
+	*,
+	::after,
+	::before,
+	::backdrop,
+	::file-selector-button {
+		border-color: var(--border);
+	}
 }
 
 :root {

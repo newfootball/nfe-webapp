@@ -1,47 +1,47 @@
 "use server";
 
+import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { getUserSession } from "@/src/query/user.query";
-import { getTranslations } from "next-intl/server";
 
 export const toggleLike = async ({
-  postId,
-  userId,
+	postId,
+	userId,
 }: {
-  postId: string;
-  userId?: string | null;
+	postId: string;
+	userId?: string | null;
 }) => {
-  const t = await getTranslations("actions.like");
+	const t = await getTranslations("actions.like");
 
-  if (!userId) {
-    const user = await getUserSession();
-    if (!user?.id) throw new Error(t("user-not-found"));
+	if (!userId) {
+		const user = await getUserSession();
+		if (!user?.id) throw new Error(t("user-not-found"));
 
-    userId = user.id;
-  }
+		userId = user.id;
+	}
 
-  const like = await prisma.like.findFirst({
-    where: {
-      postId,
-      userId,
-    },
-  });
+	const like = await prisma.like.findFirst({
+		where: {
+			postId,
+			userId,
+		},
+	});
 
-  if (like) {
-    await prisma.like.delete({
-      where: {
-        id: like.id,
-      },
-    });
+	if (like) {
+		await prisma.like.delete({
+			where: {
+				id: like.id,
+			},
+		});
 
-    return false;
-  }
-  await prisma.like.create({
-    data: {
-      postId,
-      userId,
-    },
-  });
+		return false;
+	}
+	await prisma.like.create({
+		data: {
+			postId,
+			userId,
+		},
+	});
 
-  return true;
+	return true;
 };

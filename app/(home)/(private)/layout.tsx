@@ -1,8 +1,8 @@
 "use client";
 
-import { useSession } from "@/src/lib/auth-client";
 import { redirect } from "next/navigation";
 import { toast } from "sonner";
+import { useSession } from "@/src/lib/auth-client";
 
 export default function AuthLayout({
 	children,

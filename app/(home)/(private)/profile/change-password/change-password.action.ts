@@ -1,9 +1,9 @@
 "use server";
 
-import { comparePassword, hashPassword } from "@/lib/password";
-import { prisma } from "@/lib/prisma";
 import type { User } from "@prisma/client";
 import { z } from "zod";
+import { comparePassword, hashPassword } from "@/lib/password";
+import { prisma } from "@/lib/prisma";
 
 const changePasswordSchema = z.object({
 	currentPassword: z.string(),

@@ -1,8 +1,8 @@
+import { ArrowLeft, MoreHorizontal } from "lucide-react";
+import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, MoreHorizontal } from "lucide-react";
-import { useTranslations } from "next-intl";
-import Link from "next/link";
 
 export const PageHeader = ({
 	title,

@@ -1,11 +1,11 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { checkIsFollowing } from "@/src/query/follow.query";
 import { UserCheck, UserRoundPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { checkIsFollowing } from "@/src/query/follow.query";
 import { addFollow } from "./follow.action";
 
 export const FollowButton = ({

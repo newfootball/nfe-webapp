@@ -1,8 +1,8 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { getSession } from "@/src/lib/auth-server";
 import { prisma } from "@/src/lib/prisma";
-import { revalidatePath } from "next/cache";
 
 export async function sendMessage(formData: FormData) {
 	try {

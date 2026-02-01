@@ -1,10 +1,8 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { ImagePlus, Play, Trash2, Upload, Video, X } from "lucide-react";
-import { useTranslations } from "next-intl";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import {
 	type DragEvent,
 	useCallback,
@@ -13,6 +11,8 @@ import {
 	useRef,
 	useState,
 } from "react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface VideoUploaderProps {
 	onVideoChange: (file: File | null) => void;
@@ -85,7 +85,7 @@ export function VideoUploader({
 
 			const files = e.dataTransfer.files;
 			const file = files[0];
-			if (file && file.type.startsWith("video/")) {
+			if (file?.type.startsWith("video/")) {
 				onVideoChange(file);
 				setShowThumbnailOptions(true);
 			}

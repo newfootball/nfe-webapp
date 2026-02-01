@@ -1,11 +1,11 @@
 "use client";
 
-import { getCommentCount, getLastComments } from "@/src/query/comment.query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
 	CommentCountResult,
 	LastCommentsResult,
 } from "@/src/query/comment.query";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getCommentCount, getLastComments } from "@/src/query/comment.query";
 
 export const commentKeys = {
 	all: ["comments"] as const,

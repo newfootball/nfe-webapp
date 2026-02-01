@@ -1,6 +1,6 @@
+import { notFound } from "next/navigation";
 import { Layout } from "@/components/layouts/layout";
 import { getPost } from "@/src/query/post.query";
-import { notFound } from "next/navigation";
 
 export default async function page({
 	params,

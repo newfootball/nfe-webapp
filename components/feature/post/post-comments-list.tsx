@@ -1,8 +1,8 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLastComments } from "@/src/hooks/use-comment-query";
-import { useTranslations } from "next-intl";
 
 interface PostCommentsListProps {
 	postId: string;

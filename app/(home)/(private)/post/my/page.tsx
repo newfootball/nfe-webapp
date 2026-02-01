@@ -1,8 +1,8 @@
+import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { PostDetails } from "@/components/feature/post/post-details";
 import { getPosts } from "@/src/query/post.query";
 import { getUserSession } from "@/src/query/user.query";
-import { getTranslations } from "next-intl/server";
-import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 

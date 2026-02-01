@@ -1,7 +1,7 @@
+import { notFound } from "next/navigation";
 import { UserProfile } from "@/components/feature/user/user-profile";
 import { getSession } from "@/src/lib/auth-server";
 import { getUser } from "@/src/query/user.query";
-import { notFound } from "next/navigation";
 
 export default async function page({
 	params,
@@ -17,9 +17,5 @@ export default async function page({
 
 	const user = await getUser(id);
 
-	return (
-		<>
-			<UserProfile user={user} userIdSession={session?.user?.id ?? ""} />
-		</>
-	);
+	return <UserProfile user={user} userIdSession={session?.user?.id ?? ""} />;
 }

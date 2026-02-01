@@ -1,10 +1,10 @@
 "use client";
 
-import { getUsers } from "@/src/query/user.query";
-import { User } from "@prisma/client";
+import type { User } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { getUsers } from "@/src/query/user.query";
 
 export default function UsersList() {
 	const t = useTranslations("admin.users");

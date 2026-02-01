@@ -1,9 +1,9 @@
 "use client";
 
-import { getCountFollowers, getCountFollowing } from "@/src/query/follow.query";
-import { getCountPosts } from "@/src/query/post.query";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import { getCountFollowers, getCountFollowing } from "@/src/query/follow.query";
+import { getCountPosts } from "@/src/query/post.query";
 
 interface StatsInterface {
 	countPosts: number;

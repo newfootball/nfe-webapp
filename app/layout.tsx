@@ -1,13 +1,14 @@
-import { env } from "@/lib/env";
-import { cn } from "@/lib/utils";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
-import { NextIntlClientProvider } from "next-intl";
 import { Inter } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { env } from "@/lib/env";
+import { cn } from "@/lib/utils";
 import "./globals.css";
 import { ReactQueryProvider } from "./providers/react-query-provider";
+
 const inter = Inter({ subsets: ["latin"] });
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nfe-foot.com";
@@ -88,9 +89,7 @@ export default function RootLayout({
 		<html lang="en" className={cn(inter.className, "h-full")}>
 			<body className="h-full">
 				<NextIntlClientProvider>
-					<ReactQueryProvider>
-						{children}
-					</ReactQueryProvider>
+					<ReactQueryProvider>{children}</ReactQueryProvider>
 				</NextIntlClientProvider>
 				<Analytics />
 				<SpeedInsights />

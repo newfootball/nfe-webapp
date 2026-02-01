@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
 	Card,
 	CardContent,
@@ -5,8 +7,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { useTranslations } from "next-intl";
-import Link from "next/link";
 import { ForgotPasswordForm } from "./forgot-password-form";
 
 export default function ForgotPasswordPage() {

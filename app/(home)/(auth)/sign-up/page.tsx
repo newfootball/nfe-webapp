@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { GoogleButton } from "@/components/auth/google-button";
 import {
 	Card,
@@ -7,8 +9,6 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Divider } from "@/components/ui/divider";
-import { getTranslations } from "next-intl/server";
-import Link from "next/link";
 import { SignUpForm } from "./signup-form";
 
 export default async function SignUpPage() {

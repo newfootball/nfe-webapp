@@ -1,133 +1,133 @@
 "use server";
 
-import { getSession } from "@/src/lib/auth-server";
+import type { User } from "@prisma/client";
 import { comparePassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
-import type { User } from "@prisma/client";
+import { getSession } from "@/src/lib/auth-server";
 
 export const getUserLogin = async (email: string, password: string) => {
-  try {
-    const user = await prisma.user.findFirst({
-      where: {
-        OR: [{ email }, { name: email }],
-      },
-    });
+	try {
+		const user = await prisma.user.findFirst({
+			where: {
+				OR: [{ email }, { name: email }],
+			},
+		});
 
-    if (!user) {
-      return null;
-    }
+		if (!user) {
+			return null;
+		}
 
-    const isPasswordValid = await comparePassword(
-      password,
-      user?.password ?? "",
-    );
+		const isPasswordValid = await comparePassword(
+			password,
+			user?.password ?? "",
+		);
 
-    if (!isPasswordValid) {
-      return null;
-    }
+		if (!isPasswordValid) {
+			return null;
+		}
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _, ...userWithoutPassword } = user;
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { password: _, ...userWithoutPassword } = user;
 
-    return userWithoutPassword;
-  } catch (error) {
-    console.error("Error fetching user:", error);
-    return null;
-  }
+		return userWithoutPassword;
+	} catch (error) {
+		console.error("Error fetching user:", error);
+		return null;
+	}
 };
 
 /**
  * Returns the user ID of the authenticated user, or null if there is no authenticated user.
  */
 export const getUserSessionId = async (): Promise<string | null> => {
-  try {
-    const session = await getSession();
+	try {
+		const session = await getSession();
 
-    return session?.user?.id ?? null;
-  } catch (error) {
-    console.error("Error getting user session:", error);
-    return null;
-  }
+		return session?.user?.id ?? null;
+	} catch (error) {
+		console.error("Error getting user session:", error);
+		return null;
+	}
 };
 
 export const getUserSession = async (): Promise<User | null> => {
-  const userId = await getUserSessionId();
+	const userId = await getUserSessionId();
 
-  if (userId) return getUser(userId);
+	if (userId) return getUser(userId);
 
-  return null;
+	return null;
 };
 
 export const getUser = async (userId: string): Promise<User | null> => {
-  const user = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-  });
+	const user = await prisma.user.findUnique({
+		where: {
+			id: userId,
+		},
+	});
 
-  if (!user) {
-    return null;
-  }
+	if (!user) {
+		return null;
+	}
 
-  return user;
+	return user;
 };
 
 export const getUserRole = async (userId: string): Promise<string | null> => {
-  const user = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-    select: {
-      role: true,
-    },
-  });
+	const user = await prisma.user.findUnique({
+		where: {
+			id: userId,
+		},
+		select: {
+			role: true,
+		},
+	});
 
-  return user?.role ?? null;
+	return user?.role ?? null;
 };
 
 export const getUsers = async ({
-  page,
-  limit = 10,
+	page,
+	limit = 10,
 }: {
-  page: number;
-  limit: number;
+	page: number;
+	limit: number;
 }): Promise<User[]> => {
-  const users = await prisma.user.findMany({
-    skip: (page - 1) * limit,
-    take: limit,
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+	const users = await prisma.user.findMany({
+		skip: (page - 1) * limit,
+		take: limit,
+		orderBy: {
+			createdAt: "desc",
+		},
+	});
 
-  return users;
+	return users;
 };
 
 export async function getUsersForSitemap() {
-  try {
-    const users = await prisma.user.findMany({
-      where: {
-        isOnboarded: true,
-        // Exclure les utilisateurs sans contenu public
-        posts: {
-          some: {
-            status: "PUBLISHED",
-          },
-        },
-      },
-      select: {
-        id: true,
-        updatedAt: true,
-      },
-      orderBy: {
-        updatedAt: "desc",
-      },
-      take: 500, // Limiter pour performance
-    });
+	try {
+		const users = await prisma.user.findMany({
+			where: {
+				isOnboarded: true,
+				// Exclure les utilisateurs sans contenu public
+				posts: {
+					some: {
+						status: "PUBLISHED",
+					},
+				},
+			},
+			select: {
+				id: true,
+				updatedAt: true,
+			},
+			orderBy: {
+				updatedAt: "desc",
+			},
+			take: 500, // Limiter pour performance
+		});
 
-    return users;
-  } catch (error) {
-    console.error("Error fetching users for sitemap:", error);
-    return [];
-  }
+		return users;
+	} catch (error) {
+		console.error("Error fetching users for sitemap:", error);
+		return [];
+	}
 }

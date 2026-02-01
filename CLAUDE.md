@@ -4,169 +4,126 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Next Football Experience (NFE) - A football/soccer social media web application built with Next.js 15, TypeScript, and modern web technologies. Designed for players, coaches, recruiters, and clubs to share content, connect, and interact within the football community.
+Next Football Experience (NFE) - A football/soccer social media web application. Players, coaches, recruiters, and clubs share content, connect, and interact within the football community.
 
-## Common Development Commands
+## Development Commands
 
-### Quick Start
 ```bash
-make sync    # Complete setup: clean, install, docker, migrate, seed, dev
-make dev     # Start development server
-make build   # Build for production
-```
-
-### Database Operations
-```bash
+make sync              # Full setup: clean, install, docker, migrate, seed, dev
+make dev               # Start dev server (auto-starts Docker + installs deps)
+make build             # Production build
+make lint              # Run all linters (Biome + Prisma validate/format)
+make check             # Lint + build
 make prisma-migrate    # Run database migrations
 make prisma-seed       # Seed database with test data
 make prisma-studio     # Open Prisma Studio GUI
-make prisma-reset      # Reset database (caution!)
-```
-
-### Code Quality
-```bash
-make lint              # Run all linters (Biome, ESLint, Prisma)
-make check             # Run linters and build
-bun run lint           # Quick lint check
-```
-
-### Docker
-```bash
+make prisma-reset      # Reset database and re-migrate
 make docker-up         # Start PostgreSQL container
 make docker-down       # Stop containers
-make docker-destroy    # Remove containers and volumes
+make push              # Lint, build, auto-commit, rebase, push current branch
 ```
 
-## Architecture Overview
+Package manager: **Bun** (`bun install`, not npm/yarn).
 
-### Tech Stack
-- **Framework**: Next.js 15 with App Router
-- **Language**: TypeScript (strict mode)
-- **Database**: PostgreSQL with Prisma ORM
-- **Authentication**: NextAuth v5 (beta) with Google OAuth
-- **Styling**: Tailwind CSS + Shadcn/UI components
-- **State Management**: TanStack Query (React Query)
-- **Forms**: React Hook Form + Zod validation
-- **Media**: Cloudinary for images/videos
-- **Email**: Resend
-- **i18n**: next-intl (English/French)
+## Tech Stack
 
-### Project Structure
+- **Next.js 16** (App Router) + **React 19** + **TypeScript 5.7**
+- **PostgreSQL** + **Prisma 6** ORM
+- **better-auth** (email/password + Google OAuth) — *not* NextAuth
+- **Tailwind CSS v4** + **Shadcn/UI** (New York style, stone base)
+- **TanStack Query** (server state) + **Zustand** (client state)
+- **React Hook Form** + **Zod** validation
+- **next-intl** (i18n: `fr` default, `en` supported) — locale stored in `NEXT_LOCALE` cookie
+- **Cloudinary** (media), **Resend** (email), **Vercel** (hosting)
+
+## Architecture
+
+### Route Groups
+
 ```
-/app/                 # Next.js App Router pages
-  /(home)/           # Main app routes
-  /(public)/         # Public pages
-  /(private)/        # Protected routes
-  /(auth)/           # Auth pages
-/src/                # Shared application logic
-  /actions/          # Server Actions for mutations
-  /query/            # Database queries (centralized)
-  /lib/              # Utilities and configs
-  /hooks/            # Custom React hooks
-/components/         # Reusable UI components
-/prisma/            # Database schema and migrations
-/messages/          # i18n translation files
+app/
+├── (home)/
+│   ├── (auth)/        # Sign-in, sign-up, forgot/reset password — redirects if already authenticated
+│   ├── (private)/     # Protected routes (onboarding, profile, post CRUD, messages, admin)
+│   └── (public)/      # Public content (explore, post/[id], user/[id], about, privacy, terms)
+├── (public)/          # Programmatic SEO pages (players, players/[position], [userType])
+└── api/auth/[...all]/ # better-auth API handler
 ```
 
-### Key Patterns
+- `(private)/layout.tsx` checks session client-side via `useSession()` and redirects unauthenticated users
+- `(auth)/layout.tsx` redirects authenticated users away from auth pages
+- No server-side middleware file — route protection is in layout components
 
-1. **Server Components by Default**: Use client components only when needed (interactivity, hooks)
-2. **Server Actions**: All form submissions and mutations use Server Actions in `/src/actions/`
-3. **Query Pattern**: Database queries centralized in `/src/query/` files
-4. **Schema Validation**: Use Zod schemas for all data validation
-5. **Error Handling**: Server Actions return `{ error: string } | { success: true }`
+### Core Patterns
 
-### Database Models
+**Server Actions** (`/src/actions/*.action.ts`):
+- All mutations go through Server Actions with `"use server"`
+- Return `{ error: string }` or `{ success: true }`
+- Check auth via `getUserSessionId()` from `/src/lib/auth-server.ts`
+- Use `getTranslations()` for i18n error messages
+- Call `revalidatePath()` after mutations
 
-Key entities:
-- **User**: With roles (USER, ADMIN, PLAYER, COACH, RECRUITER, CLUB)
-- **Post**: Content with states (DRAFT, PUBLISHED, PENDING, REJECTED)
-- **PostAsset**: Media attachments (images/videos)
-- **Like**, **Comment**, **Follow**, **Favorite**: Social features
-- **Message**: User-to-user messaging
-- **Signal**: Content moderation/reporting
+**Query Functions** (`/src/query/*.query.ts`):
+- All database reads centralized here, marked `"use server"`
+- Return typed results with Prisma select/include
 
-### Authentication Flow
+**Zustand Stores** (`/src/store/*.store.ts`):
+- Export separate hooks: `usePostsActions()`, `usePostsSelectors()` to prevent unnecessary re-renders
+- Devtools middleware enabled
 
-1. NextAuth configured with Prisma adapter
-2. Supports credentials + Google OAuth
-3. User onboarding flow after registration
-4. Protected routes use middleware checks
+**Custom Hooks** (`/src/hooks/`):
+- Combine TanStack Query + Zustand (e.g., `usePosts` fetches via query, syncs to store)
 
-### Form Handling Pattern
+**Zod Schemas** (`/src/schemas/`):
+- Shared between client validation and Server Action parsing
 
-```typescript
-// 1. Define Zod schema
-const schema = z.object({ /* fields */ })
+### Authentication (better-auth)
 
-// 2. Create Server Action
-export async function actionName(formData: FormData) {
-  const parsed = schema.safeParse(Object.fromEntries(formData))
-  if (!parsed.success) return { error: "Validation failed" }
-  
-  // Perform operation
-  return { success: true }
-}
+- Config: `/src/lib/auth.ts` (server), `/src/lib/auth-client.ts` (client), `/src/lib/auth-server.ts` (session helper)
+- API route: `/app/api/auth/[...all]/route.ts`
+- Client hooks: `signIn()`, `signOut()`, `signUp()`, `useSession()`
+- Server session: `getSession()` → `getUserSessionId()` helper
+- Password hashing via bcryptjs
+- Google OAuth + email/password
 
-// 3. Use in client component with useFormAction hook
-```
+### i18n
 
-### Environment Variables
+- Messages in `/messages/en.json` and `/messages/fr.json`
+- Config: `/src/i18n/request.ts` reads `NEXT_LOCALE` cookie, defaults to `fr`
+- Integrated via `createNextIntlPlugin()` in `next.config.ts`
+- Server: `getTranslations(namespace)` / Client: `useTranslations(namespace)`
 
-Critical env vars (see `/src/lib/env.ts` for full list):
-- `DATABASE_URL`: PostgreSQL connection
-- `AUTH_SECRET`: NextAuth secret
-- `GOOGLE_CLIENT_ID/SECRET`: OAuth
-- `CLOUDINARY_*`: Media handling
-- `RESEND_API_KEY`: Email service
+### Database Models (Prisma)
 
-### Testing Strategy
+Key entities: `User` (roles: USER/ADMIN, types: PLAYER/COACH/RECRUITER/CLUB), `Post` (states: DRAFT/PUBLISHED/PENDING/REJECTED/ARCHIVED), `Media` (images/videos via Cloudinary), `Like`, `Comment`, `Follow`, `Favorite`, `Message`, `PostSignal` (moderation).
 
-Currently no test suite configured. When adding tests:
-- Use Vitest for unit tests
-- Playwright for E2E tests
-- Test Server Actions independently
-- Mock Prisma client for database tests
+## Naming Conventions
 
-### Common Tasks
+| Type | Convention | Example |
+|------|-----------|---------|
+| Source files | kebab-case | `user-service.ts` |
+| React components | PascalCase | `UserForm.tsx` |
+| Server actions | `*.action.ts` | `post.action.ts` |
+| Query files | `*.query.ts` | `post.query.ts` |
+| Zustand stores | `*.store.ts` | `posts.store.ts` |
+| Zod schemas | PascalCase + Schema | `PostSchema` |
+| Constants | SCREAMING_SNAKE_CASE | `MAX_FILE_SIZE` |
+| Boolean vars | `is`/`has` prefix | `isValid`, `hasAccess` |
 
-**Adding a new page**:
-1. Create route in appropriate `/app/` directory
-2. Use layout from parent route group
-3. Implement data fetching in Server Component
-4. Add Server Actions for mutations
+## Code Style
 
-**Adding a new database model**:
-1. Update `/prisma/schema.prisma`
-2. Run `make prisma-migrate`
-3. Create query functions in `/src/query/`
-4. Create Server Actions in `/src/actions/`
+- **Biome v2** (sole linter/formatter): tab indentation, double quotes, recommended rules, CSS with Tailwind directives
+- **Knip**: unused files/dependencies/exports detection (`bun run knip`)
+- **Husky + lint-staged**: pre-commit runs `biome check --write` on staged files
+- Server Actions body size limit: `10mb` (configured in `next.config.ts`)
 
-**Adding a new UI component**:
-1. Check if Shadcn/UI has it: `bunx shadcn@latest add [component]`
-2. Otherwise create in `/components/` following existing patterns
-3. Use Tailwind classes for styling
+## Environment Variables
 
-**Handling file uploads**:
-1. Use Cloudinary integration
-2. See existing patterns in post creation
-3. Validate file types and sizes
+Validated at startup in `/src/lib/env.ts` via `@t3-oss/env-nextjs`:
+- `DATABASE_URL`, `WEBSITE_URL`, `BETTER_AUTH_SECRET`, `RESEND_API_KEY` (required)
+- `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `CLOUDINARY_*`, `GOOGLE_ANALYTICS_ID` (optional)
+- Client: `NEXT_PUBLIC_APP_URL`
 
-### Performance Considerations
+## Workflow Reminders
 
-- Images: Use Next.js Image component with Cloudinary URLs
-- Queries: Leverage Prisma's select/include for efficient queries
-- Caching: React Query handles client-side caching
-- Loading: Use Suspense boundaries for better UX
-
-### Security Notes
-
-- All user inputs validated with Zod
-- Server Actions check authentication
-- Database queries use Prisma (prevents SQL injection)
-- File uploads validated and processed through Cloudinary
-- Environment variables validated on startup
-
-## Development Workflow Memories
-
-- Avant de créer une pull request, lance la commande `make sync` pour remettre à zéro la base de données et l'environnement
+- Run `make sync` before creating a pull request to reset database and environment

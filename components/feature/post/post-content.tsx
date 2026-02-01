@@ -1,8 +1,8 @@
 "use client";
-import type { PostWithUserAndMedias } from "@/src/types/post.types";
-import { useTranslations } from "next-intl";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
+import type { PostWithUserAndMedias } from "@/src/types/post.types";
 
 interface PostContentProps {
 	post: PostWithUserAndMedias;

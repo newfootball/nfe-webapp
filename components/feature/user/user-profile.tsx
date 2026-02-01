@@ -1,5 +1,13 @@
 "use client";
 
+import type { User } from "@prisma/client";
+import { Loader, Settings } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Suspense } from "react";
+import { toast } from "sonner";
 import { FollowButton } from "@/components/feature/follow/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -10,14 +18,6 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { deleteUserAccount } from "@/src/actions/user.action";
-import type { User } from "@prisma/client";
-import { Loader, Settings } from "lucide-react";
-import { useTranslations } from "next-intl";
-import Image from "next/image";
-import Link from "next/link";
-import { redirect } from "next/navigation";
-import { Suspense } from "react";
-import { toast } from "sonner";
 import { StatsUser } from "./stats-user";
 
 export const UserProfile = ({

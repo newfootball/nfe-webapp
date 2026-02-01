@@ -1,14 +1,14 @@
 "use client";
 
+import { LoaderCircle } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Suspense, useState } from "react";
+import { z } from "zod";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LoaderCircle } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
-import { z } from "zod";
 import { resetPassword } from "./actions";
 
 function ResetPasswordFormContent() {

@@ -2,7 +2,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { MessageUser } from "../types";
+import type { MessageUser } from "../types";
 import { SearchUsersDialog } from "./search-users-dialog";
 
 interface UserListProps {

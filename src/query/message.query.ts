@@ -1,5 +1,5 @@
+import type { Message, User } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { Message, User } from "@prisma/client";
 
 export type MessageWithUser = Message & {
 	fromUser: Pick<User, "id" | "name" | "image">;

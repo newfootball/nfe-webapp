@@ -1,6 +1,6 @@
+import { redirect } from "next/navigation";
 import { getHasSeenSplash } from "@/src/actions/cookies.actions";
 import { getPosts } from "@/src/query/post.query";
-import { redirect } from "next/navigation";
 import Posts from "./posts";
 
 export default async function Home() {
@@ -10,9 +10,5 @@ export default async function Home() {
 
 	const posts = await getPosts({});
 
-	return (
-		<>
-			<Posts posts={posts} />
-		</>
-	);
+	return <Posts posts={posts} />;
 }

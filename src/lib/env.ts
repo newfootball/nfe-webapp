@@ -41,7 +41,7 @@ export const env = createEnv({
 		CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
 		CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
 		CLOUDINARY_FOLDER: process.env.CLOUDINARY_FOLDER,
-		
+
 		// Client
 		NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
 	},

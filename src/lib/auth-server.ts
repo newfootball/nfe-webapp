@@ -1,5 +1,5 @@
-import { auth } from "@/src/lib/auth";
 import { headers } from "next/headers";
+import { auth } from "@/src/lib/auth";
 
 export async function getSession() {
 	try {

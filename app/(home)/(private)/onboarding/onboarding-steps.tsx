@@ -1,5 +1,15 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { UserType } from "@prisma/client";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { type ControllerRenderProps, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -23,16 +33,6 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { UserType } from "@prisma/client";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { type ControllerRenderProps, useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
 
 const userTypeSchema = z.object({
 	userType: z.enum(["USER", "PLAYER", "COACH", "RECRUITER", "CLUB"] as const),

@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { Message, MessageUser } from "./types";
+import type { Message, MessageUser } from "./types";
 import { formatTimeAgo } from "./utils";
 
 export async function getUsersWithMessages(

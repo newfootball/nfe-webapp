@@ -1,5 +1,19 @@
 "use client";
 
+import { formatDistanceToNow } from "date-fns";
+import {
+	EyeClosed,
+	FileEdit,
+	FileText,
+	Flag,
+	MoreHorizontal,
+	Trash2,
+} from "lucide-react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { toast } from "sonner";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -19,22 +33,8 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { deletePost } from "@/src/actions/post.action";
-import type { PostWithUserAndMedias } from "@/src/types/post.types";
-import { formatDistanceToNow } from "date-fns";
-import {
-	EyeClosed,
-	FileEdit,
-	FileText,
-	Flag,
-	MoreHorizontal,
-	Trash2,
-} from "lucide-react";
 import { useSession } from "@/src/lib/auth-client";
-import { useTranslations } from "next-intl";
-import Link from "next/link";
-import { redirect } from "next/navigation";
-import { useState } from "react";
-import { toast } from "sonner";
+import type { PostWithUserAndMedias } from "@/src/types/post.types";
 import { PostSignalForm } from "./post-signal-form";
 
 interface PostHeaderProps {

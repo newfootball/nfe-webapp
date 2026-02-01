@@ -1,7 +1,7 @@
 "use server";
 
-import { env } from "@/src/lib/env";
 import { Resend } from "resend";
+import { env } from "@/src/lib/env";
 
 let resendInstance: Resend | null = null;
 

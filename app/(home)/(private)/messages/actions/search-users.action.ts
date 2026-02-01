@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { MessageUser } from "../types";
+import type { MessageUser } from "../types";
 
 export async function searchUsers(query: string): Promise<MessageUser[]> {
 	if (!query.trim()) {

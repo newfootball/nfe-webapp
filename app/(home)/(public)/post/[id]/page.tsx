@@ -1,5 +1,5 @@
-import { getPost } from "@/src/query/post.query";
 import { notFound } from "next/navigation";
+import { getPost } from "@/src/query/post.query";
 import { PostCard } from "./post-card";
 
 export default async function page({
@@ -14,9 +14,5 @@ export default async function page({
 		return notFound();
 	}
 
-	return (
-		<>
-			<PostCard post={post} />
-		</>
-	);
+	return <PostCard post={post} />;
 }

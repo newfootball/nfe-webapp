@@ -1,5 +1,9 @@
 "use client";
 
+import { Plus, Search } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -10,12 +14,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, Search } from "lucide-react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { searchUsers } from "../actions/search-users.action";
-import { MessageUser } from "../types";
+import type { MessageUser } from "../types";
 
 export function SearchUsersDialog() {
 	const [searchQuery, setSearchQuery] = useState("");

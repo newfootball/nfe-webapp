@@ -1,12 +1,12 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { setCookie } from "cookies-next";
-import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 
 const SPLASH_IMAGES = [
 	"https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=1920",

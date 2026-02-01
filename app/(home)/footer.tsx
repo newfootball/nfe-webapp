@@ -1,10 +1,10 @@
 "use client";
 
-import { Layout } from "@/components/layouts/layout";
 import { Home, MessageSquare, Plus, Search, User } from "lucide-react";
-import { useSession } from "@/src/lib/auth-client";
-import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { Layout } from "@/components/layouts/layout";
+import { useSession } from "@/src/lib/auth-client";
 
 type NavItemProps = {
 	href: string;

@@ -1,8 +1,8 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useRouter } from "next/navigation";
-import { Message } from "../types";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import type { Message } from "../types";
 
 interface MessageListProps {
 	messages: Message[];

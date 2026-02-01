@@ -1,5 +1,5 @@
-import { Layout } from "@/components/layouts/layout";
 import { useTranslations } from "next-intl";
+import { Layout } from "@/components/layouts/layout";
 import UsersList from "./_components/users-list";
 
 export default function UsersAdminPage() {

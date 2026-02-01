@@ -1,11 +1,11 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { ArrowLeftIcon } from "lucide-react";
-import { useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
 
 export default function ErrorPage({
 	error,

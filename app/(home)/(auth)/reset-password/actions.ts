@@ -1,9 +1,9 @@
 "use server";
 
-import { hashPassword } from "@/src/lib/password";
-import { prisma } from "@/src/lib/prisma";
 import { getTranslations } from "next-intl/server";
 import { z } from "zod";
+import { hashPassword } from "@/src/lib/password";
+import { prisma } from "@/src/lib/prisma";
 
 export async function resetPassword(token: string, password: string) {
 	const t = await getTranslations("reset-password");

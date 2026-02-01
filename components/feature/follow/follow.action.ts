@@ -1,9 +1,9 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { getUserSessionId } from "@/src/query/user.query";
-import { getTranslations } from "next-intl/server";
-import { revalidatePath } from "next/cache";
 export const addFollow = async ({
 	userToFollowId,
 	userId = null,

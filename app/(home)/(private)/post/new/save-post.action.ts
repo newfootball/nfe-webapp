@@ -1,9 +1,9 @@
 "use server";
 
+import { MediaType, PostStatus, PostType } from "@prisma/client";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/src/lib/auth-server";
-import { MediaType, PostStatus, PostType } from "@prisma/client";
 import { type PostData, postSchema } from "./post.schema";
 
 export const savePost = async (post: PostData) => {

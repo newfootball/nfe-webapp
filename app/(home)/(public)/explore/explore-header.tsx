@@ -1,6 +1,6 @@
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search } from "lucide-react";
 
 export const ExploreHeader = () => {
 	return (

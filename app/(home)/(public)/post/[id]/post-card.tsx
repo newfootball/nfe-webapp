@@ -1,10 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { PostCommentsList } from "@/components/feature/post/post-comments-list";
 import { PostDetails } from "@/components/feature/post/post-details";
 import { PostFormComment } from "@/components/feature/post/post-form-comment";
-import { PostWithUserAndMedias } from "@/src/types/post.types";
-import { useState } from "react";
+import type { PostWithUserAndMedias } from "@/src/types/post.types";
 
 export const PostCard = ({ post }: { post: PostWithUserAndMedias }) => {
 	const [refreshComments, setRefreshComments] = useState(0);

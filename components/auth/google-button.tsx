@@ -1,8 +1,8 @@
 "use client";
 
+import { SiGoogle } from "@icons-pack/react-simple-icons";
 import { Button } from "@/components/ui/button";
 import { signIn } from "@/src/lib/auth-client";
-import { SiGoogle } from "@icons-pack/react-simple-icons";
 
 export const GoogleButton = () => {
 	const handleClick = async () => {

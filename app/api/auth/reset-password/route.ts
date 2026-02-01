@@ -1,10 +1,10 @@
 "use server";
 
 import { randomBytes } from "node:crypto";
-import { sendPasswordResetEmail } from "@/lib/email";
-import { prisma } from "@/lib/prisma";
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { sendPasswordResetEmail } from "@/lib/email";
+import { prisma } from "@/lib/prisma";
 
 const requestSchema = z.object({
 	email: z.string().email({ message: "Invalid email address" }),

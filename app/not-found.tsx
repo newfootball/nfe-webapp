@@ -1,7 +1,7 @@
 import { ArrowLeftIcon } from "lucide-react";
-import { getTranslations } from "next-intl/server";
 import Image from "next/image";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 export default async function notFound() {
 	const t = await getTranslations("not-found");

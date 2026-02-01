@@ -1,6 +1,6 @@
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { signOut } from "@/src/lib/auth-client";
-import { useTranslations } from "next-intl";
 
 export const SignoutButton = () => {
 	const t = useTranslations("auth");

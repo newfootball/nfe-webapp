@@ -1,10 +1,10 @@
 "use server";
 
 import { randomBytes } from "node:crypto";
-import { sendPasswordResetEmail } from "@/src/lib/email";
-import { prisma } from "@/src/lib/prisma";
 import { getTranslations } from "next-intl/server";
 import { z } from "zod";
+import { sendPasswordResetEmail } from "@/src/lib/email";
+import { prisma } from "@/src/lib/prisma";
 
 export async function requestPasswordReset(email: string): Promise<{
 	success: boolean;

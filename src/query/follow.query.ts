@@ -1,7 +1,7 @@
 "use server";
 
-import { getSession } from "@/src/lib/auth-server";
 import { prisma } from "@/lib/prisma";
+import { getSession } from "@/src/lib/auth-server";
 
 export const getCountFollowers = async (userId: string): Promise<number> => {
 	if (!userId) return 0;

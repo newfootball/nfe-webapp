@@ -1,5 +1,5 @@
-import { getSession } from "@/src/lib/auth-server";
 import { redirect } from "next/navigation";
+import { getSession } from "@/src/lib/auth-server";
 import { LastPostsLiked } from "./_components/last-posts-liked";
 import { MyLastPost } from "./_components/my-last-post";
 import { MyProfile } from "./_components/my-profile";

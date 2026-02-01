@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/src/lib/prisma";
-import { PostWithMedias } from "@/src/types/post.types";
+import type { PostWithMedias } from "@/src/types/post.types";
 
 const MAX_POSTS = 3;
 

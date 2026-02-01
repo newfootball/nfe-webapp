@@ -1,342 +1,342 @@
 {
-  "posts": {
-    "no-posts-available": "No posts available",
-    "failed-to-fetch-posts": "Failed to fetch posts",
-    "loading": "Loading...",
-    "post-actions": {
-      "like": "Like",
-      "comments-count": "{count, plural, =0 {No comments} one {1 comment} other {{count} comments}}",
-      "comment": "Comment",
-      "save": "Save",
-      "share": {
-        "share-label": "Share",
-        "share-post": "Share this post",
-        "share-post-description": "Choose an option to share this post:",
-        "share-on-facebook": "Share on Facebook",
-        "share-on-instagram": "Share on Instagram",
-        "share-on-whatsapp": "Share on WhatsApp",
-        "copy-link": "Copy link",
-        "link-copied": "Link copied!",
-        "close": "Close"
-      }
-    },
-    "new": {
-      "add-a-title": "Add a title",
-      "write-a-description": "Write a description...",
-      "selected-image": "Selected image",
-      "click-to-upload-image": "Click to upload image",
-      "click-to-upload-video": "Click to upload video",
-      "submit": "Publish",
-      "publishing": "Publishing...",
-      "post-created-successfully": "Post created successfully",
-      "video-required": "Please select a video",
-      "drag-drop-video": "Drag and drop your video here",
-      "or-click-to-browse": "or click to browse",
-      "supported-formats": "MP4, MOV, WebM • Max 100 MB",
-      "cover-image": "Cover image",
-      "upload-custom": "Upload",
-      "selected-thumbnail": "Selected thumbnail",
-      "select-from-video": "Or select a frame from the video:",
-      "thumbnail": "Thumbnail",
-      "generating-thumbnails": "Generating thumbnails..."
-    },
-    "post-comments-list": {
-      "error-loading-comments": "An error occurred while loading comments",
-      "loading-comments": "Loading comments...",
-      "no-comments": "No comments",
-      "user": "User"
-    },
-    "post-form-comment": {
-      "you-must-be-logged-in-to-comment": "You must be logged in to comment",
-      "an-error-occurred-while-saving-the-comment": "An error occurred while saving the comment",
-      "your-avatar": "Your Avatar",
-      "share-your-opinion": "Share your opinion..."
-    },
-    "post-header": {
-      "suggestion": "Suggestion",
-      "show": "Show",
-      "hide": "Hide",
-      "edit": "Edit",
-      "delete": "Delete",
-      "confirm-deletion": "Confirm deletion",
-      "confirm-deletion-description": "Are you sure you want to delete this post? This action is irreversible.",
-      "cancel": "Cancel",
-      "post-deleted-successfully": "Post deleted successfully",
-      "post-deletion-failed": "Post deletion failed",
-      "signal": "Signal"
-    },
-    "post-content": {
-      "video-playback-error": "Video playback error:",
-      "video-unsupported": "Video format not supported",
-      "video-unsupported-description": "The {format} format is not supported by your browser"
-    },
-    "post-signal-form": {
-      "report-post": "Report this post",
-      "please-indicate-the-reason-for-reporting-this-post": "Please indicate the reason why you are reporting this post.",
-      "reason": "Reason",
-      "select-reason": "Select a reason",
-      "spam": "Spam",
-      "misleading-information": "Misleading information",
-      "offensive-content": "Offensive content",
-      "other": "Other",
-      "details": "Details (optional)",
-      "provide-more-details-on-your-report": "Provide more details on your report",
-      "report": "Report",
-      "post-reported-successfully": "Post reported successfully",
-      "post-reporting-failed": "Post reporting failed",
-      "cancel": "Cancel"
-    },
-    "my-posts": {
-      "my-posts": "My Posts",
-      "you-have-no-posts": "You have no posts"
-    }
-  },
-  "header": {
-    "profile": "Profile",
-    "my-videos": "My Videos",
-    "admin": "Admin",
-    "logout": "Logout",
-    "sign-in": "Sign In"
-  },
-  "footer": {
-    "home": "Home",
-    "search": "Search",
-    "messages": "Messages",
-    "profile": "Profile",
-    "sign-in": "Sign In"
-  },
-  "splash": {
-    "get-started": "Get Started",
-    "new-way-to-experience-football": "A new way to experience football.",
-    "title": "New Football Experience"
-  },
-  "follow-button": {
-    "you-are-now-following-this-user": "You are now following this user",
-    "an-error-occurred": "An error occurred",
-    "error-checking-follow-status": "Error checking follow status",
-    "following": "Following",
-    "follow": "Follow",
-    "failed-to-follow-user": "Failed to follow user",
-    "user-not-found": "User not found"
-  },
-  "auth-layout": {
-    "privacy": "Privacy",
-    "terms": "Terms",
-    "about-us": "About Us"
-  },
-  "not-found": {
-    "not-found": "Page not found",
-    "not-found-description": "The page you are looking for does not exist.",
-    "go-back-to-home": "Go back to home"
-  },
-  "error": {
-    "error": "An error occurred",
-    "error-description": "An error occurred while fetching the page.",
-    "try-again": "Try again",
-    "go-back-to-home": "Go back to home"
-  },
-  "sign-up": {
-    "create-account": "Create account",
-    "enter-your-email-below-to-create-your-account": "Enter your email below to create your account",
-    "or-continue-with": "Or continue with",
-    "sign-in": "Sign in",
-    "already-have-an-account": "Already have an account?",
-    "email": "Email",
-    "password": "Password",
-    "confirm-password": "Confirm password",
-    "passwords-do-not-match": "Passwords do not match",
-    "user-already-exists": "User already exists",
-    "invalid-email": "Invalid email address",
-    "password-too-short": "Password must be at least 8 characters",
-    "confirm-password-too-short": "Password confirmation must be at least 8 characters"
-  },
-  "sign-in": {
-    "sign-in": "Sign in",
-    "enter-your-email-below-to-sign-in": "Enter your email below to sign in to your account",
-    "or-continue-with": "Or continue with",
-    "dont-have-an-account": "Don't have an account?",
-    "sign-up": "Sign up",
-    "email": "Email",
-    "password": "Password",
-    "invalid-email": "Invalid email address",
-    "password-too-short": "Password must be at least 8 characters",
-    "invalid-credentials": "Invalid credentials",
-    "an-error-occurred": "An error occurred",
-    "forgot-your-password": "Forgot your password?",
-    "login": "Login"
-  },
-  "reset-password": {
-    "reset-your-password": "Reset your password",
-    "enter-your-new-password-below": "Enter your new password below",
-    "new-password": "New Password",
-    "confirm-password": "Confirm Password",
-    "reset-password": "Reset Password",
-    "password-too-short": "Password must be at least 8 characters",
-    "passwords-do-not-match": "Passwords do not match",
-    "invalid-or-missing-reset-token": "Invalid or missing reset token",
-    "password-reset-success": "Password reset successfully",
-    "password-reset-success-redirect": "Your password has been reset successfully. Redirecting to login...",
-    "error-resetting-password": "An error occurred while resetting your password",
-    "token-required": "Token is required",
-    "invalid-or-expired-reset-token": "Invalid or expired reset token"
-  },
-  "forgot-password": {
-    "forgot-password": "Forgot Password",
-    "enter-your-email-for-reset-instructions": "Enter your email address and we'll send you instructions to reset your password",
-    "remember-your-password": "Remember your password?",
-    "sign-in": "Sign in",
-    "email": "Email",
-    "invalid-email": "Invalid email address",
-    "send-reset-instructions": "Send Reset Instructions",
-    "reset-instructions-sent": "If your email is registered, you will receive reset instructions",
-    "error-processing-request": "An error occurred while processing your request"
-  },
-  "admin": {
-    "users": {
-      "title": "Users",
-      "description": "Welcome to the users admin dashboard",
-      "users": "Users",
-      "name": "Name",
-      "email": "Email",
-      "loading": "Loading...",
-      "error-loading": "Error loading users",
-      "previous": "Previous",
-      "next": "Next",
-      "page": "Page"
-    }
-  },
-  "onboarding": {
-    "complete-your-profile": "Complete Your Profile",
-    "tell-us-more-about-yourself": "Tell us more about yourself to get started",
-    "i-am-a": "I am a...",
-    "select-your-role": "Select your role",
-    "fan": "Fan",
-    "player": "Player",
-    "coach": "Coach",
-    "trainer": "Trainer",
-    "club": "Club",
-    "continue": "Continue",
-    "date-of-birth": "Date of birth",
-    "pick-a-date": "Pick a date",
-    "select-a-date": "Select a date",
-    "city": "City",
-    "enter-your-city": "Enter your city",
-    "position": "Position",
-    "select-your-position": "Select your position",
-    "goalkeeper": "Goalkeeper",
-    "defender": "Defender",
-    "midfielder": "Midfielder",
-    "forward": "Forward",
-    "preferred-foot": "Preferred Foot",
-    "select-your-preferred-foot": "Select your preferred foot",
-    "left": "Left",
-    "right": "Right",
-    "both": "Both",
-    "license-number-optional": "License Number (Optional)",
-    "enter-your-license-number": "Enter your license number",
-    "club-name": "Club Name",
-    "enter-your-club-name": "Enter your club name",
-    "number-of-members": "Number of Members",
-    "enter-club-size": "Enter club size",
-    "league-position": "League Position",
-    "enter-your-league-position": "Enter your league position",
-    "complete-profile": "Complete Profile",
-    "something-went-wrong": "Something went wrong"
-  },
-  "profile": {
-    "my-last-posts": "My Last Posts",
-    "last-liked-posts": "Last Liked Posts",
-    "change-password": {
-      "change-password": "Change Password",
-      "enter-current-and-new-password": "Enter your current password and new password below",
-      "current-password": "Current password",
-      "new-password": "New password",
-      "confirm-new-password": "Confirm new password",
-      "current-password-required": "Current password is required",
-      "password-too-short": "Password must be at least 8 characters",
-      "confirm-password-too-short": "Confirm password must be at least 8 characters",
-      "passwords-do-not-match": "Passwords do not match",
-      "error-on-change-password": "Error on change password",
-      "back-to-profile": "Back to profile"
-    },
-    "edit-user": {
-      "edit-profile": "Edit Profile",
-      "enter-email-to-edit-profile": "Enter your email below to edit your profile",
-      "user-not-found": "User not found",
-      "user-updated-successfully": "User updated successfully",
-      "email": "Email",
-      "full-name": "Full name",
-      "birthday": "Birthday",
-      "biography": "Biography",
-      "invalid-email": "Invalid email address",
-      "full-name-required": "Full name is required",
-      "save": "Save",
-      "back-to-profile": "Back to profile",
-      "change-password": "Change Password"
-    }
-  },
-  "auth": {
-    "sign-out": "Sign Out"
-  },
-  "feature": {
-    "loading": {
-      "loading": "Loading..."
-    },
-    "page-header": {
-      "go-back": "Go back",
-      "more-options": "More options"
-    },
-    "user": {
-      "stats": {
-        "posts": "posts",
-        "followers": "followers",
-        "following": "following"
-      },
-      "profile": {
-        "loading": "Loading...",
-        "cover-image": "Cover image",
-        "edit-profile": "Edit profile",
-        "confirm-delete-account": "Are you sure you want to delete your account? This action cannot be undone.",
-        "account-deleted-successfully": "Account deleted successfully",
-        "failed-to-delete-account": "Failed to delete account",
-        "delete-account": "Delete Account"
-      },
-      "suggestions": {
-        "suggestions": "Suggestions",
-        "more-options": "More options",
-        "close": "Close",
-        "connect": "Connect"
-      }
-    }
-  },
-  "actions": {
-    "comment": {
-      "error-saving-comment": "An error occurred while saving the comment"
-    },
-    "favorite": {
-      "user-not-found": "User not found"
-    },
-    "like": {
-      "user-not-found": "User not found"
-    },
-    "post": {
-      "unauthorized": "Unauthorized",
-      "unauthorized-to-delete-post": "Unauthorized to delete this post",
-      "failed-to-delete-post": "Failed to delete post",
-      "must-be-logged-in-to-report": "You must be logged in to report a post",
-      "user-not-found": "User not found",
-      "post-not-found": "Post not found",
-      "already-reported-this-post": "You have already reported this post",
-      "post-reported-successfully": "Post reported successfully",
-      "failed-to-report-post": "Failed to report post"
-    },
-    "user": {
-      "user-not-found": "User not found"
-    }
-  },
-  "hooks": {
-    "messages": {
-      "user-not-authenticated": "User not authenticated"
-    }
-  }
+	"posts": {
+		"no-posts-available": "No posts available",
+		"failed-to-fetch-posts": "Failed to fetch posts",
+		"loading": "Loading...",
+		"post-actions": {
+			"like": "Like",
+			"comments-count": "{count, plural, =0 {No comments} one {1 comment} other {{count} comments}}",
+			"comment": "Comment",
+			"save": "Save",
+			"share": {
+				"share-label": "Share",
+				"share-post": "Share this post",
+				"share-post-description": "Choose an option to share this post:",
+				"share-on-facebook": "Share on Facebook",
+				"share-on-instagram": "Share on Instagram",
+				"share-on-whatsapp": "Share on WhatsApp",
+				"copy-link": "Copy link",
+				"link-copied": "Link copied!",
+				"close": "Close"
+			}
+		},
+		"new": {
+			"add-a-title": "Add a title",
+			"write-a-description": "Write a description...",
+			"selected-image": "Selected image",
+			"click-to-upload-image": "Click to upload image",
+			"click-to-upload-video": "Click to upload video",
+			"submit": "Publish",
+			"publishing": "Publishing...",
+			"post-created-successfully": "Post created successfully",
+			"video-required": "Please select a video",
+			"drag-drop-video": "Drag and drop your video here",
+			"or-click-to-browse": "or click to browse",
+			"supported-formats": "MP4, MOV, WebM • Max 100 MB",
+			"cover-image": "Cover image",
+			"upload-custom": "Upload",
+			"selected-thumbnail": "Selected thumbnail",
+			"select-from-video": "Or select a frame from the video:",
+			"thumbnail": "Thumbnail",
+			"generating-thumbnails": "Generating thumbnails..."
+		},
+		"post-comments-list": {
+			"error-loading-comments": "An error occurred while loading comments",
+			"loading-comments": "Loading comments...",
+			"no-comments": "No comments",
+			"user": "User"
+		},
+		"post-form-comment": {
+			"you-must-be-logged-in-to-comment": "You must be logged in to comment",
+			"an-error-occurred-while-saving-the-comment": "An error occurred while saving the comment",
+			"your-avatar": "Your Avatar",
+			"share-your-opinion": "Share your opinion..."
+		},
+		"post-header": {
+			"suggestion": "Suggestion",
+			"show": "Show",
+			"hide": "Hide",
+			"edit": "Edit",
+			"delete": "Delete",
+			"confirm-deletion": "Confirm deletion",
+			"confirm-deletion-description": "Are you sure you want to delete this post? This action is irreversible.",
+			"cancel": "Cancel",
+			"post-deleted-successfully": "Post deleted successfully",
+			"post-deletion-failed": "Post deletion failed",
+			"signal": "Signal"
+		},
+		"post-content": {
+			"video-playback-error": "Video playback error:",
+			"video-unsupported": "Video format not supported",
+			"video-unsupported-description": "The {format} format is not supported by your browser"
+		},
+		"post-signal-form": {
+			"report-post": "Report this post",
+			"please-indicate-the-reason-for-reporting-this-post": "Please indicate the reason why you are reporting this post.",
+			"reason": "Reason",
+			"select-reason": "Select a reason",
+			"spam": "Spam",
+			"misleading-information": "Misleading information",
+			"offensive-content": "Offensive content",
+			"other": "Other",
+			"details": "Details (optional)",
+			"provide-more-details-on-your-report": "Provide more details on your report",
+			"report": "Report",
+			"post-reported-successfully": "Post reported successfully",
+			"post-reporting-failed": "Post reporting failed",
+			"cancel": "Cancel"
+		},
+		"my-posts": {
+			"my-posts": "My Posts",
+			"you-have-no-posts": "You have no posts"
+		}
+	},
+	"header": {
+		"profile": "Profile",
+		"my-videos": "My Videos",
+		"admin": "Admin",
+		"logout": "Logout",
+		"sign-in": "Sign In"
+	},
+	"footer": {
+		"home": "Home",
+		"search": "Search",
+		"messages": "Messages",
+		"profile": "Profile",
+		"sign-in": "Sign In"
+	},
+	"splash": {
+		"get-started": "Get Started",
+		"new-way-to-experience-football": "A new way to experience football.",
+		"title": "New Football Experience"
+	},
+	"follow-button": {
+		"you-are-now-following-this-user": "You are now following this user",
+		"an-error-occurred": "An error occurred",
+		"error-checking-follow-status": "Error checking follow status",
+		"following": "Following",
+		"follow": "Follow",
+		"failed-to-follow-user": "Failed to follow user",
+		"user-not-found": "User not found"
+	},
+	"auth-layout": {
+		"privacy": "Privacy",
+		"terms": "Terms",
+		"about-us": "About Us"
+	},
+	"not-found": {
+		"not-found": "Page not found",
+		"not-found-description": "The page you are looking for does not exist.",
+		"go-back-to-home": "Go back to home"
+	},
+	"error": {
+		"error": "An error occurred",
+		"error-description": "An error occurred while fetching the page.",
+		"try-again": "Try again",
+		"go-back-to-home": "Go back to home"
+	},
+	"sign-up": {
+		"create-account": "Create account",
+		"enter-your-email-below-to-create-your-account": "Enter your email below to create your account",
+		"or-continue-with": "Or continue with",
+		"sign-in": "Sign in",
+		"already-have-an-account": "Already have an account?",
+		"email": "Email",
+		"password": "Password",
+		"confirm-password": "Confirm password",
+		"passwords-do-not-match": "Passwords do not match",
+		"user-already-exists": "User already exists",
+		"invalid-email": "Invalid email address",
+		"password-too-short": "Password must be at least 8 characters",
+		"confirm-password-too-short": "Password confirmation must be at least 8 characters"
+	},
+	"sign-in": {
+		"sign-in": "Sign in",
+		"enter-your-email-below-to-sign-in": "Enter your email below to sign in to your account",
+		"or-continue-with": "Or continue with",
+		"dont-have-an-account": "Don't have an account?",
+		"sign-up": "Sign up",
+		"email": "Email",
+		"password": "Password",
+		"invalid-email": "Invalid email address",
+		"password-too-short": "Password must be at least 8 characters",
+		"invalid-credentials": "Invalid credentials",
+		"an-error-occurred": "An error occurred",
+		"forgot-your-password": "Forgot your password?",
+		"login": "Login"
+	},
+	"reset-password": {
+		"reset-your-password": "Reset your password",
+		"enter-your-new-password-below": "Enter your new password below",
+		"new-password": "New Password",
+		"confirm-password": "Confirm Password",
+		"reset-password": "Reset Password",
+		"password-too-short": "Password must be at least 8 characters",
+		"passwords-do-not-match": "Passwords do not match",
+		"invalid-or-missing-reset-token": "Invalid or missing reset token",
+		"password-reset-success": "Password reset successfully",
+		"password-reset-success-redirect": "Your password has been reset successfully. Redirecting to login...",
+		"error-resetting-password": "An error occurred while resetting your password",
+		"token-required": "Token is required",
+		"invalid-or-expired-reset-token": "Invalid or expired reset token"
+	},
+	"forgot-password": {
+		"forgot-password": "Forgot Password",
+		"enter-your-email-for-reset-instructions": "Enter your email address and we'll send you instructions to reset your password",
+		"remember-your-password": "Remember your password?",
+		"sign-in": "Sign in",
+		"email": "Email",
+		"invalid-email": "Invalid email address",
+		"send-reset-instructions": "Send Reset Instructions",
+		"reset-instructions-sent": "If your email is registered, you will receive reset instructions",
+		"error-processing-request": "An error occurred while processing your request"
+	},
+	"admin": {
+		"users": {
+			"title": "Users",
+			"description": "Welcome to the users admin dashboard",
+			"users": "Users",
+			"name": "Name",
+			"email": "Email",
+			"loading": "Loading...",
+			"error-loading": "Error loading users",
+			"previous": "Previous",
+			"next": "Next",
+			"page": "Page"
+		}
+	},
+	"onboarding": {
+		"complete-your-profile": "Complete Your Profile",
+		"tell-us-more-about-yourself": "Tell us more about yourself to get started",
+		"i-am-a": "I am a...",
+		"select-your-role": "Select your role",
+		"fan": "Fan",
+		"player": "Player",
+		"coach": "Coach",
+		"trainer": "Trainer",
+		"club": "Club",
+		"continue": "Continue",
+		"date-of-birth": "Date of birth",
+		"pick-a-date": "Pick a date",
+		"select-a-date": "Select a date",
+		"city": "City",
+		"enter-your-city": "Enter your city",
+		"position": "Position",
+		"select-your-position": "Select your position",
+		"goalkeeper": "Goalkeeper",
+		"defender": "Defender",
+		"midfielder": "Midfielder",
+		"forward": "Forward",
+		"preferred-foot": "Preferred Foot",
+		"select-your-preferred-foot": "Select your preferred foot",
+		"left": "Left",
+		"right": "Right",
+		"both": "Both",
+		"license-number-optional": "License Number (Optional)",
+		"enter-your-license-number": "Enter your license number",
+		"club-name": "Club Name",
+		"enter-your-club-name": "Enter your club name",
+		"number-of-members": "Number of Members",
+		"enter-club-size": "Enter club size",
+		"league-position": "League Position",
+		"enter-your-league-position": "Enter your league position",
+		"complete-profile": "Complete Profile",
+		"something-went-wrong": "Something went wrong"
+	},
+	"profile": {
+		"my-last-posts": "My Last Posts",
+		"last-liked-posts": "Last Liked Posts",
+		"change-password": {
+			"change-password": "Change Password",
+			"enter-current-and-new-password": "Enter your current password and new password below",
+			"current-password": "Current password",
+			"new-password": "New password",
+			"confirm-new-password": "Confirm new password",
+			"current-password-required": "Current password is required",
+			"password-too-short": "Password must be at least 8 characters",
+			"confirm-password-too-short": "Confirm password must be at least 8 characters",
+			"passwords-do-not-match": "Passwords do not match",
+			"error-on-change-password": "Error on change password",
+			"back-to-profile": "Back to profile"
+		},
+		"edit-user": {
+			"edit-profile": "Edit Profile",
+			"enter-email-to-edit-profile": "Enter your email below to edit your profile",
+			"user-not-found": "User not found",
+			"user-updated-successfully": "User updated successfully",
+			"email": "Email",
+			"full-name": "Full name",
+			"birthday": "Birthday",
+			"biography": "Biography",
+			"invalid-email": "Invalid email address",
+			"full-name-required": "Full name is required",
+			"save": "Save",
+			"back-to-profile": "Back to profile",
+			"change-password": "Change Password"
+		}
+	},
+	"auth": {
+		"sign-out": "Sign Out"
+	},
+	"feature": {
+		"loading": {
+			"loading": "Loading..."
+		},
+		"page-header": {
+			"go-back": "Go back",
+			"more-options": "More options"
+		},
+		"user": {
+			"stats": {
+				"posts": "posts",
+				"followers": "followers",
+				"following": "following"
+			},
+			"profile": {
+				"loading": "Loading...",
+				"cover-image": "Cover image",
+				"edit-profile": "Edit profile",
+				"confirm-delete-account": "Are you sure you want to delete your account? This action cannot be undone.",
+				"account-deleted-successfully": "Account deleted successfully",
+				"failed-to-delete-account": "Failed to delete account",
+				"delete-account": "Delete Account"
+			},
+			"suggestions": {
+				"suggestions": "Suggestions",
+				"more-options": "More options",
+				"close": "Close",
+				"connect": "Connect"
+			}
+		}
+	},
+	"actions": {
+		"comment": {
+			"error-saving-comment": "An error occurred while saving the comment"
+		},
+		"favorite": {
+			"user-not-found": "User not found"
+		},
+		"like": {
+			"user-not-found": "User not found"
+		},
+		"post": {
+			"unauthorized": "Unauthorized",
+			"unauthorized-to-delete-post": "Unauthorized to delete this post",
+			"failed-to-delete-post": "Failed to delete post",
+			"must-be-logged-in-to-report": "You must be logged in to report a post",
+			"user-not-found": "User not found",
+			"post-not-found": "Post not found",
+			"already-reported-this-post": "You have already reported this post",
+			"post-reported-successfully": "Post reported successfully",
+			"failed-to-report-post": "Failed to report post"
+		},
+		"user": {
+			"user-not-found": "User not found"
+		}
+	},
+	"hooks": {
+		"messages": {
+			"user-not-authenticated": "User not authenticated"
+		}
+	}
 }

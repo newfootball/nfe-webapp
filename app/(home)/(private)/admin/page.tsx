@@ -1,7 +1,7 @@
-import { Layout } from "@/components/layouts/layout";
-import { Button } from "@/components/ui/button";
 import { UsersIcon } from "lucide-react";
 import Link from "next/link";
+import { Layout } from "@/components/layouts/layout";
+import { Button } from "@/components/ui/button";
 
 export default function AdminPage() {
 	return (

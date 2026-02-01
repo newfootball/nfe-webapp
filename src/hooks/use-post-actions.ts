@@ -1,55 +1,55 @@
 "use client";
 
+import { useCallback } from "react";
 import { toggleFavorite } from "@/src/actions/favorite.action";
 import { toggleLike } from "@/src/actions/like.action";
 import { usePostsActions } from "@/src/store/posts.store";
-import { useCallback } from "react";
 
 export const usePostActions = (postId: string, userId?: string) => {
-  const { likePost, unlikePost, updatePost } = usePostsActions();
+	const { likePost, unlikePost, updatePost } = usePostsActions();
 
-  const handleLike = useCallback(async () => {
-    if (!userId) return false;
+	const handleLike = useCallback(async () => {
+		if (!userId) return false;
 
-    try {
-      const result = await toggleLike({ postId, userId });
+		try {
+			const result = await toggleLike({ postId, userId });
 
-      if (result) {
-        likePost(postId);
-      } else {
-        unlikePost(postId);
-      }
+			if (result) {
+				likePost(postId);
+			} else {
+				unlikePost(postId);
+			}
 
-      return result;
-    } catch (error) {
-      console.error("Error toggling like:", error);
-      return false;
-    }
-  }, [postId, userId, likePost, unlikePost]);
+			return result;
+		} catch (error) {
+			console.error("Error toggling like:", error);
+			return false;
+		}
+	}, [postId, userId, likePost, unlikePost]);
 
-  const handleFavorite = useCallback(async () => {
-    if (!userId) return false;
+	const handleFavorite = useCallback(async () => {
+		if (!userId) return false;
 
-    try {
-      return await toggleFavorite({ postId, userId });
-    } catch (error) {
-      console.error("Error toggling favorite:", error);
-      return false;
-    }
-  }, [postId, userId]);
+		try {
+			return await toggleFavorite({ postId, userId });
+		} catch (error) {
+			console.error("Error toggling favorite:", error);
+			return false;
+		}
+	}, [postId, userId]);
 
-  const handleUpdatePost = useCallback(
-    (
-      updates: Partial<import("@/src/types/post.types").PostWithUserAndMedias>,
-    ) => {
-      updatePost(postId, updates);
-    },
-    [postId, updatePost],
-  );
+	const handleUpdatePost = useCallback(
+		(
+			updates: Partial<import("@/src/types/post.types").PostWithUserAndMedias>,
+		) => {
+			updatePost(postId, updates);
+		},
+		[postId, updatePost],
+	);
 
-  return {
-    handleLike,
-    handleFavorite,
-    handleUpdatePost,
-  };
+	return {
+		handleLike,
+		handleFavorite,
+		handleUpdatePost,
+	};
 };

@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { GoogleButton } from "@/components/auth/google-button";
 import {
 	Card,
@@ -7,8 +9,6 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Divider } from "@/components/ui/divider";
-import { useTranslations } from "next-intl";
-import Link from "next/link";
 import { SignInForm } from "./signin-form";
 
 export default function SignInPage() {

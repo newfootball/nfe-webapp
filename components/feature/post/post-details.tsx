@@ -1,4 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card";
 import type { PostWithUserAndMedias } from "@/src/types/post.types";
 import { PostActions } from "./post-actions";
 import { PostContent } from "./post-content";
@@ -12,17 +11,19 @@ export const PostDetails = ({
 	children?: React.ReactNode | null;
 }) => {
 	return (
-		<Card className="border-b border-x-0 border-t-0 rounded-none shadow-sm">
+		<article
+			data-post
+			className="animate-fade-in-up border-b border-border bg-card"
+		>
 			<PostHeader post={post} />
-			<CardContent className="space-y-4 py-0">
-				<PostContent post={post} />
-				<PostActions
-					likes={post._count.likes}
-					comments={post._count.comments}
-					postId={post.id}
-				/>
-				{children}
-			</CardContent>
-		</Card>
+			<PostContent post={post} />
+			<PostActions
+				likes={post._count.likes}
+				comments={post._count.comments}
+				postId={post.id}
+				title={post.title}
+			/>
+			{children}
+		</article>
 	);
 };

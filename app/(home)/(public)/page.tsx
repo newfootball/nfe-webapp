@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getHasSeenSplash } from "@/src/actions/cookies.actions";
-import { getPosts } from "@/src/query/post.query";
+import { getPostsWithCursor } from "@/src/query/post.query";
 import Posts from "./posts";
 
 export default async function Home() {
@@ -8,7 +8,7 @@ export default async function Home() {
 		return redirect("/splash");
 	}
 
-	const posts = await getPosts({});
+	const initialData = await getPostsWithCursor({});
 
-	return <Posts posts={posts} />;
+	return <Posts initialData={initialData} />;
 }

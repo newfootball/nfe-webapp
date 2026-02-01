@@ -25,7 +25,7 @@ import {
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -49,10 +49,6 @@ export function PostHeader({ post }: PostHeaderProps) {
 
 	const isOwner = session?.user?.id === post.user.id;
 
-	const openDeleteDialog = () => {
-		setShowDeleteDialog(true);
-	};
-
 	const handleDelete = async () => {
 		try {
 			const result = await deletePost(post.id);
@@ -70,50 +66,9 @@ export function PostHeader({ post }: PostHeaderProps) {
 
 	return (
 		<>
-			<CardTitle className="leading-none tracking-tight py-0">
-				<div className="flex items-start justify-between p-4 pb-2 border-b mx-4 text-gray-500 font-light text-sm">
-					<div>{t("suggestion")}</div>
-					<div className="flex items-center gap-2">
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<MoreHorizontal className="h-4 w-4" />
-							</DropdownMenuTrigger>
-							<DropdownMenuContent align="end">
-								<DropdownMenuItem asChild>
-									<Link href={`/post/${post.id}`}>
-										<FileText className="mr-2 h-4 w-4" /> {t("show")}
-									</Link>
-								</DropdownMenuItem>
-								<DropdownMenuItem className="cursor-not-allowed">
-									<EyeClosed className="mr-2 h-4 w-4" /> {t("hide")}
-								</DropdownMenuItem>
-								<DropdownMenuItem onClick={() => setShowSignalDialog(true)}>
-									<Flag className="mr-2 h-4 w-4" /> {t("signal")}
-								</DropdownMenuItem>
-								{isOwner && (
-									<>
-										<DropdownMenuItem asChild>
-											<Link href={`/post/${post.id}/edit`}>
-												<FileEdit className="mr-2 h-4 w-4" /> {t("edit")}
-											</Link>
-										</DropdownMenuItem>
-										<DropdownMenuItem
-											className="text-destructive"
-											onClick={openDeleteDialog}
-										>
-											<Trash2 className="mr-2 h-4 w-4" /> {t("delete")}
-										</DropdownMenuItem>
-									</>
-								)}
-							</DropdownMenuContent>
-						</DropdownMenu>
-					</div>
-				</div>
-			</CardTitle>
-
-			<CardHeader className="flex-row items-center space-x-4 py-2 space-y-0 pb-4">
-				<div className="flex items-start space-y-2 text-left">
-					<Avatar className="flex h-14 w-14">
+			<div className="flex items-center gap-3 px-4 py-3">
+				<Link href={`/user/${post.user.id}`}>
+					<Avatar className="h-10 w-10">
 						<AvatarImage
 							src={post.user?.image ?? ""}
 							alt={post.user.name ?? ""}
@@ -122,26 +77,64 @@ export function PostHeader({ post }: PostHeaderProps) {
 							{post.user?.name?.[0]?.toUpperCase()}
 						</AvatarFallback>
 					</Avatar>
-					<div className="flex flex-col pl-4">
+				</Link>
+				<div className="flex-1 min-w-0">
+					<div className="flex items-center gap-1.5">
 						<Link
 							href={`/user/${post.user.id}`}
-							className="font-semibold hover:underline"
+							className="text-sm font-semibold hover:underline truncate"
 						>
 							{post.user.name}
 						</Link>
-						<span className="text-xs text-muted-foreground">
+						<span className="text-xs text-muted-foreground">·</span>
+						<span className="text-xs text-muted-foreground whitespace-nowrap">
 							{formatDistanceToNow(new Date(post.createdAt), {
 								addSuffix: true,
 							})}
 						</span>
-						{post.user.localisation && (
-							<p className="text-sm text-muted-foreground">
-								{post.user.localisation}
-							</p>
-						)}
 					</div>
+					{post.user.localisation && (
+						<p className="text-xs text-muted-foreground truncate">
+							{post.user.localisation}
+						</p>
+					)}
 				</div>
-			</CardHeader>
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button variant="ghost" size="icon" className="h-8 w-8">
+							<MoreHorizontal className="h-5 w-5" />
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="end">
+						<DropdownMenuItem asChild>
+							<Link href={`/post/${post.id}`}>
+								<FileText className="mr-2 h-4 w-4" /> {t("show")}
+							</Link>
+						</DropdownMenuItem>
+						<DropdownMenuItem className="cursor-not-allowed">
+							<EyeClosed className="mr-2 h-4 w-4" /> {t("hide")}
+						</DropdownMenuItem>
+						<DropdownMenuItem onClick={() => setShowSignalDialog(true)}>
+							<Flag className="mr-2 h-4 w-4" /> {t("signal")}
+						</DropdownMenuItem>
+						{isOwner && (
+							<>
+								<DropdownMenuItem asChild>
+									<Link href={`/post/${post.id}/edit`}>
+										<FileEdit className="mr-2 h-4 w-4" /> {t("edit")}
+									</Link>
+								</DropdownMenuItem>
+								<DropdownMenuItem
+									className="text-destructive"
+									onClick={() => setShowDeleteDialog(true)}
+								>
+									<Trash2 className="mr-2 h-4 w-4" /> {t("delete")}
+								</DropdownMenuItem>
+							</>
+						)}
+					</DropdownMenuContent>
+				</DropdownMenu>
+			</div>
 
 			<AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
 				<AlertDialogContent>

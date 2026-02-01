@@ -8,8 +8,7 @@ export default async function page({
 }: {
 	params: Promise<{ id: string }>;
 }) {
-	const { id } = await params;
-	const session = await getSession();
+	const [{ id }, session] = await Promise.all([params, getSession()]);
 
 	if (!id) {
 		return notFound();

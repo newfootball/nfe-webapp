@@ -1,10 +1,12 @@
 {
 	"posts": {
 		"no-posts-available": "No posts available",
+		"no-more-posts": "You're all caught up",
 		"failed-to-fetch-posts": "Failed to fetch posts",
 		"loading": "Loading...",
 		"post-actions": {
 			"like": "Like",
+			"likes-count": "{count, plural, one {1 like} other {{count} likes}}",
 			"comments-count": "{count, plural, =0 {No comments} one {1 comment} other {{count} comments}}",
 			"comment": "Comment",
 			"save": "Save",

@@ -6,11 +6,6 @@ interface PostsState {
 	posts: PostWithUserAndMedias[];
 	isLoading: boolean;
 	error: string | null;
-	pagination: {
-		page: number;
-		limit: number;
-		hasMore: boolean;
-	};
 	filters: {
 		userId?: string;
 		status?: string;
@@ -26,7 +21,6 @@ interface PostsActions {
 	setLoading: (loading: boolean) => void;
 	setError: (error: string | null) => void;
 	setFilters: (filters: Partial<PostsState["filters"]>) => void;
-	setPagination: (pagination: Partial<PostsState["pagination"]>) => void;
 	reset: () => void;
 	likePost: (postId: string) => void;
 	unlikePost: (postId: string) => void;
@@ -36,11 +30,6 @@ const initialState: PostsState = {
 	posts: [],
 	isLoading: false,
 	error: null,
-	pagination: {
-		page: 1,
-		limit: 10,
-		hasMore: true,
-	},
 	filters: {},
 };
 
@@ -55,10 +44,6 @@ export const usePostsStore = create<PostsState & PostsActions>()(
 				set(
 					(state) => ({
 						posts: [...state.posts, ...newPosts],
-						pagination: {
-							...state.pagination,
-							hasMore: newPosts.length === state.pagination.limit,
-						},
 					}),
 					false,
 					"posts/addPosts",
@@ -100,20 +85,10 @@ export const usePostsStore = create<PostsState & PostsActions>()(
 				set(
 					(state) => ({
 						filters: { ...state.filters, ...filters },
-						posts: [], // Reset posts when filters change
-						pagination: { ...state.pagination, page: 1 },
+						posts: [],
 					}),
 					false,
 					"posts/setFilters",
-				),
-
-			setPagination: (pagination) =>
-				set(
-					(state) => ({
-						pagination: { ...state.pagination, ...pagination },
-					}),
-					false,
-					"posts/setPagination",
 				),
 
 			reset: () => set(() => initialState, false, "posts/reset"),
@@ -171,7 +146,6 @@ export const usePostsActions = () => {
 		setLoading: store.setLoading,
 		setError: store.setError,
 		setFilters: store.setFilters,
-		setPagination: store.setPagination,
 		reset: store.reset,
 		likePost: store.likePost,
 		unlikePost: store.unlikePost,
@@ -184,7 +158,6 @@ export const usePostsSelectors = () => {
 		posts: store.posts,
 		isLoading: store.isLoading,
 		error: store.error,
-		pagination: store.pagination,
 		filters: store.filters,
 	};
 };

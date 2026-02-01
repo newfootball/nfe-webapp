@@ -1,75 +1,61 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect } from "react";
-import { getPosts } from "@/src/query/post.query";
-import { usePostsActions, usePostsSelectors } from "@/src/store/posts.store";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { getPostsWithCursor } from "@/src/query/post.query";
+import { usePostsActions } from "@/src/store/posts.store";
+import type { PostsPage } from "@/src/types/post.types";
 
 interface UsePostsOptions {
 	userId?: string;
 	limit?: number;
 	enabled?: boolean;
+	initialData?: PostsPage;
 }
 
 export const usePosts = (options: UsePostsOptions = {}) => {
-	const { userId, limit = 10, enabled = true } = options;
-	const { posts, isLoading, error, pagination, filters } = usePostsSelectors();
-	const { setPosts, setLoading, setError, addPosts, setPagination } =
-		usePostsActions();
-
-	const queryKey = ["posts", { userId, limit, page: pagination.page }];
+	const { userId, limit = 10, enabled = true, initialData } = options;
+	const { setPosts } = usePostsActions();
 
 	const {
 		data,
-		error: queryError,
-		isLoading: queryLoading,
+		error,
+		isLoading,
+		isFetchingNextPage,
+		hasNextPage,
+		fetchNextPage,
 		refetch,
-	} = useQuery({
-		queryKey,
-		queryFn: async () => {
-			const offset = (pagination.page - 1) * limit;
-			return getPosts({ userId, limit, offset });
-		},
-		enabled: enabled && !isLoading,
+	} = useInfiniteQuery({
+		queryKey: ["posts", { userId }],
+		queryFn: ({ pageParam }) =>
+			getPostsWithCursor({ userId, cursor: pageParam, limit }),
+		initialPageParam: null as string | null,
+		getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+		enabled,
+		...(initialData && {
+			initialData: {
+				pages: [initialData],
+				pageParams: [null],
+			},
+		}),
 	});
 
-	useEffect(() => {
-		setLoading(queryLoading);
-	}, [queryLoading, setLoading]);
+	const posts = data?.pages.flatMap((page) => page.posts) ?? [];
 
 	useEffect(() => {
-		setError(queryError?.message || null);
-	}, [queryError, setError]);
-
-	useEffect(() => {
-		if (data) {
-			if (pagination.page === 1) {
-				setPosts(data);
-			} else {
-				addPosts(data);
-			}
-			setPagination({ hasMore: data.length === limit });
+		const flatPosts = data?.pages.flatMap((page) => page.posts) ?? [];
+		if (flatPosts.length > 0) {
+			setPosts(flatPosts);
 		}
-	}, [data, pagination.page, setPosts, addPosts, setPagination, limit]);
-
-	const loadMore = useCallback(() => {
-		if (!pagination.hasMore || isLoading) return;
-		setPagination({ page: pagination.page + 1 });
-	}, [pagination.hasMore, pagination.page, isLoading, setPagination]);
-
-	const refresh = useCallback(() => {
-		setPagination({ page: 1 });
-		refetch();
-	}, [setPagination, refetch]);
+	}, [data, setPosts]);
 
 	return {
 		posts,
 		isLoading,
-		error,
-		pagination,
-		filters,
-		loadMore,
-		refresh,
+		isFetchingNextPage,
+		error: error?.message ?? null,
+		hasNextPage: hasNextPage ?? false,
+		fetchNextPage,
 		refetch,
 	};
 };

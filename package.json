@@ -4,7 +4,7 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "next dev",
+		"dev": "next dev --port 8300",
 		"build": "next build",
 		"start": "next start",
 		"lint": "biome check .",
@@ -62,6 +62,7 @@
 		"react-day-picker": "^9.13.0",
 		"react-dom": "^19.2.4",
 		"react-hook-form": "^7.71.1",
+		"react-intersection-observer": "^10.0.2",
 		"react-twc": "^1.5.1",
 		"resend": "^4.8.0",
 		"simple-icons": "^14.15.0",

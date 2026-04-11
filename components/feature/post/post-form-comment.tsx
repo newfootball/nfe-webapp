@@ -82,7 +82,7 @@ export const PostFormComment = ({
 		} catch (error) {
 			if (error instanceof ZodError) {
 				setError(
-					error.errors[0]?.message ??
+					error.issues[0]?.message ??
 						t("an-error-occurred-while-saving-the-comment"),
 				);
 			} else {

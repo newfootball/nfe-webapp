@@ -36,7 +36,7 @@ export function SignUpForm() {
 		const result = signUpSchema.safeParse({ email, password, confirmPassword });
 
 		if (!result.success) {
-			setError(result.error.errors.map((error) => error.message).join("\n"));
+			setError(result.error.issues.map((error) => error.message).join("\n"));
 			setIsLoading(false);
 			return;
 		}

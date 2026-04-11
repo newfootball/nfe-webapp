@@ -48,7 +48,7 @@ function ResetPasswordFormContent() {
 
 		const result = schema.safeParse({ password, confirmPassword });
 		if (!result.success) {
-			setError(result.error.errors.map((error) => error.message).join("\n"));
+			setError(result.error.issues.map((error) => error.message).join("\n"));
 			setIsLoading(false);
 			return;
 		}

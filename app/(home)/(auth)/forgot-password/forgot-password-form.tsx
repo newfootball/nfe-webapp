@@ -30,7 +30,7 @@ export function ForgotPasswordForm() {
 
 		const result = schema.safeParse({ email });
 		if (!result.success) {
-			setError(result.error.errors.map((error) => error.message).join("\n"));
+			setError(result.error.issues.map((error) => error.message).join("\n"));
 			setIsLoading(false);
 			return;
 		}

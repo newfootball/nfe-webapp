@@ -22,7 +22,7 @@ export const saveComment = async (data: CommentFormData) => {
 		return { success: true, data: comment };
 	} catch (error) {
 		if (error instanceof z.ZodError) {
-			return { success: false, error: error.errors };
+			return { success: false, error: error.issues };
 		}
 		console.error("Error saving comment:", error);
 

@@ -4,7 +4,6 @@ import type { User } from "@prisma/client";
 import { Loader, Settings } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Suspense } from "react";
 import { toast } from "sonner";
@@ -89,7 +88,7 @@ export const UserProfile = ({
 												try {
 													await deleteUserAccount();
 													toast.success(t("account-deleted-successfully"));
-													redirect("/sign-in");
+													window.location.replace("/sign-in");
 												} catch (error) {
 													toast.error(t("failed-to-delete-account"));
 													console.error(error);

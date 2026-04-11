@@ -7,6 +7,17 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Password } from "@/components/ui/password";
+import { authClient } from "@/src/lib/auth-client";
+
+const changePasswordSchema = z
+	.object({
+		currentPassword: z.string().min(1),
+		password: z.string().min(8),
+		confirmPassword: z.string().min(8),
+	})
+	.refine((data) => data.password === data.confirmPassword, {
+		path: ["confirmPassword"],
+	});
 
 export const ChangePasswordForm = () => {
 	const t = useTranslations("profile.change-password");
@@ -15,21 +26,6 @@ export const ChangePasswordForm = () => {
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [error, setError] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
-
-	const changePasswordSchema = z
-		.object({
-			currentPassword: z
-				.string()
-				.min(1, { message: t("current-password-required") }),
-			password: z.string().min(8, { message: t("password-too-short") }),
-			confirmPassword: z
-				.string()
-				.min(8, { message: t("confirm-password-too-short") }),
-		})
-		.refine((data) => data.password === data.confirmPassword, {
-			message: t("passwords-do-not-match"),
-			path: ["confirmPassword"],
-		});
 
 	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -42,21 +38,34 @@ export const ChangePasswordForm = () => {
 		});
 
 		if (!result.success) {
-			setError(
-				result.error.errors[0]?.message ?? t("error-on-change-password"),
-			);
+			const issue = result.error.issues[0];
+			if (issue?.path[0] === "currentPassword")
+				setError(t("current-password-required"));
+			else if (issue?.path[0] === "password") setError(t("password-too-short"));
+			else if (issue?.path[0] === "confirmPassword")
+				setError(t("passwords-do-not-match"));
+			else setError(t("error-on-change-password"));
 			return;
 		}
 
 		setIsLoading(true);
-		try {
-			// TODO: call change password server action
-			toast.success(t("password-changed-successfully"));
-		} catch {
-			setError(t("error-on-change-password"));
-		} finally {
-			setIsLoading(false);
+		const { error: authError } = await authClient.changePassword({
+			currentPassword: result.data.currentPassword,
+			newPassword: result.data.password,
+			revokeOtherSessions: true,
+		});
+
+		setIsLoading(false);
+
+		if (authError) {
+			setError(authError.message ?? t("error-on-change-password"));
+			return;
 		}
+
+		toast.success(t("password-changed-successfully"));
+		setCurrentPassword("");
+		setPassword("");
+		setConfirmPassword("");
 	};
 
 	return (

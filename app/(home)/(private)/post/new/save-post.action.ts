@@ -23,9 +23,10 @@ export const savePost = async (post: PostData) => {
 
 	const slug = post.title.toLowerCase().replace(/ /g, "-");
 
-	let newPost = await prisma.post.findUnique({
+	let newPost = await prisma.post.findFirst({
 		where: {
 			slug: slug,
+			userId: session.user.id,
 		},
 	});
 

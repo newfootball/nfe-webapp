@@ -38,13 +38,21 @@ export const FollowButton = ({
 		setIsLoading(true);
 		try {
 			if (isFollowing) {
-				await removeFollow({ userToUnfollowId: userId });
-				setIsFollowing(false);
-				toast.success(t("you-are-now-unfollowing-this-user"));
+				const result = await removeFollow({ userToUnfollowId: userId });
+				if (result.error) {
+					toast.error(result.error);
+				} else {
+					setIsFollowing(false);
+					toast.success(t("you-are-now-unfollowing-this-user"));
+				}
 			} else {
-				await addFollow({ userToFollowId: userId });
-				setIsFollowing(true);
-				toast.success(t("you-are-now-following-this-user"));
+				const result = await addFollow({ userToFollowId: userId });
+				if (result.error) {
+					toast.error(result.error);
+				} else {
+					setIsFollowing(true);
+					toast.success(t("you-are-now-following-this-user"));
+				}
 			}
 		} catch (error) {
 			console.error(error);

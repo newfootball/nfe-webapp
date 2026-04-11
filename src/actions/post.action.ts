@@ -16,22 +16,31 @@ export async function publishPost(postId: string) {
 
 	const post = await prisma.post.findUnique({
 		where: { id: postId },
-		select: { userId: true },
+		select: { userId: true, status: true },
 	});
 
 	if (!post || post.userId !== userId) {
 		return { error: t("unauthorized") };
 	}
 
-	await prisma.post.update({
-		where: { id: postId },
-		data: { status: "PUBLISHED" },
-	});
+	if (post.status !== "DRAFT") {
+		return { error: t("unauthorized") };
+	}
 
-	revalidatePath("/profile");
-	revalidatePath("/");
+	try {
+		await prisma.post.update({
+			where: { id: postId },
+			data: { status: "PUBLISHED" },
+		});
 
-	return { success: true };
+		revalidatePath("/profile");
+		revalidatePath("/");
+
+		return { success: true };
+	} catch (error) {
+		console.error("Error publishing post:", error);
+		return { error: t("failed-to-delete-post") };
+	}
 }
 
 export async function deletePost(postId: string) {

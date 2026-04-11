@@ -14,7 +14,7 @@ export const removeFollow = async ({
 	const userId = await getUserSessionId();
 
 	if (!userId) {
-		throw new Error(t("user-not-found"));
+		return { error: t("user-not-found") };
 	}
 
 	try {
@@ -26,26 +26,24 @@ export const removeFollow = async ({
 		});
 
 		revalidatePath(`/user/${userToUnfollowId}`);
+
+		return { success: true };
 	} catch (error) {
 		console.error(error);
-		throw new Error(t("failed-to-follow-user"));
+		return { error: t("failed-to-follow-user") };
 	}
 };
 
 export const addFollow = async ({
 	userToFollowId,
-	userId = null,
 }: {
 	userToFollowId: string;
-	userId?: string | null;
 }) => {
 	const t = await getTranslations("follow-button");
-	if (!userId) {
-		userId = await getUserSessionId();
-	}
+	const userId = await getUserSessionId();
 
 	if (!userId) {
-		throw new Error(t("user-not-found"));
+		return { error: t("user-not-found") };
 	}
 
 	try {
@@ -58,9 +56,9 @@ export const addFollow = async ({
 
 		revalidatePath(`/user/${userToFollowId}`);
 
-		return follow;
+		return { success: true, follow };
 	} catch (error) {
 		console.error(error);
-		throw new Error(t("failed-to-follow-user"));
+		return { error: t("failed-to-follow-user") };
 	}
 };

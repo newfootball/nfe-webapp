@@ -17,20 +17,19 @@ export function PostContent({ post }: PostContentProps) {
 	const videoRef = useRef<HTMLVideoElement>(null);
 
 	useEffect(() => {
-		if (videoRef.current) {
-			const videoElement = videoRef.current;
+		const el = videoRef.current;
+		if (!el) return;
 
-			const handleError = () => {
-				console.error(t("video-playback-error"), videoElement.error);
-				setCanPlayVideo(false);
-			};
+		const handleError = () => {
+			console.error(t("video-playback-error"), el.error);
+			setCanPlayVideo(false);
+		};
 
-			videoElement.addEventListener("error", handleError);
+		el.addEventListener("error", handleError);
 
-			return () => {
-				videoElement.removeEventListener("error", handleError);
-			};
-		}
+		return () => {
+			el.removeEventListener("error", handleError);
+		};
 	}, [t]);
 
 	if (!video) {

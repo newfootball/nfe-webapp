@@ -37,7 +37,7 @@ export const savePost = async (post: PostData) => {
 				userId: session.user.id,
 				slug: slug,
 				type: PostType.video,
-				status: PostStatus.DRAFT,
+				status: PostStatus.PUBLISHED,
 			},
 		});
 	}

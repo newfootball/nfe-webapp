@@ -4,6 +4,34 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { getUserSessionId } from "@/src/query/user.query";
+
+export const removeFollow = async ({
+	userToUnfollowId,
+}: {
+	userToUnfollowId: string;
+}) => {
+	const t = await getTranslations("follow-button");
+	const userId = await getUserSessionId();
+
+	if (!userId) {
+		throw new Error(t("user-not-found"));
+	}
+
+	try {
+		await prisma.follow.deleteMany({
+			where: {
+				followerId: userId,
+				followingId: userToUnfollowId,
+			},
+		});
+
+		revalidatePath(`/user/${userToUnfollowId}`);
+	} catch (error) {
+		console.error(error);
+		throw new Error(t("failed-to-follow-user"));
+	}
+};
+
 export const addFollow = async ({
 	userToFollowId,
 	userId = null,

@@ -18,6 +18,7 @@ export const MyLastPost = ({ userId }: { userId: string }) => {
 			count={myPosts?.length}
 			title={t("my-last-posts")}
 			isLoading={isLoading}
+			showPublishButton
 		/>
 	);
 };

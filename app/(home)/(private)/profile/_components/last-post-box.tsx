@@ -1,10 +1,15 @@
 "use client";
-import { MediaType } from "@prisma/client";
+import { MediaType, PostStatus } from "@prisma/client";
 import { ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
+import { toast } from "sonner";
 import { Layout } from "@/components/layouts/layout";
 import { Button } from "@/components/ui/button";
+import { publishPost } from "@/src/actions/post.action";
 import { cn } from "@/src/lib/utils";
 import type { PostWithMedias } from "@/src/types/post.types";
 
@@ -15,11 +20,13 @@ export const LastPostBox = ({
 	count,
 	title,
 	isLoading,
+	showPublishButton,
 }: {
 	posts?: PostWithMedias[];
 	count?: number;
 	title: string;
 	isLoading?: boolean;
+	showPublishButton?: boolean;
 }) => {
 	return (
 		<Layout>
@@ -33,7 +40,13 @@ export const LastPostBox = ({
 				{isLoading ? (
 					<PostCardSkeleton text="..." />
 				) : (
-					posts?.map((post) => <PostCard key={post.id} post={post} />)
+					posts?.map((post) =>
+						showPublishButton ? (
+							<PublishablePostCard key={post.id} post={post} />
+						) : (
+							<PostCard key={post.id} post={post} />
+						),
+					)
 				)}
 				{count && count > MAX_POSTS && (
 					<PostCardSkeleton text={count.toString()} />
@@ -55,11 +68,9 @@ const PostCard = ({ post }: { post: PostWithMedias }) => {
 	const image = post.medias.find(
 		(media) => media.type === MediaType.landingImage,
 	);
+
 	return (
-		<div
-			key={post.id}
-			className="aspect-square relative rounded-lg overflow-hidden"
-		>
+		<div className="aspect-square relative rounded-lg overflow-hidden">
 			<Link href={`/post/${post.id}`}>
 				<Image
 					src={
@@ -73,6 +84,47 @@ const PostCard = ({ post }: { post: PostWithMedias }) => {
 					fill
 				/>
 			</Link>
+		</div>
+	);
+};
+
+const PublishablePostCard = ({ post }: { post: PostWithMedias }) => {
+	const t = useTranslations("actions.post");
+	const router = useRouter();
+	const [isPublishing, setIsPublishing] = useState(false);
+	const isDraft = post.status === PostStatus.DRAFT;
+
+	const handlePublish = async (e: React.MouseEvent) => {
+		e.preventDefault();
+		setIsPublishing(true);
+		const result = await publishPost(post.id);
+		setIsPublishing(false);
+		if (result.error) {
+			toast.error(result.error);
+		} else {
+			toast.success(t("publish-post"));
+			router.refresh();
+		}
+	};
+
+	return (
+		<div className="aspect-square relative rounded-lg overflow-hidden">
+			<PostCard post={post} />
+			{isDraft && (
+				<div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 gap-2">
+					<span className="text-white text-xs font-medium px-2 py-0.5 bg-white/20 rounded-full">
+						{t("draft")}
+					</span>
+					<Button
+						size="sm"
+						className="text-xs h-7 px-3"
+						onClick={handlePublish}
+						disabled={isPublishing}
+					>
+						{isPublishing ? "..." : t("publish-post")}
+					</Button>
+				</div>
+			)}
 		</div>
 	);
 };

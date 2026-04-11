@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Suspense } from "react";
 import { toast } from "sonner";
+import Posts from "@/app/(home)/(public)/posts";
 import { FollowButton } from "@/components/feature/follow/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -112,6 +113,10 @@ export const UserProfile = ({
 					<StatsUser userId={user.id} />
 				</Suspense>
 			</main>
+
+			<div className="mt-4">
+				<Posts userId={user.id} />
+			</div>
 		</>
 	);
 };

@@ -25,20 +25,13 @@ export function PostContent({ post }: PostContentProps) {
 				setCanPlayVideo(false);
 			};
 
-			if (video?.mimetype === "video/quicktime") {
-				const canPlay = videoElement.canPlayType(video.mimetype);
-				if (canPlay === "") {
-					setCanPlayVideo(false);
-				}
-			}
-
 			videoElement.addEventListener("error", handleError);
 
 			return () => {
 				videoElement.removeEventListener("error", handleError);
 			};
 		}
-	}, [video, t]);
+	}, [t]);
 
 	if (!video) {
 		return (
@@ -71,11 +64,14 @@ export function PostContent({ post }: PostContentProps) {
 		}
 	};
 
-	const getSourceType = () => {
-		if (video.mimetype === "video/quicktime") {
-			return "video/mp4";
+	const getVideoUrl = () => {
+		if (
+			video.url.includes("cloudinary.com") &&
+			video.url.includes("/upload/")
+		) {
+			return video.url.replace("/upload/", "/upload/f_mp4,vc_auto/");
 		}
-		return video.mimetype;
+		return video.url;
 	};
 
 	return (
@@ -86,16 +82,14 @@ export function PostContent({ post }: PostContentProps) {
 						<video
 							ref={videoRef}
 							muted={false}
+							loop
 							className="w-full h-full object-cover"
 							poster={image?.url}
 							controls={isPlaying}
 							autoPlay={false}
 							preload="metadata"
 						>
-							<source src={video.url} type={getSourceType()} />
-							{video.mimetype === "video/quicktime" && (
-								<source src={video.url} type="video/quicktime" />
-							)}
+							<source src={getVideoUrl()} type="video/mp4" />
 							{t("video-unsupported")}
 						</video>
 						{!isPlaying && (

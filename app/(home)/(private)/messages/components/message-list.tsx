@@ -22,8 +22,9 @@ export function MessageList({ messages }: MessageListProps) {
 						<AvatarImage src={message.image} alt={message.user} />
 						<AvatarFallback>{message.user[0]}</AvatarFallback>
 					</Avatar>
-					<div
-						className="flex-1 min-w-0"
+					<button
+						type="button"
+						className="flex-1 min-w-0 text-left"
 						onClick={() => {
 							router.push(`/messages/${message.user}`);
 						}}
@@ -37,7 +38,7 @@ export function MessageList({ messages }: MessageListProps) {
 						<p className="text-sm text-muted-foreground truncate">
 							{message.message}
 						</p>
-					</div>
+					</button>
 				</div>
 			))}
 		</div>

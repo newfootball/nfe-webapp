@@ -17,7 +17,7 @@ export const savePost = async (post: PostData) => {
 
 	if (!result.success) {
 		throw new Error(
-			`Validation error: ${result.error.errors[0]?.message ?? "Unknown error"}`,
+			`Validation error: ${result.error.issues[0]?.message ?? "Unknown error"}`,
 		);
 	}
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { setCookie } from "cookies-next";
+import { setCookie } from "cookies-next/client";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

@@ -1,5 +1,3 @@
-"use client";
-
 import type { Media } from "@prisma/client";
 import { BookmarkX } from "lucide-react";
 import Image from "next/image";

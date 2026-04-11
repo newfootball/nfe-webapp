@@ -3,7 +3,7 @@
 import { Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useTransition } from "react";
+import { useRef, useTransition } from "react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -12,17 +12,25 @@ export const ExploreHeader = () => {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const [, startTransition] = useTransition();
+	const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+		undefined,
+	);
 
 	const q = searchParams.get("q") ?? "";
 	const tab = searchParams.get("tab") ?? "top";
 
-	const updateParams = (newQ: string, newTab: string) => {
+	const navigateTo = (newQ: string, newTab: string) => {
 		const params = new URLSearchParams();
 		if (newQ) params.set("q", newQ);
 		params.set("tab", newTab);
 		startTransition(() => {
 			router.replace(`/explore?${params.toString()}`);
 		});
+	};
+
+	const handleSearchChange = (value: string) => {
+		clearTimeout(debounceRef.current);
+		debounceRef.current = setTimeout(() => navigateTo(value, tab), 400);
 	};
 
 	return (
@@ -36,13 +44,13 @@ export const ExploreHeader = () => {
 						placeholder={t("placeholder")}
 						className="pl-9 bg-muted border-none"
 						defaultValue={q}
-						onChange={(e) => updateParams(e.target.value, tab)}
+						onChange={(e) => handleSearchChange(e.target.value)}
 					/>
 				</div>
 			</div>
 			<Tabs
 				value={tab}
-				onValueChange={(value) => updateParams(q, value)}
+				onValueChange={(value) => navigateTo(q, value)}
 				className="w-full"
 			>
 				<TabsList className="w-full justify-between h-auto bg-transparent p-0 px-4">

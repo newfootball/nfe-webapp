@@ -35,7 +35,7 @@ export const Header = ({ userId }: { userId?: string }) => {
 					</h1>
 					<div className="flex items-center gap-2 mr-4">
 						<LanguageSwitcher />
-						{userId && <NotificationBell userId={userId} />}
+						{userId && <NotificationBell />}
 						{userId && <HeaderDropdown userId={userId} />}
 					</div>
 				</div>

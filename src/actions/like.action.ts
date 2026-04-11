@@ -2,8 +2,8 @@
 
 import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
+import { createNotification } from "@/src/lib/create-notification";
 import { getUserSession } from "@/src/query/user.query";
-import { createNotification } from "./notification.action";
 
 export const toggleLike = async ({
 	postId,
@@ -54,7 +54,7 @@ export const toggleLike = async ({
 			where: { id: userId },
 			select: { name: true },
 		});
-		createNotification(
+		await createNotification(
 			post.userId,
 			`${liker?.name ?? "Someone"} liked your post`,
 			`/post/${postId}`,

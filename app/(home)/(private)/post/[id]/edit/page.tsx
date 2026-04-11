@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Layout } from "@/components/layouts/layout";
+import { getSession } from "@/src/lib/auth-server";
 import { getPost } from "@/src/query/post.query";
 import { PostEditForm } from "./post-edit-form";
 
@@ -14,9 +15,13 @@ export default async function page({
 	const { id } = await params;
 	const t = await getTranslations("posts.edit");
 
-	const post = await getPost(id);
+	const [session, post] = await Promise.all([getSession(), getPost(id)]);
 
 	if (!post) {
+		return notFound();
+	}
+
+	if (!session?.user?.id || post.userId !== session.user.id) {
 		return notFound();
 	}
 

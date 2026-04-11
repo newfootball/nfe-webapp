@@ -3,12 +3,12 @@
 import { getTranslations } from "next-intl/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { createNotification } from "@/src/lib/create-notification";
 import { getUserSessionId } from "@/src/query/user.query";
 import {
 	type CommentFormData,
 	CommentSchema,
 } from "@/src/schemas/comment.schema";
-import { createNotification } from "./notification.action";
 
 export const saveComment = async (data: CommentFormData) => {
 	const t = await getTranslations("actions.comment");
@@ -41,7 +41,7 @@ export const saveComment = async (data: CommentFormData) => {
 				where: { id: userId },
 				select: { name: true },
 			});
-			createNotification(
+			await createNotification(
 				post.userId,
 				`${commenter?.name ?? "Someone"} commented on your post`,
 				`/post/${validatedData.postId}`,

@@ -3,20 +3,6 @@
 import { prisma } from "@/lib/prisma";
 import { getUserSessionId } from "@/src/query/user.query";
 
-export async function createNotification(
-	userId: string,
-	content: string,
-	link?: string,
-) {
-	try {
-		await prisma.notification.create({
-			data: { userId, content, link },
-		});
-	} catch (error) {
-		console.error("Error creating notification:", error);
-	}
-}
-
 export async function markNotificationRead(notifId: string) {
 	const currentUserId = await getUserSessionId();
 	if (!currentUserId) return { success: false };

@@ -25,7 +25,7 @@ export default async function NotificationsPage() {
 	}
 
 	const t = await getTranslations("notifications");
-	const notifications = await getNotifications(session.user.id);
+	const notifications = await getNotifications();
 
 	await markAllNotificationsRead();
 
@@ -46,7 +46,7 @@ export default async function NotificationsPage() {
 								key={notif.id}
 								className={`flex items-start gap-3 p-3 rounded-lg ${!notif.readAt ? "bg-accent/40" : ""}`}
 							>
-								<div className="flex-shrink-0 mt-0.5 w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+								<div className="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-muted flex items-center justify-center">
 									<Bell className="h-4 w-4 text-muted-foreground" />
 								</div>
 								<div className="flex-1 min-w-0">

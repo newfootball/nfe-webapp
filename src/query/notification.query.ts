@@ -1,8 +1,12 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { getUserSessionId } from "@/src/query/user.query";
 
-export const getNotifications = async (userId: string) => {
+export const getNotifications = async () => {
+	const userId = await getUserSessionId();
+	if (!userId) return [];
+
 	return prisma.notification.findMany({
 		where: { userId },
 		orderBy: { createdAt: "desc" },
@@ -10,9 +14,10 @@ export const getNotifications = async (userId: string) => {
 	});
 };
 
-export const getUnreadNotificationCount = async (
-	userId: string,
-): Promise<number> => {
+export const getUnreadNotificationCount = async (): Promise<number> => {
+	const userId = await getUserSessionId();
+	if (!userId) return 0;
+
 	return prisma.notification.count({
 		where: { userId, readAt: null },
 	});

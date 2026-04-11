@@ -5,10 +5,10 @@ import { Bell } from "lucide-react";
 import Link from "next/link";
 import { getUnreadNotificationCount } from "@/src/query/notification.query";
 
-export function NotificationBell({ userId }: { userId: string }) {
+export function NotificationBell() {
 	const { data: count = 0 } = useQuery({
-		queryKey: ["notifications-count", userId],
-		queryFn: () => getUnreadNotificationCount(userId),
+		queryKey: ["notifications-count"],
+		queryFn: () => getUnreadNotificationCount(),
 		refetchInterval: 30000,
 	});
 

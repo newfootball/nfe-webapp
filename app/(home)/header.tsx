@@ -5,6 +5,7 @@ import { LayoutDashboard, LogOutIcon, UserIcon, VideoIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { NotificationBell } from "@/components/feature/notifications/notification-bell";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { Layout } from "@/components/layouts/layout";
 import {
@@ -34,6 +35,7 @@ export const Header = ({ userId }: { userId?: string }) => {
 					</h1>
 					<div className="flex items-center gap-2 mr-4">
 						<LanguageSwitcher />
+						{userId && <NotificationBell />}
 						{userId && <HeaderDropdown userId={userId} />}
 					</div>
 				</div>

@@ -39,22 +39,15 @@ export const PostFormComment = ({
 		e.preventDefault();
 		setError(null);
 
-		if (!userId) {
-			setError(t("you-must-be-logged-in-to-comment"));
-			return;
-		}
-
 		try {
 			CommentSchema.parse({
 				postId,
-				userId,
 				content: comment,
 			});
 
 			setIsSubmitting(true);
 			const result = await saveComment({
 				postId,
-				userId,
 				content: comment.trim(),
 			});
 

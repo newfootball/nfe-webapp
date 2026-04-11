@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
+import { createNotification } from "@/src/lib/create-notification";
 import { getUserSessionId } from "@/src/query/user.query";
 
 export const removeFollow = async ({
@@ -46,6 +47,10 @@ export const addFollow = async ({
 		return { error: t("user-not-found") };
 	}
 
+	if (userId === userToFollowId) {
+		return { error: t("user-not-found") };
+	}
+
 	try {
 		const follow = await prisma.follow.create({
 			data: {
@@ -55,6 +60,16 @@ export const addFollow = async ({
 		});
 
 		revalidatePath(`/user/${userToFollowId}`);
+
+		const follower = await prisma.user.findUnique({
+			where: { id: userId },
+			select: { name: true },
+		});
+		await createNotification(
+			userToFollowId,
+			`${follower?.name ?? "Someone"} started following you`,
+			`/user/${userId}`,
+		);
 
 		return { success: true, follow };
 	} catch (error) {

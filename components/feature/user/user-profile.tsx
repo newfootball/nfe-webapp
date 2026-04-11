@@ -1,7 +1,7 @@
 "use client";
 
 import type { User } from "@prisma/client";
-import { Loader, Settings } from "lucide-react";
+import { Bookmark, Loader, Settings } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -69,6 +69,11 @@ export const UserProfile = ({
 							<Link href="/profile/edit-user">
 								<Button variant="outline" className="flex-1 max-w-[200px]">
 									{t("edit-profile")}
+								</Button>
+							</Link>
+							<Link href="/profile/favorites">
+								<Button variant="outline" size="icon" title={t("saved-posts")}>
+									<Bookmark className="h-4 w-4" />
 								</Button>
 							</Link>
 							<DropdownMenu>

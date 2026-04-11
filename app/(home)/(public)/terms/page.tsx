@@ -1,104 +1,66 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
-export default function TermsAndConditions() {
+export default async function TermsAndConditions() {
+	const t = await getTranslations("terms");
+
 	return (
 		<>
-			<h1 className="text-2xl font-bold text-indigo-800">
-				Terms and Conditions
-			</h1>
-			<p className="mt-1 text-sm text-indigo-200">
-				Last updated: September 29, 2024
-			</p>
+			<h1 className="text-2xl font-bold text-indigo-800">{t("title")}</h1>
+			<p className="mt-1 text-sm text-indigo-200">{t("last-updated")}</p>
 			<div className="px-4 py-5 sm:p-6">
 				<div className="prose prose-indigo max-w-none">
-					<h2>1. Acceptance of Terms</h2>
-					<p>
-						By accessing or using the Connected social network service, you
-						agree to be bound by these Terms and Conditions. If you do not agree
-						to all the terms and conditions, you may not access or use the
-						service.
-					</p>
+					<h2>{t("section-1-title")}</h2>
+					<p>{t("section-1")}</p>
 
-					<h2>2. Changes to Terms</h2>
-					<p>
-						We reserve the right to modify or replace these Terms at any time.
-						We will provide notice of any significant changes. Your continued
-						use of the Service after such modifications will constitute your
-						acknowledgment and acceptance of the modified Terms.
-					</p>
+					<h2>{t("section-2-title")}</h2>
+					<p>{t("section-2")}</p>
 
-					<h2>3. Privacy Policy</h2>
+					<h2>{t("section-3-title")}</h2>
 					<p>
-						Your use of the Service is also governed by our Privacy Policy,
-						which can be found{" "}
+						{t("section-3-prefix")}{" "}
 						<Link
 							href="/privacy"
 							className="text-indigo-600 hover:text-indigo-800"
 						>
-							here
+							{t("section-3-link")}
 						</Link>
 						.
 					</p>
 
-					<h2>4. User Accounts</h2>
-					<p>
-						When you create an account with us, you must provide accurate,
-						complete, and current information. Failure to do so constitutes a
-						breach of the Terms, which may result in immediate termination of
-						your account.
-					</p>
+					<h2>{t("section-4-title")}</h2>
+					<p>{t("section-4")}</p>
 
-					<h2>5. Content</h2>
-					<p>
-						You are responsible for the content you post on Connected. You
-						retain all rights to your content, but grant Connected a
-						non-exclusive license to use, modify, and display the content in
-						connection with the Service.
-					</p>
+					<h2>{t("section-5-title")}</h2>
+					<p>{t("section-5")}</p>
 
-					<h2>6. Prohibited Activities</h2>
-					<p>
-						You agree not to engage in any of the following prohibited
-						activities:
-					</p>
+					<h2>{t("section-6-title")}</h2>
+					<p>{t("section-6-intro")}</p>
 					<ul>
-						<li>Violating laws or rights of others</li>
-						<li>Posting unauthorized commercial communications</li>
-						<li>Uploading viruses or malicious code</li>
-						<li>Harassment or bullying of other users</li>
-						<li>Impersonating others</li>
+						<li>{t("section-6-item-1")}</li>
+						<li>{t("section-6-item-2")}</li>
+						<li>{t("section-6-item-3")}</li>
+						<li>{t("section-6-item-4")}</li>
+						<li>{t("section-6-item-5")}</li>
 					</ul>
 
-					<h2>7. Termination</h2>
-					<p>
-						We may terminate or suspend your account immediately, without prior
-						notice or liability, for any reason, including breach of Terms. Upon
-						termination, your right to use the Service will immediately cease.
-					</p>
+					<h2>{t("section-7-title")}</h2>
+					<p>{t("section-7")}</p>
 
-					<h2>8. Limitation of Liability</h2>
-					<p>
-						In no event shall Connected, its directors, employees, partners,
-						agents, suppliers, or affiliates, be liable for any indirect,
-						incidental, special, consequential or punitive damages, including
-						loss of profits, data, or other intangible losses.
-					</p>
+					<h2>{t("section-8-title")}</h2>
+					<p>{t("section-8")}</p>
 
-					<h2>9. Governing Law</h2>
-					<p>
-						These Terms shall be governed by and construed in accordance with
-						the laws of [Your Jurisdiction], without regard to its conflict of
-						law provisions.
-					</p>
+					<h2>{t("section-9-title")}</h2>
+					<p>{t("section-9")}</p>
 
-					<h2>10. Contact Us</h2>
+					<h2>{t("section-10-title")}</h2>
 					<p>
-						If you have any questions about these Terms, please contact us at{" "}
+						{t("section-10-prefix")}{" "}
 						<a
-							href="mailto:support@connected.com"
+							href="mailto:contact@nfe-foot.com"
 							className="text-indigo-600 hover:text-indigo-800"
 						>
-							support@connected.com
+							contact@nfe-foot.com
 						</a>
 						.
 					</p>
@@ -110,7 +72,7 @@ export default function TermsAndConditions() {
 						href="/"
 						className="font-medium text-indigo-600 hover:text-indigo-500"
 					>
-						Return to Home
+						{t("return-home")}
 					</Link>
 				</div>
 			</div>

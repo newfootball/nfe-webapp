@@ -25,6 +25,32 @@ export const getCountFollowing = async (userId: string): Promise<number> => {
 	return countFollowing;
 };
 
+export async function getFollowers(userId: string) {
+	const follows = await prisma.follow.findMany({
+		where: { followingId: userId },
+		include: {
+			follower: {
+				select: { id: true, name: true, image: true, userType: true },
+			},
+		},
+		orderBy: { createdAt: "desc" },
+	});
+	return follows.map((f) => f.follower);
+}
+
+export async function getFollowing(userId: string) {
+	const follows = await prisma.follow.findMany({
+		where: { followerId: userId },
+		include: {
+			followed: {
+				select: { id: true, name: true, image: true, userType: true },
+			},
+		},
+		orderBy: { createdAt: "desc" },
+	});
+	return follows.map((f) => f.followed);
+}
+
 export async function checkIsFollowing(
 	userToFollowId: string,
 ): Promise<boolean> {

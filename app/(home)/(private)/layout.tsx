@@ -1,7 +1,6 @@
 "use client";
 
 import { redirect } from "next/navigation";
-import { toast } from "sonner";
 import { useSession } from "@/src/lib/auth-client";
 
 export default function AuthLayout({
@@ -9,10 +8,13 @@ export default function AuthLayout({
 }: {
 	children: React.ReactNode;
 }) {
-	const { data: session } = useSession();
+	const { data: session, isPending } = useSession();
+
+	if (isPending) {
+		return null;
+	}
 
 	if (!session) {
-		toast.error("You must be signed in to access this page.");
 		redirect("/sign-in");
 	}
 

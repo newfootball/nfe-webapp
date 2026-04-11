@@ -29,10 +29,8 @@ export const changePassword = async ({
 		throw new Error("User not found");
 	}
 
-	const hashCurrentPassword = await hashPassword(validatedData.currentPassword);
-
 	const isPasswordValid = await comparePassword(
-		hashCurrentPassword,
+		validatedData.currentPassword,
 		user.password ?? "",
 	);
 

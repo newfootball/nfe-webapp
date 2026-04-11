@@ -6,6 +6,42 @@ import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { getUserSessionId } from "../query/user.query";
 
+export async function updatePost(
+	postId: string,
+	data: { title: string; description: string },
+) {
+	const t = await getTranslations("actions.post");
+
+	const userId = await getUserSessionId();
+	if (!userId) {
+		return { error: t("unauthorized") };
+	}
+
+	const post = await prisma.post.findUnique({
+		where: { id: postId },
+		select: { userId: true },
+	});
+
+	if (!post || post.userId !== userId) {
+		return { error: t("unauthorized") };
+	}
+
+	try {
+		await prisma.post.update({
+			where: { id: postId },
+			data: { title: data.title, description: data.description },
+		});
+
+		revalidatePath(`/post/${postId}`);
+		revalidatePath("/");
+
+		return { success: true };
+	} catch (error) {
+		console.error("Error updating post:", error);
+		return { error: t("update-post-error") };
+	}
+}
+
 export async function publishPost(postId: string) {
 	const t = await getTranslations("actions.post");
 

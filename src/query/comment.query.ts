@@ -11,6 +11,7 @@ export type LastCommentsResult = {
 
 export type CommentWithUser = Comment & {
 	user: {
+		id: string;
 		name: string | null;
 		image: string | null;
 	};
@@ -54,6 +55,7 @@ export const getLastComments = async (
 			include: {
 				user: {
 					select: {
+						id: true,
 						name: true,
 						image: true,
 					},

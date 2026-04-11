@@ -2,6 +2,7 @@
 
 import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
+import { createNotification } from "@/src/lib/create-notification";
 import { getUserSession } from "@/src/query/user.query";
 
 export const toggleLike = async ({
@@ -42,6 +43,23 @@ export const toggleLike = async ({
 			userId,
 		},
 	});
+
+	const post = await prisma.post.findUnique({
+		where: { id: postId },
+		select: { userId: true },
+	});
+
+	if (post && post.userId !== userId) {
+		const liker = await prisma.user.findUnique({
+			where: { id: userId },
+			select: { name: true },
+		});
+		await createNotification(
+			post.userId,
+			`${liker?.name ?? "Someone"} liked your post`,
+			`/post/${postId}`,
+		);
+	}
 
 	return true;
 };

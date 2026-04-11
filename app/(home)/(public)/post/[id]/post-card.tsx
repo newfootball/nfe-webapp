@@ -4,10 +4,12 @@ import { useState } from "react";
 import { PostCommentsList } from "@/components/feature/post/post-comments-list";
 import { PostDetails } from "@/components/feature/post/post-details";
 import { PostFormComment } from "@/components/feature/post/post-form-comment";
+import { useSession } from "@/src/lib/auth-client";
 import type { PostWithUserAndMedias } from "@/src/types/post.types";
 
 export const PostCard = ({ post }: { post: PostWithUserAndMedias }) => {
 	const [refreshComments, setRefreshComments] = useState(0);
+	const { data: session } = useSession();
 
 	const handleCommentPosted = () => {
 		setRefreshComments((prev) => prev + 1);
@@ -20,7 +22,11 @@ export const PostCard = ({ post }: { post: PostWithUserAndMedias }) => {
 					postId={post.id}
 					onCommentPosted={handleCommentPosted}
 				/>
-				<PostCommentsList postId={post.id} key={refreshComments} />
+				<PostCommentsList
+					postId={post.id}
+					currentUserId={session?.user?.id}
+					key={refreshComments}
+				/>
 			</PostDetails>
 		</article>
 	);

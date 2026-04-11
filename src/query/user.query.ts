@@ -103,6 +103,22 @@ export const getUsers = async ({
 	return users;
 };
 
+export async function searchUsers(query: string, limit = 10) {
+	if (!query.trim()) return [];
+
+	return prisma.user.findMany({
+		where: {
+			isOnboarded: true,
+			OR: [
+				{ name: { contains: query, mode: "insensitive" } },
+				{ email: { contains: query, mode: "insensitive" } },
+			],
+		},
+		select: { id: true, name: true, image: true, userType: true },
+		take: limit,
+	});
+}
+
 export async function getUsersForSitemap() {
 	try {
 		const users = await prisma.user.findMany({

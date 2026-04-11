@@ -1,15 +1,26 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
+import { Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useLastComments } from "@/src/hooks/use-comment-query";
+import { Button } from "@/components/ui/button";
+import { deleteComment } from "@/src/actions/comment.action";
+import { commentKeys, useLastComments } from "@/src/hooks/use-comment-query";
 
 interface PostCommentsListProps {
 	postId: string;
+	currentUserId?: string | null;
 }
 
-export const PostCommentsList = ({ postId }: PostCommentsListProps) => {
+export const PostCommentsList = ({
+	postId,
+	currentUserId,
+}: PostCommentsListProps) => {
 	const t = useTranslations("posts.post-comments-list");
+	const queryClient = useQueryClient();
+	const [deletingId, setDeletingId] = useState<string | null>(null);
 
 	const {
 		data: commentsResult,
@@ -24,6 +35,19 @@ export const PostCommentsList = ({ postId }: PostCommentsListProps) => {
 		: commentsResult?.success
 			? null
 			: (commentsResult?.error ?? null);
+
+	const handleDelete = async (commentId: string) => {
+		setDeletingId(commentId);
+		try {
+			const result = await deleteComment(commentId);
+			if (result.success) {
+				queryClient.invalidateQueries({ queryKey: commentKeys.list(postId) });
+				queryClient.invalidateQueries({ queryKey: commentKeys.count(postId) });
+			}
+		} finally {
+			setDeletingId(null);
+		}
+	};
 
 	if (isLoading) {
 		return (
@@ -63,6 +87,18 @@ export const PostCommentsList = ({ postId }: PostCommentsListProps) => {
 							<span className="text-xs text-muted-foreground">
 								{new Date(comment.createdAt).toLocaleDateString()}
 							</span>
+							{currentUserId && comment.user.id === currentUserId && (
+								<Button
+									variant="ghost"
+									size="icon"
+									className="h-6 w-6 ml-auto text-muted-foreground hover:text-destructive"
+									aria-label={t("delete-comment")}
+									disabled={deletingId === comment.id}
+									onClick={() => handleDelete(comment.id)}
+								>
+									<Trash2 className="h-3 w-3" />
+								</Button>
+							)}
 						</div>
 						<p className="mt-1 text-sm">{comment.content}</p>
 					</div>

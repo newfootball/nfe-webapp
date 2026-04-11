@@ -116,6 +116,27 @@ export const getPost = async (
 	return post;
 };
 
+export async function searchPosts(query: string, limit = 10) {
+	if (!query.trim()) return [];
+
+	return prisma.post.findMany({
+		where: {
+			status: "PUBLISHED",
+			OR: [
+				{ title: { contains: query, mode: "insensitive" } },
+				{ description: { contains: query, mode: "insensitive" } },
+			],
+		},
+		include: {
+			medias: true,
+			user: { select: { id: true, name: true, image: true } },
+			_count: { select: { likes: true, comments: true } },
+		},
+		take: limit,
+		orderBy: { publishedAt: "desc" },
+	});
+}
+
 export async function getPopularPostsForSitemap() {
 	try {
 		const posts = await prisma.post.findMany({

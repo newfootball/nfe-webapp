@@ -33,6 +33,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { saveOnboarding } from "./onboarding.action";
 
 const userTypeSchema = z.object({
 	userType: z.enum(["USER", "PLAYER", "COACH", "RECRUITER", "CLUB"] as const),
@@ -95,18 +96,12 @@ export function OnboardingSteps() {
 		data: PlayerInfoValues | CoachInfoValues | ClubInfoValues,
 	) => {
 		try {
-			const response = await fetch("/api/onboarding", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					userType,
-					...data,
-				}),
+			const result = await saveOnboarding({
+				userType: userType as UserType,
+				...data,
 			});
 
-			if (!response.ok) throw new Error();
+			if (!result.success) throw new Error(result.error);
 
 			router.push("/feed");
 		} catch (error) {

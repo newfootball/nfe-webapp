@@ -1,6 +1,4 @@
 import { GoogleAnalytics } from "@next/third-parties/google";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
@@ -91,8 +89,6 @@ export default function RootLayout({
 				<NextIntlClientProvider>
 					<ReactQueryProvider>{children}</ReactQueryProvider>
 				</NextIntlClientProvider>
-				<Analytics />
-				<SpeedInsights />
 				<GoogleAnalytics gaId={env.GOOGLE_ANALYTICS_ID ?? ""} />
 			</body>
 		</html>

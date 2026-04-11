@@ -1,10 +1,12 @@
 {
 	"posts": {
 		"no-posts-available": "Aucun post disponible",
+		"no-more-posts": "Vous êtes à jour",
 		"failed-to-fetch-posts": "Erreur lors de la récupération des posts",
 		"loading": "Chargement...",
 		"post-actions": {
 			"like": "J'aime",
+			"likes-count": "{count, plural, one {1 j'aime} other {{count} j'aime}}",
 			"comments-count": "{count, plural, =0 {Aucun commentaire} one {1 commentaire} other {{count} commentaires}}",
 			"comment": "Commenter",
 			"save": "Enregistrer",
@@ -117,7 +119,8 @@
 		"following": "Suivi",
 		"follow": "Suivre",
 		"failed-to-follow-user": "Échec du suivi de l'utilisateur",
-		"user-not-found": "Utilisateur non trouvé"
+		"user-not-found": "Utilisateur non trouvé",
+		"you-are-now-unfollowing-this-user": "Vous ne suivez plus cet utilisateur"
 	},
 	"auth-layout": {
 		"privacy": "Vie privée",
@@ -257,7 +260,8 @@
 			"confirm-password-too-short": "La confirmation du mot de passe doit contenir au moins 8 caractères",
 			"passwords-do-not-match": "Les mots de passe ne correspondent pas",
 			"error-on-change-password": "Erreur lors du changement de mot de passe",
-			"back-to-profile": "Retour au profil"
+			"back-to-profile": "Retour au profil",
+			"no-password-google-account": "Votre compte est connecté via Google. Vous ne pouvez pas changer de mot de passe."
 		},
 		"edit-user": {
 			"edit-profile": "Modifier le profil",
@@ -328,7 +332,9 @@
 			"post-not-found": "Post non trouvé",
 			"already-reported-this-post": "Vous avez déjà signalé ce post",
 			"post-reported-successfully": "Post signalé avec succès",
-			"failed-to-report-post": "Échec du signalement du post"
+			"failed-to-report-post": "Échec du signalement du post",
+			"publish-post": "Publier",
+			"draft": "Brouillon"
 		},
 		"user": {
 			"user-not-found": "Utilisateur non trouvé"

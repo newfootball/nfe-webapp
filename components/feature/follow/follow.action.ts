@@ -4,20 +4,46 @@ import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { getUserSessionId } from "@/src/query/user.query";
-export const addFollow = async ({
-	userToFollowId,
-	userId = null,
+
+export const removeFollow = async ({
+	userToUnfollowId,
 }: {
-	userToFollowId: string;
-	userId?: string | null;
+	userToUnfollowId: string;
 }) => {
 	const t = await getTranslations("follow-button");
-	if (!userId) {
-		userId = await getUserSessionId();
-	}
+	const userId = await getUserSessionId();
 
 	if (!userId) {
-		throw new Error(t("user-not-found"));
+		return { error: t("user-not-found") };
+	}
+
+	try {
+		await prisma.follow.deleteMany({
+			where: {
+				followerId: userId,
+				followingId: userToUnfollowId,
+			},
+		});
+
+		revalidatePath(`/user/${userToUnfollowId}`);
+
+		return { success: true };
+	} catch (error) {
+		console.error(error);
+		return { error: t("failed-to-follow-user") };
+	}
+};
+
+export const addFollow = async ({
+	userToFollowId,
+}: {
+	userToFollowId: string;
+}) => {
+	const t = await getTranslations("follow-button");
+	const userId = await getUserSessionId();
+
+	if (!userId) {
+		return { error: t("user-not-found") };
 	}
 
 	try {
@@ -30,9 +56,9 @@ export const addFollow = async ({
 
 		revalidatePath(`/user/${userToFollowId}`);
 
-		return follow;
+		return { success: true, follow };
 	} catch (error) {
 		console.error(error);
-		throw new Error(t("failed-to-follow-user"));
+		return { error: t("failed-to-follow-user") };
 	}
 };

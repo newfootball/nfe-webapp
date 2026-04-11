@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import type { PostWithUserAndMedias } from "@/src/types/post.types";
+import type { PostsPage, PostWithUserAndMedias } from "@/src/types/post.types";
 
 export const getCountPosts = async (userId: string): Promise<number> => {
 	if (!userId) return 0;
@@ -49,6 +49,51 @@ export const getPosts = async ({
 	});
 
 	return posts;
+};
+
+export const getPostsWithCursor = async ({
+	userId,
+	cursor,
+	limit = 10,
+}: {
+	userId?: string;
+	cursor?: string | null;
+	limit?: number;
+}): Promise<PostsPage> => {
+	const where: { userId?: string; status: "PUBLISHED" } = {
+		status: "PUBLISHED",
+	};
+
+	if (userId) {
+		where.userId = userId;
+	}
+
+	const posts = await prisma.post.findMany({
+		where,
+		take: limit + 1,
+		...(cursor && { skip: 1, cursor: { id: cursor } }),
+		include: {
+			user: true,
+			medias: true,
+			_count: {
+				select: {
+					comments: true,
+					likes: true,
+				},
+			},
+		},
+		orderBy: {
+			createdAt: "desc",
+		},
+	});
+
+	const hasMore = posts.length > limit;
+	const slicedPosts = hasMore ? posts.slice(0, limit) : posts;
+	const nextCursor = hasMore
+		? (slicedPosts[slicedPosts.length - 1]?.id ?? null)
+		: null;
+
+	return { posts: slicedPosts, nextCursor };
 };
 
 export const getPost = async (

@@ -4,10 +4,10 @@ import type { User } from "@prisma/client";
 import { Loader, Settings } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Suspense } from "react";
 import { toast } from "sonner";
+import Posts from "@/app/(home)/(public)/posts";
 import { FollowButton } from "@/components/feature/follow/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -88,7 +88,7 @@ export const UserProfile = ({
 												try {
 													await deleteUserAccount();
 													toast.success(t("account-deleted-successfully"));
-													redirect("/sign-in");
+													window.location.replace("/sign-in");
 												} catch (error) {
 													toast.error(t("failed-to-delete-account"));
 													console.error(error);
@@ -112,6 +112,10 @@ export const UserProfile = ({
 					<StatsUser userId={user.id} />
 				</Suspense>
 			</main>
+
+			<div className="mt-4">
+				<Posts userId={user.id} />
+			</div>
 		</>
 	);
 };

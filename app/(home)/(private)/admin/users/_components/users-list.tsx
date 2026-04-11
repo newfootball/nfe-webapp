@@ -62,6 +62,7 @@ export default function UsersList() {
 			</div>
 			<div className="flex items-center justify-between mt-6">
 				<button
+					type="button"
 					onClick={() => setPage((p) => Math.max(1, p - 1))}
 					disabled={page === 1}
 					className={`px-4 py-2 rounded-md border border-gray-300 bg-gray-100 text-gray-700 font-medium transition-colors hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed`}
@@ -72,6 +73,7 @@ export default function UsersList() {
 					{t("page")} {page}
 				</span>
 				<button
+					type="button"
 					onClick={() =>
 						setPage((p) => (users && users.length === limit ? p + 1 : p))
 					}

@@ -1,10 +1,12 @@
 {
 	"posts": {
 		"no-posts-available": "No posts available",
+		"no-more-posts": "You're all caught up",
 		"failed-to-fetch-posts": "Failed to fetch posts",
 		"loading": "Loading...",
 		"post-actions": {
 			"like": "Like",
+			"likes-count": "{count, plural, one {1 like} other {{count} likes}}",
 			"comments-count": "{count, plural, =0 {No comments} one {1 comment} other {{count} comments}}",
 			"comment": "Comment",
 			"save": "Save",
@@ -117,7 +119,8 @@
 		"following": "Following",
 		"follow": "Follow",
 		"failed-to-follow-user": "Failed to follow user",
-		"user-not-found": "User not found"
+		"user-not-found": "User not found",
+		"you-are-now-unfollowing-this-user": "You are no longer following this user"
 	},
 	"auth-layout": {
 		"privacy": "Privacy",
@@ -257,7 +260,8 @@
 			"confirm-password-too-short": "Confirm password must be at least 8 characters",
 			"passwords-do-not-match": "Passwords do not match",
 			"error-on-change-password": "Error on change password",
-			"back-to-profile": "Back to profile"
+			"back-to-profile": "Back to profile",
+			"no-password-google-account": "Your account is connected via Google. You cannot change your password."
 		},
 		"edit-user": {
 			"edit-profile": "Edit Profile",
@@ -328,7 +332,9 @@
 			"post-not-found": "Post not found",
 			"already-reported-this-post": "You have already reported this post",
 			"post-reported-successfully": "Post reported successfully",
-			"failed-to-report-post": "Failed to report post"
+			"failed-to-report-post": "Failed to report post",
+			"publish-post": "Publish",
+			"draft": "Draft"
 		},
 		"user": {
 			"user-not-found": "User not found"

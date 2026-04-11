@@ -1,6 +1,6 @@
 "use client";
 
-import { Bookmark, MessageSquare, ThumbsUp } from "lucide-react";
+import { Bookmark, Heart, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -25,12 +25,14 @@ interface PostActionsProps {
 	likes?: number;
 	comments?: number;
 	postId: string;
+	title?: string;
 }
 
 export function PostActions({
 	likes = 0,
 	comments: initialComments = 0,
 	postId,
+	title,
 }: PostActionsProps) {
 	const { data: session, isPending } = useSession();
 	const userId = session?.user?.id;
@@ -41,11 +43,9 @@ export function PostActions({
 	const [isFavorite, setIsFavorite] = useState(false);
 	const t = useTranslations("posts.post-actions");
 
-	// Use Tanstack Query to fetch and cache comment count
 	const { data: commentData } = useCommentCount(postId);
 	const { invalidateCommentQueries } = useInvalidateCommentQueries();
 
-	// Use the cached count or fall back to initial count
 	const comments =
 		commentData?.success && commentData.count !== undefined
 			? commentData.count
@@ -120,64 +120,70 @@ export function PostActions({
 	};
 
 	return (
-		<div className="px-2 py-2">
-			{(likes > 0 || comments > 0) && (
-				<div className="flex items-center justify-between border-b py-2 text-sm text-muted-foreground">
-					<div className="flex items-center gap-1">
-						<ThumbsUp className="h-4 w-4 fill-current" />
-						<span>{likes}</span>
-					</div>
-					{comments > 0 && (
-						<Link href={`/post/${postId}`}>
-							{t("comments-count", { count: comments })}
-						</Link>
-					)}
+		<div className="px-4 pt-2 pb-3">
+			<div className="flex items-center justify-between">
+				<div className="flex items-center -ml-2">
+					<Button
+						variant="ghost"
+						size="icon"
+						className="h-9 w-9"
+						onClick={handleLike}
+					>
+						<Heart
+							className={cn("h-6 w-6", {
+								"fill-red-500 text-red-500": isLike,
+							})}
+						/>
+					</Button>
+					<Button
+						variant="ghost"
+						size="icon"
+						className="h-9 w-9"
+						onClick={handleComment}
+					>
+						<MessageCircle className="h-6 w-6" />
+					</Button>
+					<PostActionShare postId={postId} />
 				</div>
-			)}
-			<div className="flex items-center justify-between pt-2 sm:space-x-2">
 				<Button
 					variant="ghost"
-					size="sm"
-					className="flex-1"
-					onClick={handleLike}
-				>
-					<ThumbsUp
-						className={cn("mr-2 h-4 w-4", {
-							"fill-current": isLike,
-						})}
-					/>
-					<span className="hidden md:inline">{t("like")}</span>
-				</Button>
-				<Button
-					variant="ghost"
-					size="sm"
-					className="flex-1"
-					onClick={handleComment}
-				>
-					<MessageSquare className="mr-2 h-4 w-4" />
-					<span className="hidden md:inline">{t("comment")}</span>
-				</Button>
-				<PostActionShare postId={postId} />
-				<Button
-					variant="ghost"
-					size="sm"
-					className="flex-1"
+					size="icon"
+					className="h-9 w-9 -mr-2"
 					onClick={handleFavorite}
 				>
-					<Bookmark
-						className={cn("mr-2 h-4 w-4", { "fill-current": isFavorite })}
-					/>
-					<span className="hidden md:inline">{t("save")}</span>
+					<Bookmark className={cn("h-6 w-6", { "fill-current": isFavorite })} />
 				</Button>
 			</div>
+
+			{likes > 0 && (
+				<p className="text-sm font-semibold mt-1">
+					{t("likes-count", { count: likes })}
+				</p>
+			)}
+
+			{title && (
+				<p className="text-sm mt-1">
+					<span className="font-semibold">{title}</span>
+				</p>
+			)}
+
+			{comments > 0 && (
+				<Link
+					href={`/post/${postId}`}
+					className="text-sm text-muted-foreground mt-1 block"
+				>
+					{t("comments-count", { count: comments })}
+				</Link>
+			)}
+
 			{showCommentForm && (
-				<>
+				<div className="mt-2">
 					<PostFormComment
 						postId={postId}
 						onCommentPosted={updateCommentCount}
 					/>
 					<PostCommentsList postId={postId} />
-				</>
+				</div>
 			)}
 		</div>
 	);

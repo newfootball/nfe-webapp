@@ -7,12 +7,14 @@ import { getMessagesGroupedByUser, getUsersWithMessages } from "./queries";
 
 export default async function MessagesPage() {
 	const session = await getSession();
-	const users = session?.user?.id
-		? await getUsersWithMessages(session.user.id)
-		: [];
-	const groupedMessages = session?.user?.id
-		? await getMessagesGroupedByUser(session.user.id)
-		: {};
+	const userId = session?.user?.id;
+
+	const [users, groupedMessages] = userId
+		? await Promise.all([
+				getUsersWithMessages(userId),
+				getMessagesGroupedByUser(userId),
+			])
+		: [[], {}];
 
 	// Transformer les messages groupés en un tableau plat
 	const messages = Object.values(groupedMessages).flat();

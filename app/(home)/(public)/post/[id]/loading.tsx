@@ -1,8 +1,8 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
-export function PostSkeleton() {
+export default function Loading() {
 	return (
-		<div className="border-b border-border pb-4">
+		<div className="border-b border-border bg-card">
 			<div className="flex items-center gap-3 px-4 py-3">
 				<Skeleton className="h-10 w-10 rounded-full" />
 				<div className="flex-1 space-y-1.5">
@@ -12,7 +12,7 @@ export function PostSkeleton() {
 				<Skeleton className="h-5 w-5 rounded-full" />
 			</div>
 			<Skeleton className="aspect-video w-full" />
-			<div className="px-4 pt-3 space-y-2.5">
+			<div className="px-4 pt-3 pb-4 space-y-2.5">
 				<div className="flex gap-4">
 					<Skeleton className="h-6 w-6 rounded-full" />
 					<Skeleton className="h-6 w-6 rounded-full" />
@@ -23,16 +23,6 @@ export function PostSkeleton() {
 				<Skeleton className="h-3.5 w-20" />
 				<Skeleton className="h-3.5 w-3/4" />
 			</div>
-		</div>
-	);
-}
-
-export function PostSkeletonList({ count = 3 }: { count?: number }) {
-	return (
-		<div>
-			{Array.from({ length: count }).map((_, i) => (
-				<PostSkeleton key={`skeleton-${i.toString()}`} />
-			))}
 		</div>
 	);
 }

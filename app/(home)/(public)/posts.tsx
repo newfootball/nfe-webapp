@@ -2,65 +2,65 @@
 
 import { useTranslations } from "next-intl";
 import { useEffect } from "react";
+import { useInView } from "react-intersection-observer";
 import { PostDetails } from "@/components/feature/post/post-details";
+import {
+	PostSkeleton,
+	PostSkeletonList,
+} from "@/components/feature/post/post-skeleton";
 import { usePosts } from "@/src/hooks/use-posts";
-import { usePostsActions } from "@/src/store/posts.store";
-import type { PostWithUserAndMedias } from "@/src/types/post.types";
+import type { PostsPage } from "@/src/types/post.types";
 
 export default function Posts({
 	userId,
-	posts: initialPosts,
+	initialData,
 }: {
-	userId?: string | undefined;
-	posts?: PostWithUserAndMedias[];
+	userId?: string;
+	initialData?: PostsPage;
 }) {
 	const t = useTranslations("posts");
-	const { setPosts } = usePostsActions();
-	const { posts, isLoading, error, pagination, loadMore } = usePosts({
-		userId,
-	});
+	const {
+		posts,
+		isLoading,
+		isFetchingNextPage,
+		error,
+		hasNextPage,
+		fetchNextPage,
+	} = usePosts({ userId, initialData });
+
+	const { ref, inView } = useInView({ threshold: 0 });
 
 	useEffect(() => {
-		if (initialPosts?.length) {
-			setPosts(initialPosts);
+		if (inView && hasNextPage && !isFetchingNextPage) {
+			fetchNextPage();
 		}
-	}, [initialPosts, setPosts]);
+	}, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-	useEffect(() => {
-		const handleScroll = () => {
-			const postElements = document.querySelectorAll("[data-post]");
-			if (postElements.length === 0) return;
-
-			const secondToLastPost = postElements[postElements.length - 2];
-			if (!secondToLastPost) return;
-
-			const rect = secondToLastPost.getBoundingClientRect();
-			const isVisible = rect.top <= window.innerHeight;
-
-			if (isVisible && pagination.hasMore && !isLoading) {
-				loadMore();
-			}
-		};
-
-		window.addEventListener("scroll", handleScroll);
-		return () => window.removeEventListener("scroll", handleScroll);
-	}, [pagination.hasMore, isLoading, loadMore]);
+	if (isLoading) {
+		return <PostSkeletonList />;
+	}
 
 	return (
-		<div className="space-y-4">
+		<div>
 			{error && (
-				<div className="text-red-500 p-4 rounded-md bg-red-50">{error}</div>
+				<div className="text-destructive p-4 rounded-md bg-destructive/10">
+					{error}
+				</div>
 			)}
-			{posts.length === 0 && !isLoading && !error ? (
-				<div className="text-center py-8 text-gray-500">
+			{posts.length === 0 && !error ? (
+				<div className="text-center py-8 text-muted-foreground">
 					{t("no-posts-available")}
 				</div>
 			) : (
 				posts.map((post) => <PostDetails key={post.id} post={post} />)
 			)}
-			{isLoading && (
-				<div className="text-center py-4 text-gray-500">{t("loading")}</div>
+			{isFetchingNextPage && <PostSkeleton />}
+			{!hasNextPage && posts.length > 0 && (
+				<div className="text-center py-6 text-sm text-muted-foreground">
+					{t("no-more-posts")}
+				</div>
 			)}
+			<div ref={ref} className="h-1" />
 		</div>
 	);
 }

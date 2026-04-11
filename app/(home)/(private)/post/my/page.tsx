@@ -7,8 +7,10 @@ import { getUserSession } from "@/src/query/user.query";
 export const dynamic = "force-dynamic";
 
 export default async function MyPostsPage() {
-	const t = await getTranslations("posts.my-posts");
-	const user = await getUserSession();
+	const [t, user] = await Promise.all([
+		getTranslations("posts.my-posts"),
+		getUserSession(),
+	]);
 
 	if (!user?.id) {
 		redirect("/login");

@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { checkIsFollowing } from "@/src/query/follow.query";
-import { addFollow } from "./follow.action";
+import { addFollow, removeFollow } from "./follow.action";
 
 export const FollowButton = ({
 	userId,
@@ -34,30 +34,40 @@ export const FollowButton = ({
 		fetchFollowStatus();
 	}, [userId, t]);
 
-	const handleFollow = async () => {
-		if (isFollowing) return;
-
+	const handleToggleFollow = async () => {
 		setIsLoading(true);
-		addFollow({ userToFollowId: userId })
-			.then(() => {
-				toast.success(t("you-are-now-following-this-user"));
-				setIsFollowing(true);
-				setIsLoading(false);
-			})
-			.catch((error) => {
-				console.error(error);
-				toast.error(t("an-error-occurred"));
-				setIsLoading(false);
-			});
+		try {
+			if (isFollowing) {
+				const result = await removeFollow({ userToUnfollowId: userId });
+				if (result.error) {
+					toast.error(result.error);
+				} else {
+					setIsFollowing(false);
+					toast.success(t("you-are-now-unfollowing-this-user"));
+				}
+			} else {
+				const result = await addFollow({ userToFollowId: userId });
+				if (result.error) {
+					toast.error(result.error);
+				} else {
+					setIsFollowing(true);
+					toast.success(t("you-are-now-following-this-user"));
+				}
+			}
+		} catch (error) {
+			console.error(error);
+			toast.error(t("an-error-occurred"));
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	return (
 		<Button
 			variant={isFollowing ? "secondary" : "outline"}
-			color="primary"
 			size={showText ? "sm" : "icon"}
-			onClick={handleFollow}
-			disabled={isLoading || isFollowing}
+			onClick={handleToggleFollow}
+			disabled={isLoading}
 		>
 			{isFollowing ? (
 				<UserCheck className="h-4 w-4" />

@@ -14,3 +14,8 @@ export type PostWithUserAndMedias = Post & {
 		likes: number;
 	};
 };
+
+export type PostsPage = {
+	posts: PostWithUserAndMedias[];
+	nextCursor: string | null;
+};

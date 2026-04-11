@@ -11,13 +11,11 @@ export default async function page({
 }: {
 	params: Promise<{ user_id: string }>;
 }) {
-	const session = await getSession();
+	const [session, { user_id }] = await Promise.all([getSession(), params]);
 
 	if (!session) {
 		redirect("/login");
 	}
-
-	const { user_id } = await params;
 
 	const messages = await prisma.message.findMany({
 		where: {

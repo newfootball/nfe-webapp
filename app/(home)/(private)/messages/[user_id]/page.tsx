@@ -14,7 +14,7 @@ export default async function page({
 	const [session, { user_id }] = await Promise.all([getSession(), params]);
 
 	if (!session) {
-		redirect("/login");
+		redirect("/sign-in");
 	}
 
 	const messages = await prisma.message.findMany({
@@ -46,23 +46,19 @@ export default async function page({
 	});
 
 	return (
-		<div className="flex flex-col h-full">
-			<div className="flex-1 overflow-y-auto p-4 space-y-4">
+		<>
+			<div className="p-4 space-y-4 pb-32">
 				{messages.map((message) => {
 					const isOwnMessage = message.fromUserId === session.user.id;
 					return (
 						<div
 							key={message.id}
-							className={`flex ${
-								isOwnMessage ? "justify-end" : "justify-start"
-							}`}
+							className={`flex ${isOwnMessage ? "justify-end" : "justify-start"}`}
 						>
 							<div
-								className={`flex items-start gap-2 max-w-[70%] ${
-									isOwnMessage ? "flex-row-reverse" : "flex-row"
-								}`}
+								className={`flex items-end gap-2 max-w-[75%] ${isOwnMessage ? "flex-row-reverse" : "flex-row"}`}
 							>
-								<div className="relative w-8 h-8 rounded-full overflow-hidden">
+								<div className="relative w-8 h-8 rounded-full overflow-hidden shrink-0">
 									<Image
 										src={message.fromUser.image || "/default-avatar.png"}
 										alt={message.fromUser.name || "Utilisateur"}
@@ -71,14 +67,14 @@ export default async function page({
 									/>
 								</div>
 								<div
-									className={`rounded-lg p-3 ${
+									className={`rounded-2xl px-4 py-2.5 ${
 										isOwnMessage
-											? "bg-blue-500 text-white"
-											: "bg-gray-100 text-gray-900"
+											? "bg-primary text-primary-foreground rounded-br-sm"
+											: "bg-muted text-foreground rounded-bl-sm"
 									}`}
 								>
 									<p className="text-sm">{message.content}</p>
-									<p className="text-xs mt-1 opacity-70">
+									<p className="text-[10px] mt-1 opacity-60">
 										{format(new Date(message.createdAt), "HH:mm", {
 											locale: fr,
 										})}
@@ -89,9 +85,12 @@ export default async function page({
 					);
 				})}
 			</div>
-			<div className="border-t p-4">
-				<MessageForm toUserId={user_id} />
+
+			<div className="fixed bottom-20 inset-x-0 bg-background/95 backdrop-blur border-t border-border p-3">
+				<div className="max-w-2xl mx-auto">
+					<MessageForm toUserId={user_id} />
+				</div>
 			</div>
-		</div>
+		</>
 	);
 }

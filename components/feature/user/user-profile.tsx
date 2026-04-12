@@ -1,7 +1,7 @@
 "use client";
 
 import type { User } from "@prisma/client";
-import { Bookmark, Loader, Settings } from "lucide-react";
+import { Bookmark, Loader, Mail, MapPin, Settings } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import Posts from "@/app/(home)/(public)/posts";
 import { FollowButton } from "@/components/feature/follow/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -60,9 +61,53 @@ export const UserProfile = ({
 			</div>
 
 			<main className="pt-20 px-4">
-				<div className="text-center mb- 6">
+				<div className="text-center mb-6">
 					<h1 className="text-2xl font-bold mb-1">{user.name}</h1>
-					<p className="text-muted-foreground mb-4">@{user.email}</p>
+					<p className="text-muted-foreground mb-2">@{user.name}</p>
+
+					{user.biography && (
+						<p className="text-sm text-center max-w-xs mx-auto mb-2">
+							{user.biography}
+						</p>
+					)}
+
+					{(user.localisation ||
+						user.birthday ||
+						user.position.length > 0 ||
+						user.foot.length > 0) && (
+						<div className="flex flex-wrap gap-2 justify-center mb-4">
+							{user.localisation && (
+								<Badge variant="secondary" className="flex items-center gap-1">
+									<MapPin className="h-3 w-3" />
+									{user.localisation}
+								</Badge>
+							)}
+							{user.birthday && (
+								<Badge variant="secondary">
+									{Math.floor(
+										(Date.now() - new Date(user.birthday).getTime()) /
+											(1000 * 60 * 60 * 24 * 365),
+									)}{" "}
+									{t("age")}
+								</Badge>
+							)}
+							{user.position.map((pos) => (
+								<Badge key={pos} variant="secondary">
+									{pos
+										.replace(/_/g, " ")
+										.toLowerCase()
+										.replace(/\b\w/g, (c) => c.toUpperCase())}
+								</Badge>
+							))}
+							{user.foot.length > 0 && (
+								<Badge variant="secondary">
+									{user.foot
+										.map((f) => f.charAt(0) + f.slice(1).toLowerCase())
+										.join(" / ")}
+								</Badge>
+							)}
+						</div>
+					)}
 
 					{isCurrentUser && (
 						<div className="flex justify-center gap-2">
@@ -109,7 +154,19 @@ export const UserProfile = ({
 					)}
 
 					{!isCurrentUser && userIdSession && (
-						<FollowButton userId={user.id} showText={true} />
+						<div className="flex items-center justify-center gap-2">
+							<FollowButton userId={user.id} showText={true} />
+							<Button
+								variant="outline"
+								size="icon"
+								asChild
+								title={t("send-message")}
+							>
+								<Link href={`/messages/${user.id}`}>
+									<Mail className="h-4 w-4" />
+								</Link>
+							</Button>
+						</div>
 					)}
 				</div>
 

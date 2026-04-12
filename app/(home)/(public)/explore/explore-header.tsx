@@ -34,10 +34,10 @@ export const ExploreHeader = () => {
 	};
 
 	return (
-		<header className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-			<div className="px-4 py-4">
-				<h1 className="text-2xl font-semibold mb-4">{t("title")}</h1>
-				<div className="relative mb-4">
+		<header className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+			<div className="px-4 pt-4 pb-3">
+				<h1 className="text-2xl font-semibold mb-3">{t("title")}</h1>
+				<div className="relative">
 					<Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
 					<Input
 						type="search"
@@ -48,44 +48,35 @@ export const ExploreHeader = () => {
 					/>
 				</div>
 			</div>
-			<Tabs
-				value={tab}
-				onValueChange={(value) => navigateTo(q, value)}
-				className="w-full"
-			>
-				<TabsList className="w-full justify-between h-auto bg-transparent p-0 px-4">
-					<TabsTrigger
-						value="top"
-						className="flex-1 data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 pb-2"
-					>
-						{t("tabs.top")}
-					</TabsTrigger>
-					<TabsTrigger
-						value="users"
-						className="flex-1 data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 pb-2"
-					>
-						{t("tabs.users")}
-					</TabsTrigger>
-					<TabsTrigger
-						value="hashtags"
-						className="flex-1 data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 pb-2"
-					>
-						{t("tabs.hashtags")}
-					</TabsTrigger>
-					<TabsTrigger
-						value="posts"
-						className="flex-1 data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 pb-2"
-					>
-						{t("tabs.posts")}
-					</TabsTrigger>
-					<TabsTrigger
-						value="events"
-						className="flex-1 data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 pb-2"
-					>
-						{t("tabs.events")}
-					</TabsTrigger>
-				</TabsList>
-			</Tabs>
+
+			{q && (
+				<Tabs
+					value={tab}
+					onValueChange={(value) => navigateTo(q, value)}
+					className="w-full"
+				>
+					<TabsList className="w-full justify-between h-auto bg-transparent p-0 px-4">
+						<TabsTrigger
+							value="top"
+							className="flex-1 data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 pb-2"
+						>
+							{t("tabs.top")}
+						</TabsTrigger>
+						<TabsTrigger
+							value="users"
+							className="flex-1 data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 pb-2"
+						>
+							{t("tabs.users")}
+						</TabsTrigger>
+						<TabsTrigger
+							value="posts"
+							className="flex-1 data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 pb-2"
+						>
+							{t("tabs.posts")}
+						</TabsTrigger>
+					</TabsList>
+				</Tabs>
+			)}
 		</header>
 	);
 };

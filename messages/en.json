@@ -8,6 +8,7 @@
 		"placeholder": "Search players, clubs...",
 		"no-results": "No results for \"{query}\"",
 		"empty-state": "Search for players, coaches, clubs...",
+		"suggested-users": "Suggested users",
 		"tabs": {
 			"top": "Top",
 			"users": "Users",
@@ -117,7 +118,12 @@
 		},
 		"my-posts": {
 			"my-posts": "My Posts",
-			"you-have-no-posts": "You have no posts"
+			"you-have-no-posts": "You have no posts",
+			"status-published": "Published",
+			"status-draft": "Draft",
+			"status-pending": "Pending review",
+			"status-rejected": "Rejected",
+			"status-archived": "Archived"
 		}
 	},
 	"header": {
@@ -310,6 +316,30 @@
 			"previous": "Previous",
 			"next": "Next",
 			"page": "Page"
+		},
+		"signals": "Reported Posts",
+		"moderation": {
+			"title": "Reported Posts",
+			"description": "Posts flagged by users for review",
+			"pending": "Pending",
+			"reviewed": "Reviewed",
+			"dismissed": "Dismissed",
+			"reason": "Reason",
+			"reporter": "Reported by",
+			"reported-at": "Reported at",
+			"post": "Post",
+			"keep-post": "Keep Post",
+			"reject-post": "Reject Post",
+			"dismiss": "Dismiss",
+			"post-kept": "Post kept, signal marked reviewed",
+			"post-rejected": "Post rejected",
+			"signal-dismissed": "Signal dismissed",
+			"no-signals": "No reports in this category",
+			"reason-inappropriate": "Inappropriate",
+			"reason-spam": "Spam",
+			"reason-offensive": "Offensive",
+			"reason-misleading": "Misleading",
+			"reason-other": "Other"
 		}
 	},
 	"onboarding": {
@@ -380,6 +410,12 @@
 			"full-name": "Full name",
 			"birthday": "Birthday",
 			"biography": "Biography",
+			"localisation": "City",
+			"position": "Position",
+			"foot": "Preferred foot",
+			"localisation-placeholder": "Enter your city",
+			"position-placeholder": "Select your positions",
+			"foot-placeholder": "Select your preferred foot",
 			"invalid-email": "Invalid email address",
 			"full-name-required": "Full name is required",
 			"save": "Save",
@@ -414,7 +450,12 @@
 				"confirm-delete-account": "Are you sure you want to delete your account? This action cannot be undone.",
 				"account-deleted-successfully": "Account deleted successfully",
 				"failed-to-delete-account": "Failed to delete account",
-				"delete-account": "Delete Account"
+				"delete-account": "Delete Account",
+				"biography": "Biography",
+				"localisation": "City",
+				"position": "Position",
+				"foot": "Preferred foot",
+				"age": "Age"
 			},
 			"suggestions": {
 				"suggestions": "Suggestions",
@@ -459,5 +500,11 @@
 		"messages": {
 			"user-not-authenticated": "User not authenticated"
 		}
+	},
+	"contact": {
+		"title": "Contact Us",
+		"email-label": "Email",
+		"description": "Have a question or feedback? Reach out to us at the address below.",
+		"social-title": "Follow us"
 	}
 }

@@ -1,5 +1,10 @@
 import { faker } from "@faker-js/faker/locale/fr";
-import { type Prisma, type PrismaClient, SpamScore } from "@prisma/client";
+import {
+	PostStatus,
+	type Prisma,
+	type PrismaClient,
+	SpamScore,
+} from "@prisma/client";
 import { randomizer } from "../../src/lib/array";
 
 export const seedPosts = async ({
@@ -11,7 +16,7 @@ export const seedPosts = async ({
 }) => {
 	const posts: Prisma.PostUncheckedCreateInput[] = [];
 	for (const user of users) {
-		const nbPosts = Math.floor(Math.random() * 5) + 1;
+		const nbPosts = Math.floor(Math.random() * 8) + 3;
 
 		for (let i = 0; i < nbPosts; i++) {
 			const dbPost = await prisma.post.create({ data: postData(user) });
@@ -31,17 +36,17 @@ function postData(
 
 	const createdAt = faker.date.past();
 	const spamScore = getSpamScore();
+	const status = getPostStatus();
 
 	return {
 		createdAt,
 		spamScore,
+		status,
 		updatedAt: faker.date.between({ from: createdAt, to: new Date() }),
-		// expires  after 30 days from creation
 		expiresAt: faker.date.between({
 			from: createdAt,
 			to: new Date(createdAt.getTime() + 30 * 24 * 60 * 60 * 1000),
 		}),
-		// if suspect, set a validation date in 1 day after creation
 		validatedAt:
 			spamScore === SpamScore.SUSPECT
 				? faker.date.between({
@@ -54,6 +59,19 @@ function postData(
 		description: faker.lorem.paragraphs(),
 		userId: user.id,
 	} satisfies Prisma.PostUncheckedCreateInput;
+}
+
+function getPostStatus(): PostStatus {
+	return randomizer([
+		PostStatus.PUBLISHED,
+		PostStatus.PUBLISHED,
+		PostStatus.PUBLISHED,
+		PostStatus.PUBLISHED,
+		PostStatus.PUBLISHED,
+		PostStatus.DRAFT,
+		PostStatus.PENDING,
+		PostStatus.REJECTED,
+	]) as PostStatus;
 }
 
 function getSpamScore(): SpamScore | undefined {

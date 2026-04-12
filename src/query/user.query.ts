@@ -103,6 +103,25 @@ export const getUsers = async ({
 	return users;
 };
 
+export async function getSuggestedUsers(currentUserId: string, limit = 5) {
+	return prisma.user.findMany({
+		where: {
+			isOnboarded: true,
+			id: { not: currentUserId },
+			followeds: { none: { followerId: currentUserId } },
+		},
+		select: {
+			id: true,
+			name: true,
+			image: true,
+			userType: true,
+			position: true,
+		},
+		orderBy: { createdAt: "desc" },
+		take: limit,
+	});
+}
+
 export async function searchUsers(query: string, limit = 10) {
 	if (!query.trim()) return [];
 

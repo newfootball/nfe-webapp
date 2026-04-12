@@ -1,7 +1,11 @@
 import { getTranslations } from "next-intl/server";
 import { UserResultItem } from "@/components/feature/search/user-result-item";
 import { searchPosts } from "@/src/query/post.query";
-import { searchUsers } from "@/src/query/user.query";
+import {
+	getSuggestedUsers,
+	getUserSessionId,
+	searchUsers,
+} from "@/src/query/user.query";
 import { ExploreHeader } from "./explore-header";
 import { ExplorePostResults } from "./explore-post-results";
 
@@ -22,11 +26,41 @@ export default async function Explore({
 			: Promise.resolve([]),
 	]);
 
+	let suggestedUsers: Awaited<ReturnType<typeof getSuggestedUsers>> = [];
+	if (!q) {
+		const uid = await getUserSessionId();
+		if (uid) suggestedUsers = await getSuggestedUsers(uid, 10);
+	}
+
 	return (
 		<div>
 			<ExploreHeader />
 			<div className="px-4 pb-4">
-				{!q && (
+				{!q && suggestedUsers.length > 0 && (
+					<div>
+						<h2 className="text-sm font-semibold text-muted-foreground mb-2 uppercase tracking-wide">
+							{t("suggested-users")}
+						</h2>
+						<div className="divide-y divide-border">
+							{suggestedUsers
+								.filter((u) => u.userType !== null)
+								.map((user) => (
+									<UserResultItem
+										key={user.id}
+										user={{
+											id: user.id,
+											name: user.name,
+											image: user.image,
+											// biome-ignore lint/style/noNonNullAssertion: filtered above
+											userType: user.userType!,
+										}}
+									/>
+								))}
+						</div>
+					</div>
+				)}
+
+				{!q && suggestedUsers.length === 0 && (
 					<p className="text-sm text-muted-foreground text-center py-12">
 						{t("empty-state")}
 					</p>

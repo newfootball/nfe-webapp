@@ -1,6 +1,7 @@
 "use client";
 
 import type { User } from "@prisma/client";
+import { Foot, Position } from "@prisma/client";
 import { Loader2 } from "lucide-react";
 import Link from "next/dist/client/link";
 import { useTranslations } from "next-intl";
@@ -9,12 +10,42 @@ import { toast } from "sonner";
 import { InputLayout } from "@/components/layouts/input-layout";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { getUser } from "@/src/query/user.query";
 import { updateUser } from "./edit-user.action";
 import { userSchema } from "./user.schema";
+
+const ALL_POSITIONS = Object.values(Position);
+
+const toDisplayLabel = (value: string) =>
+	value
+		.replace(/_/g, " ")
+		.toLowerCase()
+		.replace(/\b\w/g, (c) => c.toUpperCase());
+
+const getFootValue = (foot: Foot[]): string => {
+	if (foot.includes(Foot.LEFT) && foot.includes(Foot.RIGHT)) return "BOTH";
+	if (foot.includes(Foot.LEFT)) return "LEFT";
+	if (foot.includes(Foot.RIGHT)) return "RIGHT";
+	return "";
+};
+
+const footValueToArray = (value: string): Foot[] => {
+	if (value === "BOTH") return [Foot.LEFT, Foot.RIGHT];
+	if (value === "LEFT") return [Foot.LEFT];
+	if (value === "RIGHT") return [Foot.RIGHT];
+	return [];
+};
 
 export const UserForm = ({ userId }: { userId: string }) => {
 	const t = useTranslations("profile.edit-user");
@@ -49,6 +80,15 @@ export const UserForm = ({ userId }: { userId: string }) => {
 			.finally(() => {
 				setIsLoading(false);
 			});
+	};
+
+	const togglePosition = (pos: Position) => {
+		if (!user) return;
+		const current = user.position ?? [];
+		const updated = current.includes(pos)
+			? current.filter((p) => p !== pos)
+			: [...current, pos];
+		setUser({ ...user, position: updated } as User);
 	};
 
 	return (
@@ -112,6 +152,59 @@ export const UserForm = ({ userId }: { userId: string }) => {
 						setUser({ ...user, biography: e.target.value } as User)
 					}
 				/>
+			</InputLayout>
+
+			<InputLayout>
+				<Label htmlFor="localisation">{t("localisation")}</Label>
+				<Input
+					type="text"
+					id="localisation"
+					placeholder={t("localisation-placeholder")}
+					value={user?.localisation || ""}
+					onChange={(e) =>
+						setUser({ ...user, localisation: e.target.value } as User)
+					}
+				/>
+			</InputLayout>
+
+			<InputLayout>
+				<Label>{t("position")}</Label>
+				<div className="grid grid-cols-2 gap-2 mt-1">
+					{ALL_POSITIONS.map((pos) => (
+						<div key={pos} className="flex items-center gap-2">
+							<Checkbox
+								id={`pos-${pos}`}
+								checked={(user?.position ?? []).includes(pos)}
+								onCheckedChange={() => togglePosition(pos)}
+							/>
+							<Label
+								htmlFor={`pos-${pos}`}
+								className="font-normal cursor-pointer"
+							>
+								{toDisplayLabel(pos)}
+							</Label>
+						</div>
+					))}
+				</div>
+			</InputLayout>
+
+			<InputLayout>
+				<Label htmlFor="foot">{t("foot")}</Label>
+				<Select
+					value={getFootValue(user?.foot ?? [])}
+					onValueChange={(value) =>
+						setUser({ ...user, foot: footValueToArray(value) } as User)
+					}
+				>
+					<SelectTrigger id="foot">
+						<SelectValue placeholder={t("foot-placeholder")} />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="LEFT">Left</SelectItem>
+						<SelectItem value="RIGHT">Right</SelectItem>
+						<SelectItem value="BOTH">Both</SelectItem>
+					</SelectContent>
+				</Select>
 			</InputLayout>
 
 			<Button className="w-full mt-2" type="submit" disabled={isLoading}>

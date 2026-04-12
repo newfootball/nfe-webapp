@@ -8,6 +8,7 @@
 		"placeholder": "Rechercher des joueurs, clubs...",
 		"no-results": "Aucun résultat pour « {query} »",
 		"empty-state": "Recherchez des joueurs, entraîneurs, clubs...",
+		"suggested-users": "Utilisateurs suggérés",
 		"tabs": {
 			"top": "Top",
 			"users": "Utilisateurs",
@@ -117,7 +118,12 @@
 		},
 		"my-posts": {
 			"my-posts": "Mes Posts",
-			"you-have-no-posts": "Vous n'avez pas de posts"
+			"you-have-no-posts": "Vous n'avez pas de posts",
+			"status-published": "Publié",
+			"status-draft": "Brouillon",
+			"status-pending": "En attente",
+			"status-rejected": "Rejeté",
+			"status-archived": "Archivé"
 		}
 	},
 	"header": {
@@ -310,6 +316,30 @@
 			"previous": "Précédent",
 			"next": "Suivant",
 			"page": "Page"
+		},
+		"signals": "Signalements",
+		"moderation": {
+			"title": "Posts signalés",
+			"description": "Posts signalés par les utilisateurs pour examen",
+			"pending": "En attente",
+			"reviewed": "Examiné",
+			"dismissed": "Ignoré",
+			"reason": "Raison",
+			"reporter": "Signalé par",
+			"reported-at": "Signalé le",
+			"post": "Publication",
+			"keep-post": "Garder le post",
+			"reject-post": "Rejeter le post",
+			"dismiss": "Ignorer",
+			"post-kept": "Post conservé, signalement marqué comme examiné",
+			"post-rejected": "Post rejeté",
+			"signal-dismissed": "Signalement ignoré",
+			"no-signals": "Aucun signalement dans cette catégorie",
+			"reason-inappropriate": "Inapproprié",
+			"reason-spam": "Spam",
+			"reason-offensive": "Offensant",
+			"reason-misleading": "Trompeur",
+			"reason-other": "Autre"
 		}
 	},
 	"onboarding": {
@@ -380,6 +410,12 @@
 			"full-name": "Nom complet",
 			"birthday": "Date de naissance",
 			"biography": "Biographie",
+			"localisation": "Ville",
+			"position": "Poste",
+			"foot": "Pied préféré",
+			"localisation-placeholder": "Entrez votre ville",
+			"position-placeholder": "Sélectionnez vos postes",
+			"foot-placeholder": "Sélectionnez votre pied préféré",
 			"invalid-email": "Adresse email invalide",
 			"full-name-required": "Le nom complet est requis",
 			"save": "Enregistrer",
@@ -414,7 +450,12 @@
 				"confirm-delete-account": "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action ne peut pas être annulée.",
 				"account-deleted-successfully": "Compte supprimé avec succès",
 				"failed-to-delete-account": "Échec de la suppression du compte",
-				"delete-account": "Supprimer le compte"
+				"delete-account": "Supprimer le compte",
+				"biography": "Biographie",
+				"localisation": "Ville",
+				"position": "Poste",
+				"foot": "Pied préféré",
+				"age": "Âge"
 			},
 			"suggestions": {
 				"suggestions": "Suggestions",
@@ -459,5 +500,11 @@
 		"messages": {
 			"user-not-authenticated": "Utilisateur non authentifié"
 		}
+	},
+	"contact": {
+		"title": "Nous contacter",
+		"email-label": "Email",
+		"description": "Une question ou un retour ? Contactez-nous à l'adresse ci-dessous.",
+		"social-title": "Suivez-nous"
 	}
 }

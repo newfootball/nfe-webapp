@@ -3,6 +3,7 @@
 import { MoreHorizontal, X } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { FollowButton } from "@/components/feature/follow/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -48,7 +49,7 @@ export function UserSuggestions({ users, onClose }: UserSuggestionsProps) {
 				{users.map((user) => (
 					<div key={user.id} className="flex items-center justify-between">
 						<div className="flex items-center gap-3">
-							<Link href={`/profile/${user.id}`}>
+							<Link href={`/user/${user.id}`}>
 								<Avatar>
 									<AvatarImage src={user.image || ""} alt={user.name} />
 									<AvatarFallback>{user.name[0]}</AvatarFallback>
@@ -56,7 +57,7 @@ export function UserSuggestions({ users, onClose }: UserSuggestionsProps) {
 							</Link>
 							<div>
 								<Link
-									href={`/profile/${user.id}`}
+									href={`/user/${user.id}`}
 									className="font-semibold hover:underline"
 								>
 									{user.name}
@@ -69,9 +70,7 @@ export function UserSuggestions({ users, onClose }: UserSuggestionsProps) {
 								)}
 							</div>
 						</div>
-						<Button variant="outline" size="sm">
-							{t("connect")}
-						</Button>
+						<FollowButton userId={user.id} showText={true} />
 					</div>
 				))}
 			</div>

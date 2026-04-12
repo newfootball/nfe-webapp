@@ -67,22 +67,10 @@ export const ExploreHeader = () => {
 						{t("tabs.users")}
 					</TabsTrigger>
 					<TabsTrigger
-						value="hashtags"
-						className="flex-1 data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 pb-2"
-					>
-						{t("tabs.hashtags")}
-					</TabsTrigger>
-					<TabsTrigger
 						value="posts"
 						className="flex-1 data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 pb-2"
 					>
 						{t("tabs.posts")}
-					</TabsTrigger>
-					<TabsTrigger
-						value="events"
-						className="flex-1 data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 pb-2"
-					>
-						{t("tabs.events")}
 					</TabsTrigger>
 				</TabsList>
 			</Tabs>

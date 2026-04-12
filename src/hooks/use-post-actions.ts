@@ -12,7 +12,7 @@ export const usePostActions = (postId: string, userId?: string) => {
 		if (!userId) return false;
 
 		try {
-			const result = await toggleLike({ postId, userId });
+			const result = await toggleLike({ postId });
 
 			if (result) {
 				likePost(postId);
@@ -31,7 +31,7 @@ export const usePostActions = (postId: string, userId?: string) => {
 		if (!userId) return false;
 
 		try {
-			return await toggleFavorite({ postId, userId });
+			return await toggleFavorite({ postId });
 		} catch (error) {
 			console.error("Error toggling favorite:", error);
 			return false;

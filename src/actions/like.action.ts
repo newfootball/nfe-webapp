@@ -5,21 +5,13 @@ import { prisma } from "@/lib/prisma";
 import { createNotification } from "@/src/lib/create-notification";
 import { getUserSession } from "@/src/query/user.query";
 
-export const toggleLike = async ({
-	postId,
-	userId,
-}: {
-	postId: string;
-	userId?: string | null;
-}) => {
+export const toggleLike = async ({ postId }: { postId: string }) => {
 	const t = await getTranslations("actions.like");
 
-	if (!userId) {
-		const user = await getUserSession();
-		if (!user?.id) throw new Error(t("user-not-found"));
+	const user = await getUserSession();
+	if (!user?.id) throw new Error(t("user-not-found"));
 
-		userId = user.id;
-	}
+	const userId = user.id;
 
 	const like = await prisma.like.findFirst({
 		where: {

@@ -56,8 +56,8 @@ export function PostActions({
 
 		(async () => {
 			const [resultLike, resultFavorite] = await Promise.all([
-				hasLiked({ postId, userId }),
-				hasFavorited({ postId, userId }),
+				hasLiked({ postId }),
+				hasFavorited({ postId }),
 			]);
 			setIsLike(resultLike);
 			setIsFavorite(resultFavorite);
@@ -78,7 +78,7 @@ export function PostActions({
 		}
 
 		try {
-			const result = await toggleLike({ postId, userId });
+			const result = await toggleLike({ postId });
 			setIsLike(result);
 
 			if (result) {
@@ -99,7 +99,7 @@ export function PostActions({
 		}
 
 		try {
-			const result = await toggleFavorite({ postId, userId });
+			const result = await toggleFavorite({ postId });
 			setIsFavorite(result);
 		} catch (error) {
 			console.error("Error toggling favorite:", error);

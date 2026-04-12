@@ -5,14 +5,12 @@ import { toggleFavorite } from "@/src/actions/favorite.action";
 import { toggleLike } from "@/src/actions/like.action";
 import { usePostsActions } from "@/src/store/posts.store";
 
-export const usePostActions = (postId: string, userId?: string) => {
+export const usePostActions = (postId: string) => {
 	const { likePost, unlikePost, updatePost } = usePostsActions();
 
 	const handleLike = useCallback(async () => {
-		if (!userId) return false;
-
 		try {
-			const result = await toggleLike({ postId, userId });
+			const result = await toggleLike({ postId });
 
 			if (result) {
 				likePost(postId);
@@ -25,18 +23,16 @@ export const usePostActions = (postId: string, userId?: string) => {
 			console.error("Error toggling like:", error);
 			return false;
 		}
-	}, [postId, userId, likePost, unlikePost]);
+	}, [postId, likePost, unlikePost]);
 
 	const handleFavorite = useCallback(async () => {
-		if (!userId) return false;
-
 		try {
-			return await toggleFavorite({ postId, userId });
+			return await toggleFavorite({ postId });
 		} catch (error) {
 			console.error("Error toggling favorite:", error);
 			return false;
 		}
-	}, [postId, userId]);
+	}, [postId]);
 
 	const handleUpdatePost = useCallback(
 		(

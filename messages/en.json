@@ -526,5 +526,19 @@
 		"email-label": "Email",
 		"description": "Have a question or feedback? Reach out to us at the address below.",
 		"social-title": "Follow us"
+	},
+	"pwa": {
+		"install": {
+			"title": "Install the app",
+			"description": "Quick access from your home screen",
+			"action": "Install",
+			"dismiss": "Dismiss"
+		},
+		"offline": {
+			"title": "You're offline",
+			"description": "Check your internet connection and try again.",
+			"reconnected": "Connection restored — redirecting...",
+			"retry": "Retry"
+		}
 	}
 }

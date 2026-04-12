@@ -4,6 +4,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
+import { getLocale } from "next-intl/server";
 import { env } from "@/lib/env";
 import { cn } from "@/lib/utils";
 import "./globals.css";
@@ -105,13 +106,14 @@ export const metadata: Metadata = {
 	},
 };
 
-export default function RootLayout({
+export default async function RootLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	const locale = await getLocale();
 	return (
-		<html lang="fr" className={cn(inter.className, "h-full")}>
+		<html lang={locale} className={cn(inter.className, "h-full")}>
 			<body className="h-full">
 				<NextIntlClientProvider>
 					<ReactQueryProvider>{children}</ReactQueryProvider>

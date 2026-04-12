@@ -23,7 +23,7 @@ const pwa = withPWA({
 						maxEntries: 200,
 						maxAgeSeconds: 30 * 24 * 60 * 60,
 					},
-					cacheableResponse: { statuses: [0, 200] },
+					cacheableResponse: { statuses: [200] },
 				},
 			},
 			{
@@ -35,11 +35,11 @@ const pwa = withPWA({
 						maxEntries: 100,
 						maxAgeSeconds: 7 * 24 * 60 * 60,
 					},
-					cacheableResponse: { statuses: [0, 200] },
+					cacheableResponse: { statuses: [200] },
 				},
 			},
 			{
-				urlPattern: /\/api\/auth\/.*/i,
+				urlPattern: /\/api\/.*/i,
 				handler: "NetworkOnly",
 			},
 			{
@@ -73,7 +73,7 @@ const pwa = withPWA({
 						maxEntries: 10,
 						maxAgeSeconds: 365 * 24 * 60 * 60,
 					},
-					cacheableResponse: { statuses: [0, 200] },
+					cacheableResponse: { statuses: [200] },
 				},
 			},
 		],

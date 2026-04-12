@@ -3,17 +3,36 @@
 import { WifiOff } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 export default function OfflinePage() {
 	const router = useRouter();
-	const [isOnline, setIsOnline] = useState(false);
+	const t = useTranslations("pwa.offline");
+	const [reconnected, setReconnected] = useState(false);
+	const firedRef = useRef(false);
+
+	const goHome = () => {
+		if (typeof window !== "undefined" && window.history.length > 1) {
+			router.back();
+		} else {
+			router.replace("/");
+		}
+	};
 
 	useEffect(() => {
 		const handleOnline = () => {
-			setIsOnline(true);
-			setTimeout(() => router.back(), 800);
+			if (firedRef.current) return;
+			firedRef.current = true;
+			setReconnected(true);
+			setTimeout(() => {
+				if (typeof window !== "undefined" && window.history.length > 1) {
+					router.back();
+				} else {
+					router.replace("/");
+				}
+			}, 800);
 		};
 
 		window.addEventListener("online", handleOnline);
@@ -35,24 +54,20 @@ export default function OfflinePage() {
 				<div className="rounded-full bg-muted p-4">
 					<WifiOff className="h-8 w-8 text-muted-foreground" />
 				</div>
-				<h1 className="text-xl font-semibold">Vous êtes hors ligne</h1>
+				<h1 className="text-xl font-semibold">{t("title")}</h1>
 				<p className="text-sm text-muted-foreground max-w-xs">
-					Vérifiez votre connexion internet et réessayez.
+					{t("description")}
 				</p>
 			</div>
 
-			{isOnline && (
+			{reconnected && (
 				<p className="text-sm text-primary font-medium animate-pulse">
-					Connexion rétablie — redirection...
+					{t("reconnected")}
 				</p>
 			)}
 
-			<Button
-				onClick={() => router.back()}
-				variant="outline"
-				className="min-w-[160px]"
-			>
-				Réessayer
+			<Button onClick={goHome} variant="outline" className="min-w-40">
+				{t("retry")}
 			</Button>
 		</div>
 	);

@@ -2,7 +2,8 @@
 
 import { Download, X } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 interface BeforeInstallPromptEvent extends Event {
@@ -13,8 +14,11 @@ interface BeforeInstallPromptEvent extends Event {
 const DISMISSED_KEY = "nfe-pwa-install-dismissed";
 
 export function InstallPrompt() {
-	const [prompt, setPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+	const t = useTranslations("pwa.install");
+	const [deferredPrompt, setDeferredPrompt] =
+		useState<BeforeInstallPromptEvent | null>(null);
 	const [visible, setVisible] = useState(false);
+	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	useEffect(() => {
 		if (
@@ -26,20 +30,30 @@ export function InstallPrompt() {
 
 		const handler = (e: Event) => {
 			e.preventDefault();
-			setPrompt(e as BeforeInstallPromptEvent);
-			setTimeout(() => setVisible(true), 3000);
+			setDeferredPrompt(e as BeforeInstallPromptEvent);
+			timeoutRef.current = setTimeout(() => setVisible(true), 3000);
 		};
 
 		window.addEventListener("beforeinstallprompt", handler);
-		return () => window.removeEventListener("beforeinstallprompt", handler);
+		return () => {
+			window.removeEventListener("beforeinstallprompt", handler);
+			if (timeoutRef.current) clearTimeout(timeoutRef.current);
+		};
 	}, []);
 
 	const handleInstall = async () => {
-		if (!prompt) return;
-		await prompt.prompt();
-		const { outcome } = await prompt.userChoice;
-		if (outcome === "accepted") {
+		if (!deferredPrompt) return;
+		try {
+			await deferredPrompt.prompt();
+			const { outcome } = await deferredPrompt.userChoice;
+			if (outcome === "dismissed") {
+				sessionStorage.setItem(DISMISSED_KEY, "1");
+			}
+		} catch {
+			// prompt may already have been used
+		} finally {
 			setVisible(false);
+			setDeferredPrompt(null);
 		}
 	};
 
@@ -51,7 +65,7 @@ export function InstallPrompt() {
 	if (!visible) return null;
 
 	return (
-		<div className="fixed bottom-24 inset-x-4 z-50 mx-auto max-w-sm">
+		<div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 w-full max-w-sm px-4">
 			<div className="bg-background border border-border rounded-2xl shadow-lg p-4 flex items-center gap-3 animate-in slide-in-from-bottom-4 duration-300">
 				<Image
 					src="/icons/96.png"
@@ -62,11 +76,9 @@ export function InstallPrompt() {
 				/>
 				<div className="flex-1 min-w-0">
 					<p className="text-sm font-semibold leading-none mb-0.5">
-						Installer l'app
+						{t("title")}
 					</p>
-					<p className="text-xs text-muted-foreground">
-						Accès rapide depuis l'écran d'accueil
-					</p>
+					<p className="text-xs text-muted-foreground">{t("description")}</p>
 				</div>
 				<div className="flex items-center gap-1 shrink-0">
 					<Button
@@ -75,13 +87,14 @@ export function InstallPrompt() {
 						className="h-8 px-3 text-xs"
 					>
 						<Download className="h-3.5 w-3.5 mr-1" />
-						Installer
+						{t("action")}
 					</Button>
 					<Button
 						size="icon"
 						variant="ghost"
 						className="h-8 w-8"
 						onClick={handleDismiss}
+						aria-label={t("dismiss")}
 					>
 						<X className="h-3.5 w-3.5" />
 					</Button>

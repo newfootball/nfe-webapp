@@ -160,7 +160,7 @@ export const UserProfile = ({
 								variant="outline"
 								size="icon"
 								asChild
-								title="Envoyer un message"
+								title={t("send-message")}
 							>
 								<Link href={`/messages/${user.id}`}>
 									<Mail className="h-4 w-4" />

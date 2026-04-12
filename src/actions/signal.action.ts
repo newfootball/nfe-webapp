@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
 import { getUserRole, getUserSessionId } from "../query/user.query";
 
@@ -13,8 +14,9 @@ async function requireAdmin() {
 }
 
 export async function reviewSignal(signalId: string) {
+	const t = await getTranslations("admin.moderation");
 	const userId = await requireAdmin();
-	if (!userId) return { error: "Unauthorized" };
+	if (!userId) return { error: t("unauthorized") };
 
 	try {
 		await prisma.postSignal.update({
@@ -24,13 +26,14 @@ export async function reviewSignal(signalId: string) {
 		revalidatePath("/admin/signals");
 		return { success: true };
 	} catch {
-		return { error: "Failed to review signal" };
+		return { error: t("review-failed") };
 	}
 }
 
 export async function dismissSignal(signalId: string) {
+	const t = await getTranslations("admin.moderation");
 	const userId = await requireAdmin();
-	if (!userId) return { error: "Unauthorized" };
+	if (!userId) return { error: t("unauthorized") };
 
 	try {
 		await prisma.postSignal.update({
@@ -40,13 +43,14 @@ export async function dismissSignal(signalId: string) {
 		revalidatePath("/admin/signals");
 		return { success: true };
 	} catch {
-		return { error: "Failed to dismiss signal" };
+		return { error: t("dismiss-failed") };
 	}
 }
 
 export async function rejectSignaledPost(postId: string, signalId: string) {
+	const t = await getTranslations("admin.moderation");
 	const userId = await requireAdmin();
-	if (!userId) return { error: "Unauthorized" };
+	if (!userId) return { error: t("unauthorized") };
 
 	try {
 		await prisma.$transaction([
@@ -63,6 +67,6 @@ export async function rejectSignaledPost(postId: string, signalId: string) {
 		revalidatePath(`/post/${postId}`);
 		return { success: true };
 	} catch {
-		return { error: "Failed to reject post" };
+		return { error: t("reject-failed") };
 	}
 }

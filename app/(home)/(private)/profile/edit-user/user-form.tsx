@@ -3,7 +3,7 @@
 import type { User } from "@prisma/client";
 import { Foot, Position } from "@prisma/client";
 import { Loader2 } from "lucide-react";
-import Link from "next/dist/client/link";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { type FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -70,6 +70,7 @@ export const UserForm = ({ userId }: { userId: string }) => {
 
 		if (!parsedData.success) {
 			setError(parsedData.error.message);
+			setIsLoading(false);
 			return;
 		}
 
@@ -200,9 +201,9 @@ export const UserForm = ({ userId }: { userId: string }) => {
 						<SelectValue placeholder={t("foot-placeholder")} />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value="LEFT">Left</SelectItem>
-						<SelectItem value="RIGHT">Right</SelectItem>
-						<SelectItem value="BOTH">Both</SelectItem>
+						<SelectItem value="LEFT">{t("foot-left")}</SelectItem>
+						<SelectItem value="RIGHT">{t("foot-right")}</SelectItem>
+						<SelectItem value="BOTH">{t("foot-both")}</SelectItem>
 					</SelectContent>
 				</Select>
 			</InputLayout>

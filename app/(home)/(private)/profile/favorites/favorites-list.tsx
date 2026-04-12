@@ -29,7 +29,9 @@ export function FavoritesList({ posts, emptyLabel }: FavoritesListProps) {
 	return (
 		<div className="grid grid-cols-3 gap-1">
 			{posts.map((post) => {
-				const coverImage = post.medias.find((m) => m.type === "landingImage");
+				const coverImage =
+					post.medias.find((m) => m.type === "landingImage") ??
+					post.medias.find((m) => m.mimetype.startsWith("image/"));
 				return (
 					<Link
 						key={post.id}

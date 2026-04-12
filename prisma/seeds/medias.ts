@@ -1,5 +1,10 @@
 import { faker } from "@faker-js/faker/locale/fr";
-import type { Media, Prisma, PrismaClient } from "@prisma/client";
+import {
+	type Media,
+	MediaType,
+	type Prisma,
+	type PrismaClient,
+} from "@prisma/client";
 import { randomizer } from "../../src/lib/array";
 
 export const seedMedias = async ({
@@ -29,6 +34,7 @@ export const seedMedias = async ({
 				...data,
 				url: video,
 				mimetype: "video/mp4",
+				type: MediaType.mainVideo,
 				metadata: {
 					video: { duration: Math.floor(Math.random() * 120) + 15 },
 				},
@@ -40,6 +46,7 @@ export const seedMedias = async ({
 				...data,
 				url: image,
 				mimetype: "image/jpeg",
+				type: MediaType.landingImage,
 				metadata: { image: { width: 1280, height: 720 } },
 			},
 		});

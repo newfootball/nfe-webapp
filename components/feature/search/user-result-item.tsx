@@ -2,17 +2,10 @@
 
 import type { UserType } from "@prisma/client";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { FollowButton } from "@/components/feature/follow/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-
-const USER_TYPE_LABELS: Record<UserType, string> = {
-	USER: "Utilisateur",
-	PLAYER: "Joueur",
-	COACH: "Entraîneur",
-	RECRUITER: "Recruteur",
-	CLUB: "Club",
-};
 
 interface UserResultItemProps {
 	user: {
@@ -25,6 +18,7 @@ interface UserResultItemProps {
 }
 
 export function UserResultItem({ user }: UserResultItemProps) {
+	const t = useTranslations("feature.search");
 	const isPlayer = user.userType === "PLAYER";
 
 	return (
@@ -47,7 +41,7 @@ export function UserResultItem({ user }: UserResultItemProps) {
 							variant={isPlayer ? "default" : "outline"}
 							className="text-[9px] h-4 px-1 leading-none font-bold shrink-0"
 						>
-							{USER_TYPE_LABELS[user.userType]}
+							{t(`user-types.${user.userType}`)}
 						</Badge>
 					</div>
 					{user.position && user.position.length > 0 && (

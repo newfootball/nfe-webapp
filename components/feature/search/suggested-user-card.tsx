@@ -2,20 +2,13 @@
 
 import type { UserType } from "@prisma/client";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { FollowButton } from "@/components/feature/follow/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSession } from "@/src/lib/auth-client";
-
-const USER_TYPE_LABELS: Record<UserType, string> = {
-	USER: "Utilisateur",
-	PLAYER: "Joueur",
-	COACH: "Entraîneur",
-	RECRUITER: "Recruteur",
-	CLUB: "Club",
-};
 
 interface SuggestedUser {
 	id: string;
@@ -31,6 +24,7 @@ interface SuggestedUser {
 
 export function SuggestedUserCard({ user }: { user: SuggestedUser }) {
 	const { data: session } = useSession();
+	const t = useTranslations("feature.search");
 	const isPlayer = user.userType === "PLAYER";
 	const isLoggedIn = !!session?.user;
 
@@ -56,7 +50,7 @@ export function SuggestedUserCard({ user }: { user: SuggestedUser }) {
 						variant={isPlayer ? "default" : "secondary"}
 						className="text-[10px] uppercase tracking-wider px-1.5 py-0"
 					>
-						{USER_TYPE_LABELS[user.userType]}
+						{t(`user-types.${user.userType}`)}
 					</Badge>
 				</div>
 
@@ -66,14 +60,14 @@ export function SuggestedUserCard({ user }: { user: SuggestedUser }) {
 							<span className="font-semibold text-foreground tabular-nums">
 								{user._count.followeds}
 							</span>
-							<span>abonnés</span>
+							<span>{t("followers")}</span>
 						</div>
 						<div className="w-px h-6 bg-border" />
 						<div className="flex flex-col items-center gap-0.5">
 							<span className="font-semibold text-foreground tabular-nums">
 								{user._count.posts}
 							</span>
-							<span>posts</span>
+							<span>{t("posts")}</span>
 						</div>
 					</div>
 				)}
@@ -83,7 +77,7 @@ export function SuggestedUserCard({ user }: { user: SuggestedUser }) {
 						<FollowButton userId={user.id} showText={true} />
 					) : (
 						<Button variant="outline" size="sm" className="w-full" asChild>
-							<Link href={`/user/${user.id}`}>Voir le profil</Link>
+							<Link href={`/user/${user.id}`}>{t("view-profile")}</Link>
 						</Button>
 					)}
 				</div>

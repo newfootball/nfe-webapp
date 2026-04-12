@@ -339,7 +339,11 @@
 			"reason-spam": "Spam",
 			"reason-offensive": "Offensive",
 			"reason-misleading": "Misleading",
-			"reason-other": "Other"
+			"reason-other": "Other",
+			"unauthorized": "Unauthorized",
+			"review-failed": "Failed to review signal",
+			"dismiss-failed": "Failed to dismiss signal",
+			"reject-failed": "Failed to reject post"
 		}
 	},
 	"onboarding": {
@@ -420,7 +424,10 @@
 			"full-name-required": "Full name is required",
 			"save": "Save",
 			"back-to-profile": "Back to profile",
-			"change-password": "Change Password"
+			"change-password": "Change Password",
+			"foot-left": "Left",
+			"foot-right": "Right",
+			"foot-both": "Both"
 		}
 	},
 	"auth": {
@@ -455,7 +462,20 @@
 				"localisation": "City",
 				"position": "Position",
 				"foot": "Preferred foot",
-				"age": "Age"
+				"age": "Age",
+				"send-message": "Send a message"
+			},
+			"search": {
+				"view-profile": "View profile",
+				"followers": "followers",
+				"posts": "posts",
+				"user-types": {
+					"USER": "User",
+					"PLAYER": "Player",
+					"COACH": "Coach",
+					"RECRUITER": "Recruiter",
+					"CLUB": "Club"
+				}
 			},
 			"suggestions": {
 				"suggestions": "Suggestions",

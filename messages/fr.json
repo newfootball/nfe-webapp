@@ -339,7 +339,11 @@
 			"reason-spam": "Spam",
 			"reason-offensive": "Offensant",
 			"reason-misleading": "Trompeur",
-			"reason-other": "Autre"
+			"reason-other": "Autre",
+			"unauthorized": "Non autorisé",
+			"review-failed": "Échec de l'examen du signalement",
+			"dismiss-failed": "Échec de la suppression du signalement",
+			"reject-failed": "Échec du rejet du post"
 		}
 	},
 	"onboarding": {
@@ -420,7 +424,10 @@
 			"full-name-required": "Le nom complet est requis",
 			"save": "Enregistrer",
 			"back-to-profile": "Retour au profil",
-			"change-password": "Changer le mot de passe"
+			"change-password": "Changer le mot de passe",
+			"foot-left": "Gauche",
+			"foot-right": "Droite",
+			"foot-both": "Les deux"
 		}
 	},
 	"auth": {
@@ -455,7 +462,20 @@
 				"localisation": "Ville",
 				"position": "Poste",
 				"foot": "Pied préféré",
-				"age": "Âge"
+				"age": "Âge",
+				"send-message": "Envoyer un message"
+			},
+			"search": {
+				"view-profile": "Voir le profil",
+				"followers": "abonnés",
+				"posts": "posts",
+				"user-types": {
+					"USER": "Utilisateur",
+					"PLAYER": "Joueur",
+					"COACH": "Entraîneur",
+					"RECRUITER": "Recruteur",
+					"CLUB": "Club"
+				}
 			},
 			"suggestions": {
 				"suggestions": "Suggestions",

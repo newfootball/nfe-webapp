@@ -1,11 +1,17 @@
 import { FlagIcon, UsersIcon } from "lucide-react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Layout } from "@/components/layouts/layout";
 import { Button } from "@/components/ui/button";
 import { getPendingSignalCount } from "@/src/query/signal.query";
+import { getUserRole, getUserSessionId } from "@/src/query/user.query";
 
 export default async function AdminPage() {
+	const userId = await getUserSessionId();
+	const role = userId ? await getUserRole(userId) : null;
+	if (role !== "ADMIN") redirect("/");
+
 	const [t, pendingCount] = await Promise.all([
 		getTranslations("admin"),
 		getPendingSignalCount(),

@@ -1,7 +1,7 @@
 "use client";
 
 import type { User } from "@prisma/client";
-import { Bookmark, Loader, MapPin, Settings } from "lucide-react";
+import { Bookmark, Loader, Mail, MapPin, Settings } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -61,9 +61,9 @@ export const UserProfile = ({
 			</div>
 
 			<main className="pt-20 px-4">
-				<div className="text-center mb- 6">
+				<div className="text-center mb-6">
 					<h1 className="text-2xl font-bold mb-1">{user.name}</h1>
-					<p className="text-muted-foreground mb-2">@{user.email}</p>
+					<p className="text-muted-foreground mb-2">@{user.name}</p>
 
 					{user.biography && (
 						<p className="text-sm text-center max-w-xs mx-auto mb-2">
@@ -154,7 +154,19 @@ export const UserProfile = ({
 					)}
 
 					{!isCurrentUser && userIdSession && (
-						<FollowButton userId={user.id} showText={true} />
+						<div className="flex items-center justify-center gap-2">
+							<FollowButton userId={user.id} showText={true} />
+							<Button
+								variant="outline"
+								size="icon"
+								asChild
+								title="Envoyer un message"
+							>
+								<Link href={`/messages/${user.id}`}>
+									<Mail className="h-4 w-4" />
+								</Link>
+							</Button>
+						</div>
 					)}
 				</div>
 

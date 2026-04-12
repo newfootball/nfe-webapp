@@ -48,12 +48,23 @@ export const seedUsers = async (prisma: PrismaClient) => {
 			password: adminPassword,
 			role: "ADMIN",
 			isOnboarded: true,
+			emailVerified: true,
 			userType: UserType.PLAYER,
 			image: UNSPLASH_AVATARS[0],
 			biography: "Administrateur de la plateforme NFE.",
 			localisation: "Paris",
 		},
 	});
+
+	await prisma.account.create({
+		data: {
+			userId: adminUser.id,
+			accountId: adminUser.id,
+			providerId: "credential",
+			password: adminPassword,
+		},
+	});
+
 	users.push(adminUser);
 
 	for (let i = 0; i < 20; i++) {

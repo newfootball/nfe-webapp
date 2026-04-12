@@ -1,3 +1,4 @@
+import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { Toaster } from "@/components/ui/sonner";
 import { getSession } from "@/src/lib/auth-server";
 import { Footer } from "./footer";
@@ -18,6 +19,7 @@ export default async function RootLayout({
 				{children}
 			</main>
 			<Footer />
+			<InstallPrompt />
 			<Toaster
 				expand={false}
 				position="top-right"

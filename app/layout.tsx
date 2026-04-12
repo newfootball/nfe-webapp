@@ -1,7 +1,7 @@
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { env } from "@/lib/env";
@@ -12,6 +12,17 @@ import { ReactQueryProvider } from "./providers/react-query-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nfe-foot.com";
+
+export const viewport: Viewport = {
+	width: "device-width",
+	initialScale: 1,
+	minimumScale: 1,
+	viewportFit: "cover",
+	themeColor: [
+		{ media: "(prefers-color-scheme: light)", color: "#FACC15" },
+		{ media: "(prefers-color-scheme: dark)", color: "#1a1a1a" },
+	],
+};
 
 export const metadata: Metadata = {
 	metadataBase: new URL(baseUrl),
@@ -53,18 +64,32 @@ export const metadata: Metadata = {
 	appleWebApp: {
 		capable: true,
 		title: "Next Football Experience",
-		startupImage: "/logo.svg",
+		statusBarStyle: "black-translucent",
+		startupImage: [
+			{
+				url: "/icons/512.png",
+				media:
+					"(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3)",
+			},
+		],
 	},
 	icons: {
-		icon: "/logo.svg",
-		shortcut: "/logo.svg",
-		apple: "/logo.svg",
+		icon: [
+			{ url: "/icons/96.png", sizes: "96x96", type: "image/png" },
+			{ url: "/icons/192.png", sizes: "192x192", type: "image/png" },
+			{ url: "/icons/512.png", sizes: "512x512", type: "image/png" },
+		],
+		shortcut: "/icons/96.png",
+		apple: [
+			{ url: "/icons/144.png", sizes: "144x144", type: "image/png" },
+			{ url: "/icons/192.png", sizes: "192x192", type: "image/png" },
+		],
 	},
 	robots: {
 		index: true,
 		follow: true,
 	},
-	manifest: "/manifest.json",
+	manifest: "/manifest.webmanifest",
 	formatDetection: {
 		telephone: false,
 	},
@@ -86,7 +111,7 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en" className={cn(inter.className, "h-full")}>
+		<html lang="fr" className={cn(inter.className, "h-full")}>
 			<body className="h-full">
 				<NextIntlClientProvider>
 					<ReactQueryProvider>{children}</ReactQueryProvider>

@@ -25,24 +25,10 @@ export const getFavoritesByUser = async (userId: string) => {
 	return favorites.map((f) => f.post);
 };
 
-export const hasFavorited = async ({
-	userId,
-	postId,
-}: {
-	userId?: string | null;
-	postId: string;
-}) => {
-	if (!userId) {
-		userId = await getUserSessionId();
-		if (!userId) throw new Error("User not found");
-	}
+export const hasFavorited = async ({ postId }: { postId: string }) => {
+	const userId = await getUserSessionId();
+	if (!userId) return false;
 
-	const hasFavorited = await prisma.favorite.count({
-		where: {
-			userId,
-			postId,
-		},
-	});
-
-	return hasFavorited > 0;
+	const count = await prisma.favorite.count({ where: { userId, postId } });
+	return count > 0;
 };

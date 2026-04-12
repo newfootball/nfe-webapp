@@ -56,8 +56,8 @@ export function PostActions({
 
 		(async () => {
 			const [resultLike, resultFavorite] = await Promise.all([
-				hasLiked({ postId, userId }),
-				hasFavorited({ postId, userId }),
+				hasLiked({ postId }),
+				hasFavorited({ postId }),
 			]);
 			setIsLike(resultLike);
 			setIsFavorite(resultFavorite);

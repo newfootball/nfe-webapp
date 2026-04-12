@@ -1,27 +1,12 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { getUserSession } from "./user.query";
+import { getUserSessionId } from "./user.query";
 
-export const hasLiked = async ({
-	userId,
-	postId,
-}: {
-	userId?: string | null;
-	postId: string;
-}) => {
-	if (!userId) {
-		const user = await getUserSession();
-		if (!user?.id) throw new Error("User not found");
+export const hasLiked = async ({ postId }: { postId: string }) => {
+	const userId = await getUserSessionId();
+	if (!userId) return false;
 
-		userId = user.id;
-	}
-
-	const hasLiked = await prisma.like.count({
-		where: {
-			userId,
-			postId,
-		},
-	});
-	return hasLiked > 0;
+	const count = await prisma.like.count({ where: { userId, postId } });
+	return count > 0;
 };

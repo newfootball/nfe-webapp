@@ -26,7 +26,7 @@ export const auth = betterAuth({
 	},
 	plugins: [nextCookies()],
 	secret: env.NEXTAUTH_SECRET || process.env.BETTER_AUTH_SECRET || "",
-	baseURL: process.env.NEXT_PUBLIC_APP_URL || env.WEBSITE_URL,
+	baseURL: env.WEBSITE_URL || process.env.NEXT_PUBLIC_APP_URL,
 });
 
 export type Session = typeof auth.$Infer.Session;

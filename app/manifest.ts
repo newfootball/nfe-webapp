@@ -89,16 +89,6 @@ export default function manifest(): MetadataRoute.Manifest {
 				icons: [{ src: "/icons/96.png", sizes: "96x96" }],
 			},
 		],
-		screenshots: [
-			{
-				src: "/images/screenshot-mobile.png",
-				sizes: "390x844",
-				type: "image/png",
-				// @ts-expect-error — form_factor is valid W3C but not yet in TS types
-				form_factor: "narrow",
-				label: "NFE — Fil d'actualité",
-			},
-		],
 		prefer_related_applications: false,
 	};
 }

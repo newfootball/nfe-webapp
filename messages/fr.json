@@ -526,5 +526,19 @@
 		"email-label": "Email",
 		"description": "Une question ou un retour ? Contactez-nous à l'adresse ci-dessous.",
 		"social-title": "Suivez-nous"
+	},
+	"pwa": {
+		"install": {
+			"title": "Installer l'app",
+			"description": "Accès rapide depuis l'écran d'accueil",
+			"action": "Installer",
+			"dismiss": "Fermer"
+		},
+		"offline": {
+			"title": "Vous êtes hors ligne",
+			"description": "Vérifiez votre connexion internet et réessayez.",
+			"reconnected": "Connexion rétablie — redirection...",
+			"retry": "Réessayer"
+		}
 	}
 }

@@ -2,7 +2,6 @@
 
 import { setCookie } from "cookies-next/client";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -66,9 +65,16 @@ export default function SplashPage() {
 					<small className="text-gray-300">
 						{t("new-way-to-experience-football")}
 					</small>
-					<Link href="/">
-						<Button>{t("get-started")}</Button>
-					</Link>
+					<Button
+						onClick={() => {
+							setCookie("seen_splash", "true", {
+								maxAge: 60 * 60 * 24 * 365,
+							});
+							router.push("/");
+						}}
+					>
+						{t("get-started")}
+					</Button>
 				</div>
 			</div>
 		</div>

@@ -27,12 +27,6 @@ import { userSchema } from "./user.schema";
 
 const ALL_POSITIONS = Object.values(Position);
 
-const toDisplayLabel = (value: string) =>
-	value
-		.replace(/_/g, " ")
-		.toLowerCase()
-		.replace(/\b\w/g, (c) => c.toUpperCase());
-
 const getFootValue = (foot: Foot[]): string => {
 	if (foot.includes(Foot.LEFT) && foot.includes(Foot.RIGHT)) return "BOTH";
 	if (foot.includes(Foot.LEFT)) return "LEFT";
@@ -182,7 +176,7 @@ export const UserForm = ({ userId }: { userId: string }) => {
 								htmlFor={`pos-${pos}`}
 								className="font-normal cursor-pointer"
 							>
-								{toDisplayLabel(pos)}
+								{t(pos)}
 							</Label>
 						</div>
 					))}

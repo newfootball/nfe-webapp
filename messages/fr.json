@@ -427,7 +427,18 @@
 			"change-password": "Changer le mot de passe",
 			"foot-left": "Gauche",
 			"foot-right": "Droite",
-			"foot-both": "Les deux"
+			"foot-both": "Les deux",
+			"GOALKEEPER": "Gardien de but",
+			"CENTRE_BACK": "Défenseur central",
+			"RIGHT_BACK": "Arrière droit",
+			"LEFT_BACK": "Arrière gauche",
+			"DEFENSIVE_MIDFIELDER": "Milieu défensif",
+			"CENTRE_MIDFIELDER": "Milieu central",
+			"ATTACKING_MIDFIELDER": "Milieu offensif",
+			"RIGHT_WINGER": "Ailier droit",
+			"LEFT_WINGER": "Ailier gauche",
+			"CENTRE_FORWARD": "Avant-centre",
+			"STRIKER": "Attaquant"
 		}
 	},
 	"auth": {

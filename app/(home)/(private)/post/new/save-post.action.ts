@@ -43,7 +43,7 @@ export const savePost = async (post: PostData) => {
 		});
 	}
 
-	const [imageUrl, videoUrl] = await Promise.all([
+	const [_imageUrl, videoUrl] = await Promise.all([
 		saveMedia({
 			mediaFile: post.image,
 			postId: newPost.id,
@@ -56,8 +56,8 @@ export const savePost = async (post: PostData) => {
 		}),
 	]);
 
-	if (!imageUrl || !videoUrl) {
-		throw new Error("Échec du téléchargement du fichier média");
+	if (!videoUrl) {
+		throw new Error("Échec du téléchargement de la vidéo");
 	}
 
 	return newPost;

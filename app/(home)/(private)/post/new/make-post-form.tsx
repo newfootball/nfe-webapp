@@ -11,23 +11,27 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import type { PostData } from "./post.schema";
+import { uploadToCloudinaryDirect } from "@/src/lib/cloudinary-client-upload";
+import { getUploadSignature } from "./get-upload-signature.action";
 import { savePost } from "./save-post.action";
 
 export default function MakePostForm() {
 	const t = useTranslations("posts.new");
 	const router = useRouter();
+
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
 	const [selectedThumbnail, setSelectedThumbnail] = useState<File | null>(null);
 	const [title, setTitle] = useState("");
 	const [description, setDescription] = useState("");
+	const [uploadProgress, setUploadProgress] = useState(0);
 
 	const handleSavePost = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		setIsLoading(true);
 		setError(null);
+		setUploadProgress(0);
 
 		if (!selectedVideo) {
 			setError(t("video-required"));
@@ -35,25 +39,67 @@ export default function MakePostForm() {
 			return;
 		}
 
-		const data = {
-			title,
-			description,
-			image: selectedThumbnail,
-			video: selectedVideo,
-		} as PostData;
+		try {
+			const [videoSig, imageSig] = await Promise.all([
+				getUploadSignature("video"),
+				selectedThumbnail ? getUploadSignature("image") : Promise.resolve(null),
+			]);
 
-		savePost(data)
-			.then((post: Post) => {
-				toast.success(t("post-created-successfully"));
-				router.push(`/post/${post.id}`);
-			})
-			.catch((error) => {
-				setError(error.message);
-				toast.error(error.message);
-			})
-			.finally(() => {
-				setIsLoading(false);
+			const videoResult = await uploadToCloudinaryDirect(
+				selectedVideo,
+				videoSig,
+				(pct) =>
+					setUploadProgress(Math.round(pct * (selectedThumbnail ? 0.85 : 1))),
+			);
+
+			let imageResult = null;
+			if (selectedThumbnail && imageSig) {
+				imageResult = await uploadToCloudinaryDirect(
+					selectedThumbnail,
+					imageSig,
+					(pct) => setUploadProgress(85 + Math.round(pct * 0.15)),
+				);
+			}
+
+			setUploadProgress(100);
+
+			const post: Post = await savePost({
+				title,
+				description,
+				videoPublicId: videoResult.public_id,
+				videoUrl: videoResult.secure_url,
+				videoMimeType: selectedVideo.type,
+				videoMetadata: {
+					width: videoResult.width,
+					height: videoResult.height,
+					format: videoResult.format,
+					resource_type: videoResult.resource_type,
+					public_id: videoResult.public_id,
+					duration: videoResult.duration,
+				},
+				imagePublicId: imageResult?.public_id ?? null,
+				imageUrl: imageResult?.secure_url ?? null,
+				imageMimeType: selectedThumbnail?.type ?? null,
+				imageMetadata: imageResult
+					? {
+							width: imageResult.width,
+							height: imageResult.height,
+							format: imageResult.format,
+							resource_type: imageResult.resource_type,
+							public_id: imageResult.public_id,
+						}
+					: null,
 			});
+
+			toast.success(t("post-created-successfully"));
+			router.push(`/post/${post.id}`);
+		} catch (err) {
+			const message = err instanceof Error ? err.message : t("video-required");
+			setError(message);
+			toast.error(message);
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	const isFormValid = title.trim() && description.trim() && selectedVideo;
@@ -90,7 +136,7 @@ export default function MakePostForm() {
 					onVideoChange={setSelectedVideo}
 					onThumbnailChange={setSelectedThumbnail}
 					isUploading={isLoading}
-					uploadProgress={isLoading ? 50 : 0}
+					uploadProgress={uploadProgress}
 				/>
 
 				<Button
@@ -102,7 +148,7 @@ export default function MakePostForm() {
 					{isLoading ? (
 						<>
 							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-							{t("publishing")}
+							{uploadProgress < 100 ? `${uploadProgress}%` : t("publishing")}
 						</>
 					) : (
 						t("submit")

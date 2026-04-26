@@ -37,10 +37,10 @@ export const auth = betterAuth({
 	},
 	plugins: [nextCookies()],
 	secret,
-	baseURL: env.WEBSITE_URL || process.env.NEXT_PUBLIC_APP_URL,
+	baseURL: env.WEBSITE_URL || env.NEXT_PUBLIC_APP_URL,
 	trustedOrigins: [
 		env.WEBSITE_URL,
-		process.env.NEXT_PUBLIC_APP_URL,
+		env.NEXT_PUBLIC_APP_URL,
 		env.BETTER_AUTH_TRUSTED_ORIGIN,
 	].filter(Boolean) as string[],
 });

@@ -427,7 +427,18 @@
 			"change-password": "Change Password",
 			"foot-left": "Left",
 			"foot-right": "Right",
-			"foot-both": "Both"
+			"foot-both": "Both",
+			"GOALKEEPER": "Goalkeeper",
+			"CENTRE_BACK": "Centre Back",
+			"RIGHT_BACK": "Right Back",
+			"LEFT_BACK": "Left Back",
+			"DEFENSIVE_MIDFIELDER": "Defensive Midfielder",
+			"CENTRE_MIDFIELDER": "Centre Midfielder",
+			"ATTACKING_MIDFIELDER": "Attacking Midfielder",
+			"RIGHT_WINGER": "Right Winger",
+			"LEFT_WINGER": "Left Winger",
+			"CENTRE_FORWARD": "Centre Forward",
+			"STRIKER": "Striker"
 		}
 	},
 	"auth": {

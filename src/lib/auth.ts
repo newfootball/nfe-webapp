@@ -5,15 +5,26 @@ import { env } from "@/lib/env";
 import { prisma } from "@/lib/prisma";
 import { comparePassword, hashPassword } from "@/src/lib/password";
 
+const secret = env.BETTER_AUTH_SECRET || env.NEXTAUTH_SECRET;
+if (!secret) {
+	throw new Error(
+		"BETTER_AUTH_SECRET is required. Set it in your environment variables.",
+	);
+}
+
 export const auth = betterAuth({
 	database: prismaAdapter(prisma, {
 		provider: "postgresql",
 	}),
 	socialProviders: {
-		google: {
-			clientId: env.GOOGLE_CLIENT_ID || "",
-			clientSecret: env.GOOGLE_CLIENT_SECRET || "",
-		},
+		...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
+			? {
+					google: {
+						clientId: env.GOOGLE_CLIENT_ID,
+						clientSecret: env.GOOGLE_CLIENT_SECRET,
+					},
+				}
+			: {}),
 	},
 	emailAndPassword: {
 		enabled: true,
@@ -25,8 +36,13 @@ export const auth = betterAuth({
 		},
 	},
 	plugins: [nextCookies()],
-	secret: env.NEXTAUTH_SECRET || process.env.BETTER_AUTH_SECRET || "",
-	baseURL: env.WEBSITE_URL || process.env.NEXT_PUBLIC_APP_URL,
+	secret,
+	baseURL: env.WEBSITE_URL || env.NEXT_PUBLIC_APP_URL,
+	trustedOrigins: [
+		env.WEBSITE_URL,
+		env.NEXT_PUBLIC_APP_URL,
+		env.BETTER_AUTH_TRUSTED_ORIGIN,
+	].filter(Boolean) as string[],
 });
 
 export type Session = typeof auth.$Infer.Session;

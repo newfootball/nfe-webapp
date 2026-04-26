@@ -23,7 +23,7 @@ export function InstallPrompt() {
 	useEffect(() => {
 		if (
 			window.matchMedia("(display-mode: standalone)").matches ||
-			sessionStorage.getItem(DISMISSED_KEY)
+			localStorage.getItem(DISMISSED_KEY)
 		) {
 			return;
 		}
@@ -47,7 +47,7 @@ export function InstallPrompt() {
 			await deferredPrompt.prompt();
 			const { outcome } = await deferredPrompt.userChoice;
 			if (outcome === "dismissed") {
-				sessionStorage.setItem(DISMISSED_KEY, "1");
+				localStorage.setItem(DISMISSED_KEY, "1");
 			}
 		} catch {
 			// prompt may already have been used
@@ -59,7 +59,7 @@ export function InstallPrompt() {
 
 	const handleDismiss = () => {
 		setVisible(false);
-		sessionStorage.setItem(DISMISSED_KEY, "1");
+		localStorage.setItem(DISMISSED_KEY, "1");
 	};
 
 	if (!visible) return null;

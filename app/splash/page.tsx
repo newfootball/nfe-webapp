@@ -2,10 +2,9 @@
 
 import { setCookie } from "cookies-next/client";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 const SPLASH_IMAGES = [
@@ -14,26 +13,36 @@ const SPLASH_IMAGES = [
 	"https://images.unsplash.com/photo-1517466787929-bc90951d0974?q=80&w=1920",
 ];
 
+const SPLASH_COOKIE_OPTIONS = {
+	maxAge: 60 * 60 * 24 * 365, // 1 year
+	path: "/",
+	sameSite: "lax" as const,
+	secure:
+		typeof window !== "undefined" && window.location.protocol === "https:",
+};
+
 export default function SplashPage() {
 	const [currentImage, setCurrentImage] = useState(0);
 	const router = useRouter();
 	const t = useTranslations("splash");
+
+	const goHome = useCallback(() => {
+		setCookie("seen_splash", "true", SPLASH_COOKIE_OPTIONS);
+		router.push("/");
+	}, [router]);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
 			setCurrentImage((prev) => (prev + 1) % SPLASH_IMAGES.length);
 		}, 3000);
 
-		const timeout = setTimeout(() => {
-			setCookie("seen_splash", "true", { maxAge: 60 * 60 * 24 * 365 }); // 1 year
-			router.push("/");
-		}, 10000);
+		const timeout = setTimeout(goHome, 10000);
 
 		return () => {
 			clearInterval(interval);
 			clearTimeout(timeout);
 		};
-	}, [router]);
+	}, [goHome]);
 
 	return (
 		<div className="fixed inset-0 bg-black">
@@ -66,9 +75,7 @@ export default function SplashPage() {
 					<small className="text-gray-300">
 						{t("new-way-to-experience-football")}
 					</small>
-					<Link href="/">
-						<Button>{t("get-started")}</Button>
-					</Link>
+					<Button onClick={goHome}>{t("get-started")}</Button>
 				</div>
 			</div>
 		</div>

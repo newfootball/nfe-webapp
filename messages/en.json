@@ -545,6 +545,19 @@
 		"description": "Have a question or feedback? Reach out to us at the address below.",
 		"social-title": "Follow us"
 	},
+	"messages-page": {
+		"title": "Messages",
+		"search-placeholder": "Search here",
+		"new-conversation": "New",
+		"tab-messages": "Messages",
+		"tab-favorites": "Favorites",
+		"search-dialog": {
+			"title": "Search users",
+			"placeholder": "Search a user...",
+			"searching": "Searching...",
+			"no-results": "No users found"
+		}
+	},
 	"pwa": {
 		"install": {
 			"title": "Install the app",

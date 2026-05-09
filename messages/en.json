@@ -2,7 +2,8 @@
 	"notifications": {
 		"title": "Notifications",
 		"empty": "No notifications yet",
-		"mark-all-read": "Mark all as read"
+		"mark-all-read": "Mark all as read",
+		"unread-count": "{count, plural, one {# new} other {# new}}"
 	},
 	"explore": {
 		"title": "Explore",

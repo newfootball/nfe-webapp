@@ -7,6 +7,7 @@ import {
 	UserRoundPlus,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 import { markNotificationRead } from "@/src/actions/notification.action";
 
 type Props = {
@@ -28,6 +29,12 @@ function NotificationIcon({ rawContent }: { rawContent: string }) {
 	return <MessageSquare className={cls} />;
 }
 
+function isSafeRelativeLink(link: string | null): link is string {
+	return (
+		typeof link === "string" && link.startsWith("/") && !link.startsWith("//")
+	);
+}
+
 export function NotificationItem({
 	notifId,
 	link,
@@ -38,17 +45,22 @@ export function NotificationItem({
 	timeAgo,
 }: Props) {
 	const router = useRouter();
+	const [isPending, startTransition] = useTransition();
 
-	const handleClick = async () => {
-		if (isUnread) await markNotificationRead(notifId);
-		if (link) router.push(link);
+	const handleClick = () => {
+		startTransition(async () => {
+			if (isUnread) await markNotificationRead(notifId);
+			if (isSafeRelativeLink(link)) router.push(link);
+		});
 	};
 
 	return (
 		<button
 			type="button"
 			onClick={handleClick}
-			className={`relative flex w-full items-center gap-3 rounded-xl border px-4 py-3 overflow-hidden text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/40 ${
+			disabled={isPending}
+			aria-label={`${name} — ${action}`}
+			className={`relative flex w-full items-center gap-3 rounded-xl border px-4 py-3 overflow-hidden text-left cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:opacity-60 disabled:cursor-not-allowed ${
 				isUnread
 					? "bg-white border-transparent shadow-sm"
 					: "bg-stone-50 border-stone-100"

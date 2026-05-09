@@ -46,7 +46,7 @@ export default async function NotificationsPage() {
 							<>
 								<MarkAllReadButton label={t("mark-all-read")} />
 								<span className="text-xs font-semibold bg-primary text-primary-foreground px-2.5 py-1 rounded-full">
-									{unreadCount} {unreadCount === 1 ? "nouvelle" : "nouvelles"}
+									{t("unread-count", { count: unreadCount })}
 								</span>
 							</>
 						)}

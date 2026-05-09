@@ -2,7 +2,8 @@
 	"notifications": {
 		"title": "Notifications",
 		"empty": "Aucune notification",
-		"mark-all-read": "Tout marquer comme lu"
+		"mark-all-read": "Tout marquer comme lu",
+		"unread-count": "{count, plural, one {# nouvelle} other {# nouvelles}}"
 	},
 	"explore": {
 		"title": "Explorer",

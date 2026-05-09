@@ -545,6 +545,19 @@
 		"description": "Une question ou un retour ? Contactez-nous à l'adresse ci-dessous.",
 		"social-title": "Suivez-nous"
 	},
+	"messages-page": {
+		"title": "Messages",
+		"search-placeholder": "Rechercher ici",
+		"new-conversation": "Nouveau",
+		"tab-messages": "Messages",
+		"tab-favorites": "Favoris",
+		"search-dialog": {
+			"title": "Rechercher des utilisateurs",
+			"placeholder": "Rechercher un utilisateur...",
+			"searching": "Recherche en cours...",
+			"no-results": "Aucun utilisateur trouvé"
+		}
+	},
 	"pwa": {
 		"install": {
 			"title": "Installer l'app",

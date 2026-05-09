@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import type { MessageUser } from "../types";
@@ -11,12 +12,16 @@ interface UserListProps {
 }
 
 export function UserList({ users }: UserListProps) {
+	const t = useTranslations("messages-page");
+
 	return (
 		<ScrollArea className="w-full whitespace-nowrap mb-6">
 			<div className="flex gap-4">
 				<div className="flex flex-col items-center gap-1">
 					<SearchUsersDialog />
-					<span className="text-xs text-muted-foreground">New</span>
+					<span className="text-xs text-muted-foreground">
+						{t("new-conversation")}
+					</span>
 				</div>
 				{users.map((user) => (
 					<div key={user.id} className="flex flex-col items-center gap-1">

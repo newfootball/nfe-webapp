@@ -3,6 +3,7 @@
 import { Plus, Search } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +19,7 @@ import { searchUsers } from "../actions/search-users.action";
 import type { MessageUser } from "../types";
 
 export function SearchUsersDialog() {
+	const t = useTranslations("messages-page");
 	const [searchQuery, setSearchQuery] = useState("");
 	const [isOpen, setIsOpen] = useState(false);
 	const [searchResults, setSearchResults] = useState<MessageUser[]>([]);
@@ -32,7 +34,7 @@ export function SearchUsersDialog() {
 			const results = await searchUsers(query);
 			setSearchResults(results);
 		} catch (error) {
-			console.error("Erreur lors de la recherche:", error);
+			console.error("Search error:", error);
 			setSearchResults([]);
 		} finally {
 			setIsSearching(false);
@@ -56,12 +58,12 @@ export function SearchUsersDialog() {
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-[425px]">
 				<DialogHeader>
-					<DialogTitle>Rechercher des utilisateurs</DialogTitle>
+					<DialogTitle>{t("search-dialog.title")}</DialogTitle>
 				</DialogHeader>
 				<div className="relative">
 					<Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
 					<Input
-						placeholder="Rechercher un utilisateur..."
+						placeholder={t("search-dialog.placeholder")}
 						className="pl-8"
 						value={searchQuery}
 						onChange={(e) => handleSearch(e.target.value)}
@@ -70,7 +72,9 @@ export function SearchUsersDialog() {
 				<ScrollArea className="h-[300px] mt-4">
 					{isSearching ? (
 						<div className="flex items-center justify-center h-full">
-							<p className="text-muted-foreground">Recherche en cours...</p>
+							<p className="text-muted-foreground">
+								{t("search-dialog.searching")}
+							</p>
 						</div>
 					) : searchResults.length > 0 ? (
 						<div className="space-y-2">
@@ -96,7 +100,9 @@ export function SearchUsersDialog() {
 						</div>
 					) : searchQuery ? (
 						<div className="flex items-center justify-center h-full">
-							<p className="text-muted-foreground">Aucun utilisateur trouvé</p>
+							<p className="text-muted-foreground">
+								{t("search-dialog.no-results")}
+							</p>
 						</div>
 					) : null}
 				</ScrollArea>

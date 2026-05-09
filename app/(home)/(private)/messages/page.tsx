@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getSession } from "@/src/lib/auth-server";
 import { MessageHeader } from "./components/message-header";
@@ -8,6 +9,7 @@ import { getMessagesGroupedByUser, getUsersWithMessages } from "./queries";
 export default async function MessagesPage() {
 	const session = await getSession();
 	const userId = session?.user?.id;
+	const t = await getTranslations("messages-page");
 
 	const [users, groupedMessages] = userId
 		? await Promise.all([
@@ -16,7 +18,6 @@ export default async function MessagesPage() {
 			])
 		: [[], {}];
 
-	// Transformer les messages groupés en un tableau plat
 	const messages = Object.values(groupedMessages).flat();
 
 	return (
@@ -32,13 +33,13 @@ export default async function MessagesPage() {
 							value="messages"
 							className="data-[state=active]:bg-background rounded-sm"
 						>
-							Messages
+							{t("tab-messages")}
 						</TabsTrigger>
 						<TabsTrigger
 							value="favorites"
 							className="data-[state=active]:bg-background rounded-sm"
 						>
-							Favorites
+							{t("tab-favorites")}
 						</TabsTrigger>
 					</TabsList>
 				</Tabs>

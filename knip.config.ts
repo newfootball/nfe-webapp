@@ -7,19 +7,17 @@ const config: KnipConfig = {
 		"app/**/route.ts",
 		"app/globals.css",
 		"prisma/seeds/**/*.ts",
+		"tests/**/*.test.ts",
 	],
 	project: [
 		"app/**/*.{ts,tsx}",
 		"src/**/*.{ts,tsx}",
 		"components/**/*.{ts,tsx}",
 		"prisma/**/*.ts",
+		"tests/**/*.ts",
 	],
-	ignore: ["components/ui/**", "**/*.d.ts", "**/generated/**"],
-	ignoreDependencies: [
-		"baseline-browser-mapping",
-		"@ducanh2912/next-pwa",
-		"lint-staged",
-	],
+	ignore: ["components/ui/**", "src/generated/**"],
+	ignoreDependencies: ["baseline-browser-mapping", "lint-staged"],
 };
 
 export default config;

@@ -1,9 +1,9 @@
-import type { Position } from "@prisma/client";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import type { Position } from "@/src/generated/prisma/client";
 
 const positionMapping: Record<string, Position> = {
 	goalkeeper: "GOALKEEPER",
@@ -87,7 +87,14 @@ export default async function PlayersByPositionPage({
 				},
 				include: {
 					medias: true,
-					user: true,
+					user: {
+						select: {
+							id: true,
+							name: true,
+							image: true,
+							localisation: true,
+						},
+					},
 					_count: {
 						select: {
 							likes: true,

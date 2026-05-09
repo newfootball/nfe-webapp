@@ -1,8 +1,8 @@
 "use server";
 
-import type { Foot, Position, UserType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import type { Foot, Position, UserType } from "@/src/generated/prisma/enums";
 import { getUserSessionId } from "@/src/query/user.query";
 
 const POSITION_MAP: Record<string, Position> = {
@@ -79,7 +79,7 @@ export async function saveOnboarding(data: OnboardingData) {
 			data: updateData,
 		});
 
-		revalidatePath("/feed");
+		revalidatePath("/");
 		revalidatePath("/profile");
 
 		return { success: true };

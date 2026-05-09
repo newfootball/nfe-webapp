@@ -1,6 +1,6 @@
-import type { Media } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
+import type { Media } from "@/src/generated/prisma/client";
 
 type SearchPost = {
 	id: string;

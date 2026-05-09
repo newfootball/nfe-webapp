@@ -1,19 +1,63 @@
 "use client";
 
-import type { Post } from "@prisma/client";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { type FormEvent, useState } from "react";
 import { toast } from "sonner";
 import { VideoUploader } from "@/components/feature/post/video-uploader";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import type { Post } from "@/src/generated/prisma/client";
 import { uploadToCloudinaryDirect } from "@/src/lib/cloudinary-client-upload";
 import { getUploadSignature } from "./get-upload-signature.action";
 import { savePost } from "./save-post.action";
+
+type CloudinaryUploadResult = Awaited<
+	ReturnType<typeof uploadToCloudinaryDirect>
+>;
+
+async function uploadPostMedia({
+	video,
+	thumbnail,
+	onProgress,
+}: {
+	video: File;
+	thumbnail: File | null;
+	onProgress: (progress: number) => void;
+}) {
+	const [videoSig, imageSig] = await Promise.all([
+		getUploadSignature("video"),
+		thumbnail ? getUploadSignature("image") : Promise.resolve(null),
+	]);
+
+	const videoResult = await uploadToCloudinaryDirect(video, videoSig, (pct) =>
+		onProgress(Math.round(pct * (thumbnail ? 0.85 : 1))),
+	);
+
+	const imageResult =
+		thumbnail && imageSig
+			? await uploadToCloudinaryDirect(thumbnail, imageSig, (pct) =>
+					onProgress(85 + Math.round(pct * 0.15)),
+				)
+			: null;
+
+	onProgress(100);
+
+	return { videoResult, imageResult };
+}
+
+function createMediaMetadata(result: CloudinaryUploadResult) {
+	return {
+		width: result.width,
+		height: result.height,
+		format: result.format,
+		resource_type: result.resource_type,
+		public_id: result.public_id,
+	};
+}
 
 export default function MakePostForm() {
 	const t = useTranslations("posts.new");
@@ -27,41 +71,24 @@ export default function MakePostForm() {
 	const [description, setDescription] = useState("");
 	const [uploadProgress, setUploadProgress] = useState(0);
 
-	const handleSavePost = async (event: React.FormEvent<HTMLFormElement>) => {
+	const handleSavePost = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-		setIsLoading(true);
 		setError(null);
 		setUploadProgress(0);
 
 		if (!selectedVideo) {
 			setError(t("video-required"));
-			setIsLoading(false);
 			return;
 		}
 
+		setIsLoading(true);
+
 		try {
-			const [videoSig, imageSig] = await Promise.all([
-				getUploadSignature("video"),
-				selectedThumbnail ? getUploadSignature("image") : Promise.resolve(null),
-			]);
-
-			const videoResult = await uploadToCloudinaryDirect(
-				selectedVideo,
-				videoSig,
-				(pct) =>
-					setUploadProgress(Math.round(pct * (selectedThumbnail ? 0.85 : 1))),
-			);
-
-			let imageResult = null;
-			if (selectedThumbnail && imageSig) {
-				imageResult = await uploadToCloudinaryDirect(
-					selectedThumbnail,
-					imageSig,
-					(pct) => setUploadProgress(85 + Math.round(pct * 0.15)),
-				);
-			}
-
-			setUploadProgress(100);
+			const { videoResult, imageResult } = await uploadPostMedia({
+				video: selectedVideo,
+				thumbnail: selectedThumbnail,
+				onProgress: setUploadProgress,
+			});
 
 			const post: Post = await savePost({
 				title,
@@ -70,25 +97,13 @@ export default function MakePostForm() {
 				videoUrl: videoResult.secure_url,
 				videoMimeType: selectedVideo.type,
 				videoMetadata: {
-					width: videoResult.width,
-					height: videoResult.height,
-					format: videoResult.format,
-					resource_type: videoResult.resource_type,
-					public_id: videoResult.public_id,
+					...createMediaMetadata(videoResult),
 					duration: videoResult.duration,
 				},
 				imagePublicId: imageResult?.public_id ?? null,
 				imageUrl: imageResult?.secure_url ?? null,
 				imageMimeType: selectedThumbnail?.type ?? null,
-				imageMetadata: imageResult
-					? {
-							width: imageResult.width,
-							height: imageResult.height,
-							format: imageResult.format,
-							resource_type: imageResult.resource_type,
-							public_id: imageResult.public_id,
-						}
-					: null,
+				imageMetadata: imageResult ? createMediaMetadata(imageResult) : null,
 			});
 
 			toast.success(t("post-created-successfully"));
@@ -113,6 +128,15 @@ export default function MakePostForm() {
 					</Alert>
 				)}
 
+				<VideoUploader
+					video={selectedVideo}
+					thumbnail={selectedThumbnail}
+					onVideoChange={setSelectedVideo}
+					onThumbnailChange={setSelectedThumbnail}
+					isUploading={isLoading}
+					uploadProgress={uploadProgress}
+				/>
+
 				<div className="space-y-4">
 					<Input
 						type="text"
@@ -129,15 +153,6 @@ export default function MakePostForm() {
 						onChange={(e) => setDescription(e.target.value)}
 					/>
 				</div>
-
-				<VideoUploader
-					video={selectedVideo}
-					thumbnail={selectedThumbnail}
-					onVideoChange={setSelectedVideo}
-					onThumbnailChange={setSelectedThumbnail}
-					isUploading={isLoading}
-					uploadProgress={uploadProgress}
-				/>
 
 				<Button
 					type="submit"

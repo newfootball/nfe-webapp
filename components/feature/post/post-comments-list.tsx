@@ -12,11 +12,13 @@ import { commentKeys, useLastComments } from "@/src/hooks/use-comment-query";
 interface PostCommentsListProps {
 	postId: string;
 	currentUserId?: string | null;
+	onEmptyClick?: () => void;
 }
 
 export const PostCommentsList = ({
 	postId,
 	currentUserId,
+	onEmptyClick,
 }: PostCommentsListProps) => {
 	const t = useTranslations("posts.post-comments-list");
 	const queryClient = useQueryClient();
@@ -63,9 +65,18 @@ export const PostCommentsList = ({
 
 	if (comments.length === 0) {
 		return (
-			<div className="mt-4 text-sm text-muted-foreground text-center py-4">
-				{t("no-comments")}
-			</div>
+			<button
+				type="button"
+				onClick={onEmptyClick}
+				className="w-full mt-4 py-6 flex flex-col items-center gap-1 text-center rounded-xl border border-dashed border-border hover:border-primary/40 hover:bg-muted/30 transition-colors cursor-pointer"
+			>
+				<span className="text-sm font-medium text-foreground">
+					{t("no-comments")}
+				</span>
+				<span className="text-xs text-muted-foreground">
+					{t("be-first-to-comment")}
+				</span>
+			</button>
 		);
 	}
 

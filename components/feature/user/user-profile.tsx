@@ -1,6 +1,5 @@
 "use client";
 
-import type { User } from "@prisma/client";
 import { Bookmark, Loader, Mail, MapPin, Settings } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -19,6 +18,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { deleteUserAccount } from "@/src/actions/user.action";
+import type { User } from "@/src/generated/prisma/client";
 import { StatsUser } from "./stats-user";
 
 export const UserProfile = ({

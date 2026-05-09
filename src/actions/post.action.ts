@@ -1,9 +1,9 @@
 "use server";
 
-import { type SignalReason, SignalStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
+import { type SignalReason, SignalStatus } from "@/src/generated/prisma/enums";
 import { getUserSessionId } from "../query/user.query";
 
 export async function updatePost(

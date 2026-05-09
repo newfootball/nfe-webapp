@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { POST_WITH_PUBLIC_USER_INCLUDE } from "@/src/query/post.select";
 import type { PostsPage, PostWithUserAndMedias } from "@/src/types/post.types";
 
 export const getCountPosts = async (userId: string): Promise<number> => {
@@ -33,16 +34,7 @@ export const getPosts = async ({
 		where,
 		take: limit,
 		skip: offset,
-		include: {
-			user: true,
-			medias: true,
-			_count: {
-				select: {
-					comments: true,
-					likes: true,
-				},
-			},
-		},
+		include: POST_WITH_PUBLIC_USER_INCLUDE,
 		orderBy: {
 			createdAt: "desc",
 		},
@@ -72,16 +64,7 @@ export const getPostsWithCursor = async ({
 		where,
 		take: limit + 1,
 		...(cursor && { skip: 1, cursor: { id: cursor } }),
-		include: {
-			user: true,
-			medias: true,
-			_count: {
-				select: {
-					comments: true,
-					likes: true,
-				},
-			},
-		},
+		include: POST_WITH_PUBLIC_USER_INCLUDE,
 		orderBy: {
 			createdAt: "desc",
 		},
@@ -101,16 +84,7 @@ export const getPost = async (
 ): Promise<PostWithUserAndMedias | null> => {
 	const post = await prisma.post.findUnique({
 		where: { id },
-		include: {
-			user: true,
-			medias: true,
-			_count: {
-				select: {
-					comments: true,
-					likes: true,
-				},
-			},
-		},
+		include: POST_WITH_PUBLIC_USER_INCLUDE,
 	});
 
 	return post;

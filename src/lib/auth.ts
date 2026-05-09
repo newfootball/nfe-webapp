@@ -37,12 +37,16 @@ export const auth = betterAuth({
 	},
 	plugins: [nextCookies()],
 	secret,
-	baseURL: env.WEBSITE_URL || env.NEXT_PUBLIC_APP_URL,
+	baseURL:
+		process.env.NODE_ENV === "development"
+			? "http://localhost:3500"
+			: env.WEBSITE_URL || env.NEXT_PUBLIC_APP_URL,
 	trustedOrigins: [
 		env.WEBSITE_URL,
 		env.NEXT_PUBLIC_APP_URL,
 		env.BETTER_AUTH_TRUSTED_ORIGIN,
+		...(process.env.NODE_ENV === "development"
+			? ["http://localhost:3000", "http://localhost:3500"]
+			: []),
 	].filter(Boolean) as string[],
 });
-
-export type Session = typeof auth.$Infer.Session;

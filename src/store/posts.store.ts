@@ -33,7 +33,7 @@ const initialState: PostsState = {
 	filters: {},
 };
 
-export const usePostsStore = create<PostsState & PostsActions>()(
+const usePostsStore = create<PostsState & PostsActions>()(
 	devtools(
 		(set) => ({
 			...initialState,
@@ -149,15 +149,5 @@ export const usePostsActions = () => {
 		reset: store.reset,
 		likePost: store.likePost,
 		unlikePost: store.unlikePost,
-	};
-};
-
-export const usePostsSelectors = () => {
-	const store = usePostsStore();
-	return {
-		posts: store.posts,
-		isLoading: store.isLoading,
-		error: store.error,
-		filters: store.filters,
 	};
 };

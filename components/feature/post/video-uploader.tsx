@@ -23,6 +23,12 @@ interface VideoUploaderProps {
 	isUploading?: boolean;
 }
 
+function formatDuration(seconds: number): string {
+	const m = Math.floor(seconds / 60);
+	const s = Math.floor(seconds % 60);
+	return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
 export function VideoUploader({
 	onVideoChange,
 	onThumbnailChange,
@@ -34,11 +40,13 @@ export function VideoUploader({
 	const t = useTranslations("posts.new");
 	const [isDragOver, setIsDragOver] = useState(false);
 	const [isPlaying, setIsPlaying] = useState(false);
-	const [showThumbnailOptions, setShowThumbnailOptions] = useState(false);
 	const [generatedThumbnails, setGeneratedThumbnails] = useState<string[]>([]);
 	const [selectedThumbnailIndex, setSelectedThumbnailIndex] = useState<
 		number | null
 	>(null);
+	const [showThumbnailOverride, setShowThumbnailOverride] = useState(false);
+	const [videoDuration, setVideoDuration] = useState(0);
+	const [isGeneratingThumbnails, setIsGeneratingThumbnails] = useState(false);
 
 	const videoInputRef = useRef<HTMLInputElement>(null);
 	const thumbnailInputRef = useRef<HTMLInputElement>(null);
@@ -65,29 +73,28 @@ export function VideoUploader({
 		};
 	}, [videoUrl, thumbnailUrl, generatedThumbnails]);
 
-	const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
+	const handleDragOver = useCallback((e: DragEvent<HTMLButtonElement>) => {
 		e.preventDefault();
 		e.stopPropagation();
 		setIsDragOver(true);
 	}, []);
 
-	const handleDragLeave = useCallback((e: DragEvent<HTMLDivElement>) => {
+	const handleDragLeave = useCallback((e: DragEvent<HTMLButtonElement>) => {
 		e.preventDefault();
 		e.stopPropagation();
 		setIsDragOver(false);
 	}, []);
 
 	const handleDrop = useCallback(
-		(e: DragEvent<HTMLDivElement>) => {
+		(e: DragEvent<HTMLButtonElement>) => {
 			e.preventDefault();
 			e.stopPropagation();
 			setIsDragOver(false);
-
-			const files = e.dataTransfer.files;
-			const file = files[0];
+			const file = e.dataTransfer.files[0];
 			if (file?.type.startsWith("video/")) {
 				onVideoChange(file);
-				setShowThumbnailOptions(true);
+				setGeneratedThumbnails([]);
+				setSelectedThumbnailIndex(null);
 			}
 		},
 		[onVideoChange],
@@ -98,9 +105,9 @@ export function VideoUploader({
 			const file = e.target.files?.[0];
 			if (file) {
 				onVideoChange(file);
-				setShowThumbnailOptions(true);
 				setGeneratedThumbnails([]);
 				setSelectedThumbnailIndex(null);
+				setShowThumbnailOverride(false);
 			}
 		},
 		[onVideoChange],
@@ -112,6 +119,7 @@ export function VideoUploader({
 			if (file) {
 				onThumbnailChange(file);
 				setSelectedThumbnailIndex(null);
+				setShowThumbnailOverride(false);
 			}
 		},
 		[onThumbnailChange],
@@ -125,21 +133,35 @@ export function VideoUploader({
 		const ctx = canvas.getContext("2d");
 		if (!ctx) return;
 
+		setIsGeneratingThumbnails(true);
+		setVideoDuration(videoElement.duration);
+
 		const thumbnails: string[] = [];
 		const duration = videoElement.duration;
-		const timestamps = [0.1, 0.25, 0.5, 0.75, 0.9].map((t) => t * duration);
-
+		const timestamps = [0.1, 0.25, 0.5, 0.75, 0.9].map((p) => p * duration);
 		let index = 0;
 
 		const captureFrame = () => {
 			if (index >= timestamps.length) {
 				setGeneratedThumbnails(thumbnails);
+				setIsGeneratingThumbnails(false);
+				// Auto-select the first frame as thumbnail
+				if (thumbnails[0]) {
+					fetch(thumbnails[0])
+						.then((r) => r.blob())
+						.then((blob) => {
+							const file = new File([blob], "thumbnail-auto.jpg", {
+								type: "image/jpeg",
+							});
+							onThumbnailChange(file);
+							setSelectedThumbnailIndex(0);
+						});
+				}
 				return;
 			}
-
-			const timestamp = timestamps[index];
-			if (timestamp !== undefined) {
-				videoElement.currentTime = timestamp;
+			const ts = timestamps[index];
+			if (ts !== undefined) {
+				videoElement.currentTime = ts;
 			}
 		};
 
@@ -153,7 +175,7 @@ export function VideoUploader({
 		};
 
 		captureFrame();
-	}, [video]);
+	}, [video, onThumbnailChange]);
 
 	const handleSelectGeneratedThumbnail = useCallback(
 		async (dataUrl: string, index: number) => {
@@ -164,6 +186,7 @@ export function VideoUploader({
 			});
 			onThumbnailChange(file);
 			setSelectedThumbnailIndex(index);
+			setShowThumbnailOverride(false);
 		},
 		[onThumbnailChange],
 	);
@@ -171,20 +194,17 @@ export function VideoUploader({
 	const handleRemoveVideo = useCallback(() => {
 		onVideoChange(null);
 		onThumbnailChange(null);
-		setShowThumbnailOptions(false);
 		setGeneratedThumbnails([]);
 		setSelectedThumbnailIndex(null);
-		if (videoInputRef.current) {
-			videoInputRef.current.value = "";
-		}
+		setShowThumbnailOverride(false);
+		setVideoDuration(0);
+		if (videoInputRef.current) videoInputRef.current.value = "";
 	}, [onVideoChange, onThumbnailChange]);
 
 	const handleRemoveThumbnail = useCallback(() => {
 		onThumbnailChange(null);
 		setSelectedThumbnailIndex(null);
-		if (thumbnailInputRef.current) {
-			thumbnailInputRef.current.value = "";
-		}
+		if (thumbnailInputRef.current) thumbnailInputRef.current.value = "";
 	}, [onThumbnailChange]);
 
 	const togglePlay = useCallback(() => {
@@ -198,20 +218,20 @@ export function VideoUploader({
 	}, [isPlaying]);
 
 	return (
-		<div className="space-y-4">
+		<div className="space-y-3">
 			<canvas ref={canvasRef} className="hidden" />
 
 			{!video ? (
-				<div
+				<button
+					type="button"
 					onDragOver={handleDragOver}
 					onDragLeave={handleDragLeave}
 					onDrop={handleDrop}
 					onClick={() => videoInputRef.current?.click()}
 					className={cn(
 						"relative cursor-pointer rounded-xl border-2 border-dashed transition-all duration-200",
-						"bg-muted/30 hover:bg-muted/50",
-						"hover:border-primary/60",
-						"group min-h-[180px] flex flex-col items-center justify-center p-6",
+						"bg-muted/30 hover:bg-muted/50 hover:border-primary/60",
+						"group w-full min-h-[160px] flex flex-col items-center justify-center gap-3 p-6",
 						isDragOver
 							? "border-primary bg-primary/5"
 							: "border-muted-foreground/20",
@@ -219,9 +239,7 @@ export function VideoUploader({
 				>
 					<div
 						className={cn(
-							"rounded-full p-3 mb-3 transition-colors duration-200",
-							"bg-muted",
-							"group-hover:bg-primary/10",
+							"rounded-xl p-3 transition-colors duration-200 bg-muted group-hover:bg-primary/10",
 							isDragOver && "bg-primary/10",
 						)}
 					>
@@ -233,15 +251,27 @@ export function VideoUploader({
 							)}
 						/>
 					</div>
-					<p className="text-foreground font-medium text-sm text-center mb-0.5">
-						{t("drag-drop-video")}
-					</p>
-					<p className="text-muted-foreground text-xs text-center">
-						{t("or-click-to-browse")}
-					</p>
-					<p className="text-muted-foreground/50 text-xs mt-2">
-						{t("supported-formats")}
-					</p>
+					<div className="text-center">
+						<p className="text-foreground font-medium text-sm">
+							{t("drag-drop-video")}
+						</p>
+						<p className="text-muted-foreground text-xs mt-0.5">
+							{t("or-click-to-browse")}
+						</p>
+					</div>
+					<div className="flex gap-1.5">
+						{["MP4", "MOV", "WebM"].map((fmt) => (
+							<span
+								key={fmt}
+								className="px-2 py-0.5 bg-background border border-border rounded-full text-[10px] font-medium text-muted-foreground"
+							>
+								{fmt}
+							</span>
+						))}
+						<span className="px-2 py-0.5 bg-background border border-border rounded-full text-[10px] font-medium text-muted-foreground">
+							100 Mo max
+						</span>
+					</div>
 					<input
 						ref={videoInputRef}
 						type="file"
@@ -249,78 +279,169 @@ export function VideoUploader({
 						className="hidden"
 						onChange={handleVideoSelect}
 					/>
-				</div>
+				</button>
 			) : (
-				<div className="space-y-4">
-					<div className="relative rounded-xl overflow-hidden bg-black/95">
-						<video
-							ref={videoRef}
-							src={videoUrl ?? undefined}
-							className="w-full aspect-video object-contain"
-							onLoadedMetadata={generateThumbnailsFromVideo}
-							onPlay={() => setIsPlaying(true)}
-							onPause={() => setIsPlaying(false)}
-							onEnded={() => setIsPlaying(false)}
-						/>
+				<>
+					{/* Video card */}
+					<div className="rounded-xl overflow-hidden border border-border">
+						{/* Video preview */}
+						<div className="relative bg-black">
+							{/* biome-ignore lint/a11y/useMediaCaption: Local upload preview has no caption track yet. */}
+							<video
+								ref={videoRef}
+								src={videoUrl ?? undefined}
+								className="w-full aspect-video object-contain"
+								onLoadedMetadata={generateThumbnailsFromVideo}
+								onPlay={() => setIsPlaying(true)}
+								onPause={() => setIsPlaying(false)}
+								onEnded={() => setIsPlaying(false)}
+							/>
 
-						<div className="absolute inset-0 flex items-center justify-center">
+							{/* Play overlay */}
+							<div className="absolute inset-0 flex items-center justify-center">
+								<button
+									type="button"
+									onClick={togglePlay}
+									className={cn(
+										"rounded-full p-3.5 transition-all duration-300",
+										"bg-black/40 hover:bg-black/60 backdrop-blur-sm hover:scale-110",
+										isPlaying && "opacity-0 hover:opacity-100",
+									)}
+								>
+									<Play
+										className={cn("h-7 w-7 text-white", isPlaying && "hidden")}
+										fill="white"
+									/>
+								</button>
+							</div>
+
+							{/* Duration badge */}
+							{videoDuration > 0 && (
+								<div className="absolute bottom-2 right-2 bg-black/70 text-white text-[10px] font-bold px-1.5 py-0.5 rounded font-mono">
+									{formatDuration(videoDuration)}
+								</div>
+							)}
+
+							{/* Remove button */}
 							<button
 								type="button"
-								onClick={togglePlay}
-								className={cn(
-									"rounded-full p-4 transition-all duration-300",
-									"bg-black/40 hover:bg-black/60 backdrop-blur-sm",
-									"hover:scale-110",
-									isPlaying && "opacity-0 hover:opacity-100",
-								)}
+								onClick={handleRemoveVideo}
+								className="absolute top-2 right-2 rounded-full p-1.5 bg-destructive/80 hover:bg-destructive text-white transition-colors"
 							>
-								<Play
-									className={cn("h-8 w-8 text-white", isPlaying && "hidden")}
-									fill="white"
-								/>
+								<X className="h-3.5 w-3.5" />
 							</button>
+
+							{/* Upload progress overlay */}
+							{isUploading && (
+								<div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm p-2.5">
+									<div className="flex items-center gap-2">
+										<Upload className="h-3.5 w-3.5 text-white animate-pulse shrink-0" />
+										<div className="flex-1">
+											<div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
+												<div
+													className="h-full bg-primary transition-all duration-300 rounded-full"
+													style={{ width: `${uploadProgress}%` }}
+												/>
+											</div>
+										</div>
+										<span className="text-white text-xs font-bold tabular-nums">
+											{uploadProgress}%
+										</span>
+									</div>
+								</div>
+							)}
 						</div>
 
-						<button
-							type="button"
-							onClick={handleRemoveVideo}
-							className="absolute top-3 right-3 rounded-full p-2 bg-destructive/80 hover:bg-destructive text-white transition-colors"
-						>
-							<X className="h-4 w-4" />
-						</button>
-
-						{isUploading && (
-							<div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-sm p-3">
-								<div className="flex items-center gap-3">
-									<Upload className="h-4 w-4 text-white animate-pulse" />
-									<div className="flex-1">
-										<div className="h-2 bg-white/20 rounded-full overflow-hidden">
-											<div
-												className="h-full bg-primary transition-all duration-300 rounded-full"
-												style={{ width: `${uploadProgress}%` }}
-											/>
-										</div>
-									</div>
-									<span className="text-white text-sm font-medium">
-										{uploadProgress}%
-									</span>
-								</div>
+						{/* File row */}
+						<div className="flex items-center gap-3 px-3 py-2.5 bg-card border-t border-border">
+							<div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 shrink-0">
+								<Video className="h-4 w-4 text-primary" />
 							</div>
-						)}
+							<div className="flex-1 min-w-0">
+								<p className="text-sm font-medium truncate">{video.name}</p>
+								{isUploading && (
+									<div className="mt-1 h-1 bg-muted rounded-full overflow-hidden">
+										<div
+											className="h-full bg-primary transition-all duration-300 rounded-full"
+											style={{ width: `${uploadProgress}%` }}
+										/>
+									</div>
+								)}
+							</div>
+							{isUploading && (
+								<span className="text-primary text-xs font-bold tabular-nums shrink-0">
+									{uploadProgress}%
+								</span>
+							)}
+						</div>
 					</div>
 
-					{showThumbnailOptions && (
-						<div className="space-y-3">
+					{/* Thumbnail row */}
+					<div className="flex items-center gap-3 p-2.5 rounded-xl border border-border bg-card">
+						{/* Thumbnail preview */}
+						<div className="relative w-14 aspect-video rounded-lg overflow-hidden border border-border shrink-0 bg-muted">
+							{thumbnailUrl ? (
+								<Image
+									src={thumbnailUrl}
+									alt={t("selected-thumbnail")}
+									fill
+									className="object-cover"
+								/>
+							) : (
+								<div className="absolute inset-0 flex items-center justify-center">
+									<div className="h-3 w-3 rounded-full border-2 border-muted-foreground/40 border-t-muted-foreground animate-spin" />
+								</div>
+							)}
+						</div>
+
+						<div className="flex-1 min-w-0">
+							<p className="text-sm font-medium">{t("thumbnail")}</p>
+							<p className="text-xs text-muted-foreground">
+								{isGeneratingThumbnails
+									? t("generating-thumbnails")
+									: thumbnailUrl
+										? t("auto-generated")
+										: t("generating-thumbnails")}
+							</p>
+						</div>
+
+						<div className="flex items-center gap-1.5 shrink-0">
+							{thumbnail && (
+								<button
+									type="button"
+									onClick={handleRemoveThumbnail}
+									className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+								>
+									<Trash2 className="h-3.5 w-3.5" />
+								</button>
+							)}
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								onClick={() => setShowThumbnailOverride((v) => !v)}
+								className="h-7 px-2.5 text-xs"
+							>
+								{t("change")}
+							</Button>
+						</div>
+					</div>
+
+					{/* Thumbnail override panel */}
+					{showThumbnailOverride && (
+						<div className="space-y-2.5 p-3 rounded-xl border border-border bg-muted/30">
 							<div className="flex items-center justify-between">
-								<h4 className="text-sm font-medium">{t("cover-image")}</h4>
+								<p className="text-xs text-muted-foreground font-medium">
+									{t("select-from-video")}
+								</p>
 								<Button
 									type="button"
-									variant="outline"
+									variant="ghost"
 									size="sm"
 									onClick={() => thumbnailInputRef.current?.click()}
-									className="gap-2"
+									className="h-7 gap-1.5 text-xs px-2"
 								>
-									<ImagePlus className="h-4 w-4" />
+									<ImagePlus className="h-3.5 w-3.5" />
 									{t("upload-custom")}
 								</Button>
 								<input
@@ -332,64 +453,39 @@ export function VideoUploader({
 								/>
 							</div>
 
-							{thumbnail && (
-								<div className="relative w-32 aspect-video rounded-lg overflow-hidden border-2 border-primary">
-									<Image
-										src={thumbnailUrl ?? ""}
-										alt={t("selected-thumbnail")}
-										fill
-										className="object-cover"
-									/>
-									<button
-										type="button"
-										onClick={handleRemoveThumbnail}
-										className="absolute top-1 right-1 rounded-full p-1 bg-destructive/80 hover:bg-destructive text-white transition-colors"
-									>
-										<Trash2 className="h-3 w-3" />
-									</button>
+							{generatedThumbnails.length > 0 ? (
+								<div className="grid grid-cols-5 gap-1.5">
+									{generatedThumbnails.map((dataUrl, index) => (
+										<button
+											key={dataUrl}
+											type="button"
+											onClick={() =>
+												handleSelectGeneratedThumbnail(dataUrl, index)
+											}
+											className={cn(
+												"relative aspect-video rounded-lg overflow-hidden transition-all",
+												"hover:ring-2 hover:ring-primary hover:scale-105",
+												selectedThumbnailIndex === index &&
+													"ring-2 ring-primary",
+											)}
+										>
+											<Image
+												src={dataUrl}
+												alt={`${t("thumbnail")} ${index + 1}`}
+												fill
+												className="object-cover"
+											/>
+										</button>
+									))}
 								</div>
-							)}
-
-							{generatedThumbnails.length > 0 && !thumbnail && (
-								<div className="space-y-2">
-									<p className="text-xs text-muted-foreground">
-										{t("select-from-video")}
-									</p>
-									<div className="grid grid-cols-5 gap-2">
-										{generatedThumbnails.map((dataUrl, index) => (
-											<button
-												key={index}
-												type="button"
-												onClick={() =>
-													handleSelectGeneratedThumbnail(dataUrl, index)
-												}
-												className={cn(
-													"relative aspect-video rounded-lg overflow-hidden transition-all",
-													"hover:ring-2 hover:ring-primary hover:scale-105",
-													selectedThumbnailIndex === index &&
-														"ring-2 ring-primary",
-												)}
-											>
-												<Image
-													src={dataUrl}
-													alt={`${t("thumbnail")} ${index + 1}`}
-													fill
-													className="object-cover"
-												/>
-											</button>
-										))}
-									</div>
-								</div>
-							)}
-
-							{generatedThumbnails.length === 0 && !thumbnail && (
-								<p className="text-xs text-muted-foreground text-center py-4">
+							) : (
+								<p className="text-xs text-muted-foreground text-center py-3">
 									{t("generating-thumbnails")}
 								</p>
 							)}
 						</div>
 					)}
-				</div>
+				</>
 			)}
 		</div>
 	);

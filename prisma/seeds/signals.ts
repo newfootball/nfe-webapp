@@ -4,7 +4,7 @@ import {
 	type PrismaClient,
 	SignalReason,
 	SignalStatus,
-} from "@prisma/client";
+} from "@/src/generated/prisma/client";
 import { randomizer } from "../../src/lib/array";
 
 const ALL_REASONS = Object.values(SignalReason);

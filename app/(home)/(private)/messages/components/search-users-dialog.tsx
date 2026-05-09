@@ -76,6 +76,7 @@ export function SearchUsersDialog() {
 						<div className="space-y-2">
 							{searchResults.map((user) => (
 								<button
+									type="button"
 									key={user.id}
 									className="w-full flex items-center gap-3 p-2 hover:bg-muted rounded-lg transition-colors"
 									onClick={() => {

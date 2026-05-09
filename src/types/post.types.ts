@@ -1,4 +1,5 @@
-import type { Media, Post, Prisma, User } from "@prisma/client";
+import type { Prisma } from "@/src/generated/prisma/client";
+import type { POST_WITH_PUBLIC_USER_INCLUDE } from "@/src/query/post.select";
 
 export type PostWithMedias = Prisma.PostGetPayload<{
 	include: {
@@ -6,14 +7,9 @@ export type PostWithMedias = Prisma.PostGetPayload<{
 	};
 }>;
 
-export type PostWithUserAndMedias = Post & {
-	user: User;
-	medias: Media[];
-	_count: {
-		comments: number;
-		likes: number;
-	};
-};
+export type PostWithUserAndMedias = Prisma.PostGetPayload<{
+	include: typeof POST_WITH_PUBLIC_USER_INCLUDE;
+}>;
 
 export type PostsPage = {
 	posts: PostWithUserAndMedias[];

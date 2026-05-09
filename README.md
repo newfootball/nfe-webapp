@@ -1,25 +1,118 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next Football Experience Web App
 
-## Getting Started
+Football social web app for players, coaches, recruiters, and clubs. The app is
+built with Next.js App Router, React, TypeScript, Prisma/PostgreSQL, better-auth,
+next-intl, Tailwind CSS v4, and shadcn/ui.
 
-First, run the development server:
+## Requirements
+
+- Bun `1.3.3` or compatible
+- Docker with Docker Compose
+- PostgreSQL is provided locally by `compose.yaml`
+
+## Setup
 
 ```bash
-bun dev
+bun install
+docker compose up -d --wait
+bunx prisma generate
+bunx prisma migrate dev
+bun run prisma:seed
+bun run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`bun run dev` uses the package script port `3500`. When using `make dev`, the
+effective port comes from `NEXT_PORT` in `.env`/`.env.local`, falling back to
+the Makefile default.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`.env` is committed as the baseline local environment. `.env.local` is ignored
+and can override local values. Do not commit real local secrets.
 
-## Learn More
+Important variables:
 
-To learn more about Next.js, take a look at the following resources:
+- `DATABASE_URL`
+- `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`,
+  `POSTGRES_CONTAINER_NAME`
+- `WEBSITE_URL` (validated as HTTPS)
+- `NEXT_PUBLIC_APP_URL`
+- `BETTER_AUTH_SECRET` or legacy `NEXTAUTH_SECRET`
+- `RESEND_API_KEY`
+- Optional Google OAuth, Google Analytics, and Cloudinary variables
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Validation is defined in `src/lib/env.ts`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Development Commands
 
+```bash
+bun run dev          # Next dev server
+bun run build        # production build
+bun run start        # run built app
+bun run lint         # non-mutating Biome check
+bun run lint:fix     # Biome check --write
+bun run format       # Biome format --write
+bun run typecheck    # TypeScript only
+bun run knip         # unused files/dependencies/exports
+bun run prisma:seed  # seed database
+```
+
+Make targets are also available:
+
+```bash
+make dev
+make build
+make lint
+make check
+make prisma-migrate
+make prisma-seed
+make prisma-studio
+make prisma-reset
+make docker-up
+make docker-down
+```
+
+Be careful with `make sync`, `make prisma-reset`, and `make docker-destroy`:
+they reset or remove local database state.
+
+## Architecture
+
+- `app/(home)/(auth)`: sign-in, sign-up, forgot/reset password
+- `app/(home)/(private)`: authenticated pages
+- `app/(home)/(private)/admin`: admin-only pages
+- `app/(home)/(public)`: public feed, explore, user/post details, legal pages
+- `app/(public)`: programmatic SEO pages
+- `app/api/auth/[...all]/route.ts`: better-auth route handler
+
+Project patterns:
+
+- Mutations: `src/actions/*.action.ts` server actions
+- Database reads: `src/query/*.query.ts`
+- Auth: `src/lib/auth.ts`, `src/lib/auth-client.ts`,
+  `src/lib/auth-server.ts`
+- i18n: `messages/fr.json`, `messages/en.json`, `src/i18n/request.ts`
+- UI primitives: `components/ui`
+- Feature components: `components/feature`
+- Zustand store: `src/store`
+- Shared hooks: `src/hooks`
+
+For agent-specific instructions, see `AGENTS.md`.
+
+## Validation
+
+Run these before handing off code changes:
+
+```bash
+bun run typecheck
+bun run lint
+bun run build
+```
+
+For Prisma changes, also run:
+
+```bash
+bunx prisma validate
+bunx prisma generate
+```
+
+There is currently no dedicated test suite configured in `package.json`.

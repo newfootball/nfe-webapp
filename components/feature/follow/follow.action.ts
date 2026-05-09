@@ -67,7 +67,8 @@ export const addFollow = async ({
 		});
 		await createNotification(
 			userToFollowId,
-			`${follower?.name ?? "Someone"} started following you`,
+			"FOLLOW",
+			`${follower?.name ?? "Quelqu'un"} te suit maintenant`,
 			`/user/${userId}`,
 		);
 

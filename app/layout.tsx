@@ -2,7 +2,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Oswald } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale } from "next-intl/server";
 import { env } from "@/lib/env";
@@ -10,7 +10,8 @@ import { cn } from "@/lib/utils";
 import "./globals.css";
 import { ReactQueryProvider } from "./providers/react-query-provider";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const oswald = Oswald({ subsets: ["latin"], variable: "--font-oswald" });
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://nfe-foot.com";
 
@@ -113,7 +114,10 @@ export default async function RootLayout({
 }>) {
 	const locale = await getLocale();
 	return (
-		<html lang={locale} className={cn(inter.className, "h-full")}>
+		<html
+			lang={locale}
+			className={cn(inter.variable, oswald.variable, inter.className, "h-full")}
+		>
 			<body className="h-full">
 				<NextIntlClientProvider>
 					<ReactQueryProvider>{children}</ReactQueryProvider>

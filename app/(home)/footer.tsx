@@ -64,12 +64,12 @@ export const Footer = () => {
 			<Layout>
 				<nav className="h-full px-4 relative">
 					<ul className="grid grid-cols-5 items-center h-full w-full">
-						{navItems.slice(0, 2).map((item, index) => (
-							<NavItem key={index} {...item} />
+						{navItems.slice(0, 2).map((item) => (
+							<NavItem key={item.href} {...item} />
 						))}
 						<CreatePostButton />
-						{navItems.slice(2).map((item, index) => (
-							<NavItem key={index + 2} {...item} />
+						{navItems.slice(2).map((item) => (
+							<NavItem key={item.href} {...item} />
 						))}
 					</ul>
 				</nav>

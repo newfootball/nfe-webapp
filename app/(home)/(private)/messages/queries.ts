@@ -50,53 +50,6 @@ export async function getUsersWithMessages(
 	return Array.from(uniqueUsers.values());
 }
 
-export async function getRecentMessages(userId: string): Promise<Message[]> {
-	const messages = await prisma.message.findMany({
-		where: {
-			OR: [{ fromUserId: userId }, { toUserId: userId }],
-		},
-		include: {
-			fromUser: {
-				select: {
-					id: true,
-					name: true,
-					image: true,
-				},
-			},
-			toUser: {
-				select: {
-					id: true,
-					name: true,
-					image: true,
-				},
-			},
-		},
-		orderBy: {
-			createdAt: "desc",
-		},
-		take: 10,
-	});
-
-	return messages.map((message) => {
-		const otherUser =
-			message.fromUserId === userId ? message.toUser : message.fromUser;
-		if (!otherUser?.id) {
-			throw new Error("Invalid message: missing user information");
-		}
-		const isFromMe = message.fromUserId === userId;
-
-		return {
-			id: message.id,
-			user: otherUser.name || "Unknown",
-			image:
-				otherUser.image ||
-				`https://api.dicebear.com/9.x/adventurer/svg?seed=${otherUser.id}`,
-			message: isFromMe ? `You: ${message.content}` : message.content,
-			time: formatTimeAgo(message.createdAt),
-		};
-	});
-}
-
 export async function getMessagesGroupedByUser(
 	currentUserId: string,
 ): Promise<Record<string, Message[]>> {

@@ -1,11 +1,11 @@
 "use client";
 
-import type { UserType } from "@prisma/client";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { FollowButton } from "@/components/feature/follow/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import type { UserType } from "@/src/generated/prisma/client";
 
 interface UserResultItemProps {
 	user: {

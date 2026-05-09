@@ -1,9 +1,9 @@
 "use client";
 
-import type { User } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import type { User } from "@/src/generated/prisma/client";
 import { getUsers } from "@/src/query/user.query";
 
 export default function UsersList() {

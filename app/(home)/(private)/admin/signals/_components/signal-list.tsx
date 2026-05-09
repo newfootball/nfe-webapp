@@ -1,6 +1,5 @@
 "use client";
 
-import type { SignalStatus } from "@prisma/client";
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -15,6 +14,7 @@ import {
 	rejectSignaledPost,
 	reviewSignal,
 } from "@/src/actions/signal.action";
+import type { SignalStatus } from "@/src/generated/prisma/client";
 import type { SignalWithRelations } from "@/src/query/signal.query";
 
 const REASON_KEY_MAP: Record<string, string> = {

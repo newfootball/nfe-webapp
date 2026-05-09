@@ -1,4 +1,5 @@
 "use client";
+import { Play } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
@@ -75,7 +76,12 @@ export function PostContent({ post }: PostContentProps) {
 
 	return (
 		<div className="relative aspect-video w-full overflow-hidden">
-			<div onClick={togglePlay} className="cursor-pointer w-full h-full">
+			<button
+				type="button"
+				aria-label={isPlaying ? t("pause-video") : t("play-video")}
+				onClick={togglePlay}
+				className="cursor-pointer w-full h-full border-0 bg-transparent p-0 text-left"
+			>
 				{canPlayVideo ? (
 					<>
 						<video
@@ -94,15 +100,7 @@ export function PostContent({ post }: PostContentProps) {
 						{!isPlaying && (
 							<div className="absolute inset-0 flex items-center justify-center">
 								<div className="bg-black/50 rounded-full p-3">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										width="24"
-										height="24"
-										viewBox="0 0 24 24"
-										fill="white"
-									>
-										<path d="M8 5v14l11-7z" />
-									</svg>
+									<Play className="h-6 w-6 text-white" fill="white" />
 								</div>
 							</div>
 						)}
@@ -135,7 +133,7 @@ export function PostContent({ post }: PostContentProps) {
 						</div>
 					</div>
 				)}
-			</div>
+			</button>
 		</div>
 	);
 }

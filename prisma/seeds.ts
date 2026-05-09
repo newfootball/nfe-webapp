@@ -1,15 +1,16 @@
-import { PrismaClient } from "@prisma/client";
+import { createPrismaClient } from "../src/lib/create-prisma-client";
 import { seedComments } from "./seeds/comments";
 import { seedFavorites } from "./seeds/favorites";
 import { seedFollows } from "./seeds/follows";
 import { seedLikes } from "./seeds/likes";
 import { seedMedias } from "./seeds/medias";
 import { seedMessages } from "./seeds/messages";
+import { seedNotifications } from "./seeds/notifications";
 import { seedPosts } from "./seeds/posts";
 import { seedSignals } from "./seeds/signals";
 import { seedUsers } from "./seeds/users";
 
-const prisma = new PrismaClient();
+const prisma = createPrismaClient();
 
 const main = async () => {
 	const users = await seedUsers(prisma);
@@ -21,6 +22,7 @@ const main = async () => {
 	await seedLikes({ prisma, posts, users });
 	await seedComments({ prisma, posts, users });
 	await seedFavorites({ prisma, posts, users });
+	await seedNotifications({ prisma, posts, users });
 };
 
 main()

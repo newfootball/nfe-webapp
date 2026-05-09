@@ -1,5 +1,25 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
+const playerSkeletons = [
+	"city-player-1",
+	"city-player-2",
+	"city-player-3",
+	"city-player-4",
+	"city-player-5",
+	"city-player-6",
+];
+const cityPillSkeletons = [
+	"city-pill-1",
+	"city-pill-2",
+	"city-pill-3",
+	"city-pill-4",
+	"city-pill-5",
+	"city-pill-6",
+	"city-pill-7",
+	"city-pill-8",
+	"city-pill-9",
+];
+
 export default function Loading() {
 	return (
 		<div className="container mx-auto px-4 py-8">
@@ -7,8 +27,11 @@ export default function Loading() {
 			<Skeleton className="h-4 w-80 mb-8" />
 			<Skeleton className="h-4 w-40 mb-6" />
 			<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-				{Array.from({ length: 6 }).map((_, i) => (
-					<div key={i} className="bg-card rounded-lg shadow-md overflow-hidden">
+				{playerSkeletons.map((key) => (
+					<div
+						key={key}
+						className="bg-card rounded-lg shadow-md overflow-hidden"
+					>
 						<div className="p-6">
 							<div className="flex items-start mb-4">
 								<Skeleton className="h-15 w-15 rounded-full mr-4" />
@@ -36,8 +59,8 @@ export default function Loading() {
 			<div className="mt-12 border-t pt-8">
 				<Skeleton className="h-6 w-48 mb-4" />
 				<div className="flex flex-wrap gap-2">
-					{Array.from({ length: 9 }).map((_, i) => (
-						<Skeleton key={i} className="h-9 w-24 rounded-full" />
+					{cityPillSkeletons.map((key) => (
+						<Skeleton key={key} className="h-9 w-24 rounded-full" />
 					))}
 				</div>
 			</div>

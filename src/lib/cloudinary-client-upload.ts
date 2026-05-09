@@ -1,4 +1,4 @@
-export interface CloudinaryUploadSignature {
+interface CloudinaryUploadSignature {
 	signature: string;
 	timestamp: number;
 	cloudName: string;
@@ -7,7 +7,7 @@ export interface CloudinaryUploadSignature {
 	resourceType: "image" | "video";
 }
 
-export interface CloudinaryUploadResult {
+interface CloudinaryUploadResult {
 	public_id: string;
 	secure_url: string;
 	url: string;
@@ -34,8 +34,9 @@ export function uploadToCloudinaryDirect(
 		const xhr = new XMLHttpRequest();
 
 		xhr.upload.addEventListener("progress", (e) => {
-			if (e.lengthComputable) {
-				onProgress?.(Math.round((e.loaded / e.total) * 100));
+			const total = e.lengthComputable ? e.total : file.size;
+			if (total > 0) {
+				onProgress?.(Math.round((e.loaded / total) * 100));
 			}
 		});
 

@@ -5,7 +5,7 @@ import {
 	type Prisma,
 	type PrismaClient,
 	UserType,
-} from "@prisma/client";
+} from "@/src/generated/prisma/client";
 import { randomizer, selectRandomItems } from "../../src/lib/array";
 import { hashPassword } from "../../src/lib/password";
 

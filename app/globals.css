@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@theme inline {
+	--font-oswald: var(--font-oswald);
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @layer base {

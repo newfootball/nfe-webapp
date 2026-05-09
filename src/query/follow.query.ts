@@ -57,7 +57,7 @@ export async function checkIsFollowing(
 	try {
 		const session = await getSession();
 
-		if (!session || !session.user?.id) {
+		if (!session?.user?.id) {
 			console.warn("No session found");
 			return false;
 		}

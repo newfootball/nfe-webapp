@@ -501,6 +501,17 @@
 				"close": "Fermer",
 				"connect": "Se connecter"
 			}
+		},
+		"search": {
+			"user-types": {
+				"PLAYER": "Joueur",
+				"COACH": "Entraîneur",
+				"RECRUITER": "Recruteur",
+				"CLUB": "Club"
+			},
+			"followers": "abonnés",
+			"posts": "posts",
+			"view-profile": "Voir le profil"
 		}
 	},
 	"actions": {

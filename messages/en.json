@@ -501,6 +501,17 @@
 				"close": "Close",
 				"connect": "Connect"
 			}
+		},
+		"search": {
+			"user-types": {
+				"PLAYER": "Player",
+				"COACH": "Coach",
+				"RECRUITER": "Recruiter",
+				"CLUB": "Club"
+			},
+			"followers": "followers",
+			"posts": "posts",
+			"view-profile": "View profile"
 		}
 	},
 	"actions": {

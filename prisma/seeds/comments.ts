@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker/locale/fr";
-import type { Prisma, PrismaClient } from "@prisma/client";
+import type { Prisma, PrismaClient } from "@/src/generated/prisma/client";
 
 export const seedComments = async ({
 	prisma,

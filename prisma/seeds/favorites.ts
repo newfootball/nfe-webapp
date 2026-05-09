@@ -1,4 +1,4 @@
-import type { Prisma, PrismaClient } from "@prisma/client";
+import type { Prisma, PrismaClient } from "@/src/generated/prisma/client";
 
 export const seedFavorites = async ({
 	prisma,

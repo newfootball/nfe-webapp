@@ -1,43 +1,21 @@
-"use client";
-
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { Shell } from "@/components/shell";
-import { getSession } from "@/src/lib/auth-client";
+import { getUserSession } from "@/src/query/user.query";
 import { OnboardingSteps } from "./onboarding-steps";
 
-export default function OnboardingPage() {
-	const t = useTranslations("onboarding");
-	const router = useRouter();
-	const [isLoading, setIsLoading] = useState(true);
+export default async function OnboardingPage() {
+	const [t, user] = await Promise.all([
+		getTranslations("onboarding"),
+		getUserSession(),
+	]);
 
-	useEffect(() => {
-		const checkProfile = async () => {
-			const session = await getSession();
-			if (!session || !session.data?.user) {
-				router.push("/auth/sign-in");
-				return;
-			}
+	if (!user) {
+		redirect("/sign-in");
+	}
 
-			const response = await fetch(
-				`/api/users/${session.data.user.id}/profile`,
-			);
-			const profile = await response.json();
-
-			if (profile?.userType) {
-				router.push("/feed");
-				return;
-			}
-
-			setIsLoading(false);
-		};
-
-		checkProfile();
-	}, [router]);
-
-	if (isLoading) {
-		return null;
+	if (user.isOnboarded) {
+		redirect("/");
 	}
 
 	return (

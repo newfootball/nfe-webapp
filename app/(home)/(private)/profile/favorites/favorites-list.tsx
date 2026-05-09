@@ -1,7 +1,7 @@
-import type { Media } from "@prisma/client";
 import { BookmarkX } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import type { Media } from "@/src/generated/prisma/client";
 
 type FavoritePost = {
 	id: string;

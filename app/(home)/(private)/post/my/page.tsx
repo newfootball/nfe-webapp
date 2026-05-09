@@ -1,8 +1,8 @@
-import type { PostStatus } from "@prisma/client";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { PostDetails } from "@/components/feature/post/post-details";
 import { Badge } from "@/components/ui/badge";
+import type { PostStatus } from "@/src/generated/prisma/client";
 import { getPosts } from "@/src/query/post.query";
 import { getUserSession } from "@/src/query/user.query";
 

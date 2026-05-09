@@ -1,15 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { PostCommentsList } from "@/components/feature/post/post-comments-list";
 import { PostDetails } from "@/components/feature/post/post-details";
-import { PostFormComment } from "@/components/feature/post/post-form-comment";
+import {
+	PostFormComment,
+	type PostFormCommentHandle,
+} from "@/components/feature/post/post-form-comment";
 import { useSession } from "@/src/lib/auth-client";
 import type { PostWithUserAndMedias } from "@/src/types/post.types";
 
 export const PostCard = ({ post }: { post: PostWithUserAndMedias }) => {
 	const [refreshComments, setRefreshComments] = useState(0);
 	const { data: session } = useSession();
+	const commentFormRef = useRef<PostFormCommentHandle>(null);
 
 	const handleCommentPosted = () => {
 		setRefreshComments((prev) => prev + 1);
@@ -19,12 +23,14 @@ export const PostCard = ({ post }: { post: PostWithUserAndMedias }) => {
 		<article className="flex-grow mx-auto p-4 px-0 space-y-4">
 			<PostDetails post={post}>
 				<PostFormComment
+					ref={commentFormRef}
 					postId={post.id}
 					onCommentPosted={handleCommentPosted}
 				/>
 				<PostCommentsList
 					postId={post.id}
 					currentUserId={session?.user?.id}
+					onEmptyClick={() => commentFormRef.current?.focus()}
 					key={refreshComments}
 				/>
 			</PostDetails>

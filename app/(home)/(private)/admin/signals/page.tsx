@@ -1,8 +1,8 @@
-import type { SignalStatus } from "@prisma/client";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Layout } from "@/components/layouts/layout";
+import type { SignalStatus } from "@/src/generated/prisma/client";
 import { getSignals } from "@/src/query/signal.query";
 import { getUserRole, getUserSessionId } from "@/src/query/user.query";
 import { SignalList } from "./_components/signal-list";

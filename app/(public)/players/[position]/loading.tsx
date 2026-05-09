@@ -1,13 +1,25 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
+const playerSkeletons = [
+	"player-1",
+	"player-2",
+	"player-3",
+	"player-4",
+	"player-5",
+	"player-6",
+];
+
 export default function Loading() {
 	return (
 		<div className="container mx-auto px-4 py-8">
 			<Skeleton className="h-9 w-56 mb-6" />
 			<Skeleton className="h-4 w-96 mb-8" />
 			<div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-				{Array.from({ length: 6 }).map((_, i) => (
-					<div key={i} className="bg-card rounded-lg shadow-md overflow-hidden">
+				{playerSkeletons.map((key) => (
+					<div
+						key={key}
+						className="bg-card rounded-lg shadow-md overflow-hidden"
+					>
 						<div className="p-6">
 							<div className="flex items-center mb-4">
 								<Skeleton className="h-15 w-15 rounded-full mr-4" />

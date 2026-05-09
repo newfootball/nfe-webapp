@@ -59,7 +59,3 @@ export const usePosts = (options: UsePostsOptions = {}) => {
 		refetch,
 	};
 };
-
-export const useUserPosts = (userId: string, enabled = true) => {
-	return usePosts({ userId, enabled });
-};

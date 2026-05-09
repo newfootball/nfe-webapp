@@ -46,7 +46,8 @@ export const toggleLike = async ({ postId }: { postId: string }) => {
 		});
 		await createNotification(
 			post.userId,
-			`${liker?.name ?? "Someone"} liked your post`,
+			"LIKE",
+			`${liker?.name ?? "Quelqu'un"} a aimé ton post`,
 			`/post/${postId}`,
 		);
 	}

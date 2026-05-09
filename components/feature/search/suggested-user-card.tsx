@@ -1,6 +1,5 @@
 "use client";
 
-import type { UserType } from "@prisma/client";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { FollowButton } from "@/components/feature/follow/follow-button";
@@ -8,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import type { UserType } from "@/src/generated/prisma/client";
 import { useSession } from "@/src/lib/auth-client";
 
 interface SuggestedUser {
@@ -22,7 +22,7 @@ interface SuggestedUser {
 	};
 }
 
-export function SuggestedUserCard({ user }: { user: SuggestedUser }) {
+function SuggestedUserCard({ user }: { user: SuggestedUser }) {
 	const { data: session } = useSession();
 	const t = useTranslations("feature.search");
 	const isPlayer = user.userType === "PLAYER";

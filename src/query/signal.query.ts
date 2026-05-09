@@ -1,7 +1,7 @@
 "use server";
 
-import type { SignalStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import type { SignalStatus } from "@/src/generated/prisma/client";
 
 export const getSignals = async (status?: SignalStatus) => {
 	return prisma.postSignal.findMany({

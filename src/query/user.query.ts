@@ -1,40 +1,8 @@
 "use server";
 
-import type { User } from "@prisma/client";
-import { comparePassword } from "@/lib/password";
 import { prisma } from "@/lib/prisma";
+import type { User } from "@/src/generated/prisma/client";
 import { getSession } from "@/src/lib/auth-server";
-
-export const getUserLogin = async (email: string, password: string) => {
-	try {
-		const user = await prisma.user.findFirst({
-			where: {
-				OR: [{ email }, { name: email }],
-			},
-		});
-
-		if (!user) {
-			return null;
-		}
-
-		const isPasswordValid = await comparePassword(
-			password,
-			user?.password ?? "",
-		);
-
-		if (!isPasswordValid) {
-			return null;
-		}
-
-		// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		const { password: _, ...userWithoutPassword } = user;
-
-		return userWithoutPassword;
-	} catch (error) {
-		console.error("Error fetching user:", error);
-		return null;
-	}
-};
 
 /**
  * Returns the user ID of the authenticated user, or null if there is no authenticated user.

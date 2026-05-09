@@ -1,7 +1,7 @@
 "use server";
 
-import type { Comment } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import type { Comment } from "@/src/generated/prisma/client";
 
 export type LastCommentsResult = {
 	success: boolean;

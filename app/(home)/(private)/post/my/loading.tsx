@@ -1,11 +1,13 @@
 import { Skeleton } from "@/components/ui/skeleton";
 
+const postSkeletons = ["post-1", "post-2", "post-3"];
+
 export default function Loading() {
 	return (
 		<div className="container mx-auto py-8">
 			<Skeleton className="h-8 w-36 mb-6" />
-			{Array.from({ length: 3 }).map((_, i) => (
-				<div key={i} className="mb-4 border-b border-border pb-4">
+			{postSkeletons.map((key) => (
+				<div key={key} className="mb-4 border-b border-border pb-4">
 					<div className="flex items-center gap-3 px-4 py-3">
 						<Skeleton className="h-10 w-10 rounded-full" />
 						<div className="flex-1 space-y-1.5">

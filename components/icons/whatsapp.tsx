@@ -5,6 +5,8 @@ export const WhatsappIcon = (props: React.SVGProps<SVGSVGElement>) => (
 		xmlns="http://www.w3.org/2000/svg"
 		width={20}
 		height={20}
+		aria-hidden="true"
+		focusable="false"
 		{...props}
 	>
 		<circle cx="16" cy="16" r="16" fill="#25D366" />

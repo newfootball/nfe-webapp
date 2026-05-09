@@ -4,7 +4,7 @@ import {
 	type Prisma,
 	type PrismaClient,
 	SpamScore,
-} from "@prisma/client";
+} from "@/src/generated/prisma/client";
 import { randomizer } from "../../src/lib/array";
 
 export const seedPosts = async ({

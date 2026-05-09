@@ -1,7 +1,9 @@
 {
 	"notifications": {
 		"title": "Notifications",
-		"empty": "Aucune notification"
+		"empty": "Aucune notification",
+		"mark-all-read": "Tout marquer comme lu",
+		"unread-count": "{count, plural, one {# nouvelle} other {# nouvelles}}"
 	},
 	"explore": {
 		"title": "Explorer",
@@ -58,12 +60,15 @@
 			"selected-thumbnail": "Miniature sélectionnée",
 			"select-from-video": "Ou sélectionnez une image depuis la vidéo :",
 			"thumbnail": "Miniature",
-			"generating-thumbnails": "Génération des miniatures..."
+			"generating-thumbnails": "Génération des miniatures...",
+			"auto-generated": "Générée automatiquement",
+			"change": "Changer"
 		},
 		"post-comments-list": {
 			"error-loading-comments": "Une erreur s'est produite lors de la récupération des commentaires",
 			"loading-comments": "Chargement des commentaires...",
 			"no-comments": "Aucun commentaire",
+			"be-first-to-comment": "Sois le premier à commenter ce post",
 			"user": "Utilisateur",
 			"delete-comment": "Supprimer le commentaire"
 		},
@@ -96,6 +101,8 @@
 			"signal": "Signaler"
 		},
 		"post-content": {
+			"play-video": "Lire la vidéo",
+			"pause-video": "Mettre la vidéo en pause",
 			"video-playback-error": "Erreur de lecture vidéo:",
 			"video-unsupported": "Format vidéo non pris en charge",
 			"video-unsupported-description": "Le format {format} n'est pas compatible avec votre navigateur"
@@ -354,7 +361,7 @@
 		"fan": "Fan",
 		"player": "Joueur",
 		"coach": "Entraîneur",
-		"trainer": "Préparateur physique",
+		"recruiter": "Recruteur",
 		"club": "Club",
 		"continue": "Continuer",
 		"date-of-birth": "Date de naissance",

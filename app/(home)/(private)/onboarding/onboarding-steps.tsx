@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { UserType } from "@prisma/client";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -9,7 +8,6 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { type ControllerRenderProps, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -33,42 +31,26 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import {
+	UserType,
+	type UserType as UserTypeValue,
+} from "@/src/generated/prisma/enums";
+import {
+	type ClubInfoValues,
+	type CoachInfoValues,
+	clubInfoSchema,
+	coachInfoSchema,
+	type PlayerInfoValues,
+	playerInfoSchema,
+	type UserTypeValues,
+	userTypeSchema,
+} from "@/src/lib/onboarding.schemas";
 import { saveOnboarding } from "./onboarding.action";
-
-const userTypeSchema = z.object({
-	userType: z.enum(["USER", "PLAYER", "COACH", "RECRUITER", "CLUB"] as const),
-});
-
-const baseInfoSchema = z.object({
-	birthDate: z.date(),
-	city: z.string().min(2),
-});
-
-const playerInfoSchema = baseInfoSchema.extend({
-	position: z.string().min(2),
-	foot: z.enum(["LEFT", "RIGHT", "BOTH"]),
-	license: z.string().optional(),
-});
-
-const coachInfoSchema = baseInfoSchema.extend({
-	clubName: z.string().min(2),
-});
-
-const clubInfoSchema = baseInfoSchema.extend({
-	clubName: z.string().min(2),
-	clubSize: z.number().min(1),
-	clubPosition: z.string().min(2),
-});
-
-type UserTypeValues = z.infer<typeof userTypeSchema>;
-type PlayerInfoValues = z.infer<typeof playerInfoSchema>;
-type CoachInfoValues = z.infer<typeof coachInfoSchema>;
-type ClubInfoValues = z.infer<typeof clubInfoSchema>;
 
 export function OnboardingSteps() {
 	const t = useTranslations("onboarding");
 	const [step, setStep] = useState(1);
-	const [userType, setUserType] = useState<UserType>();
+	const [userType, setUserType] = useState<UserTypeValue>();
 	const router = useRouter();
 
 	const userTypeForm = useForm<UserTypeValues>({
@@ -88,7 +70,7 @@ export function OnboardingSteps() {
 	});
 
 	const onUserTypeSubmit = async (data: UserTypeValues) => {
-		setUserType(data.userType as UserType);
+		setUserType(data.userType as UserTypeValue);
 		setStep(2);
 	};
 
@@ -97,13 +79,13 @@ export function OnboardingSteps() {
 	) => {
 		try {
 			const result = await saveOnboarding({
-				userType: userType as UserType,
+				userType: userType as UserTypeValue,
 				...data,
 			});
 
 			if (!result.success) throw new Error(result.error);
 
-			router.push("/feed");
+			router.push("/");
 		} catch (error) {
 			console.error(error);
 			toast.error(t("something-went-wrong"));
@@ -140,7 +122,7 @@ export function OnboardingSteps() {
 										<SelectItem value="USER">{t("fan")}</SelectItem>
 										<SelectItem value="PLAYER">{t("player")}</SelectItem>
 										<SelectItem value="COACH">{t("coach")}</SelectItem>
-										<SelectItem value="TRAINER">{t("trainer")}</SelectItem>
+										<SelectItem value="RECRUITER">{t("recruiter")}</SelectItem>
 										<SelectItem value="CLUB">{t("club")}</SelectItem>
 									</SelectContent>
 								</Select>

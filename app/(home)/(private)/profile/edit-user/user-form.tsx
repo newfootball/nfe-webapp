@@ -1,7 +1,5 @@
 "use client";
 
-import type { User } from "@prisma/client";
-import { Foot, Position } from "@prisma/client";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -21,13 +19,19 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import type { User } from "@/src/generated/prisma/client";
+import {
+	Foot,
+	type Foot as FootValue,
+	Position,
+} from "@/src/generated/prisma/enums";
 import { getUser } from "@/src/query/user.query";
 import { updateUser } from "./edit-user.action";
 import { userSchema } from "./user.schema";
 
 const ALL_POSITIONS = Object.values(Position);
 
-const getFootValue = (foot: Foot[]): string => {
+const getFootValue = (foot: FootValue[]): string => {
 	if (foot.includes(Foot.LEFT) && foot.includes(Foot.RIGHT)) return "BOTH";
 	if (foot.includes(Foot.LEFT)) return "LEFT";
 	if (foot.includes(Foot.RIGHT)) return "RIGHT";

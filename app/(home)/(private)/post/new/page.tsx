@@ -15,7 +15,7 @@ export default function PostNewPage(): React.ReactElement {
 
 	return (
 		<div className="bg-background">
-			<PageHeader title="Make a post" backLink="/" />
+			<PageHeader title="Nouveau post" backLink="/" />
 			<MakePostForm />
 		</div>
 	);

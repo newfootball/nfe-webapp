@@ -1,9 +1,9 @@
-import type { UserType } from "@prisma/client";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import type { UserType } from "@/src/generated/prisma/client";
 
 const userTypeMapping: Record<string, UserType> = {
 	players: "PLAYER",

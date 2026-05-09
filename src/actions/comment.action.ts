@@ -43,7 +43,8 @@ export const saveComment = async (data: CommentFormData) => {
 			});
 			await createNotification(
 				post.userId,
-				`${commenter?.name ?? "Someone"} commented on your post`,
+				"COMMENT",
+				`${commenter?.name ?? "Quelqu'un"} a commenté ton post`,
 				`/post/${validatedData.postId}`,
 			);
 		}

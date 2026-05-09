@@ -5,12 +5,12 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum SpamScore {
@@ -101,6 +101,7 @@ model Account {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([providerId, accountId])
+  @@index([userId, providerId])
 }
 
 model Session {
@@ -157,6 +158,10 @@ model User {
   messages      Message[]      @relation("fromUser")
   messagesTo    Message[]      @relation("toUser")
   signals       PostSignal[]
+
+  @@index([isOnboarded, createdAt])
+  @@index([userType, isOnboarded])
+  @@index([updatedAt])
 }
 
 model Verification {
@@ -181,6 +186,8 @@ model Follow {
   followed User @relation("followed", fields: [followingId], references: [id], onDelete: Cascade)
 
   @@unique([followerId, followingId])
+  @@index([followerId, createdAt])
+  @@index([followingId, createdAt])
 }
 
 model Post {
@@ -205,6 +212,10 @@ model Post {
   comments  Comment[]
   favorites Favorite[]
   signals   PostSignal[]
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+  @@index([status, publishedAt])
 }
 
 model Media {
@@ -220,6 +231,8 @@ model Media {
   updatedAt DateTime  @updatedAt
 
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
 }
 
 model Like {
@@ -233,6 +246,7 @@ model Like {
   post Post @relation(fields: [postId], references: [id])
 
   @@unique([postId, userId])
+  @@index([userId, createdAt])
 }
 
 model Favorite {
@@ -246,6 +260,7 @@ model Favorite {
   post Post @relation(fields: [postId], references: [id])
 
   @@unique([postId, userId])
+  @@index([userId, createdAt])
 }
 
 model Comment {
@@ -258,18 +273,31 @@ model Comment {
 
   user User @relation(fields: [userId], references: [id])
   post Post @relation(fields: [postId], references: [id])
+
+  @@index([postId, createdAt])
+}
+
+enum NotificationType {
+  COMMENT
+  LIKE
+  FOLLOW
+  MESSAGE
 }
 
 model Notification {
-  id        String    @id @default(cuid())
+  id        String           @id @default(cuid())
   userId    String
+  type      NotificationType @default(COMMENT)
   content   String
   link      String?
   readAt    DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
 
   user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([userId, readAt])
 }
 
 model Message {
@@ -283,6 +311,10 @@ model Message {
 
   fromUser User @relation("fromUser", fields: [fromUserId], references: [id])
   toUser   User @relation("toUser", fields: [toUserId], references: [id])
+
+  @@index([fromUserId, toUserId, createdAt])
+  @@index([fromUserId, createdAt])
+  @@index([toUserId, createdAt])
 }
 
 enum SignalStatus {
@@ -305,4 +337,5 @@ model PostSignal {
   post Post @relation(fields: [postId], references: [id])
 
   @@unique([postId, userId])
+  @@index([status, createdAt])
 }

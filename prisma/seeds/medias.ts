@@ -4,7 +4,7 @@ import {
 	MediaType,
 	type Prisma,
 	type PrismaClient,
-} from "@prisma/client";
+} from "@/src/generated/prisma/client";
 import { randomizer } from "../../src/lib/array";
 
 export const seedMedias = async ({

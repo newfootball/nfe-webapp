@@ -5,7 +5,7 @@ import { env } from "@/src/lib/env";
 
 let resendInstance: Resend | null = null;
 
-export const getResend = async (): Promise<Resend> => {
+const getResend = async (): Promise<Resend> => {
 	if (!resendInstance) {
 		if (!env.RESEND_API_KEY) {
 			throw new Error("RESEND_API_KEY is not defined in environment variables");

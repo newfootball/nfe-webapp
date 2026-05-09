@@ -1,5 +1,4 @@
 "use client";
-import { MediaType, PostStatus } from "@prisma/client";
 import { ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,6 +9,7 @@ import { toast } from "sonner";
 import { Layout } from "@/components/layouts/layout";
 import { Button } from "@/components/ui/button";
 import { publishPost } from "@/src/actions/post.action";
+import { MediaType, PostStatus } from "@/src/generated/prisma/enums";
 import { cn } from "@/src/lib/utils";
 import type { PostWithMedias } from "@/src/types/post.types";
 

@@ -1,11 +1,17 @@
-import { Bell } from "lucide-react";
-import Link from "next/link";
+import { MessageCircle } from "lucide-react";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Layout } from "@/components/layouts/layout";
-import { markAllNotificationsRead } from "@/src/actions/notification.action";
 import { getSession } from "@/src/lib/auth-server";
 import { getNotifications } from "@/src/query/notification.query";
+import { MarkAllReadButton } from "./_components/mark-all-read-button";
+import { NotificationItem } from "./_components/notification-item";
+
+function splitContent(content: string): { name: string; action: string } {
+	const m = content.match(/^(.*?)\s+((?:a |te |t'a ).*)$/);
+	if (m?.[1] && m[2]) return { name: m[1], action: m[2] };
+	return { name: content, action: "" };
+}
 
 function timeAgo(date: Date): string {
 	const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -14,7 +20,7 @@ function timeAgo(date: Date): string {
 	if (minutes < 60) return `${minutes}m`;
 	const hours = Math.floor(minutes / 60);
 	if (hours < 24) return `${hours}h`;
-	return `${Math.floor(hours / 24)}d`;
+	return `${Math.floor(hours / 24)}j`;
 }
 
 export default async function NotificationsPage() {
@@ -26,46 +32,49 @@ export default async function NotificationsPage() {
 
 	const t = await getTranslations("notifications");
 	const notifications = await getNotifications();
-
-	await markAllNotificationsRead();
+	const unreadCount = notifications.filter((n) => !n.readAt).length;
 
 	return (
 		<Layout>
 			<div className="py-4">
-				<h1 className="text-xl font-bold mb-6">{t("title")}</h1>
+				<div className="flex items-center justify-between mb-5">
+					<h1 className="font-oswald text-2xl font-bold tracking-wide uppercase">
+						{t("title")}
+					</h1>
+					<div className="flex items-center gap-3">
+						{unreadCount > 0 && (
+							<>
+								<MarkAllReadButton label={t("mark-all-read")} />
+								<span className="text-xs font-semibold bg-primary text-primary-foreground px-2.5 py-1 rounded-full">
+									{t("unread-count", { count: unreadCount })}
+								</span>
+							</>
+						)}
+					</div>
+				</div>
 
 				{notifications.length === 0 ? (
 					<div className="flex flex-col items-center justify-center gap-3 py-20 text-muted-foreground">
-						<Bell className="h-10 w-10" />
+						<MessageCircle className="h-10 w-10" />
 						<p className="text-sm">{t("empty")}</p>
 					</div>
 				) : (
-					<div className="space-y-1">
-						{notifications.map((notif) => (
-							<div
-								key={notif.id}
-								className={`flex items-start gap-3 p-3 rounded-lg ${!notif.readAt ? "bg-accent/40" : ""}`}
-							>
-								<div className="shrink-0 mt-0.5 w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-									<Bell className="h-4 w-4 text-muted-foreground" />
-								</div>
-								<div className="flex-1 min-w-0">
-									{notif.link ? (
-										<Link
-											href={notif.link}
-											className="text-sm hover:underline line-clamp-2"
-										>
-											{notif.content}
-										</Link>
-									) : (
-										<p className="text-sm line-clamp-2">{notif.content}</p>
-									)}
-									<p className="text-xs text-muted-foreground mt-0.5">
-										{timeAgo(new Date(notif.createdAt))}
-									</p>
-								</div>
-							</div>
-						))}
+					<div className="flex flex-col gap-2">
+						{notifications.map((notif) => {
+							const { name, action } = splitContent(notif.content);
+							return (
+								<NotificationItem
+									key={notif.id}
+									notifId={notif.id}
+									link={notif.link}
+									isUnread={!notif.readAt}
+									name={name}
+									action={action}
+									rawContent={notif.content}
+									timeAgo={timeAgo(new Date(notif.createdAt))}
+								/>
+							);
+						})}
 					</div>
 				)}
 			</div>

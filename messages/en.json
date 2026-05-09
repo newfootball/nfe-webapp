@@ -1,7 +1,9 @@
 {
 	"notifications": {
 		"title": "Notifications",
-		"empty": "No notifications yet"
+		"empty": "No notifications yet",
+		"mark-all-read": "Mark all as read",
+		"unread-count": "{count, plural, one {# new} other {# new}}"
 	},
 	"explore": {
 		"title": "Explore",
@@ -58,12 +60,15 @@
 			"selected-thumbnail": "Selected thumbnail",
 			"select-from-video": "Or select a frame from the video:",
 			"thumbnail": "Thumbnail",
-			"generating-thumbnails": "Generating thumbnails..."
+			"generating-thumbnails": "Generating thumbnails...",
+			"auto-generated": "Auto-generated",
+			"change": "Change"
 		},
 		"post-comments-list": {
 			"error-loading-comments": "An error occurred while loading comments",
 			"loading-comments": "Loading comments...",
 			"no-comments": "No comments",
+			"be-first-to-comment": "Be the first to comment on this post",
 			"user": "User",
 			"delete-comment": "Delete comment"
 		},
@@ -96,6 +101,8 @@
 			"signal": "Signal"
 		},
 		"post-content": {
+			"play-video": "Play video",
+			"pause-video": "Pause video",
 			"video-playback-error": "Video playback error:",
 			"video-unsupported": "Video format not supported",
 			"video-unsupported-description": "The {format} format is not supported by your browser"
@@ -354,7 +361,7 @@
 		"fan": "Fan",
 		"player": "Player",
 		"coach": "Coach",
-		"trainer": "Trainer",
+		"recruiter": "Recruiter",
 		"club": "Club",
 		"continue": "Continue",
 		"date-of-birth": "Date of birth",

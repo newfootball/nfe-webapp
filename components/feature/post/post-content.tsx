@@ -15,6 +15,7 @@ export function PostContent({ post }: PostContentProps) {
 	const video = post.medias.find((media) => media.mimetype.includes("video"));
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [canPlayVideo, setCanPlayVideo] = useState(true);
+	const [aspectRatio, setAspectRatio] = useState("16/9");
 	const videoRef = useRef<HTMLVideoElement>(null);
 
 	useEffect(() => {
@@ -32,6 +33,13 @@ export function PostContent({ post }: PostContentProps) {
 			el.removeEventListener("error", handleError);
 		};
 	}, [t]);
+
+	const handleLoadedMetadata = () => {
+		const el = videoRef.current;
+		if (el?.videoWidth && el?.videoHeight) {
+			setAspectRatio(`${el.videoWidth}/${el.videoHeight}`);
+		}
+	};
 
 	if (!video) {
 		return (
@@ -75,7 +83,7 @@ export function PostContent({ post }: PostContentProps) {
 	})();
 
 	return (
-		<div className="relative aspect-video w-full overflow-hidden">
+		<div className="relative w-full overflow-hidden" style={{ aspectRatio }}>
 			<button
 				type="button"
 				aria-label={isPlaying ? t("pause-video") : t("play-video")}
@@ -88,11 +96,12 @@ export function PostContent({ post }: PostContentProps) {
 							ref={videoRef}
 							muted={false}
 							loop
-							className="w-full h-full object-cover"
+							className="w-full h-full object-contain"
 							poster={image?.url}
 							controls={isPlaying}
 							autoPlay={false}
 							preload="metadata"
+							onLoadedMetadata={handleLoadedMetadata}
 						>
 							{transformedVideoUrl && (
 								<source src={transformedVideoUrl} type="video/mp4" />

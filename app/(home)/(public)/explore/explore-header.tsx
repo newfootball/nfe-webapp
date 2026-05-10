@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { Search } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -49,34 +50,44 @@ export const ExploreHeader = () => {
 				</div>
 			</div>
 
-			{q && (
-				<Tabs
-					value={tab}
-					onValueChange={(value) => navigateTo(q, value)}
-					className="w-full"
-				>
-					<TabsList className="w-full justify-between h-auto bg-transparent p-0 px-4">
-						<TabsTrigger
-							value="top"
-							className="flex-1 data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 pb-2"
+			<AnimatePresence>
+				{q && (
+					<motion.div
+						key="search-tabs"
+						initial={{ opacity: 0, y: -8 }}
+						animate={{ opacity: 1, y: 0 }}
+						exit={{ opacity: 0, y: -8 }}
+						transition={{ duration: 0.2, ease: "easeOut" }}
+					>
+						<Tabs
+							value={tab}
+							onValueChange={(value) => navigateTo(q, value)}
+							className="w-full"
 						>
-							{t("tabs.top")}
-						</TabsTrigger>
-						<TabsTrigger
-							value="users"
-							className="flex-1 data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 pb-2"
-						>
-							{t("tabs.users")}
-						</TabsTrigger>
-						<TabsTrigger
-							value="posts"
-							className="flex-1 data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 pb-2"
-						>
-							{t("tabs.posts")}
-						</TabsTrigger>
-					</TabsList>
-				</Tabs>
-			)}
+							<TabsList className="w-full justify-between h-auto bg-transparent p-0 px-4">
+								<TabsTrigger
+									value="top"
+									className="flex-1 data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 pb-2"
+								>
+									{t("tabs.top")}
+								</TabsTrigger>
+								<TabsTrigger
+									value="users"
+									className="flex-1 data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 pb-2"
+								>
+									{t("tabs.users")}
+								</TabsTrigger>
+								<TabsTrigger
+									value="posts"
+									className="flex-1 data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-1 pb-2"
+								>
+									{t("tabs.posts")}
+								</TabsTrigger>
+							</TabsList>
+						</Tabs>
+					</motion.div>
+				)}
+			</AnimatePresence>
 		</header>
 	);
 };

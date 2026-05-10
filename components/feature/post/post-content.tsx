@@ -17,6 +17,7 @@ export function PostContent({ post }: PostContentProps) {
 	const [canPlayVideo, setCanPlayVideo] = useState(true);
 	const [aspectRatio, setAspectRatio] = useState("16/9");
 	const videoRef = useRef<HTMLVideoElement>(null);
+	const containerRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
 		const el = videoRef.current;
@@ -33,6 +34,25 @@ export function PostContent({ post }: PostContentProps) {
 			el.removeEventListener("error", handleError);
 		};
 	}, [t]);
+
+	useEffect(() => {
+		const container = containerRef.current;
+		const el = videoRef.current;
+		if (!container || !el) return;
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				if (!entries[0]?.isIntersecting) {
+					el.pause();
+					setIsPlaying(false);
+				}
+			},
+			{ threshold: 0.25 },
+		);
+
+		observer.observe(container);
+		return () => observer.disconnect();
+	}, []);
 
 	const handleLoadedMetadata = () => {
 		const el = videoRef.current;
@@ -83,7 +103,11 @@ export function PostContent({ post }: PostContentProps) {
 	})();
 
 	return (
-		<div className="relative w-full overflow-hidden" style={{ aspectRatio }}>
+		<div
+			ref={containerRef}
+			className="relative w-full overflow-hidden"
+			style={{ aspectRatio }}
+		>
 			<button
 				type="button"
 				aria-label={isPlaying ? t("pause-video") : t("play-video")}

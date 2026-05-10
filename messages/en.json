@@ -480,7 +480,7 @@
 				"localisation": "City",
 				"position": "Position",
 				"foot": "Preferred foot",
-				"age": "Age",
+				"age": "years old",
 				"send-message": "Send a message"
 			},
 			"search": {

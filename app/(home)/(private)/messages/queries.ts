@@ -89,6 +89,7 @@ export async function getMessagesGroupedByUser(
 
 		const formattedMessage: Message = {
 			id: message.id,
+			userId: otherUser.id,
 			user: otherUser.name || "Unknown",
 			image:
 				otherUser.image ||

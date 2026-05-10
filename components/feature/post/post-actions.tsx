@@ -83,17 +83,23 @@ export function PostActions({
 
 		setLikeAnimKey((k) => k + 1);
 
+		const optimisticLike = !isLike;
+		setIsLike(optimisticLike);
+		if (optimisticLike) likePost(postId);
+		else unlikePost(postId);
+
 		try {
 			const result = await toggleLike({ postId });
-			setIsLike(result);
-
-			if (result) {
-				likePost(postId);
-			} else {
-				unlikePost(postId);
+			if (result !== optimisticLike) {
+				setIsLike(result);
+				if (result) likePost(postId);
+				else unlikePost(postId);
 			}
 		} catch (error) {
 			console.error("Error toggling like:", error);
+			setIsLike(!optimisticLike);
+			if (!optimisticLike) likePost(postId);
+			else unlikePost(postId);
 		}
 	};
 
@@ -104,11 +110,15 @@ export function PostActions({
 			return;
 		}
 
+		const optimisticFavorite = !isFavorite;
+		setIsFavorite(optimisticFavorite);
+
 		try {
 			const result = await toggleFavorite({ postId });
-			setIsFavorite(result);
+			if (result !== optimisticFavorite) setIsFavorite(result);
 		} catch (error) {
 			console.error("Error toggling favorite:", error);
+			setIsFavorite(!optimisticFavorite);
 		}
 	};
 

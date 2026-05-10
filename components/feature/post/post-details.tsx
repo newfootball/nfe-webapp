@@ -6,9 +6,11 @@ import { PostHeader } from "./post-header";
 export const PostDetails = ({
 	post,
 	children,
+	onCommentClick,
 }: {
 	post: PostWithUserAndMedias;
 	children?: React.ReactNode | null;
+	onCommentClick?: () => void;
 }) => {
 	return (
 		<article
@@ -22,6 +24,7 @@ export const PostDetails = ({
 				comments={post._count.comments}
 				postId={post.id}
 				title={post.title}
+				onCommentClick={onCommentClick}
 			/>
 			{children}
 		</article>

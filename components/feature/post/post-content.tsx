@@ -64,15 +64,15 @@ export function PostContent({ post }: PostContentProps) {
 		}
 	};
 
-	const getVideoUrl = () => {
+	const transformedVideoUrl = (() => {
 		if (
 			video.url.includes("cloudinary.com") &&
 			video.url.includes("/upload/")
 		) {
-			return video.url.replace("/upload/", "/upload/f_mp4,vc_auto/");
+			return video.url.replace("/upload/", "/upload/f_mp4/");
 		}
-		return video.url;
-	};
+		return null;
+	})();
 
 	return (
 		<div className="relative aspect-video w-full overflow-hidden">
@@ -94,7 +94,10 @@ export function PostContent({ post }: PostContentProps) {
 							autoPlay={false}
 							preload="metadata"
 						>
-							<source src={getVideoUrl()} type="video/mp4" />
+							{transformedVideoUrl && (
+								<source src={transformedVideoUrl} type="video/mp4" />
+							)}
+							<source src={video.url} />
 							{t("video-unsupported")}
 						</video>
 						{!isPlaying && (

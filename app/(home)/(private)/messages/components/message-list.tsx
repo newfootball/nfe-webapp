@@ -26,7 +26,7 @@ export function MessageList({ messages }: MessageListProps) {
 						type="button"
 						className="flex-1 min-w-0 text-left"
 						onClick={() => {
-							router.push(`/messages/${message.user}`);
+							router.push(`/messages/${message.userId}`);
 						}}
 					>
 						<div className="flex items-center justify-between gap-2">

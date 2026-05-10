@@ -6,6 +6,7 @@ export type MessageUser = {
 
 export type Message = {
 	id: string;
+	userId: string;
 	user: string;
 	image: string;
 	message: string;

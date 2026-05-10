@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { UserCheck, UserRoundPlus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
@@ -68,13 +69,35 @@ export const FollowButton = ({
 			size={showText ? "sm" : "icon"}
 			onClick={handleToggleFollow}
 			disabled={isLoading}
+			className="relative overflow-hidden"
 		>
-			{isFollowing ? (
-				<UserCheck className="h-4 w-4" />
-			) : (
-				<UserRoundPlus className="h-4 w-4" />
-			)}
-			{showText && (isFollowing ? t("following") : t("follow"))}
+			<AnimatePresence mode="wait" initial={false}>
+				{isFollowing ? (
+					<motion.span
+						key="following"
+						initial={{ scale: 0, rotate: -30 }}
+						animate={{ scale: 1, rotate: 0 }}
+						exit={{ scale: 0, rotate: 30 }}
+						transition={{ type: "spring", stiffness: 400, damping: 18 }}
+						className="flex items-center gap-1"
+					>
+						<UserCheck className="h-4 w-4" />
+						{showText && t("following")}
+					</motion.span>
+				) : (
+					<motion.span
+						key="not-following"
+						initial={{ scale: 0, rotate: 30 }}
+						animate={{ scale: 1, rotate: 0 }}
+						exit={{ scale: 0, rotate: -30 }}
+						transition={{ type: "spring", stiffness: 400, damping: 18 }}
+						className="flex items-center gap-1"
+					>
+						<UserRoundPlus className="h-4 w-4" />
+						{showText && t("follow")}
+					</motion.span>
+				)}
+			</AnimatePresence>
 		</Button>
 	);
 };

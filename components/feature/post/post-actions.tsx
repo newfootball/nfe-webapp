@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { Bookmark, Heart, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -43,6 +44,7 @@ export function PostActions({
 	const [showCommentForm, setShowCommentForm] = useState(false);
 	const [isLike, setIsLike] = useState(false);
 	const [isFavorite, setIsFavorite] = useState(false);
+	const [likeAnimKey, setLikeAnimKey] = useState(0);
 	const t = useTranslations("posts.post-actions");
 
 	const { data: commentData } = useCommentCount(postId);
@@ -78,6 +80,8 @@ export function PostActions({
 			redirectToSignIn();
 			return;
 		}
+
+		setLikeAnimKey((k) => k + 1);
 
 		try {
 			const result = await toggleLike({ postId });
@@ -135,11 +139,19 @@ export function PostActions({
 						className="h-9 w-9"
 						onClick={handleLike}
 					>
-						<Heart
-							className={cn("h-6 w-6", {
-								"fill-red-500 text-red-500": isLike,
-							})}
-						/>
+						<motion.div
+							key={likeAnimKey}
+							initial={likeAnimKey > 0 ? { scale: 1.5 } : false}
+							animate={{ scale: 1 }}
+							whileTap={{ scale: 0.75 }}
+							transition={{ type: "spring", stiffness: 400, damping: 14 }}
+						>
+							<Heart
+								className={cn("h-6 w-6", {
+									"fill-red-500 text-red-500": isLike,
+								})}
+							/>
+						</motion.div>
 					</Button>
 					<Button
 						variant="ghost"
@@ -182,15 +194,25 @@ export function PostActions({
 				</Link>
 			)}
 
-			{showCommentForm && (
-				<div className="mt-2">
-					<PostFormComment
-						postId={postId}
-						onCommentPosted={updateCommentCount}
-					/>
-					<PostCommentsList postId={postId} />
-				</div>
-			)}
+			<AnimatePresence>
+				{showCommentForm && (
+					<motion.div
+						key="inline-comments"
+						initial={{ height: 0, opacity: 0 }}
+						animate={{ height: "auto", opacity: 1 }}
+						exit={{ height: 0, opacity: 0 }}
+						transition={{ duration: 0.25, ease: "easeInOut" }}
+						style={{ overflow: "hidden" }}
+						className="mt-2"
+					>
+						<PostFormComment
+							postId={postId}
+							onCommentPosted={updateCommentCount}
+						/>
+						<PostCommentsList postId={postId} />
+					</motion.div>
+				)}
+			</AnimatePresence>
 		</div>
 	);
 }

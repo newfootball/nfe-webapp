@@ -81,6 +81,7 @@ const pwa = withPWA({
 });
 
 const nextConfig: NextConfig = {
+	transpilePackages: ["framer-motion", "motion-dom", "motion-utils"],
 	images: {
 		remotePatterns: [
 			{

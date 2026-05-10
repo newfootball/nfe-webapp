@@ -21,6 +21,7 @@ export function NotificationBell() {
 		if (count > prevCountRef.current) {
 			setIsWiggling(true);
 			const t = setTimeout(() => setIsWiggling(false), 600);
+			prevCountRef.current = count;
 			return () => clearTimeout(t);
 		}
 		prevCountRef.current = count;

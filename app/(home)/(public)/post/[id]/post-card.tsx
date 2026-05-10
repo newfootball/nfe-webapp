@@ -21,7 +21,10 @@ export const PostCard = ({ post }: { post: PostWithUserAndMedias }) => {
 
 	return (
 		<article className="flex-grow mx-auto p-4 px-0 space-y-4">
-			<PostDetails post={post}>
+			<PostDetails
+				post={post}
+				onCommentClick={() => commentFormRef.current?.focus()}
+			>
 				<PostFormComment
 					ref={commentFormRef}
 					postId={post.id}

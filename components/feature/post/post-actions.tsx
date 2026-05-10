@@ -26,6 +26,7 @@ interface PostActionsProps {
 	comments?: number;
 	postId: string;
 	title?: string;
+	onCommentClick?: () => void;
 }
 
 export function PostActions({
@@ -33,6 +34,7 @@ export function PostActions({
 	comments: initialComments = 0,
 	postId,
 	title,
+	onCommentClick,
 }: PostActionsProps) {
 	const { data: session, isPending } = useSession();
 	const userId = session?.user?.id;
@@ -112,7 +114,11 @@ export function PostActions({
 			redirectToSignIn();
 			return;
 		}
-		setShowCommentForm(!showCommentForm);
+		if (onCommentClick) {
+			onCommentClick();
+		} else {
+			setShowCommentForm(!showCommentForm);
+		}
 	};
 
 	const updateCommentCount = () => {

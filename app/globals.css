@@ -15,6 +15,13 @@
 	::file-selector-button {
 		border-color: var(--border);
 	}
+
+	h1,
+	h2,
+	h3,
+	h4 {
+		font-family: var(--font-oswald);
+	}
 }
 
 :root {

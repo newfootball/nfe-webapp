@@ -3,6 +3,7 @@ import { Play } from "lucide-react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
+import { toCloudinaryWebP } from "@/src/lib/cloudinary";
 import type { PostWithUserAndMedias } from "@/src/types/post.types";
 
 interface PostContentProps {
@@ -121,7 +122,7 @@ export function PostContent({ post }: PostContentProps) {
 							muted={false}
 							loop
 							className="w-full h-full object-contain"
-							poster={image?.url}
+							poster={toCloudinaryWebP(image?.url)}
 							controls={isPlaying}
 							autoPlay={false}
 							preload="metadata"

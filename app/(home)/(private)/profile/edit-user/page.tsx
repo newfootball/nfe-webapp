@@ -27,7 +27,7 @@ export default function EditUserPage() {
 	return (
 		<>
 			<PageHeader title={t("edit-profile")} backLink="/profile" />
-			<Card className="mx-auto max-w-sm shadow-none border-none">
+			<Card className="w-full shadow-none border-none">
 				<CardHeader>
 					<CardDescription>{t("enter-email-to-edit-profile")}</CardDescription>
 				</CardHeader>

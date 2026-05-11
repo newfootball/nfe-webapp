@@ -98,7 +98,7 @@ export const UserForm = ({ userId }: { userId: string }) => {
 				</Alert>
 			)}
 
-			<InputLayout className="grid w-full max-w-sm items-center gap-1.5 mb-4">
+			<InputLayout>
 				<Label htmlFor="email">{t("email")}</Label>
 				<Input
 					type="email"

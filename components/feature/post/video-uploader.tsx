@@ -13,6 +13,7 @@ import {
 } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { convertToWebP } from "@/src/lib/cloudinary";
 
 interface VideoUploaderProps {
 	onVideoChange: (file: File | null) => void;
@@ -114,10 +115,11 @@ export function VideoUploader({
 	);
 
 	const handleThumbnailSelect = useCallback(
-		(e: React.ChangeEvent<HTMLInputElement>) => {
+		async (e: React.ChangeEvent<HTMLInputElement>) => {
 			const file = e.target.files?.[0];
 			if (file) {
-				onThumbnailChange(file);
+				const webpFile = await convertToWebP(file);
+				onThumbnailChange(webpFile);
 				setSelectedThumbnailIndex(null);
 				setShowThumbnailOverride(false);
 			}
@@ -150,8 +152,8 @@ export function VideoUploader({
 					fetch(thumbnails[0])
 						.then((r) => r.blob())
 						.then((blob) => {
-							const file = new File([blob], "thumbnail-auto.jpg", {
-								type: "image/jpeg",
+							const file = new File([blob], "thumbnail-auto.webp", {
+								type: "image/webp",
 							});
 							onThumbnailChange(file);
 							setSelectedThumbnailIndex(0);
@@ -169,7 +171,7 @@ export function VideoUploader({
 			canvas.width = videoElement.videoWidth;
 			canvas.height = videoElement.videoHeight;
 			ctx.drawImage(videoElement, 0, 0);
-			thumbnails.push(canvas.toDataURL("image/jpeg", 0.8));
+			thumbnails.push(canvas.toDataURL("image/webp", 0.85));
 			index++;
 			captureFrame();
 		};
@@ -181,8 +183,8 @@ export function VideoUploader({
 		async (dataUrl: string, index: number) => {
 			const response = await fetch(dataUrl);
 			const blob = await response.blob();
-			const file = new File([blob], `thumbnail-${index}.jpg`, {
-				type: "image/jpeg",
+			const file = new File([blob], `thumbnail-${index}.webp`, {
+				type: "image/webp",
 			});
 			onThumbnailChange(file);
 			setSelectedThumbnailIndex(index);

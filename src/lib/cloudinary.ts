@@ -42,6 +42,8 @@ export async function convertToWebP(file: File, quality = 0.85): Promise<File> {
 
 		const name = file.name.replace(/\.[^/.]+$/, ".webp");
 		return new File([blob], name, { type: "image/webp" });
+	} catch {
+		return file;
 	} finally {
 		URL.revokeObjectURL(url);
 	}

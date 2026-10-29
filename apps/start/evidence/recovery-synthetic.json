@@ -1,0 +1,12 @@
+{
+	"at": "2026-10-29T15:34:59.795Z",
+	"appwrite": "2.6.2",
+	"sourceCommit": "54581f9698f9de23cf4b1432e353b3ee9b0012d5",
+	"resources": "nfe-auth-recovery-52",
+	"source": "synthetic only; SMTP capture",
+	"testExit": 0,
+	"clientFilesScanned": 12,
+	"sensitiveMatches": 0,
+	"oidc": "controlled signed protocol tests only; no actual Google exchange",
+	"productionGates": "source registry, Google domains, SMTP domain, target invalidation proof, dependency53 acceptance"
+}

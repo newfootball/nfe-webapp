@@ -38,6 +38,7 @@
 		"node_modules",
 		"apps/start",
 		"tools/migration-probe",
-		"tools/identity-import"
+		"tools/identity-import",
+		"tools/appwrite-schema"
 	]
 }

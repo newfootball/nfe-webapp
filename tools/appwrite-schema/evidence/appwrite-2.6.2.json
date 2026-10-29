@@ -1,0 +1,232 @@
+{
+	"generatedAt": "2026-10-29T10:56:59.901Z",
+	"serverVersion": "2.6.2",
+	"localOnly": true,
+	"permanentHostGate": "#46 pending",
+	"schemaDigest": "606208473271554712f44eac99edec1cff4215fe141efc034e0ef4d4808e7129",
+	"runtime": {
+		"databaseId": "proof-5e382e8b"
+	},
+	"results": {
+		"provision-v1": {
+			"status": "passed",
+			"detail": {
+				"version": "v1",
+				"digest": "606208473271554712f44eac99edec1cff4215fe141efc034e0ef4d4808e7129",
+				"tables": 13
+			}
+		},
+		"real-session-actors": {
+			"status": "passed",
+			"detail": {
+				"actors": ["anonymous", "a", "b", "admin"],
+				"admin": "server-issued label, session client without API key"
+			}
+		},
+		"reference-fixtures": {
+			"status": "passed",
+			"detail": {
+				"records": 20,
+				"preserved": ["id", "slug", "null", "enum-array", "millisecond-date"]
+			}
+		},
+		"acl-get-and-list-matrix": {
+			"status": "passed",
+			"detail": {
+				"profiles/cfixtureusera0000000000001": {
+					"anonymous": true,
+					"a": true,
+					"b": true,
+					"admin": true
+				},
+				"profiles/cfixtureuserb0000000000002": {
+					"anonymous": true,
+					"a": true,
+					"b": true,
+					"admin": true
+				},
+				"profiles/cfixtureadmin000000000001": {
+					"anonymous": true,
+					"a": true,
+					"b": true,
+					"admin": true
+				},
+				"private_profiles/cfixtureusera0000000000001": {
+					"anonymous": false,
+					"a": true,
+					"b": false,
+					"admin": true
+				},
+				"posts/post-0": {
+					"anonymous": true,
+					"a": true,
+					"b": true,
+					"admin": true
+				},
+				"posts/post-1": {
+					"anonymous": false,
+					"a": true,
+					"b": false,
+					"admin": true
+				},
+				"posts/post-2": {
+					"anonymous": false,
+					"a": true,
+					"b": false,
+					"admin": true
+				},
+				"posts/post-3": {
+					"anonymous": false,
+					"a": true,
+					"b": false,
+					"admin": true
+				},
+				"posts/post-4": {
+					"anonymous": false,
+					"a": true,
+					"b": false,
+					"admin": true
+				},
+				"posts/post-5": {
+					"anonymous": false,
+					"a": true,
+					"b": false,
+					"admin": true
+				},
+				"post_private/post-0": {
+					"anonymous": false,
+					"a": false,
+					"b": false,
+					"admin": true
+				},
+				"follows/follow-ab": {
+					"anonymous": true,
+					"a": true,
+					"b": true,
+					"admin": true
+				},
+				"likes/like-a": {
+					"anonymous": false,
+					"a": false,
+					"b": false,
+					"admin": false
+				},
+				"favorites/favorite-a": {
+					"anonymous": false,
+					"a": true,
+					"b": false,
+					"admin": false
+				},
+				"comments/comment-a": {
+					"anonymous": false,
+					"a": false,
+					"b": false,
+					"admin": false
+				},
+				"notifications/notification-a": {
+					"anonymous": false,
+					"a": true,
+					"b": false,
+					"admin": false
+				},
+				"messages/message-ab": {
+					"anonymous": false,
+					"a": true,
+					"b": true,
+					"admin": false
+				},
+				"messages/message-admin": {
+					"anonymous": false,
+					"a": false,
+					"b": false,
+					"admin": true
+				},
+				"signals/signal-a": {
+					"anonymous": false,
+					"a": false,
+					"b": false,
+					"admin": true
+				},
+				"media/media-a": {
+					"anonymous": false,
+					"a": true,
+					"b": false,
+					"admin": true
+				}
+			}
+		},
+		"client-writes-and-role-escalation-denied": {
+			"status": "passed",
+			"detail": {
+				"noDirectClientMutations": true,
+				"adminIsReadOnlyWithoutServer": true
+			}
+		},
+		"unique-collisions-and-null-names": {
+			"status": "passed",
+			"detail": {
+				"rejected": [
+					"name",
+					"slug",
+					"follow-pair",
+					"like-pair",
+					"favorite-pair",
+					"signal-pair"
+				],
+				"nullableNames": 2
+			}
+		},
+		"concurrent-unique-writes": {
+			"status": "passed",
+			"detail": {
+				"parallelWritersPerConstraint": 8,
+				"winners": {
+					"profiles": 1,
+					"posts": 1,
+					"follows": 1,
+					"likes": 1,
+					"favorites": 1,
+					"signals": 1
+				}
+			}
+		},
+		"indexed-queries-counts-and-batching": {
+			"status": "passed",
+			"detail": {
+				"postPage": 2,
+				"likes": 2,
+				"comments": 1,
+				"unread": 1,
+				"conversation": 1,
+				"strategy": "page + batched IN references; exact totals from source rows"
+			}
+		},
+		"moderation-atomic-acl-commit-and-rollback": {
+			"status": "passed",
+			"detail": {
+				"statusAndAclAtomic": true,
+				"rollbackRetainsAcl": true
+			}
+		},
+		"concurrent-transaction-conflict": {
+			"status": "passed",
+			"detail": {
+				"committed": 1,
+				"conflicts": 1
+			}
+		},
+		"rerun-preserves-all-records-and-acls": {
+			"status": "passed",
+			"detail": {
+				"additionalRuns": 2,
+				"allTablesAndPermissionsUnchanged": true
+			}
+		},
+		"schema-drift-fails-closed": {
+			"status": "passed",
+			"detail": {
+				"unsafeTableGrantRejected": true
+			}
+		}
+	}
+}

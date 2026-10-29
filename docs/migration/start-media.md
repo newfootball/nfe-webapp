@@ -34,8 +34,10 @@ configuration, provide:
 
 Parts are exactly 5 MiB except the last; at most 103 parts. The owner has a
 bounded pending-allocation listing and an advisory cap of 20 pending assets.
-Multipart signatures last 120 seconds and only authorize one allocated upload
-and part number. Finalization obtains parts/ETags from B2, validates exact sizes,
+Multipart signatures last 120 seconds and authorize one allocated upload,
+part number and exact signed Content-Length. The browser sends its raw Blob
+length automatically; a mismatched part is rejected by B2 before storage
+(the browser may hide the error status because failed signatures lack CORS). Finalization obtains parts/ETags from B2, validates exact sizes,
 then validates the actual exact B2 version, Content-Type, byte count and SHA-256.
 ETag is never treated as a content hash. Completion consumes the multipart
 upload; replayed part PUTs cannot overwrite a completed published object.
@@ -68,7 +70,11 @@ required `media.postId`; no fake post is created for an avatar.
 
 Durable states are ALLOCATED → INITIALIZING → UPLOADING → FINALIZING → READY →
 ATTACHED, with CANCELLED/REJECTED terminal states. Transactional state claims
-serialize cancel/finalize/attach. A ten-minute lease prevents a live external
+serialize cancel/finalize/attach. Each initialization/finalization claim has a
+random operation token in private operation metadata; every external success,
+version-pin and error write transactionally checks that token, expected state
+and live lease. Recovery invalidates the token. A delayed expired worker cannot
+resurrect an asset or clear a replacement worker’s lease. A ten-minute lease prevents a live external
 operation from being concurrently cancelled; failed operations are replayable,
 and a lost initialization/completion response is recovered by its exact random
 allocated key. An expired lease can be retried explicitly. A finalization error

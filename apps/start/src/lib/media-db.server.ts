@@ -13,6 +13,7 @@ import {
 	identity,
 } from "./auth-context.server";
 import type { UploadAsset } from "./media-contract";
+import { acceptsOperationResult } from "./media-policy";
 
 export const assetTable = "media_assets";
 export function databaseId() {
@@ -136,15 +137,43 @@ export async function claim(
 			(a.leaseUntil && Date.parse(a.leaseUntil) > Date.now())
 		)
 			throw new AuthFailure("forbidden");
+		const token = crypto.randomUUID();
 		await patch(
 			db,
 			id,
 			{
 				state: target,
 				leaseUntil: new Date(Date.now() + 600_000).toISOString(),
+				metadataJson: JSON.stringify({ operationToken: token }),
 			},
 			tx,
 		);
-		return a;
+		return { asset: a, token };
+	});
+}
+export async function fencedPatch(
+	id: string,
+	ownerId: string,
+	expectedState: string,
+	token: string,
+	data: Record<string, unknown>,
+) {
+	return transaction(async (db, tx) => {
+		const a = await row(db, assetTable, id, tx);
+		assertOwner(a, ownerId);
+		if (
+			!acceptsOperationResult(
+				{
+					state: a.state,
+					leaseUntil: a.leaseUntil,
+					metadataJson: a.metadataJson,
+				},
+				expectedState,
+				token,
+				Date.now(),
+			)
+		)
+			throw new AuthFailure("forbidden");
+		return patch(db, id, data, tx);
 	});
 }

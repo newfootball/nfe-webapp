@@ -6,7 +6,7 @@ export const mediaMessages = {
 		intro: "Partagez vos meilleurs moments sur le terrain.",
 		video: "Vidéo",
 		format:
-			"MP4 · H.264, couleurs yuv420p · audio AAC facultatif · 512 Mo maximum",
+			"MP4 · H.264, couleurs yuv420p · audio AAC facultatif · taille contrôlée par le serveur avant l’envoi",
 		thumbnail: "Image de couverture",
 		frames: "Choisissez un moment de votre vidéo",
 		manual: "Ou choisissez une image",
@@ -60,7 +60,8 @@ export const mediaMessages = {
 		eyebrow: "Your game, your story",
 		intro: "Share your best moments on the pitch.",
 		video: "Video",
-		format: "MP4 · H.264, yuv420p colour · optional AAC audio · 512 MB maximum",
+		format:
+			"MP4 · H.264, yuv420p colour · optional AAC audio · size checked by the server before upload",
 		thumbnail: "Cover image",
 		frames: "Choose a moment from your video",
 		manual: "Or choose an image",

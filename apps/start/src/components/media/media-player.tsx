@@ -39,6 +39,7 @@ export function MediaPlayer({
 		let alive = true,
 			pending = false,
 			expiresAt = 0,
+			renewalMargin = 20_000,
 			timer: ReturnType<typeof setTimeout> | undefined;
 		let restore: (() => void) | undefined;
 		const element = video.current;
@@ -65,6 +66,10 @@ export function MediaPlayer({
 				if (!alive) return;
 				restore = preparePlayback(element, play);
 				expiresAt = capability.expiresAt;
+				renewalMargin = Math.min(
+					20_000,
+					Math.max(500, (expiresAt - Date.now()) / 4),
+				);
 				element.addEventListener("loadedmetadata", restore, { once: true });
 				element.src = capability.url;
 				element.load();
@@ -72,7 +77,7 @@ export function MediaPlayer({
 					() => {
 						void load();
 					},
-					Math.max(1000, capability.expiresAt - Date.now() - 20_000),
+					Math.max(500, capability.expiresAt - Date.now() - renewalMargin),
 				);
 			} catch {
 				if (alive) setStatus("error");
@@ -87,7 +92,7 @@ export function MediaPlayer({
 			}
 		};
 		const ensureFresh = () => {
-			if (expiresAt && expiresAt - Date.now() < 20_000) void load();
+			if (expiresAt && expiresAt - Date.now() < renewalMargin) void load();
 		};
 		window.addEventListener("focus", ensureFresh);
 		element?.addEventListener("seeking", ensureFresh);

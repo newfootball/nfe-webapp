@@ -23,6 +23,7 @@ import {
 	assetTable,
 	claim,
 	databaseId,
+	fencedPatch,
 	maybeRow,
 	mediaDB,
 	mediaSelf,
@@ -69,7 +70,10 @@ async function parts(a: Models.DefaultRow) {
 	}
 }
 async function initialize(a: Models.DefaultRow, ownerId: string) {
-	await claim(a.$id, ownerId, "INITIALIZING", ["ALLOCATED", "INITIALIZING"]);
+	const { token } = await claim(a.$id, ownerId, "INITIALIZING", [
+		"ALLOCATED",
+		"INITIALIZING",
+	]);
 	const { s3 } = storage();
 	try {
 		// Recover an initiation whose response/DB write was lost, by this random key only.
@@ -95,7 +99,8 @@ async function initialize(a: Models.DefaultRow, ownerId: string) {
 				)
 			).UploadId;
 		if (!uploadId) throw new AuthFailure("unavailable");
-		return await patch(mediaDB(true), a.$id, {
+		return await fencedPatch(a.$id, ownerId, "INITIALIZING", token, {
+			metadataJson: null,
 			uploadId,
 			state: "UPLOADING",
 			leaseUntil: null,
@@ -197,8 +202,9 @@ export async function signPart(input: PartRequest) {
 					...objectRef(a),
 					UploadId: a.uploadId,
 					PartNumber: input.partNumber,
+					ContentLength: expectedPartBytes(a.byteSize, input.partNumber),
 				}),
-				{ expiresIn: 120 },
+				{ expiresIn: 120, signableHeaders: new Set(["content-length"]) },
 			),
 		};
 	} finally {
@@ -209,7 +215,12 @@ export async function finalize(input: AssetRequest) {
 	const { ownerId } = await mediaSelf();
 	let a = await ownAsset(input.assetId, ownerId);
 	if (["READY", "ATTACHED"].includes(a.state)) return uploadDTO(a);
-	await claim(a.$id, ownerId, "FINALIZING", ["UPLOADING", "FINALIZING"]);
+	const claimed = await claim(a.$id, ownerId, "FINALIZING", [
+		"UPLOADING",
+		"FINALIZING",
+	]);
+	a = claimed.asset;
+	const { token } = claimed;
 	const { s3 } = storage();
 	let versionId: string | undefined = a.versionId ?? undefined;
 	try {
@@ -251,7 +262,7 @@ export async function finalize(input: AssetRequest) {
 				versionId = completed.VersionId;
 			}
 			if (!versionId) throw new AuthFailure("invalid");
-			a = await patch(mediaDB(true), a.$id, { versionId });
+			a = await fencedPatch(a.$id, ownerId, "FINALIZING", token, { versionId });
 		}
 		const head = await s3.send(
 			new HeadObjectCommand({ ...objectRef(a), VersionId: versionId }),
@@ -272,7 +283,7 @@ export async function finalize(input: AssetRequest) {
 			mimetype: a.mimetype,
 		});
 		return uploadDTO(
-			await patch(mediaDB(true), a.$id, {
+			await fencedPatch(a.$id, ownerId, "FINALIZING", token, {
 				state: "READY",
 				metadataJson: JSON.stringify(metadata),
 				leaseUntil: null,
@@ -280,13 +291,15 @@ export async function finalize(input: AssetRequest) {
 		);
 	} catch (e) {
 		// Persist exact version even on rejected content. A transient failure is replayable.
-		await patch(mediaDB(true), a.$id, {
-			leaseUntil: null,
-			...((e instanceof AuthFailure && e.reason === "invalid") ||
-			e instanceof MediaContentError
-				? { state: "REJECTED" }
-				: {}),
-		});
+		try {
+			await fencedPatch(a.$id, ownerId, "FINALIZING", token, {
+				leaseUntil: null,
+				...((e instanceof AuthFailure && e.reason === "invalid") ||
+				e instanceof MediaContentError
+					? { state: "REJECTED" }
+					: {}),
+			});
+		} catch {} // A superseding claim/recovery owns the row; stale workers cannot clear its lease.
 		throw e;
 	} finally {
 		s3.destroy();
@@ -303,7 +316,12 @@ export async function cancel(input: AssetRequest) {
 			)
 		)
 			throw new AuthFailure("forbidden");
-		await patch(db, current.$id, { state: "CANCELLED", leaseUntil: null }, tx);
+		await patch(
+			db,
+			current.$id,
+			{ state: "CANCELLED", leaseUntil: null, metadataJson: null },
+			tx,
+		);
 		return current;
 	});
 	if (a.uploadId && !a.versionId) {

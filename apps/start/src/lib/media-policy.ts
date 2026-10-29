@@ -1,5 +1,28 @@
 import { MEDIA_PART_BYTES } from "./media-contract";
 
+export function acceptsOperationResult(
+	asset: {
+		state: string;
+		leaseUntil: string | null;
+		metadataJson: string | null;
+	},
+	expectedState: string,
+	token: string,
+	now: number,
+) {
+	if (
+		asset.state !== expectedState ||
+		!asset.leaseUntil ||
+		Date.parse(asset.leaseUntil) <= now
+	)
+		return false;
+	try {
+		return JSON.parse(asset.metadataJson ?? "null")?.operationToken === token;
+	} catch {
+		return false;
+	}
+}
+
 export function expectedPartBytes(size: number, number: number) {
 	if (
 		!Number.isSafeInteger(size) ||

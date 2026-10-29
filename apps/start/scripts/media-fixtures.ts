@@ -1,11 +1,55 @@
 import assert from "node:assert/strict";
 import { chmod, open } from "node:fs/promises";
 import { resolve } from "node:path";
-import { Client, Permission, Role, TablesDB, Users } from "node-appwrite";
+import {
+	AppwriteException,
+	Client,
+	Permission,
+	Role,
+	TablesDB,
+	Users,
+} from "node-appwrite";
 import { bootstrap } from "./media-bootstrap";
 import { endpoint, state } from "./media-local";
 
 export const databaseId = "media-proof";
+export async function removeFixtureRows(
+	db: TablesDB,
+	assets: {
+		$id: string;
+		postId?: string;
+		ownerId?: string;
+		objectKey?: string;
+	}[],
+	fixture: { prefix: string; actors: { id: string }[] },
+) {
+	const remove = async (tableId: string, rowId: string) => {
+		try {
+			await db.deleteRow({ databaseId, tableId, rowId });
+		} catch (e) {
+			if (!(e instanceof AppwriteException && e.code === 404)) throw e;
+		}
+	};
+	for (const a of assets) {
+		assert(
+			a.objectKey?.startsWith(fixture.prefix) &&
+				fixture.actors.some((u) => u.id === a.ownerId),
+		);
+		await remove("media", a.$id);
+		await remove("media_assets", a.$id);
+	}
+	for (const id of new Set(
+		assets.map((a) => a.postId).filter((id): id is string => !!id),
+	))
+		await remove("posts", id);
+	for (const actor of fixture.actors)
+		await db.updateRow({
+			databaseId,
+			tableId: "profiles",
+			rowId: actor.id,
+			data: { image: null },
+		});
+}
 export async function fixtureSetup() {
 	const c = await bootstrap();
 	const db = new TablesDB(

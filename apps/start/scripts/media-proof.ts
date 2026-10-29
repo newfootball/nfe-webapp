@@ -16,6 +16,7 @@ import {
 	databaseId,
 	fixtureSetup,
 	generateMediaFixtures,
+	removeFixtureRows,
 	selectedB2Configuration,
 } from "./media-fixtures";
 import { endpoint, state } from "./media-local";
@@ -32,7 +33,7 @@ const report: Record<string, unknown> = {
 	project: c.project,
 	schema: "v3-media-allocations",
 	browser:
-		"Chrome desktop and Chromium Android emulation; no physical device claim",
+		"Chrome desktop core tests; mounted UI and other engine evidence are reported separately, no physical device claim",
 	checks: {},
 };
 const protectedValues = [
@@ -189,6 +190,7 @@ try {
 		[
 			"bun",
 			"x",
+			"--bun",
 			"--no-install",
 			"playwright",
 			"test",
@@ -325,6 +327,7 @@ try {
 				!remainingVersions.DeleteMarkers?.length &&
 				!remainingUploads.Uploads?.length,
 		);
+		await removeFixtureRows(db, assets.rows, fixture);
 		if (baseline && !baseline.some((r) => sameRule(r, ownRule))) {
 			const current = await cors();
 			const retained = current.filter((r) => !sameRule(r, ownRule));

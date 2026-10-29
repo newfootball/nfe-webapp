@@ -1,7 +1,7 @@
 import { defineConfig } from "@playwright/test";
 export default defineConfig({
 	testDir: "./tests",
-	testMatch: "media.pw.ts",
+	testMatch: ["media.pw.ts", "media-ui.pw.ts"],
 	workers: 1,
 	retries: 0,
 	timeout: 240000,

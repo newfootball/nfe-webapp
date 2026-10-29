@@ -7,10 +7,46 @@ import {
 	PublishPostSchema,
 } from "../src/lib/media-contract";
 import {
+	acceptsOperationResult,
 	expectedPartBytes,
 	inspectContent,
 	inspectParts,
 } from "../src/lib/media-policy";
+
+test("operation generations survive expired worker, recovery and replacement interleavings", () => {
+	const current = {
+		state: "FINALIZING",
+		leaseUntil: "2026-10-29T18:00:00.000Z",
+		metadataJson: JSON.stringify({ operationToken: "worker-A" }),
+	};
+	const before = Date.parse("2026-10-29T17:59:00.000Z"),
+		after = Date.parse("2026-10-29T18:01:00.000Z");
+	expect(
+		acceptsOperationResult(current, "FINALIZING", "worker-A", before),
+	).toBe(true);
+	expect(acceptsOperationResult(current, "FINALIZING", "worker-A", after)).toBe(
+		false,
+	);
+	const replacement = {
+		...current,
+		leaseUntil: "2026-10-29T18:11:00.000Z",
+		metadataJson: JSON.stringify({ operationToken: "worker-B" }),
+	};
+	expect(
+		acceptsOperationResult(replacement, "FINALIZING", "worker-A", after),
+	).toBe(false);
+	expect(
+		acceptsOperationResult(replacement, "FINALIZING", "worker-B", after),
+	).toBe(true);
+	expect(
+		acceptsOperationResult(
+			{ ...replacement, state: "CANCELLED", metadataJson: null },
+			"FINALIZING",
+			"worker-B",
+			after,
+		),
+	).toBe(false);
+});
 
 const id = "12345678-1234-4234-8234-123456789abc";
 describe("untrusted media inputs", () => {

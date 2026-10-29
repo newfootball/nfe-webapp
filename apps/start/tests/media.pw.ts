@@ -11,6 +11,7 @@ import { fromCrossJSON, toJSON } from "seroval";
 import { endpoint, state } from "../scripts/media-local";
 import type { MediaResult, UploadAsset } from "../src/lib/media-contract";
 import { MEDIA_PART_BYTES } from "../src/lib/media-contract";
+import { claim, fencedPatch } from "../src/lib/media-db.server";
 import { storage } from "../src/lib/media-storage.server";
 
 const origin = "http://127.0.0.1:3555",
@@ -126,7 +127,8 @@ async function uploadPart(
 				xhr.onload = () =>
 					resolve({ status: xhr.status, aborted: false, progressed });
 				xhr.onabort = () => resolve({ status: 0, aborted: true, progressed });
-				xhr.onerror = () => reject(new Error("Direct upload failed"));
+				xhr.onerror = () =>
+					resolve({ status: xhr.status, aborted: false, progressed });
 				xhr.send(bytes);
 			});
 		},
@@ -288,11 +290,36 @@ test("real private B2 multipart, owner guards, validation and atomic publication
 		thumbnailId: thumbnail.id,
 	};
 	expect((await call(request, "publishPost", publish, 1)).ok).toBe(false);
-	await db.updateTable({ databaseId, tableId: "media", enabled: false });
+	const collision = await db.getRow({
+		databaseId,
+		tableId: "media_assets",
+		rowId: ready.id,
+	});
+	await db.createRow({
+		databaseId,
+		tableId: "media",
+		rowId: ready.id,
+		permissions: [],
+		data: {
+			type: "mainVideo",
+			postId: publish.requestId,
+			mimetype: collision.mimetype,
+			createdAt: collision.createdAt,
+			updatedAt: collision.updatedAt,
+			provider: "B2",
+			bucket: collision.bucket,
+			objectKey: collision.objectKey,
+			versionId: collision.versionId,
+			byteSize: collision.byteSize,
+			checksum: collision.sha256,
+			ownerId: collision.ownerId,
+			state: "READY",
+		},
+	});
 	try {
 		expect((await call(request, "publishPost", publish)).ok).toBe(false);
 	} finally {
-		await db.updateTable({ databaseId, tableId: "media", enabled: true });
+		await db.deleteRow({ databaseId, tableId: "media", rowId: ready.id });
 	}
 	const absent = await db.listRows({
 		databaseId,
@@ -431,6 +458,24 @@ test("rejected bytes and cancelled allocation cannot publish; avatar persists wi
 			partNumber: 1,
 		}),
 	);
+	expect(
+		new URL(signed.url).searchParams
+			.get("X-Amz-SignedHeaders")
+			?.split(";")
+			.includes("content-length"),
+	).toBe(true);
+	const mismatch = await uploadPart(page, signed.url, invalid.slice(0, 3));
+	expect([0, 400, 403]).toContain(mismatch.status);
+	expect([400, 403]).toContain(
+		(
+			await request.put(signed.url, { data: Buffer.from(invalid.slice(0, 3)) })
+		).status(),
+	);
+	expect(
+		value(
+			await call<UploadAsset>(request, "resumeAsset", { assetId: asset.id }),
+		).parts.length,
+	).toBe(0);
 	expect((await uploadPart(page, signed.url, invalid)).status).toBe(200);
 	expect((await call(request, "finalizeAsset", { assetId: asset.id })).ok).toBe(
 		false,
@@ -507,4 +552,93 @@ test("rejected bytes and cancelled allocation cannot publish; avatar persists wi
 		expect(err.length).toBe(0);
 		expect(JSON.parse(out).eligible).toBe(true);
 	}
+});
+
+test("expired workers cannot resurrect recovered assets or overwrite replacement leases", async ({
+	request,
+}) => {
+	const bytes = new Uint8Array([4, 3, 2, 1]);
+	const first = await allocate(request, bytes, "avatar");
+	const stale = await claim(first.id, fixture.actors[0].id, "FINALIZING", [
+		"UPLOADING",
+	]);
+	await db.updateRow({
+		databaseId,
+		tableId: "media_assets",
+		rowId: first.id,
+		data: {
+			leaseUntil: "2020-01-01T00:00:00.000Z",
+			updatedAt: "2020-01-01T00:00:00.000Z",
+		},
+	});
+	const recovery = Bun.spawn(
+		[
+			"bun",
+			"scripts/media-recover.ts",
+			"--asset",
+			first.id,
+			"--execute",
+			"--journal",
+			`${state}/fence-recovery-${crypto.randomUUID()}.json`,
+		],
+		{ stdout: "ignore", stderr: "ignore" },
+	);
+	expect(await recovery.exited).toBe(0);
+	let rejected = false;
+	try {
+		await fencedPatch(
+			first.id,
+			fixture.actors[0].id,
+			"FINALIZING",
+			stale.token,
+			{ state: "READY", leaseUntil: null },
+		);
+	} catch {
+		rejected = true;
+	}
+	expect(rejected).toBe(true);
+	expect(
+		(await db.getRow({ databaseId, tableId: "media_assets", rowId: first.id }))
+			.state,
+	).toBe("CANCELLED");
+	const second = await allocate(request, bytes, "avatar");
+	const workerA = await claim(second.id, fixture.actors[0].id, "FINALIZING", [
+		"UPLOADING",
+	]);
+	await db.updateRow({
+		databaseId,
+		tableId: "media_assets",
+		rowId: second.id,
+		data: { leaseUntil: "2020-01-01T00:00:00.000Z" },
+	});
+	const workerB = await claim(second.id, fixture.actors[0].id, "FINALIZING", [
+		"FINALIZING",
+	]);
+	for (const patch of [
+		{ state: "READY" },
+		{ state: "REJECTED", leaseUntil: null },
+		{ versionId: "stale-version" },
+	]) {
+		let fenced = false;
+		try {
+			await fencedPatch(
+				second.id,
+				fixture.actors[0].id,
+				"FINALIZING",
+				workerA.token,
+				patch,
+			);
+		} catch {
+			fenced = true;
+		}
+		expect(fenced).toBe(true);
+	}
+	const current = await db.getRow({
+		databaseId,
+		tableId: "media_assets",
+		rowId: second.id,
+	});
+	expect(current.state).toBe("FINALIZING");
+	expect(JSON.parse(current.metadataJson).operationToken).toBe(workerB.token);
+	expect(Date.parse(current.leaseUntil) > Date.now()).toBe(true);
 });

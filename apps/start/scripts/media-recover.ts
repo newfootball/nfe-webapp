@@ -59,7 +59,12 @@ try {
 				const a = await row(db, assetTable, id, tx);
 				if (!(await eligible(a, db, tx)))
 					throw new Error("Asset became ineligible");
-				await patch(db, id, { state: "CANCELLED", leaseUntil: null }, tx);
+				await patch(
+					db,
+					id,
+					{ state: "CANCELLED", leaseUntil: null, metadataJson: null },
+					tx,
+				);
 				return a;
 			});
 		}

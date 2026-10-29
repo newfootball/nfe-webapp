@@ -17,7 +17,7 @@
 		"knip": "knip",
 		"knip:fix": "knip --fix",
 		"postinstall": "prisma generate",
-		"prepare": "lefthook install",
+		"prepare": "bun scripts/install-hooks.ts",
 		"dev:start": "bun run --cwd apps/start dev",
 		"build:start": "bun run --cwd apps/start build",
 		"typecheck:start": "bun run --cwd apps/start typecheck",

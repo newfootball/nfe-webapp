@@ -147,7 +147,8 @@ Core patterns:
   `is`/`has` where appropriate.
 - Lefthook runs Biome with writes on staged source files via `lefthook.yml`;
   `stage_fixed` restages fixes while protecting partially staged changes.
-  Hooks install via `bun run prepare`. Knip checks
+  Hooks install via `bun run prepare` in developer checkouts; CI, Vercel and
+  archives without `.git` skip hook installation. Knip checks
   unused code. The current Server Action body limit is `50mb` in `next.config.ts`.
 
 ## Applicable Rules

@@ -78,7 +78,8 @@ they reset or remove local database state.
 ## Git Hooks
 
 Lefthook installs the project's Git hooks through the `prepare` script during
-`bun install`. The pre-commit hook runs Biome only on staged JavaScript,
+`bun install` in a developer checkout. Hook installation is skipped in CI,
+on Vercel and in source archives without `.git`. The pre-commit hook runs Biome only on staged JavaScript,
 TypeScript, JSON/JSONC and CSS files, including the isolated packages. Fixes are
 restaged automatically; unstaged changes in partially staged files are hidden
 while the hook runs and restored afterward. Biome's existing exclusions still

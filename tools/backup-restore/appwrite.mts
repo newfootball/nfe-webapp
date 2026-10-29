@@ -78,7 +78,12 @@ export async function bootstrap(endpoint: string): Promise<Credentials> {
 			},
 			body: JSON.stringify(body),
 		});
-		assert.ok(result.ok, `console_bootstrap_${result.status}`);
+		if (!result.ok)
+			throw Object.assign(new Error("console_bootstrap_failed"), {
+				code: result.status,
+				operation: path,
+				type: (await result.json()).type,
+			});
 		const cookies = result.headers.getSetCookie();
 		if (cookies.length)
 			cookie = cookies.map((value) => value.split(";")[0]).join("; ");
@@ -102,6 +107,7 @@ export async function bootstrap(endpoint: string): Promise<Credentials> {
 		name: "Backup proof",
 	});
 	const key = await request("/projects/backup-proof/keys", {
+		keyId: "backup-key",
 		name: "Disposable proof",
 		scopes: [
 			"users.read",

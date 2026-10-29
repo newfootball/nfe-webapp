@@ -1,6 +1,6 @@
 {
-	"generatedAt": "2026-10-29T11:12:16.740Z",
-	"status": "failed",
+	"generatedAt": "2026-10-29T12:59:10.084Z",
+	"status": "passed_local_experiment_external_gates_pending",
 	"syntheticOnly": true,
 	"contract": {
 		"sha": "86f28433ed3a6642fd9d120d17de426c92d60a96",
@@ -19,12 +19,47 @@
 		"sha256": "db8f3fb69b5ff026d3b76dd0f87b13b37cd009a838ae63e48b134292b9f6bea6"
 	},
 	"projects": {
-		"source": "nfe47-source-82d4cf55",
-		"target": "nfe47-restore-82d4cf55"
+		"source": "nfe47-source-411620b67a4b4be9a9ee33d57aa7d977",
+		"target": "nfe47-restore-411620b67a4b4be9a9ee33d57aa7d977"
 	},
-	"checks": {},
+	"checks": {
+		"before": {
+			"bcryptLogins": 3,
+			"actors": ["anonymous", "a", "b", "admin"],
+			"aclGetAndListChecks": 160,
+			"linkedRecords": 6
+		},
+		"sourceDestroyedBeforeRecovery": true,
+		"allRowsAndAclByteReconciledBeforeMediaRemap": true,
+		"after": {
+			"bcryptLogins": 3,
+			"actors": ["anonymous", "a", "b", "admin"],
+			"aclGetAndListChecks": 160,
+			"linkedRecords": 6
+		},
+		"sourcePostgres": {
+			"bcryptChecks": 3,
+			"linkedMediaRows": 2,
+			"mediaFiles": 2
+		},
+		"overwrittenAndDeletedBytesRecoveredFromArchive": true,
+		"b2RestoredVersionCount": 4,
+		"b2IndependentVersionHashes": [
+			"694c152d1db314b0d2b859d04b3a371d9999202ef7dc8be5170a5c52ace1c6fa",
+			"95713e9cbdd1dfcb2d4080c2537f418d43ca0da25f0d7d6631f4f7c97b89dc47",
+			"e27ad3d03ebe302740b4ae2ec89654b5d022154b479c63e3691f1be9be84bb5c"
+		],
+		"b2CurrentStatesAndVersionHashesReconciled": true,
+		"mediaHashes": {
+			"overwritten.bin": "ab95b00c70af98ef4b01970d5d44db0f38c4d0c3927f400694a416e208c62833",
+			"deleted.bin": "d1d1c9cbe8734c813f82da8d7aec7959ca336920b9a06f3010b918375a0067de"
+		}
+	},
 	"timingsMs": {
-		"totalProof": 24452
+		"backup": 6535,
+		"coldVolumesAndPostgresRestore": 20367,
+		"fullRestoreIncludingMediaAndReconciliation": 25879,
+		"totalProof": 98470
 	},
 	"externalGates": [
 		"permanent infrastructure #46",
@@ -33,10 +68,36 @@
 		"owner-approved RPO/RTO/retention and trigger",
 		"renew if merged schema differs"
 	],
-	"failure": {
-		"stage": "prepare",
-		"code": "ERR_ASSERTION",
-		"type": "AssertionError"
+	"archive": {
+		"sha256": "d6fa9804062ac88e5e3e80cdd31ea7f094c6e0fbd14c9b824a1d520efe088c07",
+		"volumeCount": 10,
+		"permissions": 384,
+		"encryption": "AES-256-GCM; independent random 256-bit local key"
+	},
+	"counts": {
+		"sourcePostgres": {
+			"users": 3,
+			"posts": 1,
+			"media": 2
+		},
+		"appwrite": {
+			"profiles": 3,
+			"private_profiles": 1,
+			"follows": 1,
+			"posts": 6,
+			"post_private": 1,
+			"media": 1,
+			"likes": 1,
+			"favorites": 1,
+			"comments": 1,
+			"notifications": 1,
+			"messages": 2,
+			"signals": 1,
+			"schema_versions": 1
+		},
+		"authUsers": 3,
+		"mediaVersionsCopied": 3,
+		"deleteMarkers": 1
 	},
 	"cleanup": {
 		"errors": [],

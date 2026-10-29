@@ -13,8 +13,10 @@ import {
 import { backup } from "./archive.mts";
 import { b64, privateDir, privateWrite } from "./core.mts";
 import {
+	emptyPrefixes,
 	eraseMedia,
 	inventory,
+	journalFor,
 	mediaClient,
 	seedMedia,
 	snapshotMedia,
@@ -49,7 +51,7 @@ if (!values.run) {
 assert.ok(
 	values["confirm-isolated"] && values["schema-checkout"] && values["b2-env"],
 );
-const id = crypto.randomUUID().replaceAll("-", "").slice(0, 8);
+const id = crypto.randomUUID().replaceAll("-", "");
 const source = `nfe47-source-${id}`;
 const target = `nfe47-restore-${id}`;
 const prefix = `nfe-backup-47/source-${id}/`;
@@ -74,6 +76,8 @@ const report: Record<string, any> = {
 		"renew if merged schema differs",
 	],
 };
+const sourceJournal = journalFor(prefix);
+const targetJournal = journalFor(targetPrefix);
 let stage = "prepare";
 let b2: Awaited<ReturnType<typeof mediaClient>> | undefined;
 let prepared = false;
@@ -83,6 +87,7 @@ try {
 	const c = await contract(values["schema-checkout"]!);
 	report.contract.files = c.files;
 	b2 = await mediaClient(values["b2-env"]!);
+	await emptyPrefixes(b2, [prefix, targetPrefix]);
 	const topology = await generate(source, 19547);
 	await save(topology);
 	prepared = true;
@@ -94,7 +99,7 @@ try {
 	);
 	stage = "fixtures";
 	const credentials = await bootstrap("http://127.0.0.1:19547/v1");
-	const media = await seedMedia(b2, prefix);
+	const media = await seedMedia(b2, sourceJournal);
 	await seed("http://127.0.0.1:19547/v1", credentials, c, media);
 	await sql(
 		source,
@@ -144,7 +149,7 @@ try {
 	};
 	assert.equal(report.archive.permissions, 0o600);
 	stage = "simulate_loss";
-	await eraseMedia(b2, prefix);
+	await eraseMedia(b2, sourceJournal);
 	assert.equal((await inventory(b2, prefix)).length, 0);
 	await destroy(source);
 	prepared = false;
@@ -158,6 +163,7 @@ try {
 		target,
 		target,
 		values["b2-env"]!,
+		targetJournal,
 	);
 	report.timingsMs.coldVolumesAndPostgresRestore = recovery.volumesRestoredMs;
 	report.timingsMs.fullRestoreIncludingMediaAndReconciliation =
@@ -220,12 +226,20 @@ try {
 	report.checks.b2RestoredVersionCount = (
 		await inventory(b2, targetPrefix)
 	).length;
+	report.checks.b2IndependentVersionHashes = Object.values(recovery.mapping)
+		.map((item) => item.sha256)
+		.sort();
+	report.checks.b2CurrentStatesAndVersionHashesReconciled = true;
 	report.checks.mediaHashes = recovery.sourceMediaHashes;
 	report.status = "passed_local_experiment_external_gates_pending";
 } catch (error) {
 	report.status = "failed";
 	report.failure = {
 		stage,
+		operation: (error as { operation?: string }).operation,
+		location: (error as Error).stack?.match(
+			/(?:appwrite|media|proof|archive|recovery|topology)\.mts:\d+:\d+/,
+		)?.[0],
 		code: (error as { code?: number }).code,
 		type: (error as { name?: string }).name ?? "Error",
 	};
@@ -235,9 +249,9 @@ try {
 	stage = "cleanup";
 	const errors: string[] = [];
 	if (b2) {
-		for (const ownedPrefix of [prefix, targetPrefix])
+		for (const journal of [sourceJournal, targetJournal])
 			try {
-				await eraseMedia(b2, ownedPrefix);
+				await eraseMedia(b2, journal);
 			} catch {
 				errors.push("owned_b2_cleanup");
 			}
@@ -256,6 +270,17 @@ try {
 				errors.push("owned_docker_cleanup");
 			}
 		}
+	if (!errors.length) {
+		for (const journal of [sourceJournal, targetJournal])
+			await rm(
+				`${import.meta.dir}/.local/${journal.prefix.split("/")[1]}.journal.json`,
+				{ force: true },
+			);
+		await rm(`${import.meta.dir}/.local/contract`, {
+			recursive: true,
+			force: true,
+		});
+	}
 	report.cleanup = {
 		errors,
 		encryptedArchiveAndKey:
@@ -270,6 +295,33 @@ try {
 		process.exitCode = 1;
 	}
 	report.timingsMs.totalProof = Math.round(performance.now() - started);
+	const attempts = await Bun.file(`${import.meta.dir}/attempts.json`).json();
+	Object.assign(attempts, {
+		acceptedRecovery: false,
+		acceptedSyntheticRecovery:
+			report.status === "passed_local_experiment_external_gates_pending",
+		externalGatesPending: true,
+		archiveCreated: Boolean(report.archive),
+		recoveryTiming: report.timingsMs,
+		recoveredCounts: report.counts ?? null,
+		b2Recovery: report.checks.b2CurrentStatesAndVersionHashesReconciled
+			? "passed_synthetic_only"
+			: "not_proven",
+		nextAction:
+			"Independent review; final schema, actual source, off-host custody and operator RPO/RTO/retention acceptance remain pending",
+	});
+	attempts.attempts.push({
+		projects: report.projects,
+		phase: report.failure?.stage,
+		failure: report.failure,
+		result: report.status,
+		elapsedMs: report.timingsMs.totalProof,
+		cleanup: report.cleanup,
+	});
+	await Bun.write(
+		`${import.meta.dir}/attempts.json`,
+		`${JSON.stringify(attempts, null, "\t")}\n`,
+	);
 	await Bun.write(
 		`${import.meta.dir}/evidence.json`,
 		`${JSON.stringify(report, null, "\t")}\n`,

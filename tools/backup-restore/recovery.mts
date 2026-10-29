@@ -3,7 +3,7 @@ import { Query, TablesDB, Users } from "node-appwrite";
 import { type Credentials, clientFor } from "./appwrite.mts";
 import { restore } from "./archive.mts";
 import { bytes, hash, privateDir, privateWrite } from "./core.mts";
-import { mediaClient, recoverMedia } from "./media.mts";
+import { type MediaJournal, mediaClient, recoverMedia } from "./media.mts";
 import { directory } from "./topology.mts";
 
 export async function recover(
@@ -11,6 +11,7 @@ export async function recover(
 	target: string,
 	confirmation: string,
 	env: string,
+	journal?: MediaJournal,
 ) {
 	const started = performance.now();
 	const archive = await restore(path, target, confirmation);
@@ -22,6 +23,7 @@ export async function recover(
 			archive.media.prefix,
 			`nfe-backup-47/${target.slice(6)}/`,
 			archive.media.versions,
+			journal,
 		);
 		const original = archive.fixture.media;
 		assert.ok(mapping[original.versionId]);

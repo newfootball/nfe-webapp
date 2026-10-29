@@ -1,7 +1,10 @@
 {
 	"syntheticOnly": true,
 	"acceptedRecovery": false,
-	"repairBudget": { "limit": 3, "used": 3 },
+	"repairBudget": {
+		"limit": 6,
+		"used": 5
+	},
 	"attempts": [
 		{
 			"project": "nfe47-source-d578488a",
@@ -18,11 +21,125 @@
 			"elapsedMs": 24452,
 			"diagnosis": "Explicit task networks work; a matching diagnostic reproduction reached healthy Appwrite/Redis/Geo/Appwrite PostgreSQL but the separate source PostgreSQL container exited 1; underlying source initialization failure remains unresolved",
 			"cleanup": "owned resources and plaintext configuration removed"
+		},
+		{
+			"result": "failed",
+			"phase": "fixtures",
+			"elapsedMs": 25292,
+			"diagnosis": "PG18 source healthy; console bootstrap assertion; cleanup succeeded; no B2 fixture mutation"
+		},
+		{
+			"result": "failed",
+			"phase": "fixtures",
+			"elapsedMs": 25339,
+			"diagnosis": "Diagnostic replay narrowed assertion to console request helper; cleanup succeeded; no B2 fixture mutation"
+		},
+		{
+			"projects": {
+				"source": "nfe47-source-fe5edc6ce0be4be2b43e6cd18184f90c",
+				"target": "nfe47-restore-fe5edc6ce0be4be2b43e6cd18184f90c"
+			},
+			"phase": "prepare",
+			"failure": {
+				"stage": "prepare",
+				"location": "appwrite.mts:9:9",
+				"code": "ERR_ASSERTION",
+				"type": "AssertionError"
+			},
+			"result": "failed",
+			"elapsedMs": 15,
+			"cleanup": {
+				"errors": [],
+				"encryptedArchiveAndKey": "retained ignored/local mode600 for independent local review; operator must escrow separately or remove after review",
+				"plaintextProofExports": "removed",
+				"b2VersionsAndOwnedDocker": "removed"
+			}
+		},
+		{
+			"projects": {
+				"source": "nfe47-source-306d17ca230848ecb37ea96995273deb",
+				"target": "nfe47-restore-306d17ca230848ecb37ea96995273deb"
+			},
+			"phase": "fixtures",
+			"failure": {
+				"stage": "fixtures",
+				"operation": "/projects/backup-proof/keys",
+				"location": "appwrite.mts:81:43",
+				"code": 400,
+				"type": "Error"
+			},
+			"result": "failed",
+			"elapsedMs": 25577,
+			"cleanup": {
+				"errors": [],
+				"encryptedArchiveAndKey": "retained ignored/local mode600 for independent local review; operator must escrow separately or remove after review",
+				"plaintextProofExports": "removed",
+				"b2VersionsAndOwnedDocker": "removed"
+			}
+		},
+		{
+			"projects": {
+				"source": "nfe47-source-f5f256b340744c5cbe3d43221aeb8788",
+				"target": "nfe47-restore-f5f256b340744c5cbe3d43221aeb8788"
+			},
+			"result": "passed_local_experiment_external_gates_pending",
+			"elapsedMs": 97085,
+			"cleanup": {
+				"errors": [],
+				"encryptedArchiveAndKey": "retained ignored/local mode600 for independent local review; operator must escrow separately or remove after review",
+				"plaintextProofExports": "removed",
+				"b2VersionsAndOwnedDocker": "removed"
+			}
+		},
+		{
+			"projects": {
+				"source": "nfe47-source-411620b67a4b4be9a9ee33d57aa7d977",
+				"target": "nfe47-restore-411620b67a4b4be9a9ee33d57aa7d977"
+			},
+			"result": "passed_local_experiment_external_gates_pending",
+			"elapsedMs": 98470,
+			"cleanup": {
+				"errors": [],
+				"encryptedArchiveAndKey": "retained ignored/local mode600 for independent local review; operator must escrow separately or remove after review",
+				"plaintextProofExports": "removed",
+				"b2VersionsAndOwnedDocker": "removed"
+			}
 		}
 	],
-	"recoveryTiming": null,
-	"recoveredCounts": null,
-	"b2Recovery": "not reached",
-	"archiveCreated": false,
-	"nextAction": "Independent review of the blocked draft; no further repairs authorized in this dispatch"
+	"recoveryTiming": {
+		"backup": 6535,
+		"coldVolumesAndPostgresRestore": 20367,
+		"fullRestoreIncludingMediaAndReconciliation": 25879,
+		"totalProof": 98470
+	},
+	"recoveredCounts": {
+		"sourcePostgres": {
+			"users": 3,
+			"posts": 1,
+			"media": 2
+		},
+		"appwrite": {
+			"profiles": 3,
+			"private_profiles": 1,
+			"follows": 1,
+			"posts": 6,
+			"post_private": 1,
+			"media": 1,
+			"likes": 1,
+			"favorites": 1,
+			"comments": 1,
+			"notifications": 1,
+			"messages": 2,
+			"signals": 1,
+			"schema_versions": 1
+		},
+		"authUsers": 3,
+		"mediaVersionsCopied": 3,
+		"deleteMarkers": 1
+	},
+	"b2Recovery": "passed_synthetic_only",
+	"archiveCreated": true,
+	"nextAction": "Independent review; final schema, actual source, off-host custody and operator RPO/RTO/retention acceptance remain pending",
+	"acceptedSyntheticRecovery": true,
+	"externalGatesPending": true
 }

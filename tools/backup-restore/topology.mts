@@ -41,6 +41,11 @@ export const networksFor = (project: string) => ({
 		},
 	},
 });
+export const physicalNames = (t: Topology) => ({
+	container: Object.keys(t.services).map((name) => `${t.name}-${name}-1`),
+	volume: Object.keys(t.volumes).map((name) => `${t.name}_${name}`),
+	network: Object.keys(t.networks).map((name) => `${t.name}_${name}`),
+});
 export const directory = (project: string) => `${local}/${identity(project)}`;
 export async function save(topology: Topology) {
 	await privateDir(directory(topology.name));
@@ -185,7 +190,7 @@ export async function generate(
 			POSTGRES_USER: "synthetic",
 			POSTGRES_PASSWORD: secret(),
 		},
-		volumes: ["source-data:/var/lib/postgresql/data"],
+		volumes: ["source-data:/var/lib/postgresql"],
 		healthcheck: {
 			test: ["CMD-SHELL", "pg_isready -U synthetic -d source"],
 			interval: "2s",
@@ -205,12 +210,14 @@ export async function generate(
 		],
 		depends_on: { appwrite: { condition: "service_healthy" } },
 	};
-	return {
+	const topology = {
 		name: project,
 		services,
 		volumes,
 		networks: networksFor(project),
 	};
+	await fresh(project, physicalNames(topology));
+	return topology;
 }
 export function assertTopology(t: Topology) {
 	identity(t.name);
@@ -221,6 +228,9 @@ export function assertTopology(t: Topology) {
 	assert.equal(t.services.appwrite.environment._APP_DB_ADAPTER, "postgresql");
 	assert.equal(t.services.appwrite.environment._APP_DB_HOST, "postgresql");
 	assert.equal(t.services.appwrite.environment._APP_DB_SCHEMA, "appwrite");
+	assert.deepEqual(t.services.source.volumes, [
+		"source-data:/var/lib/postgresql",
+	]);
 	assert.equal(t.services.source.environment.POSTGRES_DB, "source");
 	assert.equal(t.services.source.environment.POSTGRES_USER, "synthetic");
 	assert.deepEqual(t.services.proxy.ports, [

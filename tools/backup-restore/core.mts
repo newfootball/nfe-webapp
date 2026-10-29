@@ -7,7 +7,7 @@ export const local = `${root}/.local`;
 export const hash = (data: string | Uint8Array) =>
 	new Bun.CryptoHasher("sha256").update(data).digest("hex");
 export function identity(project: string) {
-	assert.match(project, /^nfe47-(source|restore)-[a-f0-9]{8}$/);
+	assert.match(project, /^nfe47-(source|restore)-[a-f0-9]{32}$/);
 	return project;
 }
 export async function privateWrite(path: string, data: string | Uint8Array) {
@@ -82,8 +82,62 @@ export async function resources(project: string) {
 		);
 	return found.some(Boolean);
 }
-export async function fresh(project: string) {
-	assert.equal(await resources(project), false, "target_not_empty");
+export type PhysicalNames = {
+	container: string[];
+	volume: string[];
+	network: string[];
+};
+export async function fresh(
+	project: string,
+	names?: PhysicalNames,
+	run = command,
+) {
+	identity(project);
+	if (!names) {
+		assert.equal(await resources(project), false, "target_not_empty");
+		return;
+	}
+	for (const kind of ["container", "volume", "network"] as const) {
+		const found = (
+			await run([
+				"docker",
+				kind,
+				"ls",
+				...(kind === "container" ? ["-a"] : []),
+				"--format",
+				kind === "container" ? "{{.Names}}" : "{{.Name}}",
+			])
+		)
+			.toString()
+			.trim()
+			.split("\n");
+		assert.ok(
+			names[kind].every((name) => !found.includes(name)),
+			"target_physical_name_occupied",
+		);
+	}
+}
+export async function physicalOwned(
+	project: string,
+	names: PhysicalNames,
+	run = command,
+) {
+	for (const kind of ["container", "volume", "network"] as const)
+		for (const name of names[kind]) {
+			const [item] = JSON.parse(
+				(await run(["docker", kind, "inspect", name])).toString(),
+			);
+			const labels = kind === "container" ? item.Config.Labels : item.Labels;
+			assert.equal(
+				labels?.["com.docker.compose.project"],
+				project,
+				"resource_ownership_mismatch",
+			);
+			assert.equal(
+				kind === "container" ? item.Name.replace(/^\//, "") : item.Name,
+				name,
+			);
+		}
 }
 export const b64 = (bytes: Uint8Array) => Buffer.from(bytes).toString("base64");
 export const bytes = (value: string) => Buffer.from(value, "base64");

@@ -8,19 +8,21 @@ import {
 	hash,
 	identity,
 	local,
+	physicalOwned,
 	privateDir,
 	privateWrite,
 	protectedRead,
 	seal,
 	unseal,
 } from "./core.mts";
-import type { MediaVersion } from "./media.mts";
+import { type MediaVersion, validateMedia } from "./media.mts";
 import {
 	assertTopology,
 	compose,
 	directory,
 	networksFor,
 	owned,
+	physicalNames,
 	save,
 	type Topology,
 } from "./topology.mts";
@@ -140,6 +142,11 @@ export async function openArchive(path: string): Promise<Archive> {
 	assert.ok(identity(archive.source).startsWith("nfe47-source-"));
 	assert.equal(archive.topology.name, archive.source);
 	assertTopology(archive.topology);
+	assert.equal(
+		archive.media.prefix,
+		`nfe-backup-47/${archive.source.slice(6)}/`,
+	);
+	validateMedia(archive.media.prefix, archive.media.versions);
 	assert.deepEqual(
 		Object.keys(archive.volumes).sort(),
 		Object.keys(archive.topology.volumes)
@@ -160,7 +167,6 @@ export async function restore(
 	assert.equal(confirmation, target, "explicit_target_confirmation_required");
 	const archive = await openArchive(path);
 	assert.notEqual(target, archive.source);
-	await fresh(target);
 	assert.equal(
 		await Bun.file(`${directory(target)}/compose.json`).exists(),
 		false,
@@ -170,9 +176,11 @@ export async function restore(
 	topology.name = target;
 	topology.networks = networksFor(target);
 	topology.services.proxy.ports = ["127.0.0.1:19548:8080"];
+	await fresh(target, physicalNames(topology));
 	await save(topology);
 	// Create labeled volumes/containers without running initialization on the recovered DB.
 	await compose(target, "create");
+	await physicalOwned(target, physicalNames(topology));
 	for (const [name, volume] of Object.entries(archive.volumes)) {
 		await command(
 			[

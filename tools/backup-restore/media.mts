@@ -6,7 +6,7 @@ import {
 	PutObjectCommand,
 	S3Client,
 } from "@aws-sdk/client-s3";
-import { b64, bytes, hash } from "./core.mts";
+import { b64, bytes, hash, local, privateDir, privateWrite } from "./core.mts";
 
 const bucket = "nfe-webapp-dev";
 const endpoint = "https://s3.eu-central-003.backblazeb2.com";
@@ -21,7 +21,7 @@ export type MediaVersion = {
 	content?: string;
 };
 export function mediaPrefix(prefix: string) {
-	assert.match(prefix, /^nfe-backup-47\/(source|restore)-[a-f0-9]{8}\/$/);
+	assert.match(prefix, /^nfe-backup-47\/(source|restore)-[a-f0-9]{32}\/$/);
 	return prefix;
 }
 export async function mediaClient(path: string) {
@@ -122,48 +122,91 @@ export async function snapshotMedia(client: S3Client, prefix: string) {
 	);
 	return before;
 }
+export type MediaJournal = {
+	prefix: string;
+	created: { key: string; versionId: string }[];
+};
+export const journalFor = (prefix: string): MediaJournal => ({
+	prefix: mediaPrefix(prefix),
+	created: [],
+});
+async function record(
+	journal: MediaJournal,
+	key: string,
+	versionId: string | undefined,
+) {
+	assert.ok(
+		key.startsWith(journal.prefix) && versionId,
+		"missing_created_version_identity",
+	);
+	journal.created.push({ key, versionId });
+	await privateDir(local);
+	await privateWrite(
+		`${local}/${journal.prefix.split("/")[1]}.journal.json`,
+		JSON.stringify(journal),
+	);
+}
+export async function emptyPrefixes(client: S3Client, prefixes: string[]) {
+	for (const prefix of prefixes)
+		assert.equal(
+			(await inventory(client, prefix)).length,
+			0,
+			"media_prefix_occupied",
+		);
+}
 export async function put(
 	client: S3Client,
-	prefix: string,
+	journal: MediaJournal,
 	name: string,
 	content: Uint8Array,
 ) {
-	mediaPrefix(prefix);
+	mediaPrefix(journal.prefix);
 	assert.match(name, /^(overwritten|deleted)\.bin$/);
+	const key = `${journal.prefix}${name}`;
 	const result = await client.send(
-		new PutObjectCommand({
-			Bucket: bucket,
-			Key: `${prefix}${name}`,
-			Body: content,
-		}),
+		new PutObjectCommand({ Bucket: bucket, Key: key, Body: content }),
 	);
-	assert.ok(result.VersionId);
-	return result.VersionId;
+	await record(journal, key, result.VersionId);
+	return result.VersionId!;
 }
-export async function seedMedia(client: S3Client, prefix: string) {
+async function tombstone(
+	client: S3Client,
+	journal: MediaJournal,
+	name: string,
+) {
+	assert.match(name, /^(overwritten|deleted)\.bin$/);
+	const key = `${journal.prefix}${name}`;
+	const result = await client.send(
+		new DeleteObjectCommand({ Bucket: bucket, Key: key }),
+	);
+	await record(journal, key, result.VersionId);
+}
+export async function seedMedia(client: S3Client, journal: MediaJournal) {
+	await emptyPrefixes(client, [journal.prefix]);
 	const original = Buffer.from(`Synthetic media ${crypto.randomUUID()}`);
-	const first = await put(client, prefix, "overwritten.bin", original);
-	await put(client, prefix, "overwritten.bin", Buffer.from("replacement"));
+	const first = await put(client, journal, "overwritten.bin", original);
+	await put(client, journal, "overwritten.bin", Buffer.from("replacement"));
 	const deleted = await put(
 		client,
-		prefix,
+		journal,
 		"deleted.bin",
 		Buffer.from("deleted original"),
 	);
-	await client.send(
-		new DeleteObjectCommand({ Bucket: bucket, Key: `${prefix}deleted.bin` }),
-	);
+	await tombstone(client, journal, "deleted.bin");
 	return {
 		bucket,
-		key: `${prefix}overwritten.bin`,
+		key: `${journal.prefix}overwritten.bin`,
 		versionId: first,
 		sha256: hash(original),
 		deletedVersion: deleted,
 	};
 }
-export async function eraseMedia(client: S3Client, prefix: string) {
-	// List only the exact run-owned prefix; delete versions individually, never a bucket/lifecycle rule.
-	for (const item of await inventory(client, prefix))
+export async function eraseMedia(client: S3Client, journal: MediaJournal) {
+	mediaPrefix(journal.prefix);
+	// Never inventory for deletion: the API receipts are the sole cleanup authority.
+	while (journal.created.length) {
+		const item = journal.created[journal.created.length - 1]!;
+		assert.ok(item.key.startsWith(journal.prefix) && item.versionId);
 		await client.send(
 			new DeleteObjectCommand({
 				Bucket: bucket,
@@ -171,53 +214,105 @@ export async function eraseMedia(client: S3Client, prefix: string) {
 				VersionId: item.versionId,
 			}),
 		);
-	assert.equal((await inventory(client, prefix)).length, 0);
+		journal.created.pop();
+	}
+}
+export function validateMedia(sourcePrefix: string, items: MediaVersion[]) {
+	mediaPrefix(sourcePrefix);
+	const groups = new Map<string, MediaVersion[]>();
+	for (const item of items) {
+		assert.ok(item.key.startsWith(sourcePrefix) && item.versionId);
+		assert.match(
+			item.key.slice(sourcePrefix.length),
+			/^(overwritten|deleted)\.bin$/,
+		);
+		assert.ok(Number.isFinite(Date.parse(item.modified)));
+		if (!item.deleted) {
+			assert.ok(item.content && item.sha256);
+			assert.equal(hash(bytes(item.content)), item.sha256);
+		}
+		groups.set(item.key, [...(groups.get(item.key) ?? []), item]);
+	}
+	for (const versions of groups.values())
+		assert.equal(
+			versions.filter((v) => v.latest).length,
+			1,
+			"ambiguous_latest",
+		);
+	return groups;
 }
 export async function recoverMedia(
 	client: S3Client,
 	sourcePrefix: string,
 	targetPrefix: string,
 	items: MediaVersion[],
+	journal = journalFor(targetPrefix),
 ) {
-	mediaPrefix(sourcePrefix);
 	mediaPrefix(targetPrefix);
-	assert.ok(targetPrefix.includes("/restore-"));
-	assert.notEqual(sourcePrefix, targetPrefix);
-	assert.equal(
-		(await inventory(client, targetPrefix)).length,
-		0,
-		"media_target_not_empty",
+	assert.equal(journal.prefix, targetPrefix);
+	assert.ok(
+		targetPrefix.includes("/restore-") && sourcePrefix !== targetPrefix,
 	);
+	const groups = validateMedia(sourcePrefix, items);
+	await emptyPrefixes(client, [targetPrefix]);
 	const mapping: Record<
 		string,
 		{ key: string; versionId: string; sha256: string }
 	> = {};
-	// Restore each independent byte copy, then recreate tombstones. Original version IDs cannot be recreated.
-	for (const item of [...items].sort((a, b) =>
-		a.modified.localeCompare(b.modified),
-	)) {
-		assert.ok(item.key.startsWith(sourcePrefix));
-		const name = item.key.slice(sourcePrefix.length);
-		assert.match(name, /^(overwritten|deleted)\.bin$/);
-		if (item.deleted) continue;
-		assert.ok(item.content && item.sha256);
-		const content = bytes(item.content);
-		assert.equal(hash(content), item.sha256);
-		const versionId = await put(client, targetPrefix, name, content);
-		const key = `${targetPrefix}${name}`;
-		const restored = await client.send(
-			new GetObjectCommand({ Bucket: bucket, Key: key, VersionId: versionId }),
-		);
-		assert.ok(restored.Body);
-		assert.equal(hash(await restored.Body.transformToByteArray()), item.sha256);
-		mapping[item.versionId] = { key, versionId, sha256: item.sha256 };
+	for (const [sourceKey, versions] of groups) {
+		const name = sourceKey.slice(sourcePrefix.length);
+		// Latest is always replayed last, even when timestamp precision ties; replay historical tombstones too.
+		for (const item of [...versions].sort(
+			(a, b) =>
+				Number(a.latest) - Number(b.latest) ||
+				a.modified.localeCompare(b.modified),
+		)) {
+			if (item.deleted) {
+				await tombstone(client, journal, name);
+				continue;
+			}
+			const versionId = await put(client, journal, name, bytes(item.content!));
+			const key = `${targetPrefix}${name}`;
+			const restored = await client.send(
+				new GetObjectCommand({
+					Bucket: bucket,
+					Key: key,
+					VersionId: versionId,
+				}),
+			);
+			assert.ok(restored.Body);
+			assert.equal(
+				hash(await restored.Body.transformToByteArray()),
+				item.sha256,
+			);
+			mapping[item.versionId] = { key, versionId, sha256: item.sha256! };
+		}
 	}
-	for (const item of items.filter((item) => item.deleted && item.latest))
-		await client.send(
-			new DeleteObjectCommand({
-				Bucket: bucket,
-				Key: `${targetPrefix}${item.key.slice(sourcePrefix.length)}`,
-			}),
+	const final = await inventory(client, targetPrefix);
+	assert.equal(final.length, items.length);
+	for (const [sourceKey, versions] of groups) {
+		const expected = versions.find((v) => v.latest)!;
+		const key = `${targetPrefix}${sourceKey.slice(sourcePrefix.length)}`;
+		const actual = final.filter((v) => v.key === key);
+		assert.equal(actual.length, versions.length);
+		assert.equal(
+			actual.filter((v) => v.deleted).length,
+			versions.filter((v) => v.deleted).length,
 		);
+		const latest = actual.filter((v) => v.latest);
+		assert.equal(latest.length, 1);
+		assert.equal(latest[0]!.deleted, expected.deleted);
+		if (!expected.deleted) {
+			const current = await client.send(
+				new GetObjectCommand({ Bucket: bucket, Key: key }),
+			);
+			assert.ok(current.Body);
+			assert.equal(
+				hash(await current.Body.transformToByteArray()),
+				expected.sha256,
+				"current_bytes_mismatch",
+			);
+		}
+	}
 	return mapping;
 }

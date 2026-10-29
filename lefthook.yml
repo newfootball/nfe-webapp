@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=https://lefthook.dev/schema.json
+glob_matcher: doublestar
+
+pre-commit:
+  jobs:
+    - name: biome
+      glob: "**/*.{js,jsx,mjs,cjs,ts,tsx,mts,cts,json,jsonc,css}"
+      run: bunx --no-install biome check --write --no-errors-on-unmatched -- '{staged_files}'
+      stage_fixed: true

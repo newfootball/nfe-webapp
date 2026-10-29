@@ -1,0 +1,24 @@
+{
+	"name": "nfe-identity-import",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"import": "bun run cli.ts",
+		"test": "bun test ./checks.ts",
+		"typecheck": "tsc --noEmit",
+		"lint": "biome check .",
+		"build": "bun build cli.ts --target=bun --outdir=dist",
+		"proof": "bun run proof.ts"
+	},
+	"dependencies": {
+		"node-appwrite": "31.1.0",
+		"bcryptjs": "3.0.3",
+		"yaml": "2.8.1",
+		"zod": "4.3.6"
+	},
+	"devDependencies": {
+		"@types/bun": "1.3.14",
+		"typescript": "5.9.3",
+		"@biomejs/biome": "2.4.13"
+	}
+}

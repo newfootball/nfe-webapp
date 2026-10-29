@@ -1,0 +1,8 @@
+{
+	"environment": "local",
+	"project": "nfe46-local",
+	"port": 19446,
+	"browserPort": 19447,
+	"privateSubnet": "10.245.46.0/24",
+	"edgeSubnet": "10.245.146.0/24"
+}

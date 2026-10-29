@@ -17,7 +17,7 @@ const config: KnipConfig = {
 		"tests/**/*.ts",
 	],
 	ignore: ["components/ui/**", "src/generated/**"],
-	ignoreDependencies: ["baseline-browser-mapping", "lint-staged"],
+	ignoreDependencies: ["baseline-browser-mapping"],
 };
 
 export default config;

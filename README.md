@@ -75,6 +75,27 @@ make docker-down
 Be careful with `make sync`, `make prisma-reset`, and `make docker-destroy`:
 they reset or remove local database state.
 
+## Git Hooks
+
+Lefthook installs the project's Git hooks through the `prepare` script during
+`bun install`. The pre-commit hook runs Biome only on staged JavaScript,
+TypeScript, JSON/JSONC and CSS files, including the isolated packages. Fixes are
+restaged automatically; unstaged changes in partially staged files are hidden
+while the hook runs and restored afterward. Biome's existing exclusions still
+apply. Lint failures block the commit.
+
+After switching an existing Husky checkout, run this once to replace its local
+`core.hooksPath` configuration and install Lefthook in Git's default hooks path:
+
+```sh
+bunx --no-install lefthook install --reset-hooks-path
+```
+
+Use `bun run prepare` to reinstall hooks, or
+`bunx --no-install lefthook run pre-commit` to check the currently staged files.
+Full lint, typecheck, build and package-specific smoke checks remain explicit
+commands and CI checks; they are not added to every commit.
+
 ## Architecture
 
 - `app/(home)/(auth)`: sign-in, sign-up, forgot/reset password

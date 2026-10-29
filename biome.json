@@ -14,7 +14,11 @@
 			"!**/dist",
 			"!**/.vercel",
 			"!**/prisma/generated/**/*",
-			"!**/src/generated/**/*"
+			"!**/src/generated/**/*",
+			"!**/.tanstack",
+			"!**/routeTree.gen.ts",
+			"!**/test-results",
+			"!**/playwright-report"
 		]
 	},
 	"formatter": {

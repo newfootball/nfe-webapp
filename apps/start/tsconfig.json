@@ -1,0 +1,29 @@
+{
+	"compilerOptions": {
+		"target": "ES2022",
+		"lib": ["DOM", "DOM.Iterable", "ESNext"],
+		"jsx": "react-jsx",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"strict": true,
+		"noUncheckedIndexedAccess": true,
+		"noImplicitOverride": true,
+		"skipLibCheck": true,
+		"noEmit": true,
+		"esModuleInterop": true,
+		"types": ["vite/client", "bun"],
+		"paths": {
+			"@/lib/utils": ["../../src/lib/utils.ts"]
+		},
+		"allowJs": true
+	},
+	"include": [
+		"src",
+		"vite.config.ts",
+		"playwright.config.ts",
+		"tests",
+		"scripts",
+		"server.ts"
+	],
+	"exclude": ["dist", "node_modules"]
+}

@@ -81,3 +81,7 @@ jobs:
               run: bun install --frozen-lockfile
             - name: Typecheck probe
               run: bun run typecheck
+            - name: Test B2 signer guards (no credentials)
+              run: bun run test:b2
+            - name: B2 runtime remains opt-in (not_run)
+              run: bun run probe:b2

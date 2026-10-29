@@ -1,0 +1,35 @@
+{
+	"at": "2026-10-29T11:04:41.056Z",
+	"appwrite": "2.6.2",
+	"project": "nfe-auth-51",
+	"source": "synthetic only",
+	"testExit": 1,
+	"sensitiveScan": {
+		"files": 22,
+		"matches": 0
+	},
+	"productionGates": "not exercised",
+	"passed_prefix": [
+		"browser signup against actual Appwrite2.6.2",
+		"HttpOnly SameSite=Lax host-only dev cookie with expiry",
+		"private direct document reload",
+		"client navigation without full document reload",
+		"non-admin UI denial"
+	],
+	"failure": "First raw admin server-function replay returned HTTP403 Forbidden before business guard; missing same-origin/RPC replay headers",
+	"remaining_unproven": [
+		"direct business-guard bypass tests",
+		"role label promotion/demotion",
+		"private mutation",
+		"concurrent SSR A/B",
+		"same-browser A/B and logout",
+		"revocation",
+		"natural expiry",
+		"FR/EN generic credential errors"
+	],
+	"review_blocker": "Sign-in shared form object includes empty name rejected by credential validation",
+	"repair_budget": {
+		"limit": 3,
+		"used": 3
+	}
+}

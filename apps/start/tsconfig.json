@@ -15,7 +15,8 @@
 		"paths": {
 			"@/lib/utils": ["../../src/lib/utils.ts"]
 		},
-		"allowJs": true
+		"allowJs": true,
+		"allowImportingTsExtensions": true
 	},
 	"include": [
 		"src",

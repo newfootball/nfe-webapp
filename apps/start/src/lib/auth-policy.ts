@@ -1,5 +1,14 @@
 export function safeReturnPath(value: unknown, locale: "fr" | "en") {
-	return value === `/${locale}/private` ? value : `/${locale}/private`;
+	const allowed = [
+		"private",
+		"onboarding",
+		"profile",
+		"profile/edit-user",
+		"profile/account-security",
+	].map((path) => `/${locale}/${path}`);
+	return typeof value === "string" && allowed.includes(value)
+		? value
+		: `/${locale}/private`;
 }
 
 export function isTrustedMutation(request: Request, origin: string) {

@@ -1,4 +1,9 @@
-import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	Link,
+	redirect,
+	useRouter,
+} from "@tanstack/react-router";
 import { useState } from "react";
 import { getAdmin, getPrivate, signOut, updateOwnName } from "../lib/auth";
 import { clearIdentityCache } from "../lib/auth-cache";
@@ -31,6 +36,9 @@ function PrivatePage() {
 	return (
 		<section className="space-y-6">
 			<h1 className="text-3xl font-bold">{t.private}</h1>
+			<Link to="/$locale/profile" params={{ locale }}>
+				{locale === "fr" ? "Mon profil" : "My profile"}
+			</Link>
 			<p data-testid="identity">{viewer.id}</p>
 			<p data-testid="name">{viewer.name}</p>
 			<p data-testid="role">{viewer.role}</p>

@@ -69,14 +69,22 @@ sensibles en mode 600 ; ne pas afficher ni joindre le Compose ou les identifiant
 [Résultat expurgé](../../tools/migration-probe/evidence/appwrite-2.6.2.json),
 [source Compose](../../tools/migration-probe/evidence/compose-source.json).
 Le résultat provient d'un redémarrage avec volumes neufs, le 29 octobre à
-07:44:41 UTC ; le probe retourne un code non nul dès qu'un contrôle échoue ou
+07:59:01 UTC ; le probe retourne un code non nul dès qu'un contrôle échoue ou
 reste `not_run`. Les données sont exclusivement synthétiques.
+
+Cette preuve remplace celle de 07:44:41 UTC après correction de PR73-2 : les
+anciens cas négatifs utilisaient aussi un hash bcrypt invalide et ne distinguaient
+pas un rejet de mot de passe d’un rejet d’ID. Les six cas utilisent désormais le
+même hash synthétique valide (60 caractères, coût 10), importé avec succès pour
+les trois IDs valides. Les trois mauvais IDs doivent chacun renvoyer HTTP 400,
+`general_argument_invalid` et un message identifiant explicitement `userId` ;
+aucun autre HTTP 400 ne suffit. Aucun hash ni message brut n’est enregistré.
 
 | Contrôle | Observation |
 | --- | --- |
 | Bootstrap | Admin console, équipe, projet et clé synthétiques ; 2.6.2 exige `keyId` lors de la création de clé |
 | Bcrypt / login | Import du hash uniquement via `createBcryptUser`, connexion serveur et SDK web réussies ; mauvais mot de passe refusé 401 |
-| IDs | Forme CUID, UUID de 36 caractères et alphanumérique de 36 acceptés ; longueur 37, underscore initial et slash refusés 400 |
+| IDs | Forme CUID, UUID de 36 caractères et alphanumérique de 36 acceptés ; longueur 37, underscore initial et slash refusés avec HTTP 400, type `general_argument_invalid` et paramètre `userId` |
 | TablesDB | Trois tables, colonnes et index asynchrones attendus jusqu'à disponibilité |
 | Unicité composée | Couple userId/postId répété refusé 409 ; même utilisateur/autre post accepté |
 | Recherche sans casse | Égalité et sous-chaîne sur champ NFC/minuscules passent ; `contains(title, "éQUIPE par")` trouve aussi les deux `Équipe PARIS` sur ce PostgreSQL |
@@ -135,13 +143,21 @@ Cloudinary distant n'a été effectuée. Leur budget reste à établir avec #44.
 
 ## Vérifications du patch
 
-- Sous-package : `bun run typecheck` réussi ; 11 contrôles locaux réussis.
-- Racine : `bun run typecheck` réussi ; `bun run lint` réussi avec quatre
-  avertissements de complexité (deux dans le harness, deux préexistants).
-- `bun run build` compile et passe TypeScript, puis échoue lors de la collecte
-  `/sitemap.xml` car `RESEND_API_KEY` est absent. Aucune valeur factice injectée.
-- La DB produit n'a pas été démarrée ; aucun fichier package/lock/config racine
-  n'a été modifié. Les services du probe sont arrêtés avant livraison.
+- Sous-package : installation `bun install --frozen-lockfile` et `bun run typecheck`
+  réussies dans un répertoire temporaire indépendant, sans dépendances racine ;
+  11 contrôles réels réussis sur volumes neufs avec les assertions corrigées.
+- Racine : `bun run typecheck --incremental false` et `bun run build` réussis
+  avec le `node_modules` du probe temporairement renommé puis restauré.
+  Le build charge uniquement en processus la configuration privée principale ;
+  il termine avec code 0 mais journalise les erreurs DB connues du sitemap.
+  Cela ne prouve pas les lectures de la DB produit.
+- `bun run lint` réussi avec quatre avertissements de complexité existants.
+- `tsconfig.json` exclut précisément le probe optionnel, en conservant l’exclusion
+  Start. Un job CI indépendant installe uniquement ce sous-package avec son lock
+  frozen puis vérifie ses types ; les jobs racine et Start restent inchangés.
+- Aucune dépendance/version racine modifiée ; aucun service produit démarré.
+  Les conteneurs, réseau et volumes possédés par le probe sont supprimés avant
+  livraison. La CI distante du nouveau head reste à vérifier par le coordinateur.
 
 Adapter le produit ou engager la réécriture attend encore le contrat #44 et les
 preuves B2/vidéo/SSR manquantes. Cette PR ne ferme donc pas #45.

@@ -58,6 +58,19 @@ async function rejectsCode(run: () => Promise<unknown>, code: number) {
 	}
 	throw new Error(`Expected HTTP ${code}`);
 }
+// A generic 400 can also mean an invalid password/email: require userId specifically.
+async function rejectsUserId(run: () => Promise<unknown>) {
+	try {
+		await run();
+	} catch (error) {
+		const validation = error as { code: number; type: string; message: string };
+		assert.equal(validation.code, 400);
+		assert.equal(validation.type, "general_argument_invalid");
+		assert.match(validation.message, /^Invalid `userId` param:/);
+		return;
+	}
+	throw new Error("Expected userId validation failure");
+}
 async function waitFor(run: () => Promise<boolean>) {
 	const deadline = Date.now() + 60_000;
 	do {
@@ -234,6 +247,9 @@ async function main() {
 		};
 	});
 	await check("id-boundaries", async () => {
+		const hash = await bcrypt.hash(password, 10);
+		assert.equal(hash.length, 60);
+		assert.match(hash, /^\$2[aby]\$10\$/);
 		const ids = [
 			`c${runId}123456789012`,
 			crypto.randomUUID(),
@@ -243,24 +259,28 @@ async function main() {
 			const u = await users.createBcryptUser({
 				userId: id,
 				email: `${id}@example.test`,
-				password: await bcrypt.hash(password, 10),
+				password: hash,
 			});
 			assert.equal(u.$id, id);
 			await users.delete({ userId: id });
 		}
 		for (const id of ["a".repeat(37), "_leading", "slash/id"])
-			await rejectsCode(
-				() =>
-					users.createBcryptUser({
-						userId: id,
-						email: "invalid@example.test",
-						password: "$2b$10$invalid",
-					}),
-				400,
+			await rejectsUserId(() =>
+				users.createBcryptUser({
+					userId: id,
+					email: "invalid@example.test",
+					password: hash,
+				}),
 			);
 		return {
 			accepted: ["cuid-shape", "UUID-36", "alphanumeric-36"],
 			rejected: ["length-37", "leading-underscore", "slash"],
+			negativeFixture: { bcryptCost: 10, hashLength: 60 },
+			rejection: {
+				code: 400,
+				type: "general_argument_invalid",
+				parameter: "userId",
+			},
 		};
 	});
 	const ref = (tableId: string) => ({ databaseId, tableId });

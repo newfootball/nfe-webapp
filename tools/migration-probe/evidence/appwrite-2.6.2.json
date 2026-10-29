@@ -1,5 +1,5 @@
 {
-	"timestamp": "2026-10-29T07:44:41.130Z",
+	"timestamp": "2026-10-29T07:59:01.432Z",
 	"endpoint": "http://127.0.0.1:19445/v1",
 	"matrix": {
 		"appwrite": "2.6.2",
@@ -27,13 +27,22 @@
 			"status": "passed",
 			"detail": {
 				"accepted": ["cuid-shape", "UUID-36", "alphanumeric-36"],
-				"rejected": ["length-37", "leading-underscore", "slash"]
+				"rejected": ["length-37", "leading-underscore", "slash"],
+				"negativeFixture": {
+					"bcryptCost": 10,
+					"hashLength": 60
+				},
+				"rejection": {
+					"code": 400,
+					"type": "general_argument_invalid",
+					"parameter": "userId"
+				}
 			}
 		},
 		"tables-schema": {
 			"status": "passed",
 			"detail": {
-				"databaseId": "probe-8e0f1e7da268",
+				"databaseId": "probe-1299b189a225",
 				"tables": 3
 			}
 		},

@@ -8,6 +8,7 @@ import type { OwnProfile } from "../../lib/profile.server";
 import { POSITIONS, USER_TYPES } from "../../lib/profile-contract";
 import type { Onboarding, ProfileEdit } from "../../lib/profile-input";
 import { positionMessages, profileMessages } from "../../lib/profile-messages";
+import { AvatarEditor } from "../media/avatar-editor";
 
 const inputClass =
 	"block w-full rounded-md border bg-background px-3 py-2 text-foreground focus-visible:outline-2 focus-visible:outline-ring";
@@ -105,6 +106,14 @@ export function ProfileForm({
 		<section className="mx-auto max-w-xl space-y-6">
 			<h1 className="text-3xl font-bold">{editing ? t.edit : t.onboarding}</h1>
 			<p>{t.privateNotice}</p>
+			{editing && (
+				<AvatarEditor
+					key={own.id}
+					viewerId={own.id}
+					locale={locale}
+					image={p?.image ?? null}
+				/>
+			)}
 			<form
 				className="space-y-5"
 				onSubmit={async (event) => {

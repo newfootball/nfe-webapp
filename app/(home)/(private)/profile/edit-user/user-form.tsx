@@ -3,7 +3,7 @@
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useState } from "react";
 import { toast } from "sonner";
 import { InputLayout } from "@/components/layouts/input-layout";
 import { Alert } from "@/components/ui/alert";
@@ -19,13 +19,12 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import type { User } from "@/src/generated/prisma/client";
 import {
 	Foot,
 	type Foot as FootValue,
 	Position,
 } from "@/src/generated/prisma/enums";
-import { getUser } from "@/src/query/user.query";
+import type { EditableProfile } from "@/src/query/profile.select";
 import { updateUser } from "./edit-user.action";
 import { userSchema } from "./user.schema";
 
@@ -45,19 +44,11 @@ const footValueToArray = (value: string): Foot[] => {
 	return [];
 };
 
-export const UserForm = ({ userId }: { userId: string }) => {
+export const UserForm = ({ initialUser }: { initialUser: EditableProfile }) => {
 	const t = useTranslations("profile.edit-user");
-	const [user, setUser] = useState<User | null>(null);
+	const [user, setUser] = useState(initialUser);
 	const [error, setError] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState(false);
-
-	useEffect(() => {
-		const fetchUser = async () => {
-			const user = await getUser(userId);
-			setUser(user);
-		};
-		fetchUser();
-	}, [userId]);
 
 	const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -72,22 +63,26 @@ export const UserForm = ({ userId }: { userId: string }) => {
 			return;
 		}
 
-		updateUser(userId, parsedData.data)
-			.then(() => {
-				toast.success(t("user-updated-successfully"));
-			})
-			.finally(() => {
-				setIsLoading(false);
-			});
+		try {
+			const result = await updateUser(parsedData.data);
+			if (!result.success) {
+				setError(result.error);
+				return;
+			}
+			toast.success(t("user-updated-successfully"));
+		} catch {
+			setError(t("update-error"));
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	const togglePosition = (pos: Position) => {
-		if (!user) return;
 		const current = user.position ?? [];
 		const updated = current.includes(pos)
 			? current.filter((p) => p !== pos)
 			: [...current, pos];
-		setUser({ ...user, position: updated } as User);
+		setUser({ ...user, position: updated });
 	};
 
 	return (
@@ -104,8 +99,8 @@ export const UserForm = ({ userId }: { userId: string }) => {
 					type="email"
 					id="email"
 					placeholder={t("email")}
-					value={user?.email || ""}
-					onChange={(e) => setUser({ ...user, email: e.target.value } as User)}
+					value={user.email || ""}
+					onChange={(e) => setUser({ ...user, email: e.target.value })}
 				/>
 			</InputLayout>
 
@@ -115,10 +110,8 @@ export const UserForm = ({ userId }: { userId: string }) => {
 					type="text"
 					id="name"
 					placeholder={t("full-name")}
-					value={user?.fullName || ""}
-					onChange={(e) =>
-						setUser({ ...user, fullName: e.target.value } as User)
-					}
+					value={user.fullName || ""}
+					onChange={(e) => setUser({ ...user, fullName: e.target.value })}
 				/>
 			</InputLayout>
 
@@ -128,7 +121,7 @@ export const UserForm = ({ userId }: { userId: string }) => {
 					type="date"
 					id="birthday"
 					value={
-						user?.birthday
+						user.birthday
 							? new Date(user.birthday).toISOString().split("T")[0]
 							: ""
 					}
@@ -136,7 +129,7 @@ export const UserForm = ({ userId }: { userId: string }) => {
 						setUser({
 							...user,
 							birthday: e.target.value ? new Date(e.target.value) : null,
-						} as User)
+						})
 					}
 				/>
 			</InputLayout>
@@ -146,10 +139,8 @@ export const UserForm = ({ userId }: { userId: string }) => {
 				<Textarea
 					id="biography"
 					placeholder={t("biography")}
-					value={user?.biography || ""}
-					onChange={(e) =>
-						setUser({ ...user, biography: e.target.value } as User)
-					}
+					value={user.biography || ""}
+					onChange={(e) => setUser({ ...user, biography: e.target.value })}
 				/>
 			</InputLayout>
 
@@ -159,10 +150,8 @@ export const UserForm = ({ userId }: { userId: string }) => {
 					type="text"
 					id="localisation"
 					placeholder={t("localisation-placeholder")}
-					value={user?.localisation || ""}
-					onChange={(e) =>
-						setUser({ ...user, localisation: e.target.value } as User)
-					}
+					value={user.localisation || ""}
+					onChange={(e) => setUser({ ...user, localisation: e.target.value })}
 				/>
 			</InputLayout>
 
@@ -173,7 +162,7 @@ export const UserForm = ({ userId }: { userId: string }) => {
 						<div key={pos} className="flex items-center gap-2">
 							<Checkbox
 								id={`pos-${pos}`}
-								checked={(user?.position ?? []).includes(pos)}
+								checked={(user.position ?? []).includes(pos)}
 								onCheckedChange={() => togglePosition(pos)}
 							/>
 							<Label
@@ -190,9 +179,9 @@ export const UserForm = ({ userId }: { userId: string }) => {
 			<InputLayout>
 				<Label htmlFor="foot">{t("foot")}</Label>
 				<Select
-					value={getFootValue(user?.foot ?? [])}
+					value={getFootValue(user.foot ?? [])}
 					onValueChange={(value) =>
-						setUser({ ...user, foot: footValueToArray(value) } as User)
+						setUser({ ...user, foot: footValueToArray(value) })
 					}
 				>
 					<SelectTrigger id="foot">

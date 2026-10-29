@@ -1,0 +1,23 @@
+{
+	"$schema": "https://biomejs.dev/schemas/2.4.13/schema.json",
+	"root": false,
+	"files": {
+		"includes": ["!dist", "!.local", "!node_modules"]
+	},
+	"formatter": {
+		"indentStyle": "tab"
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "double"
+		}
+	},
+	"assist": {
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
+		}
+	},
+	"extends": ["../../biome.json"]
+}

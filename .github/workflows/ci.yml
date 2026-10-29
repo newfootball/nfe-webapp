@@ -85,3 +85,18 @@ jobs:
               run: bun run test:b2
             - name: B2 runtime remains opt-in (not_run)
               run: bun run probe:b2
+
+    identity-import:
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: tools/identity-import
+        steps:
+            - uses: actions/checkout@v4
+            - uses: oven-sh/setup-bun@v2
+              with:
+                bun-version: 1.3.14
+            - name: Install isolated identity importer dependencies
+              run: bun install --frozen-lockfile --ignore-scripts
+            - name: Check importer
+              run: bun run typecheck && bun run lint && bun run test && bun run build

@@ -11,17 +11,22 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LocaleRouteImport } from './routes/$locale'
+import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LocaleIndexRouteImport } from './routes/$locale.index'
 import { Route as LocaleAboutRouteImport } from './routes/$locale.about'
+import { Route as LocaleExploreRouteImport } from './routes/$locale.explore'
+import { Route as LocaleFeedRouteImport } from './routes/$locale.feed'
 import { Route as LocaleOnboardingRouteImport } from './routes/$locale.onboarding'
 import { Route as LocalePrivateRouteImport } from './routes/$locale.private'
 import { Route as LocaleProfileRouteImport } from './routes/$locale.profile'
 import { Route as LocaleSignInRouteImport } from './routes/$locale.sign-in'
+import { Route as PostIdRouteImport } from './routes/post.$id'
 import { Route as ProfileAccountSecurityRouteImport } from './routes/profile_.account-security'
 import { Route as ProfileEditUserRouteImport } from './routes/profile_.edit-user'
 import { Route as UserIdRouteImport } from './routes/user.$id'
+import { Route as LocalePostIdRouteImport } from './routes/$locale.post.$id'
 import { Route as LocaleProfileAccountSecurityRouteImport } from './routes/$locale.profile_.account-security'
 import { Route as LocaleProfileEditUserRouteImport } from './routes/$locale.profile_.edit-user'
 import { Route as LocaleUserIdRouteImport } from './routes/$locale.user.$id'
@@ -34,6 +39,11 @@ const IndexRoute = IndexRouteImport.update({
 const LocaleRoute = LocaleRouteImport.update({
   id: '/$locale',
   path: '/$locale',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExploreRoute = ExploreRouteImport.update({
+  id: '/explore',
+  path: '/explore',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingRoute = OnboardingRouteImport.update({
@@ -56,6 +66,16 @@ const LocaleAboutRoute = LocaleAboutRouteImport.update({
   path: '/about',
   getParentRoute: () => LocaleRoute,
 } as any)
+const LocaleExploreRoute = LocaleExploreRouteImport.update({
+  id: '/explore',
+  path: '/explore',
+  getParentRoute: () => LocaleRoute,
+} as any)
+const LocaleFeedRoute = LocaleFeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
+  getParentRoute: () => LocaleRoute,
+} as any)
 const LocaleOnboardingRoute = LocaleOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -76,6 +96,11 @@ const LocaleSignInRoute = LocaleSignInRouteImport.update({
   path: '/sign-in',
   getParentRoute: () => LocaleRoute,
 } as any)
+const PostIdRoute = PostIdRouteImport.update({
+  id: '/post/$id',
+  path: '/post/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileAccountSecurityRoute = ProfileAccountSecurityRouteImport.update({
   id: '/profile_/account-security',
   path: '/profile/account-security',
@@ -90,6 +115,11 @@ const UserIdRoute = UserIdRouteImport.update({
   id: '/user/$id',
   path: '/user/$id',
   getParentRoute: () => rootRouteImport,
+} as any)
+const LocalePostIdRoute = LocalePostIdRouteImport.update({
+  id: '/post/$id',
+  path: '/post/$id',
+  getParentRoute: () => LocaleRoute,
 } as any)
 const LocaleProfileAccountSecurityRoute =
   LocaleProfileAccountSecurityRouteImport.update({
@@ -111,34 +141,44 @@ const LocaleUserIdRoute = LocaleUserIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$locale': typeof LocaleRouteWithChildren
+  '/explore': typeof ExploreRoute
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
   '/$locale/about': typeof LocaleAboutRoute
+  '/$locale/explore': typeof LocaleExploreRoute
+  '/$locale/feed': typeof LocaleFeedRoute
   '/$locale/onboarding': typeof LocaleOnboardingRoute
   '/$locale/private': typeof LocalePrivateRoute
   '/$locale/profile': typeof LocaleProfileRoute
   '/$locale/sign-in': typeof LocaleSignInRoute
+  '/post/$id': typeof PostIdRoute
   '/profile/account-security': typeof ProfileAccountSecurityRoute
   '/profile/edit-user': typeof ProfileEditUserRoute
   '/user/$id': typeof UserIdRoute
   '/$locale/': typeof LocaleIndexRoute
+  '/$locale/post/$id': typeof LocalePostIdRoute
   '/$locale/profile/account-security': typeof LocaleProfileAccountSecurityRoute
   '/$locale/profile/edit-user': typeof LocaleProfileEditUserRoute
   '/$locale/user/$id': typeof LocaleUserIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/explore': typeof ExploreRoute
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
   '/$locale/about': typeof LocaleAboutRoute
+  '/$locale/explore': typeof LocaleExploreRoute
+  '/$locale/feed': typeof LocaleFeedRoute
   '/$locale/onboarding': typeof LocaleOnboardingRoute
   '/$locale/private': typeof LocalePrivateRoute
   '/$locale/profile': typeof LocaleProfileRoute
   '/$locale/sign-in': typeof LocaleSignInRoute
+  '/post/$id': typeof PostIdRoute
   '/profile/account-security': typeof ProfileAccountSecurityRoute
   '/profile/edit-user': typeof ProfileEditUserRoute
   '/user/$id': typeof UserIdRoute
   '/$locale': typeof LocaleIndexRoute
+  '/$locale/post/$id': typeof LocalePostIdRoute
   '/$locale/profile/account-security': typeof LocaleProfileAccountSecurityRoute
   '/$locale/profile/edit-user': typeof LocaleProfileEditUserRoute
   '/$locale/user/$id': typeof LocaleUserIdRoute
@@ -147,17 +187,22 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$locale': typeof LocaleRouteWithChildren
+  '/explore': typeof ExploreRoute
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
   '/$locale/about': typeof LocaleAboutRoute
+  '/$locale/explore': typeof LocaleExploreRoute
+  '/$locale/feed': typeof LocaleFeedRoute
   '/$locale/onboarding': typeof LocaleOnboardingRoute
   '/$locale/private': typeof LocalePrivateRoute
   '/$locale/profile': typeof LocaleProfileRoute
   '/$locale/sign-in': typeof LocaleSignInRoute
+  '/post/$id': typeof PostIdRoute
   '/profile_/account-security': typeof ProfileAccountSecurityRoute
   '/profile_/edit-user': typeof ProfileEditUserRoute
   '/user/$id': typeof UserIdRoute
   '/$locale/': typeof LocaleIndexRoute
+  '/$locale/post/$id': typeof LocalePostIdRoute
   '/$locale/profile_/account-security': typeof LocaleProfileAccountSecurityRoute
   '/$locale/profile_/edit-user': typeof LocaleProfileEditUserRoute
   '/$locale/user/$id': typeof LocaleUserIdRoute
@@ -167,34 +212,44 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/$locale'
+    | '/explore'
     | '/onboarding'
     | '/profile'
     | '/$locale/about'
+    | '/$locale/explore'
+    | '/$locale/feed'
     | '/$locale/onboarding'
     | '/$locale/private'
     | '/$locale/profile'
     | '/$locale/sign-in'
+    | '/post/$id'
     | '/profile/account-security'
     | '/profile/edit-user'
     | '/user/$id'
     | '/$locale/'
+    | '/$locale/post/$id'
     | '/$locale/profile/account-security'
     | '/$locale/profile/edit-user'
     | '/$locale/user/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/explore'
     | '/onboarding'
     | '/profile'
     | '/$locale/about'
+    | '/$locale/explore'
+    | '/$locale/feed'
     | '/$locale/onboarding'
     | '/$locale/private'
     | '/$locale/profile'
     | '/$locale/sign-in'
+    | '/post/$id'
     | '/profile/account-security'
     | '/profile/edit-user'
     | '/user/$id'
     | '/$locale'
+    | '/$locale/post/$id'
     | '/$locale/profile/account-security'
     | '/$locale/profile/edit-user'
     | '/$locale/user/$id'
@@ -202,17 +257,22 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/$locale'
+    | '/explore'
     | '/onboarding'
     | '/profile'
     | '/$locale/about'
+    | '/$locale/explore'
+    | '/$locale/feed'
     | '/$locale/onboarding'
     | '/$locale/private'
     | '/$locale/profile'
     | '/$locale/sign-in'
+    | '/post/$id'
     | '/profile_/account-security'
     | '/profile_/edit-user'
     | '/user/$id'
     | '/$locale/'
+    | '/$locale/post/$id'
     | '/$locale/profile_/account-security'
     | '/$locale/profile_/edit-user'
     | '/$locale/user/$id'
@@ -221,8 +281,10 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LocaleRoute: typeof LocaleRouteWithChildren
+  ExploreRoute: typeof ExploreRoute
   OnboardingRoute: typeof OnboardingRoute
   ProfileRoute: typeof ProfileRoute
+  PostIdRoute: typeof PostIdRoute
   ProfileAccountSecurityRoute: typeof ProfileAccountSecurityRoute
   ProfileEditUserRoute: typeof ProfileEditUserRoute
   UserIdRoute: typeof UserIdRoute
@@ -242,6 +304,13 @@ declare module '@tanstack/react-router' {
       path: '/$locale'
       fullPath: '/$locale'
       preLoaderRoute: typeof LocaleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/explore': {
+      id: '/explore'
+      path: '/explore'
+      fullPath: '/explore'
+      preLoaderRoute: typeof ExploreRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding': {
@@ -272,6 +341,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocaleAboutRouteImport
       parentRoute: typeof LocaleRoute
     }
+    '/$locale/explore': {
+      id: '/$locale/explore'
+      path: '/explore'
+      fullPath: '/$locale/explore'
+      preLoaderRoute: typeof LocaleExploreRouteImport
+      parentRoute: typeof LocaleRoute
+    }
+    '/$locale/feed': {
+      id: '/$locale/feed'
+      path: '/feed'
+      fullPath: '/$locale/feed'
+      preLoaderRoute: typeof LocaleFeedRouteImport
+      parentRoute: typeof LocaleRoute
+    }
     '/$locale/onboarding': {
       id: '/$locale/onboarding'
       path: '/onboarding'
@@ -300,6 +383,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocaleSignInRouteImport
       parentRoute: typeof LocaleRoute
     }
+    '/post/$id': {
+      id: '/post/$id'
+      path: '/post/$id'
+      fullPath: '/post/$id'
+      preLoaderRoute: typeof PostIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile_/account-security': {
       id: '/profile_/account-security'
       path: '/profile/account-security'
@@ -320,6 +410,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/user/$id'
       preLoaderRoute: typeof UserIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/$locale/post/$id': {
+      id: '/$locale/post/$id'
+      path: '/post/$id'
+      fullPath: '/$locale/post/$id'
+      preLoaderRoute: typeof LocalePostIdRouteImport
+      parentRoute: typeof LocaleRoute
     }
     '/$locale/profile_/account-security': {
       id: '/$locale/profile_/account-security'
@@ -347,11 +444,14 @@ declare module '@tanstack/react-router' {
 
 interface LocaleRouteChildren {
   LocaleAboutRoute: typeof LocaleAboutRoute
+  LocaleExploreRoute: typeof LocaleExploreRoute
+  LocaleFeedRoute: typeof LocaleFeedRoute
   LocaleOnboardingRoute: typeof LocaleOnboardingRoute
   LocalePrivateRoute: typeof LocalePrivateRoute
   LocaleProfileRoute: typeof LocaleProfileRoute
   LocaleSignInRoute: typeof LocaleSignInRoute
   LocaleIndexRoute: typeof LocaleIndexRoute
+  LocalePostIdRoute: typeof LocalePostIdRoute
   LocaleProfileAccountSecurityRoute: typeof LocaleProfileAccountSecurityRoute
   LocaleProfileEditUserRoute: typeof LocaleProfileEditUserRoute
   LocaleUserIdRoute: typeof LocaleUserIdRoute
@@ -359,11 +459,14 @@ interface LocaleRouteChildren {
 
 const LocaleRouteChildren: LocaleRouteChildren = {
   LocaleAboutRoute: LocaleAboutRoute,
+  LocaleExploreRoute: LocaleExploreRoute,
+  LocaleFeedRoute: LocaleFeedRoute,
   LocaleOnboardingRoute: LocaleOnboardingRoute,
   LocalePrivateRoute: LocalePrivateRoute,
   LocaleProfileRoute: LocaleProfileRoute,
   LocaleSignInRoute: LocaleSignInRoute,
   LocaleIndexRoute: LocaleIndexRoute,
+  LocalePostIdRoute: LocalePostIdRoute,
   LocaleProfileAccountSecurityRoute: LocaleProfileAccountSecurityRoute,
   LocaleProfileEditUserRoute: LocaleProfileEditUserRoute,
   LocaleUserIdRoute: LocaleUserIdRoute,
@@ -375,8 +478,10 @@ const LocaleRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LocaleRoute: LocaleRouteWithChildren,
+  ExploreRoute: ExploreRoute,
   OnboardingRoute: OnboardingRoute,
   ProfileRoute: ProfileRoute,
+  PostIdRoute: PostIdRoute,
   ProfileAccountSecurityRoute: ProfileAccountSecurityRoute,
   ProfileEditUserRoute: ProfileEditUserRoute,
   UserIdRoute: UserIdRoute,

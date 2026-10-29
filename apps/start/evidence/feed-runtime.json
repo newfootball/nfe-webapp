@@ -1,0 +1,3365 @@
+{
+	"at": "2026-10-29T16:15:53.077Z",
+	"appwrite": "2.6.2",
+	"sdk": "31.1.0",
+	"source": "synthetic only",
+	"testExit": 0,
+	"clientSensitiveScan": {
+		"files": 26,
+		"matches": 0
+	},
+	"buildSha256": "333346fe8e55e29de8005bd91de98ff7db1f8d07d64ebd13f2d8d77f2b49ab9b",
+	"wireMeasurement": {
+		"transport": "loopback observation bridge19565 to19564, accept-encoding identity; body bytes exclude HTTP headers/TLS; SDK decoded payload sizes separately labelled",
+		"groups": {
+			"structure--1-10": {
+				"calls": 5,
+				"requestPathAndBodyBytes": 3308,
+				"responseBodyBytes": 10330,
+				"statuses": {
+					"200": 5
+				}
+			},
+			"structure--1-zero": {
+				"calls": 5,
+				"requestPathAndBodyBytes": 2749,
+				"responseBodyBytes": 1757,
+				"statuses": {
+					"200": 5
+				}
+			},
+			"structure--1-1": {
+				"calls": 5,
+				"requestPathAndBodyBytes": 2626,
+				"responseBodyBytes": 1774,
+				"statuses": {
+					"200": 5
+				}
+			},
+			"structure--1-20": {
+				"calls": 5,
+				"requestPathAndBodyBytes": 3968,
+				"responseBodyBytes": 18170,
+				"statuses": {
+					"200": 5
+				}
+			},
+			"hidden--1-feed-post-040": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 303,
+				"responseBodyBytes": 127,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"hidden--1-feed-post-041": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 303,
+				"responseBodyBytes": 127,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"hidden--1-feed-post-042": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 303,
+				"responseBodyBytes": 127,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"hidden--1-feed-post-043": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 303,
+				"responseBodyBytes": 127,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"hidden--1-feed-post-044": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 303,
+				"responseBodyBytes": 127,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"hidden--1-absent-post": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 301,
+				"responseBodyBytes": 125,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"structure-0-10": {
+				"calls": 5,
+				"requestPathAndBodyBytes": 3308,
+				"responseBodyBytes": 10330,
+				"statuses": {
+					"200": 5
+				}
+			},
+			"structure-0-zero": {
+				"calls": 5,
+				"requestPathAndBodyBytes": 2749,
+				"responseBodyBytes": 1757,
+				"statuses": {
+					"200": 5
+				}
+			},
+			"structure-0-1": {
+				"calls": 5,
+				"requestPathAndBodyBytes": 2626,
+				"responseBodyBytes": 1774,
+				"statuses": {
+					"200": 5
+				}
+			},
+			"structure-0-20": {
+				"calls": 5,
+				"requestPathAndBodyBytes": 3968,
+				"responseBodyBytes": 18170,
+				"statuses": {
+					"200": 5
+				}
+			},
+			"hidden-0-feed-post-040": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 303,
+				"responseBodyBytes": 127,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"hidden-0-feed-post-041": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 303,
+				"responseBodyBytes": 127,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"hidden-0-feed-post-042": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 303,
+				"responseBodyBytes": 127,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"hidden-0-feed-post-043": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 303,
+				"responseBodyBytes": 127,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"hidden-0-feed-post-044": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 303,
+				"responseBodyBytes": 127,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"hidden-0-absent-post": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 301,
+				"responseBodyBytes": 125,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"structure-1-10": {
+				"calls": 5,
+				"requestPathAndBodyBytes": 3308,
+				"responseBodyBytes": 10330,
+				"statuses": {
+					"200": 5
+				}
+			},
+			"structure-1-zero": {
+				"calls": 5,
+				"requestPathAndBodyBytes": 2749,
+				"responseBodyBytes": 1757,
+				"statuses": {
+					"200": 5
+				}
+			},
+			"structure-1-1": {
+				"calls": 5,
+				"requestPathAndBodyBytes": 2626,
+				"responseBodyBytes": 1774,
+				"statuses": {
+					"200": 5
+				}
+			},
+			"structure-1-20": {
+				"calls": 5,
+				"requestPathAndBodyBytes": 3968,
+				"responseBodyBytes": 18170,
+				"statuses": {
+					"200": 5
+				}
+			},
+			"hidden-1-feed-post-040": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 303,
+				"responseBodyBytes": 127,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"hidden-1-feed-post-041": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 303,
+				"responseBodyBytes": 127,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"hidden-1-feed-post-042": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 303,
+				"responseBodyBytes": 127,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"hidden-1-feed-post-043": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 303,
+				"responseBodyBytes": 127,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"hidden-1-feed-post-044": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 303,
+				"responseBodyBytes": 127,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"hidden-1-absent-post": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 301,
+				"responseBodyBytes": 125,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"structure-4-10": {
+				"calls": 5,
+				"requestPathAndBodyBytes": 3308,
+				"responseBodyBytes": 10330,
+				"statuses": {
+					"200": 5
+				}
+			},
+			"structure-4-zero": {
+				"calls": 5,
+				"requestPathAndBodyBytes": 2749,
+				"responseBodyBytes": 1757,
+				"statuses": {
+					"200": 5
+				}
+			},
+			"structure-4-1": {
+				"calls": 5,
+				"requestPathAndBodyBytes": 2626,
+				"responseBodyBytes": 1774,
+				"statuses": {
+					"200": 5
+				}
+			},
+			"structure-4-20": {
+				"calls": 5,
+				"requestPathAndBodyBytes": 3968,
+				"responseBodyBytes": 18170,
+				"statuses": {
+					"200": 5
+				}
+			},
+			"hidden-4-feed-post-040": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 303,
+				"responseBodyBytes": 127,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"hidden-4-feed-post-041": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 303,
+				"responseBodyBytes": 127,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"hidden-4-feed-post-042": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 303,
+				"responseBodyBytes": 127,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"hidden-4-feed-post-043": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 303,
+				"responseBodyBytes": 127,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"hidden-4-feed-post-044": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 303,
+				"responseBodyBytes": 127,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"hidden-4-absent-post": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 301,
+				"responseBodyBytes": 125,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"": {
+				"calls": 510,
+				"requestPathAndBodyBytes": 345817,
+				"responseBodyBytes": 358965,
+				"statuses": {
+					"200": 508,
+					"404": 2
+				}
+			},
+			"hidden-revoked--1": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 303,
+				"responseBodyBytes": 127,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"hidden-revoked-0": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 303,
+				"responseBodyBytes": 127,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"hidden-revoked-1": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 303,
+				"responseBodyBytes": 127,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"hidden-revoked-4": {
+				"calls": 1,
+				"requestPathAndBodyBytes": 303,
+				"responseBodyBytes": 127,
+				"statuses": {
+					"404": 1
+				}
+			},
+			"structure-search-unicode": {
+				"calls": 10,
+				"requestPathAndBodyBytes": 7232,
+				"responseBodyBytes": 20660,
+				"statuses": {
+					"200": 10
+				}
+			},
+			"structure-search-substring": {
+				"calls": 5,
+				"requestPathAndBodyBytes": 3600,
+				"responseBodyBytes": 10330,
+				"statuses": {
+					"200": 5
+				}
+			},
+			"structure-users-only": {
+				"calls": 3,
+				"requestPathAndBodyBytes": 1775,
+				"responseBodyBytes": 462,
+				"statuses": {
+					"200": 3
+				}
+			},
+			"unlabelled-auth-and-profile": {
+				"calls": 52,
+				"requestPathAndBodyBytes": 12647,
+				"responseBodyBytes": 47885,
+				"statuses": {
+					"200": 47,
+					"201": 4,
+					"204": 1
+				}
+			},
+			"structure-suggestions-A": {
+				"calls": 5,
+				"requestPathAndBodyBytes": 4935,
+				"responseBodyBytes": 17966,
+				"statuses": {
+					"200": 5
+				}
+			},
+			"structure-suggestions-B": {
+				"calls": 3,
+				"requestPathAndBodyBytes": 2197,
+				"responseBodyBytes": 7791,
+				"statuses": {
+					"200": 3
+				}
+			},
+			"unlabelled": {
+				"calls": 112,
+				"requestPathAndBodyBytes": 75319,
+				"responseBodyBytes": 189943,
+				"statuses": {
+					"200": 108,
+					"404": 4
+				}
+			}
+		}
+	},
+	"sourceFiles": {
+		"src/router.tsx": "87736d6138b2c3aaf856c5dafc36411731148166fdc840dccbcba61f2bfdf3e1",
+		"src/routeTree.gen.ts": "d6deb33617495e45fbc78f2a22a027dd02fd4ca0463e938d51fe83dd254b182f",
+		"src/routes/index.tsx": "f562d662805b9621fbb1f8314398ff944079ab0be49efea8d6374f343bf55688",
+		"src/routes/__root.tsx": "600291c9f989afbebfc42dec08c1b0d30c3668500cd54ef666655ddca467bba1",
+		"src/routes/$locale.explore.tsx": "1fbc12e0df86dab47dd4f017783fbfa97d01648b8f383ad3726ca1fb076c0254",
+		"src/routes/profile_.account-security.tsx": "1031fead4c05bd45ebe2c01690306afaed27f38ea9f0874ed1f7972eb08f81d7",
+		"src/routes/$locale.about.tsx": "fe61e8500457dbc975a8a959ef93a3f03149c66637bc9a718a907ee00ec9dc26",
+		"src/routes/post.$id.tsx": "4113cb7911abcca9db51d0e23fa47d759920a0fed91e31f6faee23af3b17ec02",
+		"src/routes/$locale.private.tsx": "e46e9eddb27577fa83fdb93c96f92ffad6dec6fe59535bab7e53b13600733c84",
+		"src/routes/$locale.sign-in.tsx": "a222e3bcd948f710b61f2229b53e867d02493680c03d851cdf4eb07033b6dcf1",
+		"src/routes/$locale.tsx": "3ef7bf2ba7acdc17bf681d8550f30ca46d32b8932e13bcc870600bd6ae31f6bf",
+		"src/routes/$locale.user.$id.tsx": "0ce7105e31b088bc8e1f3c772a9c52fa6b45e951ff103971b714e5accfafaa11",
+		"src/routes/$locale.profile.tsx": "b4d3b5b69c0625a6bd5af8d460eeb449197d07f1f4a487de400ff9cd6cbb6c0e",
+		"src/routes/$locale.onboarding.tsx": "67a760ee8e67760166e16b113ea4704952dd601014c07e1463f684246f691b13",
+		"src/routes/profile_.edit-user.tsx": "5e8775c96cfc14feda300e54230643a116f2f6576ce9ed99e2cad68f3572438c",
+		"src/routes/profile.tsx": "9d4899c10704a292e780ba1d28e3278d561160dd626ff6bbb8828c097c6b6fff",
+		"src/routes/$locale.profile_.edit-user.tsx": "515d376d4ef31e5c9b40d36d478bce6d99bdc081cb7c14057e98d7ea929d2ca5",
+		"src/routes/$locale.feed.tsx": "3c75ceabf5826b083c9c806f14bc7e0ebbfbc6041e14de9a4c4e3a4e76ff0c4f",
+		"src/routes/onboarding.tsx": "2265dc5c06ae0f315c756a033c1ef240b72fd4b4537066b4f712f6e80365a6b2",
+		"src/routes/$locale.profile_.account-security.tsx": "bf41017f0972651facb16ece1ac96a4ae700276e197ba4b80b943ccd023b9bed",
+		"src/routes/explore.tsx": "f75a7c50081d305a3511caa10cfe3f49b6f82d9c4ab227e367b3e955772e516c",
+		"src/routes/$locale.index.tsx": "e19b5960c7d4af6732caa2595f1873b7936c5d2ad225a7be2b86df7a3f24c7dd",
+		"src/routes/$locale.post.$id.tsx": "ec7d6c705ad8c7347e85c61449a79bfd27e46d238bcea8344dc1b66a4f7ba66b",
+		"src/routes/user.$id.tsx": "9fbe53b3dbc3e0bcef92dfdb929f67b1a3faf5d5eee54256edcc45e943a072f8",
+		"src/lib/env.server.ts": "442e406586d445a86c27aa427fc63740cf2d752c5ca0ccead67985a2409f6c31",
+		"src/lib/auth.server.ts": "294f77f914e81c507f05f8dd75b604988472ffb3fc94e18eca641b9a439b3faa",
+		"src/lib/locale-policy.ts": "d2ed76558821f24e9a1559145bb42df999fc3c7f58d67e507457e2cde0ac7e0f",
+		"src/lib/profile-messages.ts": "f33ed91fc6ddc771459a6e60a180436cb6e9c760787f26bf144cf6ea64a9a193",
+		"src/lib/auth-input.ts": "8b247885a0ee14d2cc2e7321cf0fe708fc289f859d8e0cfeaf53afb44062763d",
+		"src/lib/messages.ts": "d5d345b32b9b737cfb18d3d5039aec8fd31735ebca6214a69830753d9b9625b8",
+		"src/lib/locale.ts": "85333c04c05f134dc4445e8a7f36887f8ec56c81293f4baf61ac7b31d8270b45",
+		"src/lib/feed.server.ts": "0ee1a429f993fe4510bf1cb141b6cc13a6ddd6e243c6a010ebb107dec7aa5b2c",
+		"src/lib/profile-contract.ts": "3f7d65c2ee2e46538dbaf164ec27ddfba703b4e8b4fc340f196e87daa2a591d6",
+		"src/lib/reader.ts": "5ba1b58622fea1cafda957aefc121499e036e9d0424294f211faa916bd97cbc2",
+		"src/lib/feed.ts": "65a93e77da42730ac73205c3c7f7b3b03efbe435631ec9ea109fd4f0faa1fb49",
+		"src/lib/feed-contract.ts": "9f54297a5ec3d11205ab8b1a7f38e8c63e0b7e1a92a4a1858d379c5a6027502a",
+		"src/lib/profile.ts": "78b0e122c5087bb7321942f0c406117d4edb77d169dd548945df335904e590eb",
+		"src/lib/auth-messages.ts": "fa084d36115104841c338f5447503b8d99773864689a9eab687e02651c4e034c",
+		"src/lib/profile.server.ts": "df1941e37a14f351349b9afdecb17f1c664711da8279afc1e3f833d63f041bb2",
+		"src/lib/env-public.ts": "4ef20b3787045d113750ae45e2dc2f0998e2fd8a94571112f294d02a6deba095",
+		"src/lib/auth-context.server.ts": "50d9e912817a0670b8e0b848e63fae9e88bd7c5df69a5965c28405241832b85c",
+		"src/lib/auth-policy.ts": "ea5e64cd3515ca5d917cb5dcc831d6e82b048021c179f186f40631a0fc997be0",
+		"src/lib/feed-messages.ts": "0e1c001a31b71b5014480dab028201355a5d9e9bab9b4cea3c4ea0906f14f477",
+		"src/lib/feed-input.ts": "84b979e669e11934ceda1db9c07cbacee0c957ec5b522f28e2c64cca7d6d473a",
+		"src/lib/locale.server.ts": "36b150e549d02a42f612d77735c25f72d518d8bff5ec3e077f50fbc329c07485",
+		"src/lib/profile-input.ts": "a55d4bbf65111363108f697ad964bab2e94c696f127dd6d443cc02e0e766ac50",
+		"src/lib/auth-cache.ts": "1f1d19772c44c42504a62301bc93f01dfe18b1266d9205f522129c49332d29a2",
+		"src/lib/auth.ts": "7728513f8dbfa1d2d8faa8404ef0e5e164f67abae9fed22dbf7b5ae7ab5bfa08",
+		"src/components/feed/nav.tsx": "86ba644f355e3f9d33f15d20e66883af94e295cbb1cb36cfb4e2314a46fae7d9",
+		"src/components/feed/posts.tsx": "40df0a5dbdcdb942f92da95801445bd46906f89c0a56110a03184a7c09be0550",
+		"src/components/profile/profile-view.tsx": "9cbc4bdd1a6d516f32e8c62dbc498e825ec99c424e9a2fe9c1a7fe3eb9788ad4",
+		"src/components/profile/profile-form.tsx": "5280a8aa41c4e39a9f3cda0dae467f9acf520abbd8d80fb4424090dfdfc8b9b3",
+		"scripts/feed-local.ts": "abb66ae23273a57b976b0de2e5e121febabf9e743e2b891b56d690ffb2a4ad99",
+		"scripts/profile-local.ts": "a3d647a4bdc47fafd08a7d88d57473a29dadc4e5ee79b63f3edd70a3d14056f4",
+		"scripts/feed-bootstrap.ts": "22e17a51b37613d33641240344c6c311907ed37bcd44812b047c8a4098dcfd26",
+		"scripts/feed-capabilities.ts": "d4552f5ec9b5f2fb81f4fbe5d0fc5cbfd9d85139c917524f0f9de02c2263109c",
+		"scripts/auth-proof.ts": "e0ed7b0e89219a15fe58fe8576371b10329279eaaa997b4ff32fb8f5a2169d9e",
+		"scripts/profile-provision.ts": "70442651169ca782e9118e69529bad2acc63447d0d7a43d3e671c86539cca694",
+		"scripts/feed-fixtures.ts": "dcb90756cd94c3272e073c4b8c37f9f927c5524aa8cef9022b396c4f2304c83c",
+		"scripts/feed-aggregate-probe.ts": "92bc41cb3beddf1410c472e392488a72cd3e5d463376570930f2779e6ab99133",
+		"scripts/auth-bootstrap.ts": "f7ab44b156c4576513a5c3130e8112aec890827d3caec696aeb255d17f71406a",
+		"scripts/profile-bootstrap.ts": "a06a5f0f77e3ca20246bef9ded96c67c565155b7171cf00f2e0d67da9432ab7d",
+		"scripts/auth-local.ts": "d88eb1f541a58c4dfe131fcc4a9849bb38abc70856a12d46251d34ea0a4b4153",
+		"scripts/check-client.ts": "be2afecd3a5851c4b233a80e933791fd9c114f3b13abbd1d2c6bda85612c8998",
+		"scripts/profile-proof.ts": "6822f69f33cab9ede9a51478e0151119641aed42c8afec846d6af719b5ed3841",
+		"scripts/feed-proof.ts": "b1dbf0f5ac550d23d227d3f9fc9a43ed9acb722630747699423a7183240b12dd",
+		"tests/feed-contract.test.ts": "1a5a4ebd6e17d332136cd29b59efc217c850b6b5f460d2de271bb57d4c4a70aa",
+		"tests/feed.pw.ts": "565a0f8e2dab659862f9e26bc6e14d51ccc7205b70064150923fa485f962de37",
+		"tests/profile-input.test.ts": "1345998c2ac3c49ef932e54d18ee52addd9ceed9d3694378e6df010d4df8f247",
+		"tests/feed-input.test.ts": "e72dbc32d497dfecbd7b2fd7f5594322414c75f3e553d2eb1393e8a31e3106f4",
+		"tests/shell.pw.ts": "8669b32666e3df3d3df322d920369c1cbb5f16e3f0eb08315a7be246aa45c446",
+		"tests/profile.pw.ts": "c79facb474de520651d96fb8011ce522796f7f47aaba448b96a67d5799ccb19a",
+		"tests/auth.pw.ts": "7d8bd23446de983d57ad08657396716c9d5c8eebe77ccbf42e629eb7e1f124f6",
+		"tests/auth-policy.test.ts": "9d2458e19c252a2f4dbe47051620740aeb1fc0e0cb29a5b51125256302086f10"
+	},
+	"untracedKnownAppwriteCalls": {
+		"publicProfileSSR": 1
+	},
+	"traceGroups": [
+		{
+			"trace": "structure--1-10",
+			"calls": 5,
+			"rows": 29,
+			"bytes": 10645,
+			"tables": ["posts", "likes", "comments", "profiles", "posts"]
+		},
+		{
+			"trace": "structure--1-zero",
+			"calls": 5,
+			"rows": 4,
+			"bytes": 1757,
+			"tables": ["posts", "likes", "comments", "profiles", "posts"]
+		},
+		{
+			"trace": "structure--1-1",
+			"calls": 5,
+			"rows": 6,
+			"bytes": 1984,
+			"tables": ["posts", "comments", "likes", "profiles", "posts"]
+		},
+		{
+			"trace": "structure--1-20",
+			"calls": 5,
+			"rows": 49,
+			"bytes": 18485,
+			"tables": ["posts", "comments", "likes", "profiles", "posts"]
+		},
+		{
+			"trace": "hidden--1-feed-post-040",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "hidden--1-feed-post-041",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "hidden--1-feed-post-042",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "hidden--1-feed-post-043",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "hidden--1-feed-post-044",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "hidden--1-absent-post",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "structure-0-10",
+			"calls": 5,
+			"rows": 29,
+			"bytes": 10645,
+			"tables": ["posts", "likes", "profiles", "comments", "posts"]
+		},
+		{
+			"trace": "structure-0-zero",
+			"calls": 5,
+			"rows": 4,
+			"bytes": 1757,
+			"tables": ["posts", "profiles", "likes", "comments", "posts"]
+		},
+		{
+			"trace": "structure-0-1",
+			"calls": 5,
+			"rows": 6,
+			"bytes": 1984,
+			"tables": ["posts", "comments", "likes", "profiles", "posts"]
+		},
+		{
+			"trace": "structure-0-20",
+			"calls": 5,
+			"rows": 49,
+			"bytes": 18485,
+			"tables": ["posts", "comments", "likes", "profiles", "posts"]
+		},
+		{
+			"trace": "hidden-0-feed-post-040",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "hidden-0-feed-post-041",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "hidden-0-feed-post-042",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "hidden-0-feed-post-043",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "hidden-0-feed-post-044",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "hidden-0-absent-post",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "structure-1-10",
+			"calls": 5,
+			"rows": 29,
+			"bytes": 10645,
+			"tables": ["posts", "profiles", "comments", "likes", "posts"]
+		},
+		{
+			"trace": "structure-1-zero",
+			"calls": 5,
+			"rows": 4,
+			"bytes": 1757,
+			"tables": ["posts", "comments", "likes", "profiles", "posts"]
+		},
+		{
+			"trace": "structure-1-1",
+			"calls": 5,
+			"rows": 6,
+			"bytes": 1984,
+			"tables": ["posts", "comments", "likes", "profiles", "posts"]
+		},
+		{
+			"trace": "structure-1-20",
+			"calls": 5,
+			"rows": 49,
+			"bytes": 18485,
+			"tables": ["posts", "comments", "likes", "profiles", "posts"]
+		},
+		{
+			"trace": "hidden-1-feed-post-040",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "hidden-1-feed-post-041",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "hidden-1-feed-post-042",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "hidden-1-feed-post-043",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "hidden-1-feed-post-044",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "hidden-1-absent-post",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "structure-4-10",
+			"calls": 5,
+			"rows": 29,
+			"bytes": 10645,
+			"tables": ["posts", "likes", "profiles", "comments", "posts"]
+		},
+		{
+			"trace": "structure-4-zero",
+			"calls": 5,
+			"rows": 4,
+			"bytes": 1757,
+			"tables": ["posts", "comments", "likes", "profiles", "posts"]
+		},
+		{
+			"trace": "structure-4-1",
+			"calls": 5,
+			"rows": 6,
+			"bytes": 1984,
+			"tables": ["posts", "comments", "profiles", "likes", "posts"]
+		},
+		{
+			"trace": "structure-4-20",
+			"calls": 5,
+			"rows": 49,
+			"bytes": 18485,
+			"tables": ["posts", "comments", "likes", "profiles", "posts"]
+		},
+		{
+			"trace": "hidden-4-feed-post-040",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "hidden-4-feed-post-041",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "hidden-4-feed-post-042",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "hidden-4-feed-post-043",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "hidden-4-feed-post-044",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "hidden-4-absent-post",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "",
+			"calls": 510,
+			"rows": 905,
+			"bytes": 361869,
+			"tables": [
+				"posts",
+				"likes",
+				"profiles",
+				"comments",
+				"posts",
+				"posts",
+				"likes",
+				"comments",
+				"profiles",
+				"posts",
+				"posts",
+				"likes",
+				"profiles",
+				"comments",
+				"posts",
+				"posts",
+				"likes",
+				"profiles",
+				"comments",
+				"posts",
+				"posts",
+				"likes",
+				"comments",
+				"profiles",
+				"posts",
+				"posts",
+				"profiles",
+				"comments",
+				"likes",
+				"posts",
+				"posts",
+				"comments",
+				"profiles",
+				"likes",
+				"posts",
+				"posts",
+				"comments",
+				"likes",
+				"profiles",
+				"posts",
+				"posts",
+				"likes",
+				"comments",
+				"profiles",
+				"posts",
+				"posts",
+				"profiles",
+				"comments",
+				"likes",
+				"posts",
+				"posts",
+				"likes",
+				"comments",
+				"profiles",
+				"posts",
+				"posts",
+				"profiles",
+				"likes",
+				"comments",
+				"posts",
+				"posts",
+				"comments",
+				"likes",
+				"profiles",
+				"posts",
+				"posts",
+				"likes",
+				"comments",
+				"profiles",
+				"posts",
+				"posts",
+				"comments",
+				"likes",
+				"profiles",
+				"posts",
+				"posts",
+				"profiles",
+				"likes",
+				"comments",
+				"posts",
+				"posts",
+				"comments",
+				"profiles",
+				"likes",
+				"posts",
+				"posts",
+				"likes",
+				"profiles",
+				"comments",
+				"posts",
+				"posts",
+				"comments",
+				"likes",
+				"profiles",
+				"posts",
+				"posts",
+				"likes",
+				"profiles",
+				"comments",
+				"posts",
+				"posts",
+				"likes",
+				"comments",
+				"profiles",
+				"posts",
+				"posts",
+				"profiles",
+				"likes",
+				"comments",
+				"posts",
+				"posts",
+				"profiles",
+				"comments",
+				"likes",
+				"posts",
+				"posts",
+				"profiles",
+				"likes",
+				"comments",
+				"posts",
+				"posts",
+				"profiles",
+				"likes",
+				"comments",
+				"posts",
+				"posts",
+				"profiles",
+				"comments",
+				"likes",
+				"posts",
+				"posts",
+				"profiles",
+				"likes",
+				"comments",
+				"posts",
+				"posts",
+				"comments",
+				"profiles",
+				"likes",
+				"posts",
+				"posts",
+				"comments",
+				"likes",
+				"profiles",
+				"posts",
+				"posts",
+				"profiles",
+				"comments",
+				"likes",
+				"posts",
+				"posts",
+				"likes",
+				"comments",
+				"profiles",
+				"posts",
+				"posts",
+				"likes",
+				"comments",
+				"profiles",
+				"posts",
+				"posts",
+				"profiles",
+				"likes",
+				"comments",
+				"posts",
+				"posts",
+				"likes",
+				"comments",
+				"profiles",
+				"posts",
+				"posts",
+				"comments",
+				"likes",
+				"profiles",
+				"posts",
+				"posts",
+				"comments",
+				"likes",
+				"profiles",
+				"posts",
+				"posts",
+				"comments",
+				"likes",
+				"profiles",
+				"posts",
+				"posts",
+				"profiles",
+				"comments",
+				"likes",
+				"posts",
+				"posts",
+				"comments",
+				"profiles",
+				"likes",
+				"posts",
+				"posts",
+				"likes",
+				"comments",
+				"profiles",
+				"posts",
+				"posts",
+				"profiles",
+				"likes",
+				"comments",
+				"posts",
+				"posts",
+				"likes",
+				"profiles",
+				"comments",
+				"posts",
+				"posts",
+				"likes",
+				"comments",
+				"profiles",
+				"posts",
+				"posts",
+				"comments",
+				"likes",
+				"profiles",
+				"posts",
+				"posts",
+				"comments",
+				"profiles",
+				"likes",
+				"posts",
+				"posts",
+				"comments",
+				"likes",
+				"profiles",
+				"posts",
+				"posts",
+				"profiles",
+				"comments",
+				"likes",
+				"posts",
+				"posts",
+				"comments",
+				"likes",
+				"profiles",
+				"posts",
+				"posts",
+				"profiles",
+				"likes",
+				"comments",
+				"posts",
+				"posts",
+				"comments",
+				"profiles",
+				"likes",
+				"posts",
+				"posts",
+				"profiles",
+				"comments",
+				"likes",
+				"posts",
+				"posts",
+				"likes",
+				"comments",
+				"profiles",
+				"posts",
+				"posts",
+				"comments",
+				"profiles",
+				"likes",
+				"posts",
+				"posts",
+				"comments",
+				"likes",
+				"profiles",
+				"posts",
+				"posts",
+				"likes",
+				"comments",
+				"profiles",
+				"posts",
+				"posts",
+				"likes",
+				"comments",
+				"profiles",
+				"posts",
+				"posts",
+				"comments",
+				"profiles",
+				"likes",
+				"posts",
+				"posts",
+				"profiles",
+				"comments",
+				"likes",
+				"posts",
+				"posts",
+				"comments",
+				"profiles",
+				"likes",
+				"posts",
+				"posts",
+				"comments",
+				"profiles",
+				"likes",
+				"posts",
+				"posts",
+				"comments",
+				"likes",
+				"profiles",
+				"posts",
+				"posts",
+				"profiles",
+				"likes",
+				"comments",
+				"posts",
+				"posts",
+				"profiles",
+				"comments",
+				"likes",
+				"posts",
+				"posts",
+				"likes",
+				"comments",
+				"profiles",
+				"posts",
+				"posts",
+				"profiles",
+				"comments",
+				"likes",
+				"posts",
+				"posts",
+				"profiles",
+				"comments",
+				"likes",
+				"posts",
+				"posts",
+				"likes",
+				"comments",
+				"profiles",
+				"posts",
+				"posts",
+				"comments",
+				"likes",
+				"profiles",
+				"posts",
+				"posts",
+				"profiles",
+				"comments",
+				"likes",
+				"posts",
+				"posts",
+				"likes",
+				"profiles",
+				"comments",
+				"posts",
+				"posts",
+				"likes",
+				"comments",
+				"profiles",
+				"posts",
+				"posts",
+				"profiles",
+				"comments",
+				"likes",
+				"posts",
+				"posts",
+				"profiles",
+				"likes",
+				"comments",
+				"posts",
+				"posts",
+				"profiles",
+				"likes",
+				"comments",
+				"posts",
+				"posts",
+				"profiles",
+				"likes",
+				"comments",
+				"posts",
+				"posts",
+				"posts.getRow",
+				"posts",
+				"profiles",
+				"comments",
+				"likes",
+				"posts",
+				"posts",
+				"likes",
+				"comments",
+				"profiles",
+				"posts",
+				"posts",
+				"profiles",
+				"likes",
+				"comments",
+				"posts",
+				"posts",
+				"profiles",
+				"comments",
+				"likes",
+				"posts",
+				"posts",
+				"likes",
+				"comments",
+				"profiles",
+				"posts",
+				"posts",
+				"likes",
+				"comments",
+				"profiles",
+				"posts",
+				"posts",
+				"likes",
+				"comments",
+				"profiles",
+				"posts",
+				"posts",
+				"comments",
+				"profiles",
+				"likes",
+				"posts",
+				"posts",
+				"comments",
+				"likes",
+				"profiles",
+				"posts",
+				"posts",
+				"profiles",
+				"likes",
+				"comments",
+				"posts",
+				"posts",
+				"likes",
+				"comments",
+				"profiles",
+				"posts",
+				"posts",
+				"likes",
+				"comments",
+				"profiles",
+				"posts",
+				"posts",
+				"comments",
+				"likes",
+				"profiles",
+				"posts",
+				"posts",
+				"profiles",
+				"comments",
+				"likes",
+				"posts",
+				"posts",
+				"likes",
+				"profiles",
+				"comments",
+				"posts",
+				"posts",
+				"likes",
+				"comments",
+				"profiles",
+				"posts",
+				"posts",
+				"comments",
+				"likes",
+				"profiles",
+				"posts",
+				"posts",
+				"profiles",
+				"comments",
+				"likes",
+				"posts",
+				"posts",
+				"likes",
+				"profiles",
+				"comments",
+				"posts",
+				"posts",
+				"profiles",
+				"comments",
+				"likes",
+				"posts",
+				"posts",
+				"profiles",
+				"comments",
+				"likes",
+				"posts",
+				"posts",
+				"posts",
+				"posts",
+				"posts",
+				"profiles",
+				"comments",
+				"likes",
+				"posts",
+				"profiles",
+				"posts",
+				"profiles",
+				"follows",
+				"posts",
+				"profiles",
+				"follows",
+				"posts",
+				"profiles",
+				"follows",
+				"posts",
+				"profiles",
+				"follows",
+				"posts",
+				"profiles",
+				"follows",
+				"posts",
+				"profiles",
+				"posts",
+				"follows"
+			]
+		},
+		{
+			"trace": "hidden-revoked--1",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "hidden-revoked-0",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "hidden-revoked-1",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "hidden-revoked-4",
+			"calls": 1,
+			"rows": 0,
+			"bytes": 0,
+			"tables": ["posts.getRow"]
+		},
+		{
+			"trace": "structure-search-unicode",
+			"calls": 10,
+			"rows": 58,
+			"bytes": 21290,
+			"tables": [
+				"posts",
+				"profiles",
+				"comments",
+				"likes",
+				"posts",
+				"posts",
+				"profiles",
+				"comments",
+				"likes",
+				"posts"
+			]
+		},
+		{
+			"trace": "structure-search-substring",
+			"calls": 5,
+			"rows": 29,
+			"bytes": 10645,
+			"tables": ["posts", "comments", "likes", "profiles", "posts"]
+		},
+		{
+			"trace": "structure-users-only",
+			"calls": 3,
+			"rows": 2,
+			"bytes": 567,
+			"tables": ["profiles", "follows", "posts"]
+		},
+		{
+			"trace": "structure-suggestions-A",
+			"calls": 10,
+			"rows": 83,
+			"bytes": 25656,
+			"tables": [
+				"account.get",
+				"account.getSession",
+				"profiles",
+				"follows",
+				"profiles",
+				"follows",
+				"profiles",
+				"follows",
+				"follows",
+				"posts"
+			]
+		},
+		{
+			"trace": "structure-suggestions-B",
+			"calls": 6,
+			"rows": 32,
+			"bytes": 8862,
+			"tables": [
+				"account.get",
+				"account.getSession",
+				"profiles",
+				"follows",
+				"follows",
+				"posts"
+			]
+		}
+	],
+	"distributions": [],
+	"exactAppwriteRequests": [
+		{
+			"trace": "structure--1-10",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[11]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 11,
+			"bytes": 5536,
+			"failed": false,
+			"ms": 14.880999999999972
+		},
+		{
+			"trace": "structure--1-10",
+			"feedCall": "likes",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 2,
+			"bytes": 307,
+			"failed": false,
+			"ms": 5.345874999999978
+		},
+		{
+			"trace": "structure--1-10",
+			"feedCall": "comments",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 1,
+			"bytes": 164,
+			"failed": false,
+			"ms": 5.513790999999969
+		},
+		{
+			"trace": "structure--1-10",
+			"feedCall": "profiles",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-actor-4\",\"feed-actor-3\",\"feed-actor-2\",\"feed-actor-1\",\"feed-actor-0\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"isOnboarded\",\"values\":[true]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"name\",\"image\",\"localisation\",\"userType\",\"position\",\"isOnboarded\",\"createdAt\"]}",
+				"{\"method\":\"limit\",\"values\":[5]}"
+			],
+			"rows": 5,
+			"bytes": 1838,
+			"failed": false,
+			"ms": 6.072834000000057
+		},
+		{
+			"trace": "structure--1-10",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"updatedAt\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 10,
+			"bytes": 2800,
+			"failed": false,
+			"ms": 4.314583000000084
+		},
+		{
+			"trace": "structure--1-zero",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[2]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"userId\",\"values\":[\"feed-actor-0\"]}"
+			],
+			"rows": 2,
+			"bytes": 1032,
+			"failed": false,
+			"ms": 4.759833999999955
+		},
+		{
+			"trace": "structure--1-zero",
+			"feedCall": "likes",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-035\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 0,
+			"bytes": 21,
+			"failed": false,
+			"ms": 3.60450000000003
+		},
+		{
+			"trace": "structure--1-zero",
+			"feedCall": "comments",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-035\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 0,
+			"bytes": 21,
+			"failed": false,
+			"ms": 3.6111250000000155
+		},
+		{
+			"trace": "structure--1-zero",
+			"feedCall": "profiles",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-actor-0\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"isOnboarded\",\"values\":[true]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"name\",\"image\",\"localisation\",\"userType\",\"position\",\"isOnboarded\",\"createdAt\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 385,
+			"failed": false,
+			"ms": 3.813041999999996
+		},
+		{
+			"trace": "structure--1-zero",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-post-035\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"updatedAt\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 298,
+			"failed": false,
+			"ms": 4.17654200000004
+		},
+		{
+			"trace": "structure--1-1",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[2]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 2,
+			"bytes": 978,
+			"failed": false,
+			"ms": 4.054000000000087
+		},
+		{
+			"trace": "structure--1-1",
+			"feedCall": "comments",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 164,
+			"failed": false,
+			"ms": 3.618084000000067
+		},
+		{
+			"trace": "structure--1-1",
+			"feedCall": "likes",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 164,
+			"failed": false,
+			"ms": 3.769292000000064
+		},
+		{
+			"trace": "structure--1-1",
+			"feedCall": "profiles",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-actor-4\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"isOnboarded\",\"values\":[true]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"name\",\"image\",\"localisation\",\"userType\",\"position\",\"isOnboarded\",\"createdAt\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 380,
+			"failed": false,
+			"ms": 3.913250000000062
+		},
+		{
+			"trace": "structure--1-1",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-post-039\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"updatedAt\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 298,
+			"failed": false,
+			"ms": 3.408666999999923
+		},
+		{
+			"trace": "structure--1-20",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[21]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 21,
+			"bytes": 10596,
+			"failed": false,
+			"ms": 5.031582999999955
+		},
+		{
+			"trace": "structure--1-20",
+			"feedCall": "comments",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\",\"feed-post-029\",\"feed-post-028\",\"feed-post-027\",\"feed-post-026\",\"feed-post-025\",\"feed-post-024\",\"feed-post-023\",\"feed-post-022\",\"feed-post-021\",\"feed-post-020\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[20]}"
+			],
+			"rows": 1,
+			"bytes": 164,
+			"failed": false,
+			"ms": 3.7665830000000824
+		},
+		{
+			"trace": "structure--1-20",
+			"feedCall": "likes",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\",\"feed-post-029\",\"feed-post-028\",\"feed-post-027\",\"feed-post-026\",\"feed-post-025\",\"feed-post-024\",\"feed-post-023\",\"feed-post-022\",\"feed-post-021\",\"feed-post-020\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[20]}"
+			],
+			"rows": 2,
+			"bytes": 307,
+			"failed": false,
+			"ms": 4.030083000000104
+		},
+		{
+			"trace": "structure--1-20",
+			"feedCall": "profiles",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-actor-4\",\"feed-actor-3\",\"feed-actor-2\",\"feed-actor-1\",\"feed-actor-0\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"isOnboarded\",\"values\":[true]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"name\",\"image\",\"localisation\",\"userType\",\"position\",\"isOnboarded\",\"createdAt\"]}",
+				"{\"method\":\"limit\",\"values\":[5]}"
+			],
+			"rows": 5,
+			"bytes": 1838,
+			"failed": false,
+			"ms": 4.298749999999927
+		},
+		{
+			"trace": "structure--1-20",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\",\"feed-post-029\",\"feed-post-028\",\"feed-post-027\",\"feed-post-026\",\"feed-post-025\",\"feed-post-024\",\"feed-post-023\",\"feed-post-022\",\"feed-post-021\",\"feed-post-020\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"updatedAt\"]}",
+				"{\"method\":\"limit\",\"values\":[20]}"
+			],
+			"rows": 20,
+			"bytes": 5580,
+			"failed": false,
+			"ms": 3.844333000000006
+		},
+		{
+			"trace": "hidden--1-feed-post-040",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"feed-post-040",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 5.121999999999844
+		},
+		{
+			"trace": "hidden--1-feed-post-041",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"feed-post-041",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 4.285916000000043
+		},
+		{
+			"trace": "hidden--1-feed-post-042",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"feed-post-042",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 3.613040999999839
+		},
+		{
+			"trace": "hidden--1-feed-post-043",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"feed-post-043",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 3.8934580000000096
+		},
+		{
+			"trace": "hidden--1-feed-post-044",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"feed-post-044",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 3.458084000000099
+		},
+		{
+			"trace": "hidden--1-absent-post",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"absent-post",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 4.27641699999981
+		},
+		{
+			"trace": "structure-0-10",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[11]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 11,
+			"bytes": 5536,
+			"failed": false,
+			"ms": 4.585291999999981
+		},
+		{
+			"trace": "structure-0-10",
+			"feedCall": "likes",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 2,
+			"bytes": 307,
+			"failed": false,
+			"ms": 4.873041999999941
+		},
+		{
+			"trace": "structure-0-10",
+			"feedCall": "profiles",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-actor-4\",\"feed-actor-3\",\"feed-actor-2\",\"feed-actor-1\",\"feed-actor-0\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"isOnboarded\",\"values\":[true]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"name\",\"image\",\"localisation\",\"userType\",\"position\",\"isOnboarded\",\"createdAt\"]}",
+				"{\"method\":\"limit\",\"values\":[5]}"
+			],
+			"rows": 5,
+			"bytes": 1838,
+			"failed": false,
+			"ms": 5.166042000000061
+		},
+		{
+			"trace": "structure-0-10",
+			"feedCall": "comments",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 1,
+			"bytes": 164,
+			"failed": false,
+			"ms": 5.001875000000155
+		},
+		{
+			"trace": "structure-0-10",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"updatedAt\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 10,
+			"bytes": 2800,
+			"failed": false,
+			"ms": 4.9300409999998465
+		},
+		{
+			"trace": "structure-0-zero",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[2]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"userId\",\"values\":[\"feed-actor-0\"]}"
+			],
+			"rows": 2,
+			"bytes": 1032,
+			"failed": false,
+			"ms": 5.21875
+		},
+		{
+			"trace": "structure-0-zero",
+			"feedCall": "profiles",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-actor-0\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"isOnboarded\",\"values\":[true]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"name\",\"image\",\"localisation\",\"userType\",\"position\",\"isOnboarded\",\"createdAt\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 385,
+			"failed": false,
+			"ms": 4.683334000000059
+		},
+		{
+			"trace": "structure-0-zero",
+			"feedCall": "likes",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-035\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 0,
+			"bytes": 21,
+			"failed": false,
+			"ms": 4.639625000000024
+		},
+		{
+			"trace": "structure-0-zero",
+			"feedCall": "comments",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-035\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 0,
+			"bytes": 21,
+			"failed": false,
+			"ms": 4.537832999999864
+		},
+		{
+			"trace": "structure-0-zero",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-post-035\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"updatedAt\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 298,
+			"failed": false,
+			"ms": 4.232332999999926
+		},
+		{
+			"trace": "structure-0-1",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[2]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 2,
+			"bytes": 978,
+			"failed": false,
+			"ms": 4.556749999999965
+		},
+		{
+			"trace": "structure-0-1",
+			"feedCall": "comments",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 164,
+			"failed": false,
+			"ms": 3.318708000000015
+		},
+		{
+			"trace": "structure-0-1",
+			"feedCall": "likes",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 164,
+			"failed": false,
+			"ms": 4.971833000000061
+		},
+		{
+			"trace": "structure-0-1",
+			"feedCall": "profiles",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-actor-4\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"isOnboarded\",\"values\":[true]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"name\",\"image\",\"localisation\",\"userType\",\"position\",\"isOnboarded\",\"createdAt\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 380,
+			"failed": false,
+			"ms": 5.164291000000048
+		},
+		{
+			"trace": "structure-0-1",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-post-039\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"updatedAt\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 298,
+			"failed": false,
+			"ms": 3.724917000000005
+		},
+		{
+			"trace": "structure-0-20",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[21]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 21,
+			"bytes": 10596,
+			"failed": false,
+			"ms": 4.8993339999999534
+		},
+		{
+			"trace": "structure-0-20",
+			"feedCall": "comments",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\",\"feed-post-029\",\"feed-post-028\",\"feed-post-027\",\"feed-post-026\",\"feed-post-025\",\"feed-post-024\",\"feed-post-023\",\"feed-post-022\",\"feed-post-021\",\"feed-post-020\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[20]}"
+			],
+			"rows": 1,
+			"bytes": 164,
+			"failed": false,
+			"ms": 4.041832999999997
+		},
+		{
+			"trace": "structure-0-20",
+			"feedCall": "likes",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\",\"feed-post-029\",\"feed-post-028\",\"feed-post-027\",\"feed-post-026\",\"feed-post-025\",\"feed-post-024\",\"feed-post-023\",\"feed-post-022\",\"feed-post-021\",\"feed-post-020\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[20]}"
+			],
+			"rows": 2,
+			"bytes": 307,
+			"failed": false,
+			"ms": 4.245624999999791
+		},
+		{
+			"trace": "structure-0-20",
+			"feedCall": "profiles",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-actor-4\",\"feed-actor-3\",\"feed-actor-2\",\"feed-actor-1\",\"feed-actor-0\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"isOnboarded\",\"values\":[true]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"name\",\"image\",\"localisation\",\"userType\",\"position\",\"isOnboarded\",\"createdAt\"]}",
+				"{\"method\":\"limit\",\"values\":[5]}"
+			],
+			"rows": 5,
+			"bytes": 1838,
+			"failed": false,
+			"ms": 4.459959000000026
+		},
+		{
+			"trace": "structure-0-20",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\",\"feed-post-029\",\"feed-post-028\",\"feed-post-027\",\"feed-post-026\",\"feed-post-025\",\"feed-post-024\",\"feed-post-023\",\"feed-post-022\",\"feed-post-021\",\"feed-post-020\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"updatedAt\"]}",
+				"{\"method\":\"limit\",\"values\":[20]}"
+			],
+			"rows": 20,
+			"bytes": 5580,
+			"failed": false,
+			"ms": 3.3231250000001182
+		},
+		{
+			"trace": "hidden-0-feed-post-040",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"feed-post-040",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 3.97854099999995
+		},
+		{
+			"trace": "hidden-0-feed-post-041",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"feed-post-041",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 4.259291999999959
+		},
+		{
+			"trace": "hidden-0-feed-post-042",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"feed-post-042",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 4.415416999999934
+		},
+		{
+			"trace": "hidden-0-feed-post-043",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"feed-post-043",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 3.993332999999893
+		},
+		{
+			"trace": "hidden-0-feed-post-044",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"feed-post-044",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 4.503875000000107
+		},
+		{
+			"trace": "hidden-0-absent-post",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"absent-post",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 4.489749999999958
+		},
+		{
+			"trace": "structure-1-10",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[11]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 11,
+			"bytes": 5536,
+			"failed": false,
+			"ms": 4.418874999999844
+		},
+		{
+			"trace": "structure-1-10",
+			"feedCall": "profiles",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-actor-4\",\"feed-actor-3\",\"feed-actor-2\",\"feed-actor-1\",\"feed-actor-0\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"isOnboarded\",\"values\":[true]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"name\",\"image\",\"localisation\",\"userType\",\"position\",\"isOnboarded\",\"createdAt\"]}",
+				"{\"method\":\"limit\",\"values\":[5]}"
+			],
+			"rows": 5,
+			"bytes": 1838,
+			"failed": false,
+			"ms": 4.967791999999918
+		},
+		{
+			"trace": "structure-1-10",
+			"feedCall": "comments",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 1,
+			"bytes": 164,
+			"failed": false,
+			"ms": 4.853166999999985
+		},
+		{
+			"trace": "structure-1-10",
+			"feedCall": "likes",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 2,
+			"bytes": 307,
+			"failed": false,
+			"ms": 5.818875000000162
+		},
+		{
+			"trace": "structure-1-10",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"updatedAt\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 10,
+			"bytes": 2800,
+			"failed": false,
+			"ms": 4.45533300000011
+		},
+		{
+			"trace": "structure-1-zero",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[2]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"userId\",\"values\":[\"feed-actor-0\"]}"
+			],
+			"rows": 2,
+			"bytes": 1032,
+			"failed": false,
+			"ms": 3.9107910000000174
+		},
+		{
+			"trace": "structure-1-zero",
+			"feedCall": "comments",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-035\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 0,
+			"bytes": 21,
+			"failed": false,
+			"ms": 3.2150420000000395
+		},
+		{
+			"trace": "structure-1-zero",
+			"feedCall": "likes",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-035\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 0,
+			"bytes": 21,
+			"failed": false,
+			"ms": 3.3258330000001024
+		},
+		{
+			"trace": "structure-1-zero",
+			"feedCall": "profiles",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-actor-0\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"isOnboarded\",\"values\":[true]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"name\",\"image\",\"localisation\",\"userType\",\"position\",\"isOnboarded\",\"createdAt\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 385,
+			"failed": false,
+			"ms": 3.4644579999999223
+		},
+		{
+			"trace": "structure-1-zero",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-post-035\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"updatedAt\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 298,
+			"failed": false,
+			"ms": 3.346667000000025
+		},
+		{
+			"trace": "structure-1-1",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[2]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 2,
+			"bytes": 978,
+			"failed": false,
+			"ms": 3.77599999999984
+		},
+		{
+			"trace": "structure-1-1",
+			"feedCall": "comments",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 164,
+			"failed": false,
+			"ms": 4.3993339999999534
+		},
+		{
+			"trace": "structure-1-1",
+			"feedCall": "likes",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 164,
+			"failed": false,
+			"ms": 4.515666999999894
+		},
+		{
+			"trace": "structure-1-1",
+			"feedCall": "profiles",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-actor-4\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"isOnboarded\",\"values\":[true]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"name\",\"image\",\"localisation\",\"userType\",\"position\",\"isOnboarded\",\"createdAt\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 380,
+			"failed": false,
+			"ms": 4.637166999999863
+		},
+		{
+			"trace": "structure-1-1",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-post-039\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"updatedAt\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 298,
+			"failed": false,
+			"ms": 3.6158750000001874
+		},
+		{
+			"trace": "structure-1-20",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[21]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 21,
+			"bytes": 10596,
+			"failed": false,
+			"ms": 6.921583999999939
+		},
+		{
+			"trace": "structure-1-20",
+			"feedCall": "comments",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\",\"feed-post-029\",\"feed-post-028\",\"feed-post-027\",\"feed-post-026\",\"feed-post-025\",\"feed-post-024\",\"feed-post-023\",\"feed-post-022\",\"feed-post-021\",\"feed-post-020\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[20]}"
+			],
+			"rows": 1,
+			"bytes": 164,
+			"failed": false,
+			"ms": 8.000750000000153
+		},
+		{
+			"trace": "structure-1-20",
+			"feedCall": "likes",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\",\"feed-post-029\",\"feed-post-028\",\"feed-post-027\",\"feed-post-026\",\"feed-post-025\",\"feed-post-024\",\"feed-post-023\",\"feed-post-022\",\"feed-post-021\",\"feed-post-020\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[20]}"
+			],
+			"rows": 2,
+			"bytes": 307,
+			"failed": false,
+			"ms": 10.028749999999945
+		},
+		{
+			"trace": "structure-1-20",
+			"feedCall": "profiles",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-actor-4\",\"feed-actor-3\",\"feed-actor-2\",\"feed-actor-1\",\"feed-actor-0\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"isOnboarded\",\"values\":[true]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"name\",\"image\",\"localisation\",\"userType\",\"position\",\"isOnboarded\",\"createdAt\"]}",
+				"{\"method\":\"limit\",\"values\":[5]}"
+			],
+			"rows": 5,
+			"bytes": 1838,
+			"failed": false,
+			"ms": 12.363542000000052
+		},
+		{
+			"trace": "structure-1-20",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\",\"feed-post-029\",\"feed-post-028\",\"feed-post-027\",\"feed-post-026\",\"feed-post-025\",\"feed-post-024\",\"feed-post-023\",\"feed-post-022\",\"feed-post-021\",\"feed-post-020\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"updatedAt\"]}",
+				"{\"method\":\"limit\",\"values\":[20]}"
+			],
+			"rows": 20,
+			"bytes": 5580,
+			"failed": false,
+			"ms": 6.245499999999993
+		},
+		{
+			"trace": "hidden-1-feed-post-040",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"feed-post-040",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 5.2693329999999605
+		},
+		{
+			"trace": "hidden-1-feed-post-041",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"feed-post-041",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 4.77516700000001
+		},
+		{
+			"trace": "hidden-1-feed-post-042",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"feed-post-042",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 6.616541999999981
+		},
+		{
+			"trace": "hidden-1-feed-post-043",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"feed-post-043",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 4.522958000000017
+		},
+		{
+			"trace": "hidden-1-feed-post-044",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"feed-post-044",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 7.046624999999949
+		},
+		{
+			"trace": "hidden-1-absent-post",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"absent-post",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 3.691667000000052
+		},
+		{
+			"trace": "structure-4-10",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[11]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 11,
+			"bytes": 5536,
+			"failed": false,
+			"ms": 5.916625000000067
+		},
+		{
+			"trace": "structure-4-10",
+			"feedCall": "likes",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 2,
+			"bytes": 307,
+			"failed": false,
+			"ms": 3.743208000000095
+		},
+		{
+			"trace": "structure-4-10",
+			"feedCall": "profiles",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-actor-4\",\"feed-actor-3\",\"feed-actor-2\",\"feed-actor-1\",\"feed-actor-0\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"isOnboarded\",\"values\":[true]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"name\",\"image\",\"localisation\",\"userType\",\"position\",\"isOnboarded\",\"createdAt\"]}",
+				"{\"method\":\"limit\",\"values\":[5]}"
+			],
+			"rows": 5,
+			"bytes": 1838,
+			"failed": false,
+			"ms": 4.483833000000004
+		},
+		{
+			"trace": "structure-4-10",
+			"feedCall": "comments",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 1,
+			"bytes": 164,
+			"failed": false,
+			"ms": 4.392542000000049
+		},
+		{
+			"trace": "structure-4-10",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"updatedAt\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 10,
+			"bytes": 2800,
+			"failed": false,
+			"ms": 3.8175830000000133
+		},
+		{
+			"trace": "structure-4-zero",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[2]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"userId\",\"values\":[\"feed-actor-0\"]}"
+			],
+			"rows": 2,
+			"bytes": 1032,
+			"failed": false,
+			"ms": 3.8535830000000715
+		},
+		{
+			"trace": "structure-4-zero",
+			"feedCall": "comments",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-035\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 0,
+			"bytes": 21,
+			"failed": false,
+			"ms": 2.876750000000129
+		},
+		{
+			"trace": "structure-4-zero",
+			"feedCall": "likes",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-035\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 0,
+			"bytes": 21,
+			"failed": false,
+			"ms": 2.9764580000000933
+		},
+		{
+			"trace": "structure-4-zero",
+			"feedCall": "profiles",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-actor-0\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"isOnboarded\",\"values\":[true]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"name\",\"image\",\"localisation\",\"userType\",\"position\",\"isOnboarded\",\"createdAt\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 385,
+			"failed": false,
+			"ms": 3.093249999999898
+		},
+		{
+			"trace": "structure-4-zero",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-post-035\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"updatedAt\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 298,
+			"failed": false,
+			"ms": 3.1843750000000455
+		},
+		{
+			"trace": "structure-4-1",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[2]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 2,
+			"bytes": 978,
+			"failed": false,
+			"ms": 3.94333400000005
+		},
+		{
+			"trace": "structure-4-1",
+			"feedCall": "comments",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 164,
+			"failed": false,
+			"ms": 3.6743750000000546
+		},
+		{
+			"trace": "structure-4-1",
+			"feedCall": "profiles",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-actor-4\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"isOnboarded\",\"values\":[true]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"name\",\"image\",\"localisation\",\"userType\",\"position\",\"isOnboarded\",\"createdAt\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 380,
+			"failed": false,
+			"ms": 3.895665999999892
+		},
+		{
+			"trace": "structure-4-1",
+			"feedCall": "likes",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 164,
+			"failed": false,
+			"ms": 3.8170000000000073
+		},
+		{
+			"trace": "structure-4-1",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-post-039\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"updatedAt\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 298,
+			"failed": false,
+			"ms": 3.1542080000001533
+		},
+		{
+			"trace": "structure-4-20",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[21]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 21,
+			"bytes": 10596,
+			"failed": false,
+			"ms": 4.413416999999981
+		},
+		{
+			"trace": "structure-4-20",
+			"feedCall": "comments",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\",\"feed-post-029\",\"feed-post-028\",\"feed-post-027\",\"feed-post-026\",\"feed-post-025\",\"feed-post-024\",\"feed-post-023\",\"feed-post-022\",\"feed-post-021\",\"feed-post-020\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[20]}"
+			],
+			"rows": 1,
+			"bytes": 164,
+			"failed": false,
+			"ms": 5.357292000000143
+		},
+		{
+			"trace": "structure-4-20",
+			"feedCall": "likes",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\",\"feed-post-029\",\"feed-post-028\",\"feed-post-027\",\"feed-post-026\",\"feed-post-025\",\"feed-post-024\",\"feed-post-023\",\"feed-post-022\",\"feed-post-021\",\"feed-post-020\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[20]}"
+			],
+			"rows": 2,
+			"bytes": 307,
+			"failed": false,
+			"ms": 5.50912500000004
+		},
+		{
+			"trace": "structure-4-20",
+			"feedCall": "profiles",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-actor-4\",\"feed-actor-3\",\"feed-actor-2\",\"feed-actor-1\",\"feed-actor-0\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"isOnboarded\",\"values\":[true]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"name\",\"image\",\"localisation\",\"userType\",\"position\",\"isOnboarded\",\"createdAt\"]}",
+				"{\"method\":\"limit\",\"values\":[5]}"
+			],
+			"rows": 5,
+			"bytes": 1838,
+			"failed": false,
+			"ms": 5.681082999999944
+		},
+		{
+			"trace": "structure-4-20",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\",\"feed-post-029\",\"feed-post-028\",\"feed-post-027\",\"feed-post-026\",\"feed-post-025\",\"feed-post-024\",\"feed-post-023\",\"feed-post-022\",\"feed-post-021\",\"feed-post-020\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"updatedAt\"]}",
+				"{\"method\":\"limit\",\"values\":[20]}"
+			],
+			"rows": 20,
+			"bytes": 5580,
+			"failed": false,
+			"ms": 4.286499999999933
+		},
+		{
+			"trace": "hidden-4-feed-post-040",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"feed-post-040",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 4.447374999999965
+		},
+		{
+			"trace": "hidden-4-feed-post-041",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"feed-post-041",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 4.889999999999873
+		},
+		{
+			"trace": "hidden-4-feed-post-042",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"feed-post-042",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 4.809417000000167
+		},
+		{
+			"trace": "hidden-4-feed-post-043",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"feed-post-043",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 3.9328749999999673
+		},
+		{
+			"trace": "hidden-4-feed-post-044",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"feed-post-044",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 3.7109169999998812
+		},
+		{
+			"trace": "hidden-4-absent-post",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"absent-post",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 3.5870420000001104
+		},
+		{
+			"trace": "hidden-revoked--1",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"feed-post-039",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 3.6445840000001226
+		},
+		{
+			"trace": "hidden-revoked-0",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"feed-post-039",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 4.7247919999999795
+		},
+		{
+			"trace": "hidden-revoked-1",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"feed-post-039",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 4.499500000000353
+		},
+		{
+			"trace": "hidden-revoked-4",
+			"feedCall": "posts.getRow",
+			"queries": [
+				"feed-post-039",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}"
+			],
+			"rows": 0,
+			"bytes": 0,
+			"failed": true,
+			"ms": 3.988709000000199
+		},
+		{
+			"trace": "structure-search-unicode",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"publishedAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[11]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}",
+				"{\"method\":\"or\",\"values\":[{\"method\":\"contains\",\"attribute\":\"titleFolded\",\"values\":[\"équipe\"]},{\"method\":\"contains\",\"attribute\":\"descriptionFolded\",\"values\":[\"équipe\"]}]}"
+			],
+			"rows": 11,
+			"bytes": 5536,
+			"failed": false,
+			"ms": 7.121292000000267
+		},
+		{
+			"trace": "structure-search-unicode",
+			"feedCall": "profiles",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-actor-4\",\"feed-actor-3\",\"feed-actor-2\",\"feed-actor-1\",\"feed-actor-0\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"isOnboarded\",\"values\":[true]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"name\",\"image\",\"localisation\",\"userType\",\"position\",\"isOnboarded\",\"createdAt\"]}",
+				"{\"method\":\"limit\",\"values\":[5]}"
+			],
+			"rows": 5,
+			"bytes": 1838,
+			"failed": false,
+			"ms": 4.510291999999936
+		},
+		{
+			"trace": "structure-search-unicode",
+			"feedCall": "comments",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 1,
+			"bytes": 164,
+			"failed": false,
+			"ms": 4.431540999999925
+		},
+		{
+			"trace": "structure-search-unicode",
+			"feedCall": "likes",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 2,
+			"bytes": 307,
+			"failed": false,
+			"ms": 4.515749999999571
+		},
+		{
+			"trace": "structure-search-unicode",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"updatedAt\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 10,
+			"bytes": 2800,
+			"failed": false,
+			"ms": 4.265209000000141
+		},
+		{
+			"trace": "structure-search-unicode",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"publishedAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[11]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}",
+				"{\"method\":\"or\",\"values\":[{\"method\":\"contains\",\"attribute\":\"titleFolded\",\"values\":[\"équipe\"]},{\"method\":\"contains\",\"attribute\":\"descriptionFolded\",\"values\":[\"équipe\"]}]}"
+			],
+			"rows": 11,
+			"bytes": 5536,
+			"failed": false,
+			"ms": 5.693041999999878
+		},
+		{
+			"trace": "structure-search-unicode",
+			"feedCall": "profiles",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-actor-4\",\"feed-actor-3\",\"feed-actor-2\",\"feed-actor-1\",\"feed-actor-0\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"isOnboarded\",\"values\":[true]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"name\",\"image\",\"localisation\",\"userType\",\"position\",\"isOnboarded\",\"createdAt\"]}",
+				"{\"method\":\"limit\",\"values\":[5]}"
+			],
+			"rows": 5,
+			"bytes": 1838,
+			"failed": false,
+			"ms": 5.4347499999998945
+		},
+		{
+			"trace": "structure-search-unicode",
+			"feedCall": "comments",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 1,
+			"bytes": 164,
+			"failed": false,
+			"ms": 5.272915999999896
+		},
+		{
+			"trace": "structure-search-unicode",
+			"feedCall": "likes",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 2,
+			"bytes": 307,
+			"failed": false,
+			"ms": 5.3696670000003905
+		},
+		{
+			"trace": "structure-search-unicode",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"updatedAt\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 10,
+			"bytes": 2800,
+			"failed": false,
+			"ms": 4.951333999999861
+		},
+		{
+			"trace": "structure-search-substring",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"publishedAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[11]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"slug\",\"title\",\"description\",\"type\",\"status\",\"createdAt\",\"updatedAt\",\"publishedAt\",\"expiresAt\"]}",
+				"{\"method\":\"or\",\"values\":[{\"method\":\"contains\",\"attribute\":\"titleFolded\",\"values\":[\"qui\"]},{\"method\":\"contains\",\"attribute\":\"descriptionFolded\",\"values\":[\"qui\"]}]}"
+			],
+			"rows": 11,
+			"bytes": 5536,
+			"failed": false,
+			"ms": 5.346917000000303
+		},
+		{
+			"trace": "structure-search-substring",
+			"feedCall": "comments",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 1,
+			"bytes": 164,
+			"failed": false,
+			"ms": 5.039458999999624
+		},
+		{
+			"trace": "structure-search-substring",
+			"feedCall": "likes",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 2,
+			"bytes": 307,
+			"failed": false,
+			"ms": 5.154166999999688
+		},
+		{
+			"trace": "structure-search-substring",
+			"feedCall": "profiles",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-actor-4\",\"feed-actor-3\",\"feed-actor-2\",\"feed-actor-1\",\"feed-actor-0\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"isOnboarded\",\"values\":[true]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"name\",\"image\",\"localisation\",\"userType\",\"position\",\"isOnboarded\",\"createdAt\"]}",
+				"{\"method\":\"limit\",\"values\":[5]}"
+			],
+			"rows": 5,
+			"bytes": 1838,
+			"failed": false,
+			"ms": 7.788250000000062
+		},
+		{
+			"trace": "structure-search-substring",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"feed-post-039\",\"feed-post-038\",\"feed-post-037\",\"feed-post-036\",\"feed-post-035\",\"feed-post-034\",\"feed-post-033\",\"feed-post-032\",\"feed-post-031\",\"feed-post-030\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\",\"updatedAt\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 10,
+			"bytes": 2800,
+			"failed": false,
+			"ms": 4.3703340000001845
+		},
+		{
+			"trace": "structure-users-only",
+			"feedCall": "profiles",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"isOnboarded\",\"values\":[true]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[20]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"name\",\"image\",\"localisation\",\"userType\",\"position\",\"isOnboarded\",\"createdAt\"]}",
+				"{\"method\":\"contains\",\"attribute\":\"nameFolded\",\"values\":[\"quipe\"]}"
+			],
+			"rows": 1,
+			"bytes": 385,
+			"failed": false,
+			"ms": 4.477624999999989
+		},
+		{
+			"trace": "structure-users-only",
+			"feedCall": "follows",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"followingId\",\"values\":[\"feed-actor-0\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"followingId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 0,
+			"bytes": 21,
+			"failed": false,
+			"ms": 3.426042000000052
+		},
+		{
+			"trace": "structure-users-only",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"userId\",\"values\":[\"feed-actor-0\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"userId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[1]}"
+			],
+			"rows": 1,
+			"bytes": 161,
+			"failed": false,
+			"ms": 3.6154999999998836
+		},
+		{
+			"trace": "structure-suggestions-A",
+			"feedCall": "account.get",
+			"queries": [],
+			"rows": 1,
+			"bytes": 0,
+			"failed": false,
+			"ms": 6.8097499999998945
+		},
+		{
+			"trace": "structure-suggestions-A",
+			"feedCall": "account.getSession",
+			"queries": [],
+			"rows": 1,
+			"bytes": 0,
+			"failed": false,
+			"ms": 6.835583999999926
+		},
+		{
+			"trace": "structure-suggestions-A",
+			"feedCall": "profiles",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"isOnboarded\",\"values\":[true]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[20]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"name\",\"image\",\"localisation\",\"userType\",\"position\",\"isOnboarded\",\"createdAt\"]}",
+				"{\"method\":\"notEqual\",\"attribute\":\"$id\",\"values\":[\"feed-actor-0\"]}"
+			],
+			"rows": 20,
+			"bytes": 7320,
+			"failed": false,
+			"ms": 3.5933749999999236
+		},
+		{
+			"trace": "structure-suggestions-A",
+			"feedCall": "follows",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"followerId\",\"values\":[\"feed-actor-0\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"followingId\",\"values\":[\"suggestion-044\",\"suggestion-043\",\"suggestion-042\",\"suggestion-041\",\"suggestion-040\",\"suggestion-039\",\"suggestion-038\",\"suggestion-037\",\"suggestion-036\",\"suggestion-035\",\"suggestion-034\",\"suggestion-033\",\"suggestion-032\",\"suggestion-031\",\"suggestion-030\",\"suggestion-029\",\"suggestion-028\",\"suggestion-027\",\"suggestion-026\",\"suggestion-025\"]}",
+				"{\"method\":\"limit\",\"values\":[20]}",
+				"{\"method\":\"select\",\"values\":[\"followingId\"]}"
+			],
+			"rows": 20,
+			"bytes": 4781,
+			"failed": false,
+			"ms": 4.4201249999996435
+		},
+		{
+			"trace": "structure-suggestions-A",
+			"feedCall": "profiles",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"isOnboarded\",\"values\":[true]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[20]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"name\",\"image\",\"localisation\",\"userType\",\"position\",\"isOnboarded\",\"createdAt\"]}",
+				"{\"method\":\"and\",\"values\":[{\"method\":\"isNotNull\",\"attribute\":\"createdAt\"},{\"method\":\"or\",\"values\":[{\"method\":\"lessThan\",\"attribute\":\"createdAt\",\"values\":[\"2026-01-15T12:34:56.123Z\"]},{\"method\":\"and\",\"values\":[{\"method\":\"equal\",\"attribute\":\"createdAt\",\"values\":[\"2026-01-15T12:34:56.123Z\"]},{\"method\":\"lessThan\",\"attribute\":\"$id\",\"values\":[\"suggestion-025\"]}]}]}]}",
+				"{\"method\":\"notEqual\",\"attribute\":\"$id\",\"values\":[\"feed-actor-0\"]}"
+			],
+			"rows": 20,
+			"bytes": 7315,
+			"failed": false,
+			"ms": 5.024417000000085
+		},
+		{
+			"trace": "structure-suggestions-A",
+			"feedCall": "follows",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"followerId\",\"values\":[\"feed-actor-0\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"followingId\",\"values\":[\"suggestion-024\",\"suggestion-023\",\"suggestion-022\",\"suggestion-021\",\"suggestion-020\",\"suggestion-019\",\"suggestion-018\",\"suggestion-017\",\"suggestion-016\",\"suggestion-015\",\"suggestion-014\",\"suggestion-013\",\"suggestion-012\",\"suggestion-011\",\"suggestion-010\",\"suggestion-009\",\"suggestion-008\",\"suggestion-007\",\"suggestion-006\",\"suggestion-005\"]}",
+				"{\"method\":\"limit\",\"values\":[20]}",
+				"{\"method\":\"select\",\"values\":[\"followingId\"]}"
+			],
+			"rows": 12,
+			"bytes": 2888,
+			"failed": false,
+			"ms": 5.159582999999657
+		},
+		{
+			"trace": "structure-suggestions-A",
+			"feedCall": "profiles",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"isOnboarded\",\"values\":[true]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[20]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"name\",\"image\",\"localisation\",\"userType\",\"position\",\"isOnboarded\",\"createdAt\"]}",
+				"{\"method\":\"and\",\"values\":[{\"method\":\"isNotNull\",\"attribute\":\"createdAt\"},{\"method\":\"or\",\"values\":[{\"method\":\"lessThan\",\"attribute\":\"createdAt\",\"values\":[\"2026-01-15T12:34:56.123Z\"]},{\"method\":\"and\",\"values\":[{\"method\":\"equal\",\"attribute\":\"createdAt\",\"values\":[\"2026-01-15T12:34:56.123Z\"]},{\"method\":\"lessThan\",\"attribute\":\"$id\",\"values\":[\"suggestion-005\"]}]}]}]}",
+				"{\"method\":\"notEqual\",\"attribute\":\"$id\",\"values\":[\"feed-actor-0\"]}"
+			],
+			"rows": 9,
+			"bytes": 3289,
+			"failed": false,
+			"ms": 5.372667000000092
+		},
+		{
+			"trace": "structure-suggestions-A",
+			"feedCall": "follows",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"followerId\",\"values\":[\"feed-actor-0\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"followingId\",\"values\":[\"suggestion-004\",\"suggestion-003\",\"suggestion-002\",\"suggestion-001\",\"suggestion-000\",\"feed-actor-4\",\"feed-actor-3\",\"feed-actor-2\",\"feed-actor-1\"]}",
+				"{\"method\":\"limit\",\"values\":[9]}",
+				"{\"method\":\"select\",\"values\":[\"followingId\"]}"
+			],
+			"rows": 0,
+			"bytes": 21,
+			"failed": false,
+			"ms": 5.2064580000001115
+		},
+		{
+			"trace": "structure-suggestions-A",
+			"feedCall": "follows",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"followingId\",\"values\":[\"suggestion-012\",\"suggestion-011\",\"suggestion-010\",\"suggestion-009\",\"suggestion-008\",\"suggestion-007\",\"suggestion-006\",\"suggestion-005\",\"suggestion-004\",\"suggestion-003\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"followingId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 0,
+			"bytes": 21,
+			"failed": false,
+			"ms": 4.073499999999967
+		},
+		{
+			"trace": "structure-suggestions-A",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"userId\",\"values\":[\"suggestion-012\",\"suggestion-011\",\"suggestion-010\",\"suggestion-009\",\"suggestion-008\",\"suggestion-007\",\"suggestion-006\",\"suggestion-005\",\"suggestion-004\",\"suggestion-003\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"userId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 0,
+			"bytes": 21,
+			"failed": false,
+			"ms": 4.224042000000281
+		},
+		{
+			"trace": "structure-suggestions-B",
+			"feedCall": "account.get",
+			"queries": [],
+			"rows": 1,
+			"bytes": 0,
+			"failed": false,
+			"ms": 5.8390840000001845
+		},
+		{
+			"trace": "structure-suggestions-B",
+			"feedCall": "account.getSession",
+			"queries": [],
+			"rows": 1,
+			"bytes": 0,
+			"failed": false,
+			"ms": 5.869000000000142
+		},
+		{
+			"trace": "structure-suggestions-B",
+			"feedCall": "profiles",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"isOnboarded\",\"values\":[true]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[20]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"name\",\"image\",\"localisation\",\"userType\",\"position\",\"isOnboarded\",\"createdAt\"]}",
+				"{\"method\":\"notEqual\",\"attribute\":\"$id\",\"values\":[\"feed-actor-1\"]}"
+			],
+			"rows": 20,
+			"bytes": 7320,
+			"failed": false,
+			"ms": 3.8546660000001793
+		},
+		{
+			"trace": "structure-suggestions-B",
+			"feedCall": "follows",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"followerId\",\"values\":[\"feed-actor-1\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"followingId\",\"values\":[\"suggestion-044\",\"suggestion-043\",\"suggestion-042\",\"suggestion-041\",\"suggestion-040\",\"suggestion-039\",\"suggestion-038\",\"suggestion-037\",\"suggestion-036\",\"suggestion-035\",\"suggestion-034\",\"suggestion-033\",\"suggestion-032\",\"suggestion-031\",\"suggestion-030\",\"suggestion-029\",\"suggestion-028\",\"suggestion-027\",\"suggestion-026\",\"suggestion-025\"]}",
+				"{\"method\":\"limit\",\"values\":[20]}",
+				"{\"method\":\"select\",\"values\":[\"followingId\"]}"
+			],
+			"rows": 0,
+			"bytes": 21,
+			"failed": false,
+			"ms": 3.8120829999998023
+		},
+		{
+			"trace": "structure-suggestions-B",
+			"feedCall": "follows",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"followingId\",\"values\":[\"suggestion-044\",\"suggestion-043\",\"suggestion-042\",\"suggestion-041\",\"suggestion-040\",\"suggestion-039\",\"suggestion-038\",\"suggestion-037\",\"suggestion-036\",\"suggestion-035\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"followingId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 10,
+			"bytes": 1500,
+			"failed": false,
+			"ms": 2.9868749999996
+		},
+		{
+			"trace": "structure-suggestions-B",
+			"feedCall": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"userId\",\"values\":[\"suggestion-044\",\"suggestion-043\",\"suggestion-042\",\"suggestion-041\",\"suggestion-040\",\"suggestion-039\",\"suggestion-038\",\"suggestion-037\",\"suggestion-036\",\"suggestion-035\"]}",
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"userId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[10]}"
+			],
+			"rows": 0,
+			"bytes": 21,
+			"failed": false,
+			"ms": 5.479417000000012
+		}
+	],
+	"productionGates": "unmet: representative source, numerical budgets and production media"
+}

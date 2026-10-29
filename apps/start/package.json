@@ -18,7 +18,11 @@
 		"profile:prepare": "bun scripts/profile-local.ts prepare",
 		"profile:up": "bun scripts/profile-local.ts up",
 		"profile:down": "bun scripts/profile-local.ts down",
-		"profile:proof": "bun scripts/profile-proof.ts"
+		"profile:proof": "bun scripts/profile-proof.ts",
+		"feed:prepare": "bun scripts/feed-local.ts prepare",
+		"feed:up": "bun scripts/feed-local.ts up",
+		"feed:down": "bun scripts/feed-local.ts down",
+		"feed:proof": "bun scripts/feed-proof.ts"
 	},
 	"dependencies": {
 		"@radix-ui/react-slot": "1.2.4",

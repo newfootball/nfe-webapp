@@ -1,0 +1,30 @@
+name: Backup restore tooling
+
+on:
+  pull_request:
+    paths:
+      - tools/backup-restore/**
+      - .github/workflows/backup-restore.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-tooling:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tools/backup-restore
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+      - run: bun install --frozen-lockfile
+      - run: bun run test
+      - run: bun run typecheck
+      - run: bun run lint
+      - run: bun run build
+      # Runtime proof is manual, uses an explicitly accepted schema checkout,
+      # task-owned Docker projects and scoped B2 credentials. CI does not claim recovery.

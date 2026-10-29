@@ -1,0 +1,108 @@
+{
+	"generatedAt": "2026-10-29T12:59:10.084Z",
+	"status": "passed_local_experiment_external_gates_pending",
+	"syntheticOnly": true,
+	"contract": {
+		"sha": "86f28433ed3a6642fd9d120d17de426c92d60a96",
+		"acceptedFor": "local experiment only; unmerged snapshot",
+		"files": {
+			"schema.mts": "dc7397221b25aa33b04a6c1a87282a07eec45855dcc57d908e9d09a39399b5d0",
+			"acl.mts": "b620980d1e51bc00897f80e304a5ebdf11926c9ad7277ac597fbc19e2e7be572",
+			"fixtures.mts": "e7fefa96b0c40548056be02aabd606c46041c5ad60ebb5c427fc578160fce2e3",
+			"provision.mts": "662f261e52fb36d7298c3cee08d41f41cc6ee3e56b986c033c7592c59981f256",
+			"bootstrap.mts": "b7fca430c9077a9c4f73294766422b00f6c810aa86c30070e0de8da2f455ae48",
+			"local.mts": "bac1bab895981ac0e34ff975cf3b3b828f817c87c2d3dfaed0d27621a39444e2"
+		}
+	},
+	"upstream": {
+		"commit": "54581f9698f9de23cf4b1432e353b3ee9b0012d5",
+		"sha256": "db8f3fb69b5ff026d3b76dd0f87b13b37cd009a838ae63e48b134292b9f6bea6"
+	},
+	"projects": {
+		"source": "nfe47-source-411620b67a4b4be9a9ee33d57aa7d977",
+		"target": "nfe47-restore-411620b67a4b4be9a9ee33d57aa7d977"
+	},
+	"checks": {
+		"before": {
+			"bcryptLogins": 3,
+			"actors": ["anonymous", "a", "b", "admin"],
+			"aclGetAndListChecks": 160,
+			"linkedRecords": 6
+		},
+		"sourceDestroyedBeforeRecovery": true,
+		"allRowsAndAclByteReconciledBeforeMediaRemap": true,
+		"after": {
+			"bcryptLogins": 3,
+			"actors": ["anonymous", "a", "b", "admin"],
+			"aclGetAndListChecks": 160,
+			"linkedRecords": 6
+		},
+		"sourcePostgres": {
+			"bcryptChecks": 3,
+			"linkedMediaRows": 2,
+			"mediaFiles": 2
+		},
+		"overwrittenAndDeletedBytesRecoveredFromArchive": true,
+		"b2RestoredVersionCount": 4,
+		"b2IndependentVersionHashes": [
+			"694c152d1db314b0d2b859d04b3a371d9999202ef7dc8be5170a5c52ace1c6fa",
+			"95713e9cbdd1dfcb2d4080c2537f418d43ca0da25f0d7d6631f4f7c97b89dc47",
+			"e27ad3d03ebe302740b4ae2ec89654b5d022154b479c63e3691f1be9be84bb5c"
+		],
+		"b2CurrentStatesAndVersionHashesReconciled": true,
+		"mediaHashes": {
+			"overwritten.bin": "ab95b00c70af98ef4b01970d5d44db0f38c4d0c3927f400694a416e208c62833",
+			"deleted.bin": "d1d1c9cbe8734c813f82da8d7aec7959ca336920b9a06f3010b918375a0067de"
+		}
+	},
+	"timingsMs": {
+		"backup": 6535,
+		"coldVolumesAndPostgresRestore": 20367,
+		"fullRestoreIncludingMediaAndReconciliation": 25879,
+		"totalProof": 98470
+	},
+	"externalGates": [
+		"permanent infrastructure #46",
+		"authorized actual-source recovery",
+		"encrypted off-host custody and independent key escrow",
+		"owner-approved RPO/RTO/retention and trigger",
+		"renew if merged schema differs"
+	],
+	"archive": {
+		"sha256": "d6fa9804062ac88e5e3e80cdd31ea7f094c6e0fbd14c9b824a1d520efe088c07",
+		"volumeCount": 10,
+		"permissions": 384,
+		"encryption": "AES-256-GCM; independent random 256-bit local key"
+	},
+	"counts": {
+		"sourcePostgres": {
+			"users": 3,
+			"posts": 1,
+			"media": 2
+		},
+		"appwrite": {
+			"profiles": 3,
+			"private_profiles": 1,
+			"follows": 1,
+			"posts": 6,
+			"post_private": 1,
+			"media": 1,
+			"likes": 1,
+			"favorites": 1,
+			"comments": 1,
+			"notifications": 1,
+			"messages": 2,
+			"signals": 1,
+			"schema_versions": 1
+		},
+		"authUsers": 3,
+		"mediaVersionsCopied": 3,
+		"deleteMarkers": 1
+	},
+	"cleanup": {
+		"errors": [],
+		"encryptedArchiveAndKey": "retained ignored/local mode600 for independent local review; operator must escrow separately or remove after review",
+		"plaintextProofExports": "removed",
+		"b2VersionsAndOwnedDocker": "removed"
+	}
+}

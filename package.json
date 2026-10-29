@@ -17,18 +17,13 @@
 		"knip": "knip",
 		"knip:fix": "knip --fix",
 		"postinstall": "prisma generate",
-		"prepare": "husky",
+		"prepare": "bun scripts/install-hooks.ts",
 		"dev:start": "bun run --cwd apps/start dev",
 		"build:start": "bun run --cwd apps/start build",
 		"typecheck:start": "bun run --cwd apps/start typecheck",
 		"smoke:start": "bun run --cwd apps/start smoke"
 	},
 	"packageManager": "bun@1.3.3",
-	"lint-staged": {
-		"*.{js,jsx,ts,tsx,json,css}": [
-			"biome check --write --no-errors-on-unmatched"
-		]
-	},
 	"dependencies": {
 		"@ducanh2912/next-pwa": "^10.2.9",
 		"@faker-js/faker": "^9.9.0",
@@ -87,9 +82,8 @@
 		"@types/react": "^19.2.14",
 		"@types/react-dom": "^19.2.3",
 		"baseline-browser-mapping": "^2.10.23",
-		"husky": "^9.1.7",
 		"knip": "^5.88.1",
-		"lint-staged": "^16.4.0",
+		"lefthook": "^2.2.2",
 		"postcss": "^8.5.12",
 		"prisma": "^7.8.0",
 		"tailwindcss": "^4.2.4",

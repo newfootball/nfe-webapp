@@ -1,0 +1,19 @@
+{
+	"timestamp": "2026-10-29T10:55:44.557Z",
+	"appwrite": "2.6.2",
+	"bun": "1.3.14",
+	"source": "synthetic-only",
+	"checks": {
+		"dryRun": true,
+		"bcryptLogin": true,
+		"wrongPasswordRejected": true,
+		"exactIdentityAndVerification": true,
+		"privilegedAdmin": true,
+		"unrelatedLabelsPreserved": true,
+		"idempotentReplay": true,
+		"checkpointRestart": true,
+		"foreignUserCollision": true,
+		"mixedCaseEmailDeferred": true
+	},
+	"production": "not_run; blocked by #47/#49"
+}

@@ -27,6 +27,12 @@ const ConfigSchema = z.object({
 		.min(1)
 		.max(10 * 1024 ** 2)
 		.default(2 * 1024 ** 2),
+	START_MEDIA_READ_TTL_SECONDS: z.coerce
+		.number()
+		.int()
+		.min(2)
+		.max(120)
+		.default(120),
 	START_MEDIA_MAX_DURATION: z.coerce
 		.number()
 		.int()
@@ -40,10 +46,14 @@ const ConfigSchema = z.object({
 		.max(120000)
 		.default(60000),
 });
-export function storage() {
+export function storageConfig() {
 	const c = ConfigSchema.parse(process.env);
 	if (new URL(c.B2_ENDPOINT).hostname !== `s3.${c.B2_REGION}.backblazeb2.com`)
 		throw new Error("Invalid endpoint");
+	return c;
+}
+export function storage() {
+	const c = storageConfig();
 	return {
 		config: c,
 		s3: new S3Client({
@@ -51,6 +61,7 @@ export function storage() {
 			region: c.B2_REGION,
 			forcePathStyle: true,
 			maxAttempts: 2,
+			requestHandler: { requestTimeout: 20000, connectionTimeout: 5000 },
 			credentials: {
 				accessKeyId: c.B2_APPLICATION_KEY_ID,
 				secretAccessKey: c.B2_APPLICATION_KEY,
@@ -69,6 +80,7 @@ export type StoredAsset = {
 	kind: string;
 	mimetype: string;
 };
+export class MediaContentError extends Error {}
 async function run(args: string[], timeout: number) {
 	const p = Bun.spawn(args, {
 		stdout: "pipe",
@@ -78,15 +90,15 @@ async function run(args: string[], timeout: number) {
 	});
 	const output = await new Response(p.stdout).text();
 	if ((await p.exited) || output.length > 32768)
-		throw new Error("Content processing failed");
+		throw new MediaContentError("Content processing failed");
 	return output;
 }
 let active = 0;
 export async function validateVersion(asset: StoredAsset) {
 	if (active >= 2) throw new Error("Processing busy");
+	const { s3, config } = storage();
 	active++;
 	let dir: string | undefined;
-	const { s3, config } = storage();
 	try {
 		if (
 			asset.bucket !== config.B2_BUCKET_NAME ||
@@ -119,13 +131,14 @@ export async function validateVersion(asset: StoredAsset) {
 				object.VersionId !== asset.versionId ||
 				!object.Body
 			)
-				throw new Error("Object metadata mismatch");
+				throw new MediaContentError("Object metadata mismatch");
 			const reader = object.Body.transformToWebStream().getReader();
 			while (true) {
 				const { value: bytes, done } = await reader.read();
 				if (done) break;
 				size += bytes.byteLength;
-				if (size > asset.byteSize) throw new Error("Object too large");
+				if (size > asset.byteSize)
+					throw new MediaContentError("Object too large");
 				hash.update(bytes);
 				await file.writeFile(bytes);
 			}
@@ -133,10 +146,14 @@ export async function validateVersion(asset: StoredAsset) {
 			await file.close();
 		}
 		if (size !== asset.byteSize || hash.digest("hex") !== asset.sha256)
-			throw new Error("Object hash mismatch");
+			throw new MediaContentError("Object hash mismatch");
 		const probe = await run(
 			[
 				"ffprobe",
+				"-max_alloc",
+				"67108864",
+				"-f",
+				asset.kind === "video" ? "mov" : "webp_pipe",
 				"-v",
 				"error",
 				"-protocol_whitelist",
@@ -149,15 +166,22 @@ export async function validateVersion(asset: StoredAsset) {
 			],
 			config.START_MEDIA_PROCESS_TIMEOUT_MS,
 		);
-		const metadata = inspectContent(
-			asset.kind,
-			JSON.parse(probe),
-			config.START_MEDIA_MAX_DURATION,
-		);
+		let metadata: ReturnType<typeof inspectContent>;
+		try {
+			metadata = inspectContent(
+				asset.kind,
+				JSON.parse(probe),
+				config.START_MEDIA_MAX_DURATION,
+			);
+		} catch {
+			throw new MediaContentError("Unsupported content");
+		}
 		// Decode all bounded input; probe metadata alone does not establish valid content.
 		await run(
 			[
 				"ffmpeg",
+				"-max_alloc",
+				"67108864",
 				"-nostdin",
 				"-v",
 				"error",
@@ -166,6 +190,8 @@ export async function validateVersion(asset: StoredAsset) {
 				"1",
 				"-protocol_whitelist",
 				"file",
+				"-f",
+				asset.kind === "video" ? "mov" : "webp_pipe",
 				"-i",
 				path,
 				"-map",

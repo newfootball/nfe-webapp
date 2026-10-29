@@ -21,7 +21,7 @@ import {
 export const allocateAsset = createServerFn({ method: "POST" })
 	.validator((v: unknown) => AllocateAssetSchema.parse(v))
 	.handler(({ data }) => allocateMedia(data));
-export const resumeAsset = createServerFn({ method: "GET" })
+export const resumeAsset = createServerFn({ method: "POST" })
 	.validator((v: unknown) => AssetRequestSchema.parse(v))
 	.handler(({ data }) => resumeMedia(data));
 export const signAssetPart = createServerFn({ method: "POST" })

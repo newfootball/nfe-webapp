@@ -16,7 +16,7 @@ TanStack server functions. Every call uses `{ data: input }` and returns
 | `readAsset` | `{ assetId }` | `MediaRead` |
 | `readPostMedia` | `{ postId, kind: "video" \| "thumbnail" }` | `MediaRead` |
 
-All mutations use POST; resume and read use GET. Only allocation IDs enter
+All mutations and resume use POST; reads use GET. Resume can recover initiation and is therefore a mutation. Only allocation IDs enter
 subsequent operations; clients cannot choose bucket, object key, uploadId, ETags,
 version, post status or owner. `requestId` makes allocation and publication
 retries idempotent; a different file gets a new UUID. Hash the selected bytes

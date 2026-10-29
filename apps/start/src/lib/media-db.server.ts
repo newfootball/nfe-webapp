@@ -141,7 +141,7 @@ export async function claim(
 			id,
 			{
 				state: target,
-				leaseUntil: new Date(Date.now() + 180_000).toISOString(),
+				leaseUntil: new Date(Date.now() + 600_000).toISOString(),
 			},
 			tx,
 		);

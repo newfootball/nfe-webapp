@@ -34,10 +34,15 @@ import {
 	uploadDTO,
 } from "./media-db.server";
 import { expectedPartBytes, inspectParts } from "./media-policy";
-import { storage, validateVersion } from "./media-storage.server";
+import {
+	MediaContentError,
+	storage,
+	storageConfig,
+	validateVersion,
+} from "./media-storage.server";
 
 export function objectRef(a: Models.DefaultRow) {
-	const { config } = storage();
+	const config = storageConfig();
 	if (
 		a.provider !== "B2" ||
 		a.bucket !== config.B2_BUCKET_NAME ||
@@ -102,7 +107,7 @@ async function initialize(a: Models.DefaultRow, ownerId: string) {
 export async function allocate(input: AllocateAsset) {
 	const v = AllocateAssetSchema.parse(input),
 		{ ownerId } = await mediaSelf(),
-		{ config } = storage();
+		config = storageConfig();
 	if (
 		v.mimetype !== (v.kind === "video" ? "video/mp4" : "image/webp") ||
 		v.byteSize >
@@ -277,7 +282,8 @@ export async function finalize(input: AssetRequest) {
 		// Persist exact version even on rejected content. A transient failure is replayable.
 		await patch(mediaDB(true), a.$id, {
 			leaseUntil: null,
-			...(e instanceof AuthFailure && e.reason === "invalid"
+			...((e instanceof AuthFailure && e.reason === "invalid") ||
+			e instanceof MediaContentError
 				? { state: "REJECTED" }
 				: {}),
 		});

@@ -17,7 +17,7 @@ import type {
 	PartRequest,
 	PublishPost,
 } from "./media-contract";
-import { MEDIA_READ_TTL_SECONDS, mediaPath } from "./media-contract";
+import { mediaPath } from "./media-contract";
 import {
 	assertOwner,
 	assetTable,
@@ -63,7 +63,7 @@ async function boundary<T>(
 }
 export const allocateMedia = (v: AllocateAsset) =>
 	boundary(() => allocate(v), true);
-export const resumeMedia = (v: AssetRequest) => boundary(() => resume(v));
+export const resumeMedia = (v: AssetRequest) => boundary(() => resume(v), true);
 export const signMediaPart = (v: PartRequest) =>
 	boundary(() => signPart(v), true);
 export const finalizeMedia = (v: AssetRequest) =>
@@ -214,7 +214,7 @@ async function canRead(a: Awaited<ReturnType<typeof ownAsset>>) {
 export async function signedMedia(id: string) {
 	const a = await row(mediaDB(), assetTable, id);
 	await canRead(a);
-	const { s3 } = storage();
+	const { s3, config } = storage();
 	try {
 		const url = await getSignedUrl(
 			s3,
@@ -225,11 +225,11 @@ export async function signedMedia(id: string) {
 				ResponseContentType: a.mimetype,
 				ResponseContentDisposition: "inline",
 			}),
-			{ expiresIn: MEDIA_READ_TTL_SECONDS },
+			{ expiresIn: config.START_MEDIA_READ_TTL_SECONDS },
 		);
 		return {
 			url,
-			expiresAt: Date.now() + MEDIA_READ_TTL_SECONDS * 1000,
+			expiresAt: Date.now() + config.START_MEDIA_READ_TTL_SECONDS * 1000,
 			mimetype: String(a.mimetype),
 		};
 	} finally {

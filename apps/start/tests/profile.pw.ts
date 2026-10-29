@@ -6,14 +6,20 @@ import {
 	type Page,
 	test,
 } from "@playwright/test";
-import { Account, Client, type Models, TablesDB, Users } from "node-appwrite";
+import {
+	Account,
+	Client,
+	type Models,
+	Permission,
+	Role,
+	TablesDB,
+	Users,
+} from "node-appwrite";
 import { fromCrossJSON, toJSON } from "seroval";
 import { endpoint, state } from "../scripts/profile-local";
 
 const databaseId = process.env.START_APPWRITE_DATABASE;
 if (!databaseId) throw new Error("Isolated profile database required");
-
-import { permissions } from "../../../tools/appwrite-schema/acl.mts";
 
 const origin = "http://127.0.0.1:3513";
 const config = JSON.parse(
@@ -589,7 +595,13 @@ test("five account types: real signup, atomic onboarding/edit, public redaction 
 			tableId,
 			rowId: importedId,
 			data,
-			permissions: permissions(tableId, data, importedId),
+			permissions:
+				tableId === "profiles"
+					? [Permission.read(Role.any())]
+					: [
+							Permission.read(Role.user(importedId)),
+							Permission.read(Role.label("admin")),
+						],
 		});
 	const importedBefore = await db.getRow({
 		databaseId,

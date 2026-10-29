@@ -100,7 +100,9 @@ this run provisions only a disposable synthetic database.
 ## Reproducible isolated proof
 
 Use Node 24 and Bun 1.3.14, root and Start dependencies installed. The schema
-package is a tooling dependency for this proof only:
+package is a tooling dependency for this proof only. The opt-in runner loads its
+provisioners dynamically through a typed adapter; Start compilation and pure
+contract tests require no installation of the schema package dependencies:
 
 ```sh
 bun install --cwd tools/appwrite-schema --frozen-lockfile

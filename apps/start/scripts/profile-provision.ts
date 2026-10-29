@@ -1,11 +1,28 @@
 import assert from "node:assert/strict";
+import { resolve } from "node:path";
 import { Client, Query, TablesDB } from "node-appwrite";
-import { provisionProfileV2 } from "../../../tools/appwrite-schema/profile-v2.mts";
-import { provision } from "../../../tools/appwrite-schema/provision.mts";
 import { bootstrap } from "./profile-bootstrap";
 import { endpoint } from "./profile-local";
+// Optional tooling has its own dependency installation and TypeScript checks.
+// Keep it outside Start's compilation graph, and load only for the synthetic proof.
+export async function loadSchemaProvisioners() {
+	const directory = resolve(import.meta.dir, "../../../tools/appwrite-schema");
+	const baseline: {
+		provision: (db: TablesDB, id: string) => Promise<unknown>;
+	} = await import(`${directory}/provision.mts`);
+	const extension: {
+		provisionProfileV2: (db: TablesDB, id: string) => Promise<unknown>;
+	} = await import(`${directory}/profile-v2.mts`);
+	if (
+		typeof baseline.provision !== "function" ||
+		typeof extension.provisionProfileV2 !== "function"
+	)
+		throw new Error("Schema proof tooling is unavailable");
+	return { ...baseline, ...extension };
+}
 export const profileDatabase = `profile-proof-${crypto.randomUUID().slice(0, 8)}`;
 export async function provisionProfiles() {
+	const { provision, provisionProfileV2 } = await loadSchemaProvisioners();
 	const c = await bootstrap();
 	const db = new TablesDB(
 		new Client().setEndpoint(endpoint).setProject(c.project).setKey(c.proofKey),
@@ -50,6 +67,7 @@ export async function verifyProfileSchemaRerun(
 				}),
 			),
 		);
+	const { provisionProfileV2 } = await loadSchemaProvisioners();
 	const before = await snapshot();
 	await provisionProfileV2(db, profileDatabase);
 	await provisionProfileV2(db, profileDatabase);

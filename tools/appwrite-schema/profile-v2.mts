@@ -1,18 +1,19 @@
 // Additive v2. The applied v1 manifest and digest are intentionally unchanged.
 import assert from "node:assert/strict";
 import type { Models, TablesDB } from "node-appwrite";
+import {
+	profileV2Definition,
+	profileV2Digest,
+	profileV2Version,
+} from "./profile-v2-contract.mts";
 import { codeOf, waitFor } from "./provision.mts";
 import { schemaDigest, schemaVersion } from "./schema.mts";
-export const profileV2Version = "v2-club-profile";
-export const profileV2Definition = {
-	private_profiles: {
-		clubSize: { type: "integer", required: false },
-		clubPosition: { type: "string", size: 255, required: false },
-	},
-};
-export const profileV2Digest = new Bun.CryptoHasher("sha256")
-	.update(JSON.stringify(profileV2Definition))
-	.digest("hex");
+
+export {
+	profileV2Definition,
+	profileV2Digest,
+	profileV2Version,
+} from "./profile-v2-contract.mts";
 export async function provisionProfileV2(db: TablesDB, databaseId: string) {
 	const baseline = await db.getRow({
 		databaseId,

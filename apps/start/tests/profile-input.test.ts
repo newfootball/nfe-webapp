@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { publicProfile as schemaDTO } from "../../../tools/appwrite-schema/mapping.mts";
-import { profileV2Definition } from "../../../tools/appwrite-schema/profile-v2.mts";
+import { profileV2Definition } from "../../../tools/appwrite-schema/profile-v2-contract.mts";
 import { enums, schemaDigest } from "../../../tools/appwrite-schema/schema.mts";
 import { detectLocale } from "../src/lib/locale-policy";
 import { POSITIONS, publicProfile } from "../src/lib/profile-contract";

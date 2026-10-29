@@ -1,11 +1,10 @@
 # Environnements Appwrite — #46
 
-État : **draft bloqué par une assertion CORS ; préparation distante partielle**.
-La stack locale démarre et les healthchecks passent, mais `bun run proof` sort
-avec code 1 : Appwrite accepte aussi l’origine loopback `127.0.0.1`, contrairement
-à l’hypothèse du contrôle négatif. Le budget de correction partagé est épuisé
-(3/3) ; aucune correction supplémentaire ni clôture de #46 n’est prétendue. Aucun hôte permanent,
-DNS, trafic de production, compte payant ou bucket distant n’a été créé/modifié.
+État : **preuve locale complète réussie ; préparation distante partielle**.
+Les cinq contrôles réels couvrent santé serveur Bun, connexion navigateur avec
+cookies, capture SMTP Auth, refus CORS explicite et persistance après `down/up`.
+Aucun hôte permanent, DNS, trafic de production, compte payant ou bucket distant
+n’a été créé/modifié. Les gates distants de #46 restent ouverts.
 Le périmètre réduit couvre Auth et TablesDB avec PostgreSQL, Redis, Geo et les
 workers databases/deletes/mails. Il n’inclut ni Functions, Sites, Realtime, Console UI,
 ni une chaîne de transcodage ; les médias du produit restent destinés à B2.
@@ -57,10 +56,9 @@ choisir un suffixe de projet, ports et deux sous-réseaux libres ; passer ce che
 `prepare` refuse une configuration déjà créée et toute ressource préexistante
 avec le même label de projet ; il ne régénère jamais les secrets sur les données
 existantes. `stop` conserve conteneurs/volumes ; `down` supprime conteneurs et
-réseaux, **conserve les volumes** ; `up` les réutilise. La preuve automatisée prévoit cette
-persistance après `down` puis `up`, y compris la session navigateur ; ce scénario
-n’est pas atteint à cause de l’échec CORS. Une vérification serveur indépendante
-du même cycle et de la même session est consignée dans les preuves.
+réseaux, **conserve les volumes** ; `up` les réutilise. La preuve automatisée vérifie
+la persistance du même compte et de la session navigateur après `down` puis `up`.
+Une vérification serveur indépendante de ce cycle reste conservée dans l’historique.
 Le test utilise uniquement des identités `example.test`. `proof` peut être rejoué
 sur le même état ; après destruction des volumes, retirer les identifiants
 synthétiques locaux avant un nouveau bootstrap.
@@ -89,9 +87,15 @@ au poste local ; ne jamais exposer `/mail/` sur un domaine public.
 
 La preuve crée un projet Appwrite local séparé, une plateforme web `localhost`,
 un compte synthétique, une session navigateur avec cookies, puis déclenche Auth
-verification et attend la réception Mailpit. Le contrôle négatif sur `127.0.0.1` échoue : cette origine loopback est acceptée.
-Le test s’arrête donc avant son scénario de persistance navigateur ; le code est
-conservé pour revue, sans annoncer une preuve CORS négative réussie. Le healthcheck serveur est
+verification et attend la réception Mailpit. Le contrôle négatif utilise une origine
+HTTPS synthétique non enregistrée `unregistered.example.test` : seul son document
+est fourni par Playwright, les appels API atteignent le même proxy Appwrite réel.
+La permission Chromium `local-network-access` est accordée à cette seule origine
+pour laisser CORS décider, sans désactiver la sécurité web. Un appel serveur exige
+403 `general_unknown_origin` sans ACAO ; les métadonnées réseau CDP confirment le
+403 sans ACAO du navigateur, dont le JavaScript ne peut lire la réponse.
+Le contrôle positif `localhost` et la persistance navigateur passent également.
+Le healthcheck serveur est
 un vrai appel Bun vers le proxy ; **l’intégration du serveur Start n’est pas
 implémentée dans ce lot** (ses routes sont hors périmètre). Les cookies HTTP
 localhost ne prouvent pas Secure/SameSite sur les futurs sous-domaines HTTPS.
@@ -236,18 +240,18 @@ exécutées ; les gates Start réel, TLS distant, SMTP staging et restrictions B
 staging/production restent ouverts. Related #46, mission #43.
 
 
-## Validation de ce draft
+## Validation locale
 
-- Sous-package seul, copié dans un répertoire temporaire sans dépendances racine :
-  `bun install --frozen-lockfile`, typecheck, lint et build réussis. Le build garde
-  les dépendances Node externes, notamment les imports optionnels de Playwright.
-- Racine : typecheck sans incrémental, lint et build réussis ; six avertissements
-  lint, dont un de complexité dans ce générateur. Le build journalise encore
-  l’indisponibilité DB du sitemap connue ; il ne prouve pas les lectures produit.
-  Seules les valeurs auth/Resend nécessaires ont été chargées en mémoire depuis
-  le fichier protégé existant ; elles ne sont ni copiées ni imprimées.
-- `proof` : échec conservé au contrôle négatif loopback, après réussite de la
-  connexion navigateur avec cookies et de la réception Auth dans Mailpit.
-- Les ressources Docker propres au projet sont supprimées avant livraison.
+- Sous-package seul dans un répertoire temporaire sans dépendances racine :
+  installation gelée, typecheck, lint et build réussis. Les dépendances Node
+  restent externes dans le build, notamment les imports optionnels de Playwright.
+- Racine après intégration de `main` bd3951b (#79 et import identité) : typecheck,
+  lint et build réussis ; les avertissements lint existants sont conservés.
+  Le build signale encore la DB indisponible du sitemap ; il ne prouve pas les
+  lectures produit. Seules les valeurs auth/Resend nécessaires sont chargées en
+  mémoire depuis le fichier protégé, sans copie ni affichage.
+- `proof` : cinq contrôles réussis sur Appwrite réel 2.6.2 ; preuve expurgée
+  versionnée. Les anciennes tentatives échouées sont conservées dans l’état de tâche.
+- Ressources Docker propres au projet supprimées avant livraison.
   TLS distant, SMTP staging, serveur Start réel et B2 par environnement restent
-  explicitement partiels ; le draft ne ferme aucun de ces gates.
+  explicitement partiels ; cette PR ne ferme aucun de ces gates.

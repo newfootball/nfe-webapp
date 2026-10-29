@@ -169,7 +169,52 @@ async function proof() {
 			"passed: synthetic verification captured, no SMTP relay and internal-only network";
 		// Appwrite's health endpoint is public; account APIs must reject unregistered web origins.
 		phase = "denied-origin";
-		await page.goto(`http://127.0.0.1:${c.browserPort}`);
+		const deniedOrigin = "https://unregistered.example.test";
+		const deniedResponse = await fetch(`${endpoint}/account`, {
+			headers: { Origin: deniedOrigin, "X-Appwrite-Project": "nfe46-local" },
+		});
+		assert.equal(deniedResponse.status, 403);
+		assert.equal((await deniedResponse.json()).type, "general_unknown_origin");
+		assert.equal(
+			deniedResponse.headers.get("access-control-allow-origin"),
+			null,
+		);
+		// Route only the test document; API calls reach the same real Appwrite.
+		await page.route(`${deniedOrigin}/`, (route) =>
+			route.fulfill({
+				contentType: "text/html",
+				body: "<!doctype html><title>Unregistered origin</title>",
+			}),
+		);
+		// Grant Chromium local network access so CORS, rather than address-space
+		// policy, decides this request. Never disable browser web security.
+		await page
+			.context()
+			.grantPermissions(["local-network-access"], { origin: deniedOrigin });
+		await page.goto(deniedOrigin);
+		const network = await page.context().newCDPSession(page);
+		await network.send("Network.enable");
+		const accountRequests = new Set<string>();
+		network.on("Network.requestWillBeSent", ({ requestId, request }) => {
+			if (request.url === `${endpoint}/account`) accountRequests.add(requestId);
+		});
+		// Playwright response events omit CORS-denied responses; CDP retains
+		// the real wire status and headers, bound to this exact API request.
+		let wireDenied = false;
+		network.on(
+			"Network.responseReceivedExtraInfo",
+			({ requestId, statusCode, headers }) => {
+				if (accountRequests.has(requestId)) {
+					assert.equal(statusCode, 403);
+					assert.ok(
+						!Object.keys(headers).some(
+							(key) => key.toLowerCase() === "access-control-allow-origin",
+						),
+					);
+					wireDenied = true;
+				}
+			},
+		);
 		const rejected = await page.evaluate(async (endpoint) => {
 			try {
 				await fetch(`${endpoint}/account`, {
@@ -182,11 +227,16 @@ async function proof() {
 			}
 		}, endpoint);
 		assert.ok(
+			wireDenied,
+			"Browser API request must receive HTTP403 without ACAO",
+		);
+		await network.detach();
+		assert.ok(
 			rejected,
-			"Unregistered 127.0.0.1 origin must be blocked by browser CORS",
+			"Unregistered nonloopback origin must be blocked by browser CORS",
 		);
 		results.deniedOrigin =
-			"passed: unregistered 127.0.0.1 browser origin blocked";
+			"passed: unregistered nonloopback origin returns HTTP403 general_unknown_origin without ACAO; real browser response inaccessible";
 		phase = "persistence";
 		await compose("down");
 		await compose("up", "-d", "--wait", "--wait-timeout", "240");

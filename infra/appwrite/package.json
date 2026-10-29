@@ -1,0 +1,26 @@
+{
+	"name": "@nfe/appwrite-environments",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"prepare:local": "bun environment.mts prepare",
+		"validate": "bun environment.mts validate",
+		"up": "bun environment.mts up",
+		"stop": "bun environment.mts stop",
+		"down": "bun environment.mts down",
+		"destroy:local": "bun environment.mts destroy",
+		"proof": "bun proof.mts",
+		"typecheck": "tsc --noEmit",
+		"lint": "biome check .",
+		"build": "bun build environment.mts proof.mts --target=bun --packages=external --outdir=.build"
+	},
+	"dependencies": {
+		"yaml": "2.8.1"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.4.13",
+		"@types/bun": "1.3.14",
+		"playwright": "1.64.1",
+		"typescript": "5.9.3"
+	}
+}

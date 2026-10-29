@@ -1,0 +1,21 @@
+{
+	"at": "2026-10-29T10:56:01.658Z",
+	"source": {
+		"release": "2.6.2",
+		"commit": "54581f9698f9de23cf4b1432e353b3ee9b0012d5",
+		"sha256": "db8f3fb69b5ff026d3b76dd0f87b13b37cd009a838ae63e48b134292b9f6bea6"
+	},
+	"project": "nfe46-local",
+	"serverSessionPersistence": "passed: same session cookie after containers/networks recreated with retained volumes",
+	"unregisteredNonLoopbackOrigin": {
+		"status": 403,
+		"type": "general_unknown_origin",
+		"accessControlAllowOrigin": null
+	},
+	"browserProof": {
+		"authCookieLogin": "passed before failed negative check",
+		"authSmtpCapture": "passed before failed negative check",
+		"negativeLoopbackCors": "failed: 127.0.0.1 accepted",
+		"overall": "failed; budget exhausted"
+	}
+}

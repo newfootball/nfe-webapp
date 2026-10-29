@@ -1,0 +1,23 @@
+{
+	"status": "preparation-only-not-deployable",
+	"environment": "staging",
+	"confirmedHost": null,
+	"publicApiOrigin": "https://api.staging.example.invalid",
+	"webPlatformHostnames": ["staging.example.invalid"],
+	"appwriteProjectId": "nfe-staging",
+	"smtp": {
+		"mode": "capture-until-recipient-allowlist-and-domain-verified",
+		"senderDomain": null,
+		"secretReference": null
+	},
+	"b2": {
+		"privateBucket": null,
+		"region": null,
+		"serverOnlyRestrictedKeyReference": null,
+		"allowedOrigins": ["https://staging.example.invalid"],
+		"encryption": "SSE-B2",
+		"retentionDays": null,
+		"unfinishedMultipartDays": 7,
+		"monthlyBudgetUsd": null
+	}
+}

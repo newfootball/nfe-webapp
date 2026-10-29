@@ -34,5 +34,10 @@
 		"postcss.config.mjs",
 		".next/dev/types/**/*.ts"
 	],
-	"exclude": ["node_modules", "apps/start", "tools/migration-probe"]
+	"exclude": [
+		"node_modules",
+		"apps/start",
+		"tools/migration-probe",
+		"tools/appwrite-schema"
+	]
 }

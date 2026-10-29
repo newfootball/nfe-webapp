@@ -1,0 +1,87 @@
+{
+	"timestamp": "2026-10-29T07:44:41.130Z",
+	"endpoint": "http://127.0.0.1:19445/v1",
+	"matrix": {
+		"appwrite": "2.6.2",
+		"serverSdk": "31.1.0",
+		"webSdk": "29.2.0",
+		"bun": "1.3.14"
+	},
+	"results": {
+		"bootstrap": {
+			"status": "passed",
+			"detail": {
+				"version": "2.6.2"
+			}
+		},
+		"bcrypt-import-login": {
+			"status": "passed",
+			"detail": {
+				"bcryptCost": 10,
+				"serverLogin": true,
+				"webSdkLoginUnderBun": true,
+				"browserCookies": "not_run"
+			}
+		},
+		"id-boundaries": {
+			"status": "passed",
+			"detail": {
+				"accepted": ["cuid-shape", "UUID-36", "alphanumeric-36"],
+				"rejected": ["length-37", "leading-underscore", "slash"]
+			}
+		},
+		"tables-schema": {
+			"status": "passed",
+			"detail": {
+				"databaseId": "probe-8e0f1e7da268",
+				"tables": 3
+			}
+		},
+		"compound-unique": {
+			"status": "passed"
+		},
+		"case-folded-filter": {
+			"status": "passed",
+			"detail": {
+				"strategy": "materialized NFC + fr lowercase, indexed equality and substring",
+				"nativeMixedCaseContainsCount": 2,
+				"accentInsensitive": "not_run"
+			}
+		},
+		"cursor-counts": {
+			"status": "passed",
+			"detail": {
+				"ids": ["post-1", "post-2", "post-3", "post-4", "post-5"],
+				"ordering": "$id ascending, immutable unique tiebreaker",
+				"concurrentMutations": "not_run"
+			}
+		},
+		"relations": {
+			"status": "passed",
+			"detail": {
+				"relation": "posts one-to-many reports; explicit select expansion"
+			}
+		},
+		"moderation-commit": {
+			"status": "passed"
+		},
+		"moderation-rollback": {
+			"status": "passed",
+			"detail": {
+				"explicitRollback": true,
+				"automaticConflictRollback": "not_run"
+			}
+		},
+		"cascade-delete": {
+			"status": "passed",
+			"detail": {
+				"deletedParentAndReport": true,
+				"authUserAndB2ObjectCascade": "not_run"
+			}
+		}
+	},
+	"b2": {
+		"status": "not_run",
+		"reason": "No confirmed real B2 test bucket or credentials; no remote upload attempted"
+	}
+}

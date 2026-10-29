@@ -1,6 +1,13 @@
 import { chmod, readFile, writeFile } from "node:fs/promises";
-import { expect, type Page, test } from "@playwright/test";
+import {
+	type APIResponse,
+	expect,
+	type Page,
+	type Request as PlaywrightRequest,
+	test,
+} from "@playwright/test";
 import { Client, Users } from "node-appwrite";
+import { fromCrossJSON, toJSON } from "seroval";
 import { endpoint, state } from "../scripts/auth-local";
 
 const origin = "http://127.0.0.1:3511";
@@ -25,8 +32,53 @@ const secrets: string[] = [password, config.proofKey, config.sessionKey];
 function noLeaks(text: string) {
 	expect(secrets.some((secret) => text.includes(secret))).toBe(false);
 }
-async function login(page: Page, email: string, locale = "fr") {
-	await page.goto(`/${locale}/sign-in`);
+// Replay the installed Start RPC protocol, not a public REST endpoint. Cookies are
+// explicit so the API request context cannot silently supply the wrong identity.
+function rpcHeaders(cookie = "", extra: Record<string, string> = {}) {
+	return {
+		"x-tsr-serverfn": "true",
+		"content-type": "application/json",
+		Accept: "application/json",
+		Origin: origin,
+		"sec-fetch-site": "same-origin",
+		Cookie: cookie,
+		...extra,
+	};
+}
+async function rpcResult(
+	response: Pick<APIResponse, "status" | "headers" | "text">,
+) {
+	expect(response.status()).toBe(200);
+	expect(response.headers()["cache-control"]).toBe("private, no-store");
+	expect(response.headers().vary?.toLowerCase().split(/,\s*/)).toContain(
+		"cookie",
+	);
+	const text = await response.text();
+	noLeaks(text);
+	const envelope = fromCrossJSON(JSON.parse(text), {}) as {
+		result: unknown;
+		error?: unknown;
+	};
+	expect(envelope.error).toBeUndefined();
+	return envelope.result;
+}
+function rpcBody(data: unknown) {
+	return JSON.stringify(toJSON({ data }));
+}
+async function login(
+	page: Page,
+	email: string,
+	locale = "fr",
+	clientNavigation = false,
+) {
+	if (clientNavigation)
+		await page
+			.getByRole("link", {
+				name: locale === "fr" ? "Connexion" : "Sign in",
+				exact: true,
+			})
+			.click();
+	else await page.goto(`/${locale}/sign-in?returnTo=https://evil.test`);
 	await page
 		.getByLabel(locale === "fr" ? "Adresse e-mail" : "Email address")
 		.fill(email);
@@ -124,22 +176,32 @@ test("real SSR auth, A/B isolation, direct function guards, revocation and no le
 		userId: idA,
 		prefs: { role: "admin", labels: ["admin"] },
 	});
-	let direct = await request.get(adminCall.url());
-	expect(await direct.text()).toContain("unauthorized");
-	direct = await request.get(adminCall.url(), {
-		headers: { Cookie: `${cookieA.name}=${cookieA.value}` },
+	const aCookie = `${cookieA.name}=${cookieA.value}`;
+	const readRpc = (call: PlaywrightRequest, cookie = "") =>
+		request.get(call.url(), { headers: rpcHeaders(cookie) });
+	// Positive private operation establishes that the replay reaches application code.
+	expect(await rpcResult(await readRpc(privateCall, aCookie))).toEqual({
+		ok: true,
+		value: { id: idA, name: "Synthetic A", role: "member" },
 	});
-	expect(await direct.text()).toContain("forbidden");
+	expect(await rpcResult(await readRpc(adminCall))).toEqual({
+		ok: false,
+		error: "unauthorized",
+	});
+	expect(await rpcResult(await readRpc(adminCall, aCookie))).toEqual({
+		ok: false,
+		error: "forbidden",
+	});
 	await users.updateLabels({ userId: idA, labels: ["admin"] });
-	direct = await request.get(adminCall.url(), {
-		headers: { Cookie: `${cookieA.name}=${cookieA.value}` },
+	expect(await rpcResult(await readRpc(adminCall, aCookie))).toEqual({
+		ok: true,
+		value: { id: idA, role: "admin" },
 	});
-	expect(await direct.text()).toContain("admin");
 	await users.updateLabels({ userId: idA, labels: [] });
-	direct = await request.get(adminCall.url(), {
-		headers: { Cookie: `${cookieA.name}=${cookieA.value}` },
+	expect(await rpcResult(await readRpc(adminCall, aCookie))).toEqual({
+		ok: false,
+		error: "forbidden",
 	});
-	expect(await direct.text()).toContain("forbidden");
 	const mutationRequest = page.waitForRequest(
 		(r) => r.url().includes("/_serverFn/") && r.method() === "POST",
 	);
@@ -147,28 +209,81 @@ test("real SSR auth, A/B isolation, direct function guards, revocation and no le
 	await page.getByRole("button", { name: "Enregistrer", exact: true }).click();
 	const mutationCall = await mutationRequest;
 	await expect(page.getByTestId("name")).toHaveText("Synthetic A updated");
-	const contentType =
-		mutationCall.headers()["content-type"] ?? "application/json";
-	for (const badOrigin of ["https://evil.test", "null", ""]) {
-		const response = await request.post(mutationCall.url(), {
-			headers: {
-				"content-type": contentType,
-				Origin: badOrigin,
-				Cookie: `${cookieA.name}=${cookieA.value}`,
-			},
-			data: mutationCall.postData(),
+	const mutate = (
+		data: unknown,
+		cookie = aCookie,
+		extra: Record<string, string> = {},
+	) =>
+		request.post(mutationCall.url(), {
+			headers: rpcHeaders(cookie, extra),
+			data: rpcBody(data),
 		});
-		const body = await response.text();
-		expect(response.status() >= 400 || body.includes("origin")).toBe(true);
-		noLeaks(body);
-	}
-	const noIdentity = await request.post(mutationCall.url(), {
-		headers: { "content-type": contentType, Origin: origin },
-		data: mutationCall.postData(),
+	// Valid direct mutation first; only Origin changes for application-policy cases.
+	expect(await rpcResult(await mutate({ name: "Direct A" }))).toEqual({
+		ok: true,
+		value: { updated: true },
 	});
-	expect(await noIdentity.text()).toContain("unauthorized");
-	const privateGuest = await request.get(privateCall.url());
-	expect(await privateGuest.text()).toContain("unauthorized");
+	expect((await users.get({ userId: idA })).name).toBe("Direct A");
+	await users.updateLabels({ userId: idA, labels: ["admin"] });
+	expect(await rpcResult(await mutate({ name: "Direct A" }))).toEqual({
+		ok: true,
+		value: { updated: true },
+	});
+	await users.updateLabels({ userId: idA, labels: [] });
+
+	for (const badOrigin of ["https://evil.test", "null", ""]) {
+		expect(
+			await rpcResult(
+				await mutate({ name: "Origin attack" }, aCookie, { Origin: badOrigin }),
+			),
+		).toEqual({ ok: false, error: "origin" });
+		expect((await users.get({ userId: idA })).name).toBe("Direct A");
+	}
+	// Separately prove Start's Fetch Metadata CSRF rejection (before the app guard).
+	const crossSite = await mutate({ name: "CSRF attack" }, aCookie, {
+		"sec-fetch-site": "cross-site",
+	});
+	expect(crossSite.status()).toBe(403);
+	expect(await crossSite.text()).toBe("Forbidden");
+	expect((await users.get({ userId: idA })).name).toBe("Direct A");
+	for (const data of [
+		null,
+		undefined,
+		{},
+		[],
+		"invalid",
+		{ name: 7 },
+		{ name: null },
+		{ name: " " },
+		{ name: "Stolen", userId: userB.$id },
+	]) {
+		expect(await rpcResult(await mutate(data))).toEqual({
+			ok: false,
+			error: "invalid",
+		});
+		expect((await users.get({ userId: idA })).name).toBe("Direct A");
+		expect((await users.get({ userId: userB.$id })).name).toBe("Synthetic B");
+	}
+	expect(await rpcResult(await mutate({ name: "Guest attack" }, ""))).toEqual({
+		ok: false,
+		error: "unauthorized",
+	});
+	expect(await rpcResult(await readRpc(privateCall))).toEqual({
+		ok: false,
+		error: "unauthorized",
+	});
+	// Disabled identity invalidates reads and mutations without a UI route guard.
+	await users.updateStatus({ userId: idA, status: false });
+	expect(await rpcResult(await readRpc(privateCall, aCookie))).toEqual({
+		ok: false,
+		error: "unauthorized",
+	});
+	expect(await rpcResult(await mutate({ name: "Disabled attack" }))).toEqual({
+		ok: false,
+		error: "unauthorized",
+	});
+	expect((await users.get({ userId: idA })).name).toBe("Direct A");
+	await users.updateStatus({ userId: idA, status: true });
 	// B in another context gives concurrent SSR isolation for identical route/query keys.
 	const other = await browser.newContext();
 	const pageB = await other.newPage();
@@ -209,15 +324,44 @@ test("real SSR auth, A/B isolation, direct function guards, revocation and no le
 		noLeaks(body);
 	}
 	await other.close();
+	await page.reload();
+	await expect(page.getByTestId("name")).toHaveText("Direct A");
 	// Switch directly A -> B, then logout -> A, all in the same browser.
-	await login(page, emailB);
+	await page.evaluate(() =>
+		Object.assign(window, { accountSwitchWitness: true }),
+	);
+	await login(page, emailB, "fr", true);
+	expect(
+		await page.evaluate(() => Reflect.get(window, "accountSwitchWitness")),
+	).toBe(true);
 	await expect(page.getByTestId("identity")).toHaveText(userB.$id);
 	expect(await page.content()).not.toContain(idA);
-	const revokedA = await request.get(privateCall.url(), {
-		headers: { Cookie: `${cookieA.name}=${cookieA.value}` },
+	expect(await rpcResult(await readRpc(privateCall, aCookie))).toEqual({
+		ok: false,
+		error: "unauthorized",
 	});
-	expect(await revokedA.text()).toContain("unauthorized");
+	const loggedOutCookie = (await context.cookies()).find(
+		(c) => c.name === "nfe-session-dev",
+	);
+	if (!loggedOutCookie) throw new Error("Missing logout session");
+	secrets.push(loggedOutCookie.value);
+	const logoutResponse = page.waitForResponse(
+		(r) => r.url().includes("/_serverFn/") && r.request().method() === "POST",
+	);
 	await page.getByRole("button", { name: "Déconnexion", exact: true }).click();
+	expect(await rpcResult(await logoutResponse)).toEqual({
+		ok: true,
+		value: { authenticated: false },
+	});
+	await expect(page).toHaveURL(/sign-in/);
+	expect(
+		await rpcResult(
+			await readRpc(
+				privateCall,
+				`${loggedOutCookie.name}=${loggedOutCookie.value}`,
+			),
+		),
+	).toEqual({ ok: false, error: "unauthorized" });
 	await expect(page).toHaveURL(/sign-in/);
 	expect(
 		(await context.cookies()).some(
@@ -226,7 +370,7 @@ test("real SSR auth, A/B isolation, direct function guards, revocation and no le
 	).toBe(false);
 	await login(page, emailA, "en");
 	await expect(page.getByTestId("identity")).toHaveText(idA);
-	// Real server revocation is the same fail-closed boundary as an expired session.
+	// Real revocation, independently of natural expiry below.
 	await users.deleteSessions({ userId: idA });
 	await page.reload();
 	await expect(page).toHaveURL(/\/en\/sign-in/);
@@ -235,19 +379,79 @@ test("real SSR auth, A/B isolation, direct function guards, revocation and no le
 			(cookie) => cookie.name === "nfe-session-dev",
 		),
 	).toBe(false);
-	// Nonexistent and wrong-password accounts have exactly the same localized message.
-	for (const email of [emailA, `missing-${suffix}@example.test`]) {
-		await page.getByLabel("Email address").fill(email);
-		await page.getByLabel("Password").fill("Wrong-Synthetic-Password");
-		await page.getByRole("button", { name: "Sign in", exact: true }).click();
-		await expect(page.getByRole("alert")).toHaveText(
-			"Unable to authenticate with these details.",
-		);
+	// Nonexistent and wrong-password accounts have the same localized message in FR/EN.
+	for (const locale of ["fr", "en"]) {
+		await page.goto(`/${locale}/sign-in`);
+		for (const email of [emailA, `missing-${suffix}@example.test`]) {
+			await page
+				.getByLabel(locale === "fr" ? "Adresse e-mail" : "Email address")
+				.fill(email);
+			await page
+				.getByLabel(locale === "fr" ? "Mot de passe" : "Password")
+				.fill("Wrong-Synthetic-Password");
+			const failureResponse = page.waitForResponse(
+				(r) =>
+					r.url().includes("/_serverFn/") && r.request().method() === "POST",
+			);
+			await page
+				.getByRole("button", {
+					name: locale === "fr" ? "Connexion" : "Sign in",
+					exact: true,
+				})
+				.click();
+			expect(await rpcResult(await failureResponse)).toEqual({
+				ok: false,
+				error: "credentials",
+			});
+			await expect(page.getByRole("alert")).toHaveText(
+				locale === "fr"
+					? "Impossible de vous authentifier avec ces informations."
+					: "Unable to authenticate with these details.",
+			);
+		}
 	}
-	const invalid = await request.get(privateCall.url(), {
-		headers: { Cookie: "nfe-session-dev=invalid-session" },
-	});
-	expect(await invalid.text()).toContain("unauthorized");
+	expect(
+		await rpcResult(
+			await readRpc(privateCall, "nfe-session-dev=invalid-session"),
+		),
+	).toEqual({ ok: false, error: "unauthorized" });
+	// Actual project session duration is 60 seconds; never mock the clock or backend.
+	await login(page, emailA, "en");
+	const expiring = (await context.cookies()).find(
+		(c) => c.name === "nfe-session-dev",
+	);
+	if (!expiring) throw new Error("Missing expiring session");
+	secrets.push(expiring.value);
+	await writeFile(
+		`${state}/fixture.json`,
+		JSON.stringify({
+			password,
+			sessionA: cookieA.value,
+			sessionB: cookieB.value,
+			loggedOutSession: loggedOutCookie.value,
+			expiringSession: expiring.value,
+		}),
+	);
+	expect(expiring.expires * 1000 - Date.now()).toBeLessThanOrEqual(61_000);
+	expect(
+		await rpcResult(
+			await readRpc(privateCall, `${expiring.name}=${expiring.value}`),
+		),
+	).toMatchObject({ ok: true, value: { id: idA } });
+	await page.waitForTimeout(
+		Math.max(0, expiring.expires * 1000 - Date.now()) + 1500,
+	);
+	// Replay the expired secret explicitly: the backend, not only browser cookie expiry, must reject it.
+	expect(
+		await rpcResult(
+			await readRpc(privateCall, `${expiring.name}=${expiring.value}`),
+		),
+	).toEqual({ ok: false, error: "unauthorized" });
+	await page.reload();
+	await expect(page).toHaveURL(/\/en\/sign-in/);
+	expect(
+		(await context.cookies()).some((c) => c.name === "nfe-session-dev"),
+	).toBe(false);
 	// Session key cannot administer users or read private data.
 	let blocked = false;
 	try {

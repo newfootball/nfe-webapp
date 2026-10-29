@@ -32,11 +32,12 @@ function AuthPage() {
 					const data = {
 						email: String(fields.get("email")),
 						password: String(fields.get("password")),
-						name: String(fields.get("name") ?? ""),
 					};
 					try {
 						const result = signup
-							? await signUp({ data })
+							? await signUp({
+									data: { ...data, name: String(fields.get("name") ?? "") },
+								})
 							: await signIn({ data });
 						if (!result.ok) {
 							setError(t.errors[result.error]);

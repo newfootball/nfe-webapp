@@ -18,9 +18,13 @@ export async function bootstrap() {
 			sessionKey: string;
 		};
 	let cookie = "";
-	async function consoleRequest(path: string, body?: object) {
+	async function consoleRequest(
+		path: string,
+		body?: object,
+		method = body ? "POST" : "GET",
+	) {
 		const response = await fetch(`${endpoint}${path}`, {
-			method: body ? "POST" : "GET",
+			method,
 			headers: {
 				"Content-Type": "application/json",
 				"X-Appwrite-Project": "console",
@@ -56,6 +60,11 @@ export async function bootstrap() {
 		name: "Auth synthetic",
 		teamId: team.$id,
 	});
+	await consoleRequest(
+		"/projects/nfe-auth/auth/duration",
+		{ duration: 60 },
+		"PATCH",
+	);
 	const proofKey = await consoleRequest("/projects/nfe-auth/keys", {
 		keyId: "proof-key",
 		name: "Synthetic fixture management",

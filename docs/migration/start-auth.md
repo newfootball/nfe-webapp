@@ -1,27 +1,42 @@
-# Start SSR authentication — partial implementation (#51)
+# Start SSR authentication (#51)
 
-## Review status
+## Verification status
 
-**Draft, do not merge.** The implementation and proof harness are scoped to
-`apps/start`. The real synthetic Appwrite run reached signup, HttpOnly cookie
-issuance, private SSR reload and client navigation. It then failed on the first
-raw server-function replay: Start returned `403 Forbidden` before the auth guard
-because the replay did not include the same-origin/RPC headers required by Start.
-The public shell suite passes when selected explicitly with
-`PLAYWRIGHT_CHANNEL=chrome bun run --cwd apps/start smoke tests/shell.pw.ts`.
-The default `smoke` glob also selects the auth suite without its dedicated server
-configuration and currently fails; separate suite selection remains to repair.
-The proof is not green; direct function guards, concurrent A/B isolation, account
-switching, logout and revocation remain unproven. Natural time-based expiry has
-not been tested. Three repair batches have been consumed and preserved in the
-worker's canonical task state; no further repair was attempted.
+The scoped authentication proof passes against a task-owned Appwrite **2.6.2**
+instance and the **production-built** Start shell. No mocked service, clock or
+session is used. The redacted result is in
+[`apps/start/evidence/auth-synthetic.json`](../../apps/start/evidence/auth-synthetic.json).
+Independent coordinator review and exact-head hosted CI are still required.
 
-A separate self-review blocker: the sign-in form sends a shared object containing
-`name: ""`, while the credential boundary rejects an explicitly empty name. The
-login form must send only email/password or the server must validate the name only
-for signup. This issue is not repaired in this draft because the shared repair
-budget is exhausted. The tests must remain strict; a framework-level 403 must not
-be accepted as proof that an authenticated role/identity guard executed.
+The completed proof covers browser signup, successful FR/EN login, direct SSR
+reload and client navigation; direct private/admin RPC reads; protected `admin`
+label promotion/demotion and ineffective admin prefs; self mutation, anonymous
+and disabled-identity denial; exact-Origin rejection with unchanged persisted
+state; a separately identified Start CSRF 403; null/missing/wrong-type/foreign-ID
+payload rejection with sanitized `private, no-store` and `Vary: Cookie` responses;
+ten concurrent A/B SSR documents; A→B in the same live browser document and
+revocation of the previous session; completed logout and server-side revocation;
+explicit administrative revocation; and **natural 60-second session expiry**.
+The expired secret is explicitly replayed to prove server rejection in addition
+to browser cookie expiry. Wrong-password and absent accounts return the same
+FR/EN error, with each actual RPC response checked before the UI assertion.
+Safe external return paths stay on the current locale's private page.
+
+Five focused input/cache/policy tests (40 assertions) also pass. They cover
+strict signup/login/name schemas, unknown fields, HTTPS cookie configuration,
+Origin policy, safe return paths and cancellation of pending prior-account Query
+writes. The existing default public-shell smoke selects only `shell.pw.ts` and
+passes all three tests without an auth credentials fixture. Auth remains a
+separate opt-in suite. Client import protection and the secret scanner remain
+enabled; the successful proof scans built browser artifacts and the app server
+log against both generated API keys, the password and retained session secrets.
+
+Historical failed attempts and the six-batch shared repair history remain in the
+canonical orchestration task state; the final successful run supersedes those
+failures rather than reclassifying them as passes. Root and Start frozen installs
+were performed independently in a disposable validation copy. Root typecheck,
+lint, 22 unit tests and Next build passed; the synthetic build database is
+intentionally unreachable, so sitemap fallback diagnostics are expected.
 
 ## Intended boundary
 
@@ -58,7 +73,8 @@ and reject cross-site/same-site Fetch Metadata. Return paths are restricted to
 On successful login/logout, the client cancels in-flight Query requests, clears
 all Query cache data and invalidates router loaders. No auth state uses Zustand
 in this shell. A direct account switch attempts to revoke the previous session.
-These transitions still require the blocked real browser proof before approval.
+The real browser proof verifies these transitions; focused Query tests also
+verify that a late prior-account response cannot repopulate the cleared cache.
 
 ## Isolated verification
 
@@ -89,24 +105,28 @@ test is recorded as failure, not converted to success. Its server stops in a
 finally block. `auth:down` removes only this project's resources; delete the
 ignored private `.local` directory after retaining required redacted diagnostics.
 
-The integration suite intends to assert raw SSR isolation for ten concurrent
-requests, A then B in the same browser, direct unauthorized reads/mutations,
-protected role promotion/demotion without relogin, rejected origins, session
-revocation and generic FR/EN errors. Only the prefix of that suite ran in this
-draft; the JSON `testExit` and task state are authoritative.
+The dedicated project uses Appwrite's minimum supported session duration of
+60 seconds, configured only by the disposable console bootstrap. The integration
+suite completes every assertion listed above. The JSON `testExit: 0` and task
+state are authoritative; the suite is not silently included in public-shell CI.
 
 ## Migration constraints
 
 Historical infrastructure status is superseded by the passed synthetic Appwrite
 and real B2 compatibility evidence merged in PRs #73 and #74. That evidence is
 reused, not rerun here. It does not prove imported source credentials, Google
-linking/recovery, permanent hosting or production parity. Identity importer PR#75
-uses preserved public IDs and protected label `admin`; this auth draft follows
-that contract and does not edit the importer or schema. Final schema review and
-independent coordinator review remain required. Next routes/build/configuration
-are unchanged.
+linking/recovery, permanent hosting or production parity. Identity importer PR#75 is merged and
+uses preserved public IDs and protected label `admin`; this auth implementation
+follows that contract and does not edit the importer or schema. The schema
+worker's latest validation passes against base `bd3951b`, but its independent
+review/merge is still pending. This session boundary uses Account/Users identity
+contracts only, with no schema-table dependency or claim of representative-source
+compatibility. Next routes/build/configuration are unchanged.
 
 Official references:
 
 - https://appwrite.io/docs/products/auth/server-side-rendering
 - https://tanstack.com/start/latest/docs/framework/react/guide/server-functions
+
+Pinned Appwrite session-duration implementation (minimum 60 seconds):
+https://github.com/appwrite/appwrite/blob/54581f9698f9de23cf4b1432e353b3ee9b0012d5/src/Appwrite/Platform/Modules/Project/Http/Project/Policies/SessionDuration/Update.php

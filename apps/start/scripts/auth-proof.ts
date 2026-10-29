@@ -95,7 +95,7 @@ try {
 				productionGates: "not exercised",
 			},
 			null,
-			2,
+			"\t",
 		) + "\n",
 	);
 } finally {

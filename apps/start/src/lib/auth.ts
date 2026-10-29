@@ -7,15 +7,16 @@ import {
 	readSession,
 	renameSelf,
 } from "./auth.server";
+import { validateLogin, validateName, validateSignup } from "./auth-input";
 
 export const getSession = createServerFn({ method: "GET" }).handler(() =>
 	readSession(),
 );
 export const signIn = createServerFn({ method: "POST" })
-	.validator((data: { email: string; password: string }) => data)
+	.validator(validateLogin)
 	.handler(({ data }) => authenticate(data, false));
 export const signUp = createServerFn({ method: "POST" })
-	.validator((data: { email: string; password: string; name: string }) => data)
+	.validator(validateSignup)
 	.handler(({ data }) => authenticate(data, true));
 export const signOut = createServerFn({ method: "POST" }).handler(() =>
 	endSession(),
@@ -27,5 +28,5 @@ export const getAdmin = createServerFn({ method: "GET" }).handler(() =>
 	readAdmin(),
 );
 export const updateOwnName = createServerFn({ method: "POST" })
-	.validator((data: { name: string }) => data)
-	.handler(({ data }) => renameSelf(data.name));
+	.validator(validateName)
+	.handler(({ data }) => renameSelf(data));

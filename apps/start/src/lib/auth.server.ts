@@ -13,6 +13,7 @@ import {
 	ID,
 	type Models,
 } from "node-appwrite";
+import type { AuthInput } from "./auth-input";
 import { isTrustedMutation, sessionCookiePolicy } from "./auth-policy";
 
 export type AuthError =
@@ -118,28 +119,14 @@ export function readSession() {
 		}
 	});
 }
-function credentials(data: { email: string; password: string; name?: string }) {
-	if (
-		typeof data.email !== "string" ||
-		data.email.length > 254 ||
-		!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email) ||
-		typeof data.password !== "string" ||
-		data.password.length < 8 ||
-		data.password.length > 256 ||
-		(data.name !== undefined &&
-			(typeof data.name !== "string" ||
-				!data.name.trim() ||
-				data.name.length > 80))
-	)
-		throw new AuthFailure("credentials");
-}
 export function authenticate(
-	data: { email: string; password: string; name?: string },
+	input: AuthInput<{ email: string; password: string; name?: string }>,
 	signup: boolean,
 ) {
 	return boundary(async () => {
 		const config = mutation();
-		credentials(data);
+		if (!input.valid) throw new AuthFailure("credentials");
+		const data = input.data;
 		// Public signup respects Appwrite account policies. Key scope is sessions.write only.
 		if (signup) {
 			try {
@@ -227,13 +214,12 @@ export function readAdmin() {
 		return { id: viewer.id, role: viewer.role };
 	});
 }
-export function renameSelf(name: string) {
+export function renameSelf(input: AuthInput<{ name: string }>) {
 	return boundary(async () => {
 		mutation();
 		const { account } = await identity();
-		if (typeof name !== "string" || !name.trim() || name.length > 80)
-			throw new AuthFailure("invalid");
-		await account.updateName({ name: name.trim() });
+		if (!input.valid) throw new AuthFailure("invalid");
+		await account.updateName({ name: input.data.name });
 		return { updated: true as const };
 	});
 }

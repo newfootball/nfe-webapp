@@ -4,9 +4,9 @@ Independent migration shell (Refs #48). Appwrite2.6.2 and B2 compatibility
 evidence passed and was merged in PRs #73/#74. Production, representative source
 import, storage and video parity are not established by this shell.
 
-SSR authentication is a **blocked draft** (Related #51); see
+SSR authentication has a passing isolated synthetic proof (Related #51); see
 [the auth implementation and proof status](../../docs/migration/start-auth.md).
-The current login form and direct-call proof need repair before merge.
+Independent review and exact-head CI remain required; imported-source and permanent-host gates are not established.
 
 From the repository root, with Bun 1.3.14 and Node 24:
 

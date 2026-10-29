@@ -2,6 +2,11 @@ import { describe, expect, test } from "bun:test";
 import { QueryClient } from "@tanstack/react-query";
 import { clearIdentityCache } from "../src/lib/auth-cache";
 import {
+	validateLogin,
+	validateName,
+	validateSignup,
+} from "../src/lib/auth-input";
+import {
 	isTrustedMutation,
 	safeReturnPath,
 	sessionCookiePolicy,
@@ -100,4 +105,42 @@ describe("auth boundary policy", () => {
 		await pending;
 		expect(query.getQueryCache().getAll()).toEqual([]);
 	});
+});
+
+test("runtime inputs reject malformed/extra fields without echoing secrets", () => {
+	const credentials = {
+		email: "synthetic@example.test",
+		password: "Synthetic-Aa1!",
+	};
+	expect(validateLogin(credentials)).toEqual({
+		valid: true,
+		data: credentials,
+	});
+	expect(validateSignup({ ...credentials, name: " A " })).toEqual({
+		valid: true,
+		data: { ...credentials, name: "A" },
+	});
+	for (const input of [
+		undefined,
+		null,
+		[],
+		"invalid",
+		1,
+		{},
+		{ name: null },
+		{ name: 1 },
+		{ name: " " },
+		{ name: "A", userId: "victim" },
+	])
+		expect(validateName(input)).toEqual({ valid: false });
+	for (const input of [
+		undefined,
+		null,
+		{},
+		{ ...credentials, name: "" },
+		{ ...credentials, password: 1 },
+		{ ...credentials, userId: "victim" },
+	])
+		expect(validateLogin(input)).toEqual({ valid: false });
+	expect(validateSignup(credentials)).toEqual({ valid: false });
 });

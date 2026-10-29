@@ -2,7 +2,7 @@ import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
 	testDir: "./tests",
-	testMatch: "**/*.pw.ts",
+	testMatch: "shell.pw.ts",
 	use: {
 		baseURL: "http://127.0.0.1:3501",
 		headless: true,

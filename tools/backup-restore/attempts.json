@@ -1,0 +1,28 @@
+{
+	"syntheticOnly": true,
+	"acceptedRecovery": false,
+	"repairBudget": { "limit": 3, "used": 3 },
+	"attempts": [
+		{
+			"project": "nfe47-source-d578488a",
+			"phase": "prepare",
+			"result": "failed",
+			"elapsedMs": 3328,
+			"diagnosis": "Docker default address pools exhausted; no backup or restore executed",
+			"cleanup": "owned resources and plaintext configuration removed"
+		},
+		{
+			"project": "nfe47-source-82d4cf55",
+			"phase": "prepare",
+			"result": "failed",
+			"elapsedMs": 24452,
+			"diagnosis": "Explicit task networks work; a matching diagnostic reproduction reached healthy Appwrite/Redis/Geo/Appwrite PostgreSQL but the separate source PostgreSQL container exited 1; underlying source initialization failure remains unresolved",
+			"cleanup": "owned resources and plaintext configuration removed"
+		}
+	],
+	"recoveryTiming": null,
+	"recoveredCounts": null,
+	"b2Recovery": "not reached",
+	"archiveCreated": false,
+	"nextAction": "Independent review of the blocked draft; no further repairs authorized in this dispatch"
+}

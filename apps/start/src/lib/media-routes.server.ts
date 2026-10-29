@@ -1,6 +1,6 @@
 import "@tanstack/react-start/server-only";
 import { signedMedia, signedPostMedia } from "./media.server";
-import { AssetIdSchema } from "./media-contract";
+import { AssetIdSchema, PostMediaRequestSchema } from "./media-contract";
 
 const headers = {
 	"Cache-Control": "private, no-store",
@@ -21,12 +21,8 @@ export async function assetResponse(id: string) {
 }
 export async function postMediaResponse(id: string, kind: string) {
 	try {
-		if (
-			!/^[a-zA-Z0-9_-]{1,36}$/.test(id) ||
-			(kind !== "video" && kind !== "thumbnail")
-		)
-			throw new Error("Invalid descriptor");
-		const media = await signedPostMedia(id, kind);
+		const input = PostMediaRequestSchema.parse({ postId: id, kind });
+		const media = await signedPostMedia(input.postId, input.kind);
 		return new Response(null, {
 			status: 307,
 			headers: { ...headers, Location: media.url },

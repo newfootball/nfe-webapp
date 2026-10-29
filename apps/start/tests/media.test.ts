@@ -3,6 +3,7 @@ import {
 	AllocateAssetSchema,
 	AssetRequestSchema,
 	canonicalImage,
+	PostMediaRequestSchema,
 	PublishPostSchema,
 } from "../src/lib/media-contract";
 import {
@@ -13,6 +14,18 @@ import {
 
 const id = "12345678-1234-4234-8234-123456789abc";
 describe("untrusted media inputs", () => {
+	test("preserves delivered legacy post IDs containing internal dots", () => {
+		expect(
+			PostMediaRequestSchema.safeParse({
+				postId: "legacy.post-1",
+				kind: "video",
+			}).success,
+		).toBe(true);
+		for (const postId of [".leading", "../foreign", "a/b", "a?b"])
+			expect(
+				PostMediaRequestSchema.safeParse({ postId, kind: "video" }).success,
+			).toBe(false);
+	});
 	test("rejects injected storage, owner, status and upload identifiers", () => {
 		const valid = {
 			requestId: id,

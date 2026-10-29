@@ -328,14 +328,17 @@ try {
 		if (baseline && !baseline.some((r) => sameRule(r, ownRule))) {
 			const current = await cors();
 			const retained = current.filter((r) => !sameRule(r, ownRule));
-			await s3.send(
-				retained.length
-					? new PutBucketCorsCommand({
-							Bucket: b2.B2_BUCKET_NAME,
-							CORSConfiguration: { CORSRules: retained },
-						})
-					: new DeleteBucketCorsCommand({ Bucket: b2.B2_BUCKET_NAME }),
-			);
+			if (retained.length)
+				await s3.send(
+					new PutBucketCorsCommand({
+						Bucket: b2.B2_BUCKET_NAME,
+						CORSConfiguration: { CORSRules: retained },
+					}),
+				);
+			else
+				await s3.send(
+					new DeleteBucketCorsCommand({ Bucket: b2.B2_BUCKET_NAME }),
+				);
 			assert(baseline.every((r) => retained.some((v) => sameRule(r, v))));
 		}
 		report.cleanup = {

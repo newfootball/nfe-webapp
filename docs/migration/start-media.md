@@ -120,6 +120,9 @@ exact allocated object versions/upload IDs before deletion/abort. The command
 requires an expired operation lease and either CANCELLED state, or 24 hours
 without activity; it never cleans attached post media or the current avatar.
 Only the configured bucket/prefix and exact allocated random key are inspected.
+A provider request already in flight when its worker expires can finish after
+a recovery pass; fencing prevents DB resurrection, while the retained allocation
+key makes that late resource discoverable on the next explicit cleanup replay.
 Partial cleanup can be replayed with the same IDs and a new journal; unrelated
 bucket data and historical Cloudinary objects are outside this command.
 

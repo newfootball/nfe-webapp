@@ -239,6 +239,7 @@ function Publication({
 									if (file) {
 										setError("");
 										setVideo(file);
+										event.currentTarget.value = "";
 									}
 								}}
 							/>

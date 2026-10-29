@@ -192,6 +192,7 @@ test.describe("mounted synthetic media workflows", () => {
 			await expect(published).toBeVisible(); // server persistence, not only cache
 			await published.click();
 			await expect(page).toHaveURL(`${origin}${detailPath}`);
+			await expect(page.locator("article")).toHaveCount(1);
 			await expect(
 				page.getByText("Synthetic mounted UI publication", { exact: true }),
 			).toBeVisible();
@@ -219,6 +220,14 @@ test.describe("mounted synthetic media workflows", () => {
 			held.release();
 		}
 		await page.unrouteAll({ behavior: "wait" });
+		await video.getByRole("button", { name: t.resume, exact: true }).click();
+		await expect(video.getByRole("status")).toHaveText(t.phases.ready, {
+			timeout: 120_000,
+		});
+		await video.getByRole("button", { name: t.cancel, exact: true }).click();
+		await expect(video.getByLabel(t.choose)).toBeEnabled();
+		await selectVideo(page, "en");
+
 		let failed = false;
 		await page.route(partPattern, async (route) => {
 			if (route.request().method() === "PUT" && !failed) {
@@ -226,11 +235,14 @@ test.describe("mounted synthetic media workflows", () => {
 				await route.fulfill({
 					status: 503,
 					body: "Synthetic transient transport failure",
+					headers: { "access-control-allow-origin": origin },
 				});
 			} else await route.fallback();
 		});
-		await video.getByRole("button", { name: t.resume, exact: true }).click();
-		await expect(video.getByRole("status")).toHaveText(t.phases.error);
+		await video.getByRole("button", { name: t.upload, exact: true }).click();
+		await expect(video.getByRole("status")).toHaveText(t.phases.error, {
+			timeout: 15000,
+		});
 		expect(failed).toBe(true);
 		await expect(video.getByRole("alert")).toBeVisible();
 		await video.getByRole("button", { name: t.retry, exact: true }).click();
@@ -451,7 +463,10 @@ test.describe("mounted MediaPlayer engines (requires author published.json and T
 	test("WebKit: native codec playback, seek and renewal", async ({
 		playwright,
 	}, info) => {
-		const browser = await playwright.webkit.launch({ headless: true });
+		const browser = await playwright.webkit.launch({
+			channel: undefined,
+			headless: true,
+		});
 		try {
 			info.annotations.push({
 				type: "engine",

@@ -9,7 +9,7 @@
 		"start": "bun server.ts",
 		"smoke": "playwright test",
 		"check:client": "bun scripts/check-client.ts",
-		"test": "bun test tests/*.test.ts",
+		"test": "bun test tests/*.test.ts src/components/media/*.test.ts",
 		"lint": "bun ../../node_modules/@biomejs/biome/bin/biome check .",
 		"auth:prepare": "bun scripts/auth-local.ts prepare",
 		"auth:up": "bun scripts/auth-local.ts up",
@@ -22,7 +22,12 @@
 		"feed:prepare": "bun scripts/feed-local.ts prepare",
 		"feed:up": "bun scripts/feed-local.ts up",
 		"feed:down": "bun scripts/feed-local.ts down",
-		"feed:proof": "bun scripts/feed-proof.ts"
+		"feed:proof": "bun scripts/feed-proof.ts",
+		"media:prepare": "bun scripts/media-local.ts prepare",
+		"media:up": "bun scripts/media-local.ts up",
+		"media:down": "bun scripts/media-local.ts down",
+		"media:proof": "bun scripts/media-proof.ts",
+		"media:recover": "bun scripts/media-recover.ts"
 	},
 	"dependencies": {
 		"@radix-ui/react-slot": "1.2.4",

@@ -87,6 +87,10 @@ async function cors() {
 	}
 }
 let exit = 1;
+let stage = "private-bucket-preflight";
+report.startedAt = new Date().toISOString();
+await Bun.write(`${state}/test.log`, "");
+await chmod(`${state}/test.log`, 0o600);
 try {
 	const auth = await fetch(
 		"https://api.backblazeb2.com/b2api/v4/b2_authorize_account",
@@ -135,9 +139,11 @@ try {
 			buckets[0]?.bucketId === b2.B2_BUCKET_ID &&
 			buckets[0]?.bucketType === "allPrivate",
 	);
+	stage = "cors-read";
 	baseline = await cors();
 	await Bun.write(`${state}/cors-baseline.json`, JSON.stringify(baseline));
 	await chmod(`${state}/cors-baseline.json`, 0o600);
+	stage = "cors-append-own-rule";
 	if (!baseline.some((r) => sameRule(r, ownRule)))
 		await s3.send(
 			new PutBucketCorsCommand({
@@ -145,6 +151,7 @@ try {
 				CORSConfiguration: { CORSRules: [...baseline, ownRule] },
 			}),
 		);
+	stage = "cors-verification";
 	assert((await cors()).some((r) => sameRule(r, ownRule)));
 	report.cors = {
 		privateBucket: true,
@@ -186,6 +193,7 @@ try {
 		if (server.exitCode !== null) throw new Error("Server exited");
 		await Bun.sleep(250);
 	}
+	stage = "core-and-mounted-ui";
 	const tests = Bun.spawn(
 		[
 			"bun",
@@ -196,6 +204,7 @@ try {
 			"test",
 			"--config",
 			"playwright.media.config.ts",
+			"--reporter=json",
 		],
 		{ cwd: `${import.meta.dir}/..`, env, stdout: "pipe", stderr: "pipe" },
 	);
@@ -206,10 +215,63 @@ try {
 	]);
 	await Bun.write(`${state}/test.log`, out + err);
 	await chmod(`${state}/test.log`, 0o600);
+	stage = "parse-test-report";
+	const results = JSON.parse(out) as {
+		suites: {
+			title: string;
+			specs?: {
+				title: string;
+				tests: {
+					projectName: string;
+					annotations?: { type: string; description?: string }[];
+					status: string;
+					results: { status: string; duration: number }[];
+				}[];
+			}[];
+			suites?: unknown[];
+		}[];
+		stats: {
+			expected: number;
+			unexpected: number;
+			skipped: number;
+			flaky: number;
+		};
+	};
+	const checks: {
+		title: string;
+		project: string;
+		engines: string[];
+		status: string;
+		results: { status: string; duration: number }[];
+	}[] = [];
+	function collect(suites: typeof results.suites) {
+		for (const suite of suites) {
+			for (const spec of suite.specs ?? [])
+				for (const t of spec.tests)
+					checks.push({
+						title: spec.title,
+						project: t.projectName,
+						engines: (t.annotations ?? [])
+							.filter((a) => a.type === "engine")
+							.map((a) => a.description ?? ""),
+						status: t.status,
+						results: t.results.map((r) => ({
+							status: r.status,
+							duration: r.duration,
+						})),
+					});
+			if (suite.suites) collect(suite.suites as typeof results.suites);
+		}
+	}
+	collect(results.suites);
+	report.checks = checks;
+	report.stats = results.stats;
+	assert(checks.length > 0, "No executed media checks");
 	// Keep failures local: assertion diagnostics may include a short-lived capability.
 	console.log(
 		`Media browser/RPC proof exit ${code}; protected diagnostic in scripts/.media-local/test.log`,
 	);
+	stage = "secret-and-artifact-scan";
 	let files = 0;
 	for (const dir of ["dist", ".tanstack", "test-results"]) {
 		for await (const path of new Bun.Glob("**/*").scan({
@@ -243,7 +305,18 @@ try {
 	};
 	exit = code;
 	report.status = code === 0 ? "passed" : "failed";
-} catch {
+} catch (error) {
+	const failure = error as {
+		name?: string;
+		$metadata?: { httpStatusCode?: number; attempts?: number };
+	};
+	report.failureStage = stage;
+	report.failureCode =
+		failure.name && /^[A-Za-z0-9_]+$/.test(failure.name)
+			? failure.name
+			: "Suppressed";
+	report.providerHttpStatus = failure.$metadata?.httpStatusCode;
+	report.providerAttempts = failure.$metadata?.attempts;
 	report.status = "failed";
 	report.failure =
 		"Proof failed; details suppressed to protect credentials and capabilities";

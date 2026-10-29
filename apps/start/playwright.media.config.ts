@@ -2,6 +2,10 @@ import { defineConfig } from "@playwright/test";
 export default defineConfig({
 	testDir: "./tests",
 	testMatch: ["media.pw.ts", "media-ui.pw.ts"],
+	projects: [
+		{ name: "core", testMatch: "media.pw.ts" },
+		{ name: "mounted-ui", testMatch: "media-ui.pw.ts", dependencies: ["core"] },
+	],
 	workers: 1,
 	retries: 0,
 	timeout: 240000,

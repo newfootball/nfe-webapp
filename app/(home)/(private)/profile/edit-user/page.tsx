@@ -1,9 +1,6 @@
-"use client";
-
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { toast } from "sonner";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/feature/page-header";
 import {
 	Card,
@@ -12,15 +9,14 @@ import {
 	CardHeader,
 } from "@/components/ui/card";
 import { Divider } from "@/components/ui/divider";
-import { useSession } from "@/src/lib/auth-client";
+import { getEditableProfile } from "@/src/query/profile.query";
 import { UserForm } from "./user-form";
 
-export default function EditUserPage() {
-	const t = useTranslations("profile.edit-user");
-	const { data: session } = useSession();
+export default async function EditUserPage() {
+	const t = await getTranslations("profile.edit-user");
+	const user = await getEditableProfile();
 
-	if (!session?.user?.id) {
-		toast.error(t("user-not-found"));
+	if (!user) {
 		redirect("/profile");
 	}
 
@@ -33,7 +29,7 @@ export default function EditUserPage() {
 				</CardHeader>
 				<CardContent>
 					<div className="grid gap-4">
-						<UserForm userId={session.user.id} />
+						<UserForm initialUser={user} />
 						<Divider text="" />
 						<div className="flex justify-center">
 							<Link href="/profile/change-password">

@@ -17,7 +17,11 @@
 		"knip": "knip",
 		"knip:fix": "knip --fix",
 		"postinstall": "prisma generate",
-		"prepare": "husky"
+		"prepare": "husky",
+		"dev:start": "bun run --cwd apps/start dev",
+		"build:start": "bun run --cwd apps/start build",
+		"typecheck:start": "bun run --cwd apps/start typecheck",
+		"smoke:start": "bun run --cwd apps/start smoke"
 	},
 	"packageManager": "bun@1.3.3",
 	"lint-staged": {

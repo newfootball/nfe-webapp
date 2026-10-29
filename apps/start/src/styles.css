@@ -1,0 +1,11 @@
+@import "../../../app/globals.css";
+@source "../../../components/ui/button.tsx";
+@source "./";
+
+:root {
+	--font-oswald: "Arial Narrow", sans-serif;
+}
+body {
+	margin: 0;
+	font-family: Arial, sans-serif;
+}

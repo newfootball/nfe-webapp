@@ -1,0 +1,407 @@
+{
+	"at": "2026-10-29T16:09:07.479Z",
+	"appwrite": "2.6.2",
+	"sdk": "31.1.0",
+	"source": "synthetic only",
+	"timestamp": "2026-01-15T12:34:56.123Z",
+	"rows": 41,
+	"results": [
+		{
+			"name": "compound",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[11]}"
+			],
+			"ok": true,
+			"ids": [
+				"probe-040",
+				"probe-039",
+				"probe-038",
+				"probe-037",
+				"probe-036",
+				"probe-035",
+				"probe-034",
+				"probe-033",
+				"probe-032",
+				"probe-031",
+				"probe-030"
+			],
+			"total": 41
+		},
+		{
+			"name": "cursorAfter",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[11]}",
+				"{\"method\":\"cursorAfter\",\"values\":[\"probe-031\"]}"
+			],
+			"ok": true,
+			"ids": [
+				"probe-030",
+				"probe-029",
+				"probe-028",
+				"probe-027",
+				"probe-026",
+				"probe-025",
+				"probe-024",
+				"probe-023",
+				"probe-022",
+				"probe-021",
+				"probe-020"
+			],
+			"total": 41
+		},
+		{
+			"name": "seek",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[11]}",
+				"{\"method\":\"or\",\"values\":[{\"method\":\"lessThan\",\"attribute\":\"createdAt\",\"values\":[\"2026-01-15T12:34:56.123Z\"]},{\"method\":\"and\",\"values\":[{\"method\":\"equal\",\"attribute\":\"createdAt\",\"values\":[\"2026-01-15T12:34:56.123Z\"]},{\"method\":\"lessThan\",\"attribute\":\"$id\",\"values\":[\"probe-031\"]}]}]}"
+			],
+			"ok": true,
+			"ids": [
+				"probe-030",
+				"probe-029",
+				"probe-028",
+				"probe-027",
+				"probe-026",
+				"probe-025",
+				"probe-024",
+				"probe-023",
+				"probe-022",
+				"probe-021",
+				"probe-020"
+			],
+			"total": 31
+		},
+		{
+			"name": "substring-union",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"createdAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[11]}",
+				"{\"method\":\"or\",\"values\":[{\"method\":\"contains\",\"attribute\":\"titleFolded\",\"values\":[\"qui\"]},{\"method\":\"contains\",\"attribute\":\"descriptionFolded\",\"values\":[\"monst\"]}]}"
+			],
+			"ok": true,
+			"ids": [
+				"probe-040",
+				"probe-039",
+				"probe-038",
+				"probe-037",
+				"probe-036",
+				"probe-035",
+				"probe-034",
+				"probe-033",
+				"probe-032",
+				"probe-031",
+				"probe-030"
+			],
+			"total": 41
+		},
+		{
+			"name": "null-published",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"publishedAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[11]}"
+			],
+			"ok": true,
+			"ids": [
+				"probe-040",
+				"probe-039",
+				"probe-038",
+				"probe-037",
+				"probe-036",
+				"probe-035",
+				"probe-034",
+				"probe-033",
+				"probe-032",
+				"probe-031",
+				"probe-030"
+			],
+			"total": 41
+		},
+		{
+			"name": "batch-id",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"$id\",\"values\":[\"probe-000\",\"probe-001\",\"probe-002\",\"probe-003\",\"probe-004\",\"probe-005\",\"probe-006\",\"probe-007\",\"probe-008\",\"probe-009\",\"probe-010\",\"probe-011\",\"probe-012\",\"probe-013\",\"probe-014\",\"probe-015\",\"probe-016\",\"probe-017\",\"probe-018\",\"probe-019\",\"probe-020\",\"probe-021\",\"probe-022\",\"probe-023\",\"probe-024\",\"probe-025\",\"probe-026\",\"probe-027\",\"probe-028\",\"probe-029\",\"probe-030\",\"probe-031\",\"probe-032\",\"probe-033\",\"probe-034\",\"probe-035\",\"probe-036\",\"probe-037\",\"probe-038\",\"probe-039\"]}",
+				"{\"method\":\"limit\",\"values\":[41]}",
+				"{\"method\":\"select\",\"values\":[\"$id\",\"userId\"]}"
+			],
+			"ok": true,
+			"ids": [
+				"probe-000",
+				"probe-001",
+				"probe-002",
+				"probe-003",
+				"probe-004",
+				"probe-005",
+				"probe-006",
+				"probe-007",
+				"probe-008",
+				"probe-009",
+				"probe-010",
+				"probe-011",
+				"probe-012",
+				"probe-013",
+				"probe-014",
+				"probe-015",
+				"probe-016",
+				"probe-017",
+				"probe-018",
+				"probe-019",
+				"probe-020",
+				"probe-021",
+				"probe-022",
+				"probe-023",
+				"probe-024",
+				"probe-025",
+				"probe-026",
+				"probe-027",
+				"probe-028",
+				"probe-029",
+				"probe-030",
+				"probe-031",
+				"probe-032",
+				"probe-033",
+				"probe-034",
+				"probe-035",
+				"probe-036",
+				"probe-037",
+				"probe-038",
+				"probe-039"
+			],
+			"total": 40
+		}
+	],
+	"exactGroupedAndNull": [
+		{
+			"tableId": "likes",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"postId\",\"values\":[\"probe-040\",\"probe-039\",\"probe-038\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"postId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[20]}"
+			],
+			"ok": true,
+			"response": {
+				"total": 0,
+				"rows": [
+					{
+						"$id": "",
+						"$sequence": "",
+						"$tableId": "",
+						"$databaseId": "",
+						"$createdAt": "",
+						"$updatedAt": "",
+						"$permissions": [],
+						"count": 4,
+						"postId": "probe-039"
+					},
+					{
+						"$id": "",
+						"$sequence": "",
+						"$tableId": "",
+						"$databaseId": "",
+						"$createdAt": "",
+						"$updatedAt": "",
+						"$permissions": [],
+						"count": 31,
+						"postId": "probe-040"
+					}
+				]
+			}
+		},
+		{
+			"tableId": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"groupBy\",\"values\":[\"userId\"]}",
+				"{\"method\":\"count\",\"attribute\":\"$id\",\"values\":[\"count\"]}",
+				"{\"method\":\"limit\",\"values\":[20]}"
+			],
+			"ok": true,
+			"response": {
+				"total": 0,
+				"rows": [
+					{
+						"$id": "",
+						"$sequence": "",
+						"$tableId": "",
+						"$databaseId": "",
+						"$createdAt": "",
+						"$updatedAt": "",
+						"$permissions": [],
+						"count": 41,
+						"userId": "probe-author"
+					}
+				]
+			}
+		},
+		{
+			"tableId": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"publishedAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[2]}"
+			],
+			"ok": true,
+			"response": {
+				"total": 0,
+				"rows": [
+					{
+						"$id": "probe-040",
+						"$sequence": "41",
+						"$tableId": "posts",
+						"$databaseId": "feed-proof",
+						"$createdAt": "2026-10-29T16:09:07.446+00:00",
+						"$updatedAt": "2026-10-29T16:09:07.762+00:00",
+						"$permissions": ["read(\"any\")"],
+						"slug": "probe-40",
+						"userId": "probe-author",
+						"title": "Équipe Paris",
+						"titleFolded": "équipe paris",
+						"description": "Une démonstration",
+						"descriptionFolded": "une démonstration",
+						"type": null,
+						"status": "PUBLISHED",
+						"createdAt": "2026-01-15T12:34:56.123+00:00",
+						"updatedAt": "2026-01-15T12:34:56.123+00:00",
+						"expiresAt": null,
+						"validatedAt": null,
+						"publishedAt": null
+					},
+					{
+						"$id": "probe-039",
+						"$sequence": "40",
+						"$tableId": "posts",
+						"$databaseId": "feed-proof",
+						"$createdAt": "2026-10-29T16:09:07.440+00:00",
+						"$updatedAt": "2026-10-29T16:09:07.440+00:00",
+						"$permissions": ["read(\"any\")"],
+						"slug": "probe-39",
+						"userId": "probe-author",
+						"title": "Équipe Paris",
+						"titleFolded": "équipe paris",
+						"description": "Une démonstration",
+						"descriptionFolded": "une démonstration",
+						"type": null,
+						"status": "PUBLISHED",
+						"createdAt": "2026-01-15T12:34:56.123+00:00",
+						"updatedAt": "2026-01-15T12:34:56.123+00:00",
+						"expiresAt": null,
+						"validatedAt": null,
+						"publishedAt": "2026-01-15T12:34:56.123+00:00"
+					}
+				]
+			}
+		},
+		{
+			"tableId": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"isNull\",\"attribute\":\"publishedAt\"}",
+				"{\"method\":\"lessThan\",\"attribute\":\"$id\",\"values\":[\"probe-041\"]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[2]}"
+			],
+			"ok": true,
+			"response": {
+				"total": 0,
+				"rows": [
+					{
+						"$id": "probe-040",
+						"$sequence": "41",
+						"$tableId": "posts",
+						"$databaseId": "feed-proof",
+						"$createdAt": "2026-10-29T16:09:07.446+00:00",
+						"$updatedAt": "2026-10-29T16:09:07.762+00:00",
+						"$permissions": ["read(\"any\")"],
+						"slug": "probe-40",
+						"userId": "probe-author",
+						"title": "Équipe Paris",
+						"titleFolded": "équipe paris",
+						"description": "Une démonstration",
+						"descriptionFolded": "une démonstration",
+						"type": null,
+						"status": "PUBLISHED",
+						"createdAt": "2026-01-15T12:34:56.123+00:00",
+						"updatedAt": "2026-01-15T12:34:56.123+00:00",
+						"expiresAt": null,
+						"validatedAt": null,
+						"publishedAt": null
+					}
+				]
+			}
+		},
+		{
+			"tableId": "posts",
+			"queries": [
+				"{\"method\":\"equal\",\"attribute\":\"status\",\"values\":[\"PUBLISHED\"]}",
+				"{\"method\":\"or\",\"values\":[{\"method\":\"lessThan\",\"attribute\":\"publishedAt\",\"values\":[\"2026-01-15T12:34:56.123Z\"]},{\"method\":\"and\",\"values\":[{\"method\":\"equal\",\"attribute\":\"publishedAt\",\"values\":[\"2026-01-15T12:34:56.123Z\"]},{\"method\":\"lessThan\",\"attribute\":\"$id\",\"values\":[\"probe-001\"]}]},{\"method\":\"isNull\",\"attribute\":\"publishedAt\"}]}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"publishedAt\"}",
+				"{\"method\":\"orderDesc\",\"attribute\":\"$id\"}",
+				"{\"method\":\"limit\",\"values\":[3]}"
+			],
+			"ok": true,
+			"response": {
+				"total": 0,
+				"rows": [
+					{
+						"$id": "probe-040",
+						"$sequence": "41",
+						"$tableId": "posts",
+						"$databaseId": "feed-proof",
+						"$createdAt": "2026-10-29T16:09:07.446+00:00",
+						"$updatedAt": "2026-10-29T16:09:07.762+00:00",
+						"$permissions": ["read(\"any\")"],
+						"slug": "probe-40",
+						"userId": "probe-author",
+						"title": "Équipe Paris",
+						"titleFolded": "équipe paris",
+						"description": "Une démonstration",
+						"descriptionFolded": "une démonstration",
+						"type": null,
+						"status": "PUBLISHED",
+						"createdAt": "2026-01-15T12:34:56.123+00:00",
+						"updatedAt": "2026-01-15T12:34:56.123+00:00",
+						"expiresAt": null,
+						"validatedAt": null,
+						"publishedAt": null
+					},
+					{
+						"$id": "probe-000",
+						"$sequence": "1",
+						"$tableId": "posts",
+						"$databaseId": "feed-proof",
+						"$createdAt": "2026-10-29T16:09:07.233+00:00",
+						"$updatedAt": "2026-10-29T16:09:07.233+00:00",
+						"$permissions": ["read(\"any\")"],
+						"slug": "probe-0",
+						"userId": "probe-author",
+						"title": "Équipe Paris",
+						"titleFolded": "équipe paris",
+						"description": "Une démonstration",
+						"descriptionFolded": "une démonstration",
+						"type": null,
+						"status": "PUBLISHED",
+						"createdAt": "2026-01-15T12:34:56.123+00:00",
+						"updatedAt": "2026-01-15T12:34:56.123+00:00",
+						"expiresAt": null,
+						"validatedAt": null,
+						"publishedAt": "2026-01-15T12:34:56.123+00:00"
+					}
+				]
+			}
+		}
+	]
+}

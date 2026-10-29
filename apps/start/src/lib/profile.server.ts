@@ -168,7 +168,7 @@ export function completeOnboarding(input: Validated<Onboarding>) {
 		const data = input.data;
 		const profile = {
 			name: data.name,
-			nameFolded: data.name.toLocaleLowerCase("en"),
+			nameFolded: data.name.normalize("NFC").toLocaleLowerCase("fr"),
 			biography: data.biography,
 			localisation: data.city,
 			userType: data.userType,
@@ -238,7 +238,7 @@ export function editProfile(input: Validated<ProfileEdit>) {
 			viewer.id,
 			{
 				name: v.name,
-				nameFolded: v.name.toLocaleLowerCase("en"),
+				nameFolded: v.name.normalize("NFC").toLocaleLowerCase("fr"),
 				biography: v.biography,
 				localisation: v.localisation,
 				position: v.position,

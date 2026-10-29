@@ -1,6 +1,10 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
+import { getPreferredLocale } from "../lib/locale";
 export const Route = createFileRoute("/")({
-	beforeLoad: () => {
-		throw redirect({ to: "/$locale", params: { locale: "fr" } });
+	beforeLoad: async () => {
+		throw redirect({
+			to: "/$locale",
+			params: { locale: await getPreferredLocale() },
+		});
 	},
 });

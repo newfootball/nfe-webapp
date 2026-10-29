@@ -3,7 +3,7 @@ import { chmod, readFile, writeFile } from "node:fs/promises";
 import { expect, type Page, test } from "@playwright/test";
 import { Account, Client, Users } from "node-appwrite";
 import { createClient } from "redis";
-import { toJSON } from "seroval";
+import { fromCrossJSON, toJSON } from "seroval";
 import { endpoint, state } from "../scripts/recovery-local";
 
 const origin = "http://127.0.0.1:3522";
@@ -154,7 +154,18 @@ test("production UI recovery absent/existing/OAuth-only, SMTP FR/EN, password ch
 	);
 	if (!aCookie || !bCookie) throw new Error("Missing fixture session");
 	secrets.push(aCookie.value, bCookie.value);
-	await page.goto("/fr/recovery?flow=change");
+	await page.goto("/fr/profile/account-security");
+	await expect(
+		page.getByRole("heading", { name: "Sécurité du compte" }),
+	).toBeVisible();
+	await expect(page.getByLabel("Adresse e-mail")).toHaveAttribute(
+		"readonly",
+		"",
+	);
+	await page
+		.getByRole("link", { name: "Changer le mot de passe", exact: true })
+		.click();
+	await expect(page).toHaveURL(/flow=change$/);
 	await page.getByLabel("Mot de passe actuel").fill("wrong-current-password");
 	await page.getByLabel("Nouveau mot de passe").fill(newPassword);
 	await page.getByRole("button", { name: "Confirmer", exact: true }).click();
@@ -202,13 +213,17 @@ test("production UI recovery absent/existing/OAuth-only, SMTP FR/EN, password ch
 				"x-tsr-serverfn": "true",
 				"content-type": "application/json",
 				Accept: "application/json",
+				"sec-fetch-site": "same-origin",
 				...headers,
 			},
 			data: capturedBody,
 		});
 		const text = await result.text();
 		clean(text);
-		expect(text.includes('"ok":true')).toBe(false);
+		expect(result.status()).toBe(200);
+		expect(
+			(fromCrossJSON(JSON.parse(text), {}) as { result: unknown }).result,
+		).toEqual({ ok: false, error: "origin" });
 	}
 	const invalidInput = await request.post(rpcUrl, {
 		headers: {
@@ -228,7 +243,12 @@ test("production UI recovery absent/existing/OAuth-only, SMTP FR/EN, password ch
 			}),
 		),
 	});
-	clean(await invalidInput.text());
+	const invalidText = await invalidInput.text();
+	clean(invalidText);
+	expect(invalidInput.status()).toBe(200);
+	expect(
+		(fromCrossJSON(JSON.parse(invalidText), {}) as { result: unknown }).result,
+	).toEqual({ ok: false, error: "invalid" });
 	await reset(page, link);
 	await expect(page.getByRole("status")).toContainText(
 		"Modification effectuée",
@@ -371,6 +391,11 @@ test("fresh verification SMTP, replay, browser binding/state single use and dist
 		});
 		expect(alias.status()).toBe(303);
 		expect(alias.headers().location).not.toContain("token");
+		const localized = await request.get(`${origin}/${path}?token=legacy`, {
+			headers: { "Accept-Language": "en-US,en;q=0.9" },
+			maxRedirects: 0,
+		});
+		expect(localized.headers().location).toMatch(/^\/en\/recovery/);
 	}
 });
 

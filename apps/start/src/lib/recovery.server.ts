@@ -167,6 +167,7 @@ export function verificationStatus() {
 	return boundary(async () => {
 		const { user } = await identity();
 		return {
+			email: user.email,
 			verified: user.emailVerification,
 			hasPassword: Boolean(user.passwordUpdate),
 		};

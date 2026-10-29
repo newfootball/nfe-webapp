@@ -1,9 +1,11 @@
 # Start OAuth broker and account recovery
 
-Related #52 / mission #43. This is a **draft integration**, dependent on #53's
-shared auth-context acceptance. It does not activate Google on any real domain.
-The inherited `c77b515` extraction is owned/reviewed with #53; this change does not
-edit `auth-context.server.ts`, `auth.server.ts`, profile or locale helpers.
+Related #52 / mission #43. This **draft integration** includes accepted #53/PR82
+from main `15a94af46c7d9bab03d8d0dda46c2979dbbbe052`. It does not activate Google
+on any real domain. The `c77b515` context extraction was accepted through #53;
+this change leaves common auth/profile/locale helpers unchanged. The existing
+account-security page now links to the real #52 forms and reads its own email
+through the protected account API, independently of business-profile storage.
 
 ## Identity contract
 
@@ -122,7 +124,7 @@ and callback redirects set no-referrer. Configure hosting/proxies to omit query
 strings from callback access logs; application catches never log upstream errors.
 
 Legacy `/forgot-password`, `/reset-password`, `/change-password`, `/verify-email`
-redirect to the French forms. Legacy `token` query values are discarded. Fresh
+redirect through #53’s server locale helper (French fallback). Legacy `token` query values are discarded. Fresh
 links must use the new callback, not those legacy aliases. No email-edit feature
 is implemented: a separately designed, strongly proven email-change challenge
 remains an explicit partial criterion, not an unguarded account update.
@@ -170,8 +172,9 @@ least-privilege issue/delete and Account/current-session post-checks on2.6.2.
 
 ## Remaining activation / merge gates
 
-- Independent review and acceptance of #53 common context, followed by integration
-  regeneration of routeTree retaining both branches' routes and script keys.
+- Independent auth/security review of this exact #52 head and green CI. #53 common
+  context is accepted and integrated; route generation retains both branches’ routes
+  and all profile/oauth/recovery scripts. Email editing remains explicitly deferred.
 - Actual authorized, reconciled source subject registry and secure source-authorized
   import path for OAuth-only identities currently absent from Auth.
 - Real Google clients/consent/testers/TLS/domains and exact callbacks for staging

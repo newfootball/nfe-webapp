@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { readLocale } from "../lib/locale.server";
 export const Route = createFileRoute("/reset-password")({
 	server: {
 		handlers: {
-			GET: () =>
+			GET: async () =>
 				new Response(null, {
 					status: 303,
 					headers: {
-						Location: "/fr/recovery?flow=reset",
+						Location: `/${await readLocale()}/recovery?flow=reset`,
 						"Cache-Control": "private, no-store",
 						"Referrer-Policy": "no-referrer",
 					},

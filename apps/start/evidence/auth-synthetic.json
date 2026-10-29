@@ -1,0 +1,12 @@
+{
+	"at": "2026-10-29T12:56:04.744Z",
+	"appwrite": "2.6.2",
+	"project": "nfe-auth-51",
+	"source": "synthetic only",
+	"testExit": 0,
+	"sensitiveScan": {
+		"files": 22,
+		"matches": 0
+	},
+	"productionGates": "not exercised"
+}

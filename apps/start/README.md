@@ -1,8 +1,12 @@
 # Start foundation
 
-Independent migration shell (Refs #48). This is preparation only: #45 remains
-blocked on real Appwrite/B2 evidence, and this shell does not establish backend,
-authentication, storage or video parity. Neither issue is closed by this change.
+Independent migration shell (Refs #48). Appwrite2.6.2 and B2 compatibility
+evidence passed and was merged in PRs #73/#74. Production, representative source
+import, storage and video parity are not established by this shell.
+
+SSR authentication has a passing isolated synthetic proof (Related #51); see
+[the auth implementation and proof status](../../docs/migration/start-auth.md).
+Independent review and exact-head CI remain required; imported-source and permanent-host gates are not established.
 
 From the repository root, with Bun 1.3.14 and Node 24:
 
@@ -24,7 +28,7 @@ Next stays at `bun run dev` (3500), `bun run typecheck` and `bun run build`.
 Each application has its own manifest, lockfile and TypeScript boundary. Root
 installation is also required because Start reuses the existing shadcn Button and
 its `cn` helper. Vite deduplicates React. Existing CSS tokens and public assets
-are reused; font fallback replaces Next's font loader. No business page is ported.
+are reused; font fallback replaces Next's font loader. Only a scoped authentication/private identity page is added; no business page is ported.
 
 Routes: `/` redirects to `/fr`; `/fr`, `/en`, and their `/about` pages.
 Unknown routes/locales return 404. The root supplies a recoverable error boundary.
@@ -33,10 +37,11 @@ Query integration creates one QueryClient per router/SSR request and hydrates it
 A bounded, synthetic `nfe-shell-reader` cookie (not authentication) exercises SSR
 cache isolation; responses containing it use `private, no-store`.
 
-No environment variables or external services are required. An optional
+Public shell routes need no external service. Auth routes require the private
+runtime configuration documented in `docs/migration/start-auth.md`. An optional
 `VITE_APP_NAME` is explicitly validated in `env-public.ts`. Only Vite-prefixed
 values are public; never prefix credentials with `VITE_`. Private configuration
-is validated per request in `env.server.ts`; no backend credentials are defined.
+is validated per request in `env.server.ts`; auth configuration remains server-only.
 Start loads only its own env directory. Server functions bridge isomorphic
 loaders to `.server.ts` modules; import protection fails on boundary violations.
 No root auth/Prisma/Next server module is imported.

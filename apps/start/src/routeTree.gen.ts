@@ -13,6 +13,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as LocaleRouteImport } from './routes/$locale'
 import { Route as LocaleIndexRouteImport } from './routes/$locale.index'
 import { Route as LocaleAboutRouteImport } from './routes/$locale.about'
+import { Route as LocalePrivateRouteImport } from './routes/$locale.private'
+import { Route as LocaleSignInRouteImport } from './routes/$locale.sign-in'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,16 +36,30 @@ const LocaleAboutRoute = LocaleAboutRouteImport.update({
   path: '/about',
   getParentRoute: () => LocaleRoute,
 } as any)
+const LocalePrivateRoute = LocalePrivateRouteImport.update({
+  id: '/private',
+  path: '/private',
+  getParentRoute: () => LocaleRoute,
+} as any)
+const LocaleSignInRoute = LocaleSignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => LocaleRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$locale': typeof LocaleRouteWithChildren
   '/$locale/about': typeof LocaleAboutRoute
+  '/$locale/private': typeof LocalePrivateRoute
+  '/$locale/sign-in': typeof LocaleSignInRoute
   '/$locale/': typeof LocaleIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/$locale/about': typeof LocaleAboutRoute
+  '/$locale/private': typeof LocalePrivateRoute
+  '/$locale/sign-in': typeof LocaleSignInRoute
   '/$locale': typeof LocaleIndexRoute
 }
 export interface FileRoutesById {
@@ -51,14 +67,34 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/$locale': typeof LocaleRouteWithChildren
   '/$locale/about': typeof LocaleAboutRoute
+  '/$locale/private': typeof LocalePrivateRoute
+  '/$locale/sign-in': typeof LocaleSignInRoute
   '/$locale/': typeof LocaleIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/$locale' | '/$locale/about' | '/$locale/'
+  fullPaths:
+    | '/'
+    | '/$locale'
+    | '/$locale/about'
+    | '/$locale/private'
+    | '/$locale/sign-in'
+    | '/$locale/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/$locale/about' | '/$locale'
-  id: '__root__' | '/' | '/$locale' | '/$locale/about' | '/$locale/'
+  to:
+    | '/'
+    | '/$locale/about'
+    | '/$locale/private'
+    | '/$locale/sign-in'
+    | '/$locale'
+  id:
+    | '__root__'
+    | '/'
+    | '/$locale'
+    | '/$locale/about'
+    | '/$locale/private'
+    | '/$locale/sign-in'
+    | '/$locale/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -96,16 +132,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocaleAboutRouteImport
       parentRoute: typeof LocaleRoute
     }
+    '/$locale/private': {
+      id: '/$locale/private'
+      path: '/private'
+      fullPath: '/$locale/private'
+      preLoaderRoute: typeof LocalePrivateRouteImport
+      parentRoute: typeof LocaleRoute
+    }
+    '/$locale/sign-in': {
+      id: '/$locale/sign-in'
+      path: '/sign-in'
+      fullPath: '/$locale/sign-in'
+      preLoaderRoute: typeof LocaleSignInRouteImport
+      parentRoute: typeof LocaleRoute
+    }
   }
 }
 
 interface LocaleRouteChildren {
   LocaleAboutRoute: typeof LocaleAboutRoute
+  LocalePrivateRoute: typeof LocalePrivateRoute
+  LocaleSignInRoute: typeof LocaleSignInRoute
   LocaleIndexRoute: typeof LocaleIndexRoute
 }
 
 const LocaleRouteChildren: LocaleRouteChildren = {
   LocaleAboutRoute: LocaleAboutRoute,
+  LocalePrivateRoute: LocalePrivateRoute,
+  LocaleSignInRoute: LocaleSignInRoute,
   LocaleIndexRoute: LocaleIndexRoute,
 }
 

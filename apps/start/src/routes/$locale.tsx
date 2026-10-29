@@ -5,6 +5,7 @@ import {
 	Outlet,
 } from "@tanstack/react-router";
 import { Button } from "../../../../components/ui/button";
+import { authMessages } from "../lib/auth-messages";
 import { publicEnv } from "../lib/env-public";
 import { type Locale, messages } from "../lib/messages";
 import { ThemeToggle } from "./__root";
@@ -49,6 +50,16 @@ function Layout() {
 						</Link>
 					</Button>
 				</nav>
+				<Link
+					to="/$locale/sign-in"
+					params={{ locale }}
+					search={{ returnTo: "" }}
+				>
+					{authMessages[locale].signIn}
+				</Link>
+				<Link to="/$locale/private" params={{ locale }}>
+					{authMessages[locale].private}
+				</Link>
 				<ThemeToggle label={t.theme} />
 			</header>
 			<main className="py-16">

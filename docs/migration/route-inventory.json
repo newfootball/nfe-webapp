@@ -1,377 +1,303 @@
 {
-  "base": "7b284f689493badafc37231348ee01f975321c2f",
-  "scope": "All app/**/page.tsx and app/**/route.ts; metadata endpoints documented in parity-matrix.md",
-  "routes": [
-    {
-      "url": "/forgot-password",
-      "file": "app/(home)/(auth)/forgot-password/page.tsx",
-      "kind": "page",
-      "access": "anonymous; session → /",
-      "tickets": [
-        "#52"
-      ],
-      "journey": "auth",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/reset-password",
-      "file": "app/(home)/(auth)/reset-password/page.tsx",
-      "kind": "page",
-      "access": "anonymous; session → /",
-      "tickets": [
-        "#52"
-      ],
-      "journey": "auth",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/sign-in",
-      "file": "app/(home)/(auth)/sign-in/page.tsx",
-      "kind": "page",
-      "access": "anonymous; session → /",
-      "tickets": [
-        "#51",
-        "#52"
-      ],
-      "journey": "auth",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/sign-up",
-      "file": "app/(home)/(auth)/sign-up/page.tsx",
-      "kind": "page",
-      "access": "anonymous; session → /",
-      "tickets": [
-        "#51",
-        "#52"
-      ],
-      "journey": "auth",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/admin",
-      "file": "app/(home)/(private)/admin/page.tsx",
-      "kind": "page",
-      "access": "session and ADMIN; non-admin → /",
-      "tickets": [
-        "#60"
-      ],
-      "journey": "admin",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/admin/signals",
-      "file": "app/(home)/(private)/admin/signals/page.tsx",
-      "kind": "page",
-      "access": "session and ADMIN; non-admin → /",
-      "tickets": [
-        "#60"
-      ],
-      "journey": "admin",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/admin/users",
-      "file": "app/(home)/(private)/admin/users/page.tsx",
-      "kind": "page",
-      "access": "session and ADMIN; non-admin → /",
-      "tickets": [
-        "#60"
-      ],
-      "journey": "admin",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/messages/[user_id]",
-      "file": "app/(home)/(private)/messages/[user_id]/page.tsx",
-      "kind": "page",
-      "access": "session; pair constrained to session",
-      "tickets": [
-        "#59"
-      ],
-      "journey": "messages",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/messages",
-      "file": "app/(home)/(private)/messages/page.tsx",
-      "kind": "page",
-      "access": "session",
-      "tickets": [
-        "#59"
-      ],
-      "journey": "messages",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/notifications",
-      "file": "app/(home)/(private)/notifications/page.tsx",
-      "kind": "page",
-      "access": "session",
-      "tickets": [
-        "#58"
-      ],
-      "journey": "notifications",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/onboarding",
-      "file": "app/(home)/(private)/onboarding/page.tsx",
-      "kind": "page",
-      "access": "session; completed → /",
-      "tickets": [
-        "#53"
-      ],
-      "journey": "onboarding",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/post/[id]/edit",
-      "file": "app/(home)/(private)/post/[id]/edit/page.tsx",
-      "kind": "page",
-      "access": "session and owner; missing or non-owner → notFound",
-      "tickets": [
-        "#56"
-      ],
-      "journey": "posts",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/post/my",
-      "file": "app/(home)/(private)/post/my/page.tsx",
-      "kind": "page",
-      "access": "session",
-      "tickets": [
-        "#56"
-      ],
-      "journey": "posts",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/post/new",
-      "file": "app/(home)/(private)/post/new/page.tsx",
-      "kind": "page",
-      "access": "session",
-      "tickets": [
-        "#55"
-      ],
-      "journey": "posts",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/profile/change-password",
-      "file": "app/(home)/(private)/profile/change-password/page.tsx",
-      "kind": "page",
-      "access": "session",
-      "tickets": [
-        "#52"
-      ],
-      "journey": "auth",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/profile/edit-user",
-      "file": "app/(home)/(private)/profile/edit-user/page.tsx",
-      "kind": "page",
-      "access": "session; missing user → /profile",
-      "tickets": [
-        "#53"
-      ],
-      "journey": "profile",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/profile/favorites",
-      "file": "app/(home)/(private)/profile/favorites/page.tsx",
-      "kind": "page",
-      "access": "session",
-      "tickets": [
-        "#57"
-      ],
-      "journey": "favorites",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/profile",
-      "file": "app/(home)/(private)/profile/page.tsx",
-      "kind": "page",
-      "access": "session",
-      "tickets": [
-        "#53"
-      ],
-      "journey": "profile",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/about-us",
-      "file": "app/(home)/(public)/about-us/page.tsx",
-      "kind": "page",
-      "access": "public",
-      "tickets": [
-        "#61"
-      ],
-      "journey": "static",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/contact",
-      "file": "app/(home)/(public)/contact/page.tsx",
-      "kind": "page",
-      "access": "public",
-      "tickets": [
-        "#61",
-        "#62"
-      ],
-      "journey": "static",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/explore",
-      "file": "app/(home)/(public)/explore/page.tsx",
-      "kind": "page",
-      "access": "public",
-      "tickets": [
-        "#54"
-      ],
-      "journey": "explore",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/",
-      "file": "app/(home)/(public)/page.tsx",
-      "kind": "page",
-      "access": "public; seen_splash absent → /splash",
-      "tickets": [
-        "#54",
-        "#61"
-      ],
-      "journey": "feed",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/post/[id]",
-      "file": "app/(home)/(public)/post/[id]/page.tsx",
-      "kind": "page",
-      "access": "public; missing → notFound; no status filter",
-      "tickets": [
-        "#54",
-        "#61"
-      ],
-      "journey": "post",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/privacy",
-      "file": "app/(home)/(public)/privacy/page.tsx",
-      "kind": "page",
-      "access": "public",
-      "tickets": [
-        "#61"
-      ],
-      "journey": "static",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/terms",
-      "file": "app/(home)/(public)/terms/page.tsx",
-      "kind": "page",
-      "access": "public",
-      "tickets": [
-        "#61"
-      ],
-      "journey": "static",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/user/[id]",
-      "file": "app/(home)/(public)/user/[id]/page.tsx",
-      "kind": "page",
-      "access": "public; missing → notFound",
-      "tickets": [
-        "#53",
-        "#61"
-      ],
-      "journey": "profile",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/[userType]",
-      "file": "app/(public)/[userType]/page.tsx",
-      "kind": "page",
-      "access": "public; players/coaches/recruiters/clubs; invalid → notFound",
-      "tickets": [
-        "#61"
-      ],
-      "journey": "seo",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/players/[position]",
-      "file": "app/(public)/players/[position]/page.tsx",
-      "kind": "page",
-      "access": "public; invalid → notFound",
-      "tickets": [
-        "#61"
-      ],
-      "journey": "seo",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/players/city/[city]",
-      "file": "app/(public)/players/city/[city]/page.tsx",
-      "kind": "page",
-      "access": "public; invalid → notFound",
-      "tickets": [
-        "#61"
-      ],
-      "journey": "seo",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/api/auth/[...all]",
-      "file": "app/api/auth/[...all]/route.ts",
-      "kind": "api",
-      "access": "better-auth GET/POST handler",
-      "tickets": [
-        "#51",
-        "#52"
-      ],
-      "journey": "api",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/api/auth/reset-password",
-      "file": "app/api/auth/reset-password/route.ts",
-      "kind": "api",
-      "access": "POST; 400 invalid, 200 accepted, 500 exception",
-      "tickets": [
-        "#52"
-      ],
-      "journey": "api",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/offline",
-      "file": "app/offline/page.tsx",
-      "kind": "page",
-      "access": "public",
-      "tickets": [
-        "#62"
-      ],
-      "journey": "offline",
-      "evidence": "code inspection; HTTP response not tested"
-    },
-    {
-      "url": "/splash",
-      "file": "app/splash/page.tsx",
-      "kind": "page",
-      "access": "public",
-      "tickets": [
-        "#61",
-        "#62"
-      ],
-      "journey": "splash",
-      "evidence": "code inspection; HTTP response not tested"
-    }
-  ]
+	"base": "7b284f689493badafc37231348ee01f975321c2f",
+	"scope": "All app/**/page.tsx and app/**/route.ts; metadata endpoints documented in parity-matrix.md",
+	"routes": [
+		{
+			"url": "/forgot-password",
+			"file": "app/(home)/(auth)/forgot-password/page.tsx",
+			"kind": "page",
+			"access": "anonymous; session → /",
+			"tickets": ["#52"],
+			"journey": "auth",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/reset-password",
+			"file": "app/(home)/(auth)/reset-password/page.tsx",
+			"kind": "page",
+			"access": "anonymous; session → /",
+			"tickets": ["#52"],
+			"journey": "auth",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/sign-in",
+			"file": "app/(home)/(auth)/sign-in/page.tsx",
+			"kind": "page",
+			"access": "anonymous; session → /",
+			"tickets": ["#51", "#52"],
+			"journey": "auth",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/sign-up",
+			"file": "app/(home)/(auth)/sign-up/page.tsx",
+			"kind": "page",
+			"access": "anonymous; session → /",
+			"tickets": ["#51", "#52"],
+			"journey": "auth",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/admin",
+			"file": "app/(home)/(private)/admin/page.tsx",
+			"kind": "page",
+			"access": "session and ADMIN; non-admin → /",
+			"tickets": ["#60"],
+			"journey": "admin",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/admin/signals",
+			"file": "app/(home)/(private)/admin/signals/page.tsx",
+			"kind": "page",
+			"access": "session and ADMIN; non-admin → /",
+			"tickets": ["#60"],
+			"journey": "admin",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/admin/users",
+			"file": "app/(home)/(private)/admin/users/page.tsx",
+			"kind": "page",
+			"access": "session and ADMIN; non-admin → /",
+			"tickets": ["#60"],
+			"journey": "admin",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/messages/[user_id]",
+			"file": "app/(home)/(private)/messages/[user_id]/page.tsx",
+			"kind": "page",
+			"access": "session; pair constrained to session",
+			"tickets": ["#59"],
+			"journey": "messages",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/messages",
+			"file": "app/(home)/(private)/messages/page.tsx",
+			"kind": "page",
+			"access": "session",
+			"tickets": ["#59"],
+			"journey": "messages",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/notifications",
+			"file": "app/(home)/(private)/notifications/page.tsx",
+			"kind": "page",
+			"access": "session",
+			"tickets": ["#58"],
+			"journey": "notifications",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/onboarding",
+			"file": "app/(home)/(private)/onboarding/page.tsx",
+			"kind": "page",
+			"access": "session; completed → /",
+			"tickets": ["#53"],
+			"journey": "onboarding",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/post/[id]/edit",
+			"file": "app/(home)/(private)/post/[id]/edit/page.tsx",
+			"kind": "page",
+			"access": "session and owner; missing or non-owner → notFound",
+			"tickets": ["#56"],
+			"journey": "posts",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/post/my",
+			"file": "app/(home)/(private)/post/my/page.tsx",
+			"kind": "page",
+			"access": "session",
+			"tickets": ["#56"],
+			"journey": "posts",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/post/new",
+			"file": "app/(home)/(private)/post/new/page.tsx",
+			"kind": "page",
+			"access": "session",
+			"tickets": ["#55"],
+			"journey": "posts",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/profile/change-password",
+			"file": "app/(home)/(private)/profile/change-password/page.tsx",
+			"kind": "page",
+			"access": "session",
+			"tickets": ["#52"],
+			"journey": "auth",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/profile/edit-user",
+			"file": "app/(home)/(private)/profile/edit-user/page.tsx",
+			"kind": "page",
+			"access": "session; missing user → /profile",
+			"tickets": ["#53"],
+			"journey": "profile",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/profile/favorites",
+			"file": "app/(home)/(private)/profile/favorites/page.tsx",
+			"kind": "page",
+			"access": "session",
+			"tickets": ["#57"],
+			"journey": "favorites",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/profile",
+			"file": "app/(home)/(private)/profile/page.tsx",
+			"kind": "page",
+			"access": "session",
+			"tickets": ["#53"],
+			"journey": "profile",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/about-us",
+			"file": "app/(home)/(public)/about-us/page.tsx",
+			"kind": "page",
+			"access": "public",
+			"tickets": ["#61"],
+			"journey": "static",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/contact",
+			"file": "app/(home)/(public)/contact/page.tsx",
+			"kind": "page",
+			"access": "public",
+			"tickets": ["#61", "#62"],
+			"journey": "static",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/explore",
+			"file": "app/(home)/(public)/explore/page.tsx",
+			"kind": "page",
+			"access": "public",
+			"tickets": ["#54"],
+			"journey": "explore",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/",
+			"file": "app/(home)/(public)/page.tsx",
+			"kind": "page",
+			"access": "public; seen_splash absent → /splash",
+			"tickets": ["#54", "#61"],
+			"journey": "feed",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/post/[id]",
+			"file": "app/(home)/(public)/post/[id]/page.tsx",
+			"kind": "page",
+			"access": "public; missing → notFound; no status filter",
+			"tickets": ["#54", "#61"],
+			"journey": "post",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/privacy",
+			"file": "app/(home)/(public)/privacy/page.tsx",
+			"kind": "page",
+			"access": "public",
+			"tickets": ["#61"],
+			"journey": "static",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/terms",
+			"file": "app/(home)/(public)/terms/page.tsx",
+			"kind": "page",
+			"access": "public",
+			"tickets": ["#61"],
+			"journey": "static",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/user/[id]",
+			"file": "app/(home)/(public)/user/[id]/page.tsx",
+			"kind": "page",
+			"access": "public; missing → notFound",
+			"tickets": ["#53", "#61"],
+			"journey": "profile",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/[userType]",
+			"file": "app/(public)/[userType]/page.tsx",
+			"kind": "page",
+			"access": "public; players/coaches/recruiters/clubs; invalid → notFound",
+			"tickets": ["#61"],
+			"journey": "seo",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/players/[position]",
+			"file": "app/(public)/players/[position]/page.tsx",
+			"kind": "page",
+			"access": "public; invalid → notFound",
+			"tickets": ["#61"],
+			"journey": "seo",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/players/city/[city]",
+			"file": "app/(public)/players/city/[city]/page.tsx",
+			"kind": "page",
+			"access": "public; invalid → notFound",
+			"tickets": ["#61"],
+			"journey": "seo",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/api/auth/[...all]",
+			"file": "app/api/auth/[...all]/route.ts",
+			"kind": "api",
+			"access": "better-auth GET/POST handler",
+			"tickets": ["#51", "#52"],
+			"journey": "api",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/api/auth/reset-password",
+			"file": "app/api/auth/reset-password/route.ts",
+			"kind": "api",
+			"access": "POST; 400 invalid, 200 accepted, 500 exception",
+			"tickets": ["#52"],
+			"journey": "api",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/offline",
+			"file": "app/offline/page.tsx",
+			"kind": "page",
+			"access": "public",
+			"tickets": ["#62"],
+			"journey": "offline",
+			"evidence": "code inspection; HTTP response not tested"
+		},
+		{
+			"url": "/splash",
+			"file": "app/splash/page.tsx",
+			"kind": "page",
+			"access": "public",
+			"tickets": ["#61", "#62"],
+			"journey": "splash",
+			"evidence": "code inspection; HTTP response not tested"
+		}
+	]
 }

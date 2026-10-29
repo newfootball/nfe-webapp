@@ -27,6 +27,10 @@ export const AssetRequestSchema = z.strictObject({ assetId: AssetIdSchema });
 export const PartRequestSchema = AssetRequestSchema.extend({
 	partNumber: z.number().int().min(1).max(103),
 });
+export const PostMediaRequestSchema = z.strictObject({
+	postId: z.string().regex(/^[a-zA-Z0-9_-]{1,36}$/),
+	kind: z.enum(["video", "thumbnail"]),
+});
 export const PublishPostSchema = z.strictObject({
 	requestId: AssetIdSchema,
 	title: z.string().trim().min(1).max(200),

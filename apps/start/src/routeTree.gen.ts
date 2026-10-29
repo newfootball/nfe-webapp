@@ -22,6 +22,7 @@ import { Route as LocaleOnboardingRouteImport } from './routes/$locale.onboardin
 import { Route as LocalePrivateRouteImport } from './routes/$locale.private'
 import { Route as LocaleProfileRouteImport } from './routes/$locale.profile'
 import { Route as LocaleSignInRouteImport } from './routes/$locale.sign-in'
+import { Route as MediaIdRouteImport } from './routes/media.$id'
 import { Route as PostIdRouteImport } from './routes/post.$id'
 import { Route as ProfileAccountSecurityRouteImport } from './routes/profile_.account-security'
 import { Route as ProfileEditUserRouteImport } from './routes/profile_.edit-user'
@@ -30,6 +31,7 @@ import { Route as LocalePostIdRouteImport } from './routes/$locale.post.$id'
 import { Route as LocaleProfileAccountSecurityRouteImport } from './routes/$locale.profile_.account-security'
 import { Route as LocaleProfileEditUserRouteImport } from './routes/$locale.profile_.edit-user'
 import { Route as LocaleUserIdRouteImport } from './routes/$locale.user.$id'
+import { Route as PostMediaIdKindRouteImport } from './routes/post-media.$id.$kind'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -96,6 +98,11 @@ const LocaleSignInRoute = LocaleSignInRouteImport.update({
   path: '/sign-in',
   getParentRoute: () => LocaleRoute,
 } as any)
+const MediaIdRoute = MediaIdRouteImport.update({
+  id: '/media/$id',
+  path: '/media/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PostIdRoute = PostIdRouteImport.update({
   id: '/post/$id',
   path: '/post/$id',
@@ -137,6 +144,11 @@ const LocaleUserIdRoute = LocaleUserIdRouteImport.update({
   path: '/user/$id',
   getParentRoute: () => LocaleRoute,
 } as any)
+const PostMediaIdKindRoute = PostMediaIdKindRouteImport.update({
+  id: '/post-media/$id/$kind',
+  path: '/post-media/$id/$kind',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -151,6 +163,7 @@ export interface FileRoutesByFullPath {
   '/$locale/private': typeof LocalePrivateRoute
   '/$locale/profile': typeof LocaleProfileRoute
   '/$locale/sign-in': typeof LocaleSignInRoute
+  '/media/$id': typeof MediaIdRoute
   '/post/$id': typeof PostIdRoute
   '/profile/account-security': typeof ProfileAccountSecurityRoute
   '/profile/edit-user': typeof ProfileEditUserRoute
@@ -160,6 +173,7 @@ export interface FileRoutesByFullPath {
   '/$locale/profile/account-security': typeof LocaleProfileAccountSecurityRoute
   '/$locale/profile/edit-user': typeof LocaleProfileEditUserRoute
   '/$locale/user/$id': typeof LocaleUserIdRoute
+  '/post-media/$id/$kind': typeof PostMediaIdKindRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -173,6 +187,7 @@ export interface FileRoutesByTo {
   '/$locale/private': typeof LocalePrivateRoute
   '/$locale/profile': typeof LocaleProfileRoute
   '/$locale/sign-in': typeof LocaleSignInRoute
+  '/media/$id': typeof MediaIdRoute
   '/post/$id': typeof PostIdRoute
   '/profile/account-security': typeof ProfileAccountSecurityRoute
   '/profile/edit-user': typeof ProfileEditUserRoute
@@ -182,6 +197,7 @@ export interface FileRoutesByTo {
   '/$locale/profile/account-security': typeof LocaleProfileAccountSecurityRoute
   '/$locale/profile/edit-user': typeof LocaleProfileEditUserRoute
   '/$locale/user/$id': typeof LocaleUserIdRoute
+  '/post-media/$id/$kind': typeof PostMediaIdKindRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -197,6 +213,7 @@ export interface FileRoutesById {
   '/$locale/private': typeof LocalePrivateRoute
   '/$locale/profile': typeof LocaleProfileRoute
   '/$locale/sign-in': typeof LocaleSignInRoute
+  '/media/$id': typeof MediaIdRoute
   '/post/$id': typeof PostIdRoute
   '/profile_/account-security': typeof ProfileAccountSecurityRoute
   '/profile_/edit-user': typeof ProfileEditUserRoute
@@ -206,6 +223,7 @@ export interface FileRoutesById {
   '/$locale/profile_/account-security': typeof LocaleProfileAccountSecurityRoute
   '/$locale/profile_/edit-user': typeof LocaleProfileEditUserRoute
   '/$locale/user/$id': typeof LocaleUserIdRoute
+  '/post-media/$id/$kind': typeof PostMediaIdKindRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -222,6 +240,7 @@ export interface FileRouteTypes {
     | '/$locale/private'
     | '/$locale/profile'
     | '/$locale/sign-in'
+    | '/media/$id'
     | '/post/$id'
     | '/profile/account-security'
     | '/profile/edit-user'
@@ -231,6 +250,7 @@ export interface FileRouteTypes {
     | '/$locale/profile/account-security'
     | '/$locale/profile/edit-user'
     | '/$locale/user/$id'
+    | '/post-media/$id/$kind'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -244,6 +264,7 @@ export interface FileRouteTypes {
     | '/$locale/private'
     | '/$locale/profile'
     | '/$locale/sign-in'
+    | '/media/$id'
     | '/post/$id'
     | '/profile/account-security'
     | '/profile/edit-user'
@@ -253,6 +274,7 @@ export interface FileRouteTypes {
     | '/$locale/profile/account-security'
     | '/$locale/profile/edit-user'
     | '/$locale/user/$id'
+    | '/post-media/$id/$kind'
   id:
     | '__root__'
     | '/'
@@ -267,6 +289,7 @@ export interface FileRouteTypes {
     | '/$locale/private'
     | '/$locale/profile'
     | '/$locale/sign-in'
+    | '/media/$id'
     | '/post/$id'
     | '/profile_/account-security'
     | '/profile_/edit-user'
@@ -276,6 +299,7 @@ export interface FileRouteTypes {
     | '/$locale/profile_/account-security'
     | '/$locale/profile_/edit-user'
     | '/$locale/user/$id'
+    | '/post-media/$id/$kind'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -284,10 +308,12 @@ export interface RootRouteChildren {
   ExploreRoute: typeof ExploreRoute
   OnboardingRoute: typeof OnboardingRoute
   ProfileRoute: typeof ProfileRoute
+  MediaIdRoute: typeof MediaIdRoute
   PostIdRoute: typeof PostIdRoute
   ProfileAccountSecurityRoute: typeof ProfileAccountSecurityRoute
   ProfileEditUserRoute: typeof ProfileEditUserRoute
   UserIdRoute: typeof UserIdRoute
+  PostMediaIdKindRoute: typeof PostMediaIdKindRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -383,6 +409,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocaleSignInRouteImport
       parentRoute: typeof LocaleRoute
     }
+    '/media/$id': {
+      id: '/media/$id'
+      path: '/media/$id'
+      fullPath: '/media/$id'
+      preLoaderRoute: typeof MediaIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/post/$id': {
       id: '/post/$id'
       path: '/post/$id'
@@ -439,6 +472,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocaleUserIdRouteImport
       parentRoute: typeof LocaleRoute
     }
+    '/post-media/$id/$kind': {
+      id: '/post-media/$id/$kind'
+      path: '/post-media/$id/$kind'
+      fullPath: '/post-media/$id/$kind'
+      preLoaderRoute: typeof PostMediaIdKindRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -481,10 +521,12 @@ const rootRouteChildren: RootRouteChildren = {
   ExploreRoute: ExploreRoute,
   OnboardingRoute: OnboardingRoute,
   ProfileRoute: ProfileRoute,
+  MediaIdRoute: MediaIdRoute,
   PostIdRoute: PostIdRoute,
   ProfileAccountSecurityRoute: ProfileAccountSecurityRoute,
   ProfileEditUserRoute: ProfileEditUserRoute,
   UserIdRoute: UserIdRoute,
+  PostMediaIdKindRoute: PostMediaIdKindRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

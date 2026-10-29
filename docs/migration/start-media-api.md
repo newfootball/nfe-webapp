@@ -14,6 +14,7 @@ TanStack server functions. Every call uses `{ data: input }` and returns
 | `publishPost` | `PublishPost` | `{ id: string, slug: string }` |
 | `replaceAvatar` | `{ assetId }` | `{ image: string }` |
 | `readAsset` | `{ assetId }` | `MediaRead` |
+| `readPostMedia` | `{ postId, kind: "video" \| "thumbnail" }` | `MediaRead` |
 
 All mutations use POST; resume and read use GET. Only allocation IDs enter
 subsequent operations; clients cannot choose bucket, object key, uploadId, ETags,

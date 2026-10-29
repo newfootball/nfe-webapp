@@ -1,0 +1,25 @@
+{
+	"name": "nfe-appwrite-schema",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"prepare:local": "bun run local.mts prepare",
+		"up": "bun run local.mts up",
+		"down": "bun run local.mts down",
+		"provision": "bun run provision.mts",
+		"test": "bun run proof.mts && biome format --write evidence/appwrite-2.6.2.json",
+		"test:contract": "bun run contract.mts",
+		"typecheck": "tsc --noEmit",
+		"lint": "biome check .",
+		"build": "bun build provision.mts --target=bun --outdir=dist --packages=external"
+	},
+	"dependencies": {
+		"node-appwrite": "31.1.0",
+		"yaml": "2.8.1"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.4.13",
+		"@types/bun": "1.3.14",
+		"typescript": "5.9.3"
+	}
+}

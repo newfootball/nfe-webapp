@@ -12,6 +12,25 @@ on:
     merge_group: {}
 
 jobs:
+    appwrite-schema:
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: tools/appwrite-schema
+        steps:
+            - uses: actions/checkout@v4
+            - uses: oven-sh/setup-bun@v2
+              with:
+                bun-version: 1.3.14
+            - name: Install isolated schema dependencies
+              run: bun install --frozen-lockfile
+            - name: Typecheck schema
+              run: bun run typecheck
+            - name: Verify source mapping without runtime credentials
+              run: bun run test:contract
+            - name: Build schema provisioner
+              run: bun run build
+
     lint:
         runs-on: ubuntu-latest
         steps:

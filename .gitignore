@@ -41,3 +41,5 @@ src/generated/*
 # claude code local artifacts
 .claude/output/
 .claude/tasks/
+.claude/scheduled_tasks.lock
+.codex/config.toml

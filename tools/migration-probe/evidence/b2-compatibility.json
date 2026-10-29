@@ -1,0 +1,119 @@
+{
+	"status": "passed",
+	"executedAt": "2026-10-29T09:05:12.681Z",
+	"runtime": {
+		"bun": "1.3.14",
+		"sdk": "3.1159.0",
+		"playwright": "1.64.1",
+		"endpoint": "B2 S3 eu-central-003",
+		"fixture": "synthetic only",
+		"chromium": "156.0.8078.49",
+		"mobile": "Pixel 7 emulation in Chromium, no physical device or Safari/iOS"
+	},
+	"checks": {
+		"fixtures": {
+			"small": {
+				"bytes": 4096,
+				"sha256": "d67c656e01756650d77717b0839985a056ec28ffe174601d690fc407a2ceffca"
+			},
+			"multipart": {
+				"bytes": 10485760,
+				"sha256": "c4b2ce7bb7f3f12b4902d5feee4a983070613d33cd5d09ec4c43c15169ca4eb3"
+			},
+			"video": {
+				"bytes": 173562,
+				"sha256": "3f54eaf7abdf199dede508da0c1a7c9e71d08797599430dc6891d31b4b54c084"
+			}
+		},
+		"cors": {
+			"status": "passed",
+			"privateBeforeAndAfter": true,
+			"otherPropertiesUnchanged": true,
+			"origins": [
+				"http://127.0.0.1:50346",
+				"http://localhost:50346",
+				"http://localhost:3501",
+				"http://127.0.0.1:3501"
+			],
+			"methods": ["PUT", "GET", "HEAD"],
+			"allowedHeaders": ["content-type", "range"],
+			"exposedHeaders": ["ETag", "Content-Range", "Accept-Ranges"]
+		},
+		"signerGuards": {
+			"status": "passed",
+			"missingNonce": 403,
+			"unownedObject": 400,
+			"unownedUpload": 400
+		},
+		"browserTransfer": {
+			"status": "passed",
+			"put": 200,
+			"get": 200,
+			"head": 200,
+			"etagExposed": true,
+			"videoPut": 200
+		},
+		"multipart": {
+			"status": "passed",
+			"parts": 2,
+			"partBytes": 5242880,
+			"resumedFromListedPart": true,
+			"newBrowserContext": true,
+			"retry": "intentional same-part replay after successful first upload; no real network fault injected",
+			"retriedParts": 1,
+			"completedGet": 200,
+			"bytes": 10485760,
+			"sha256": "c4b2ce7bb7f3f12b4902d5feee4a983070613d33cd5d09ec4c43c15169ca4eb3",
+			"sdkHead": 200,
+			"etagUsedAsChecksum": false
+		},
+		"abort": {
+			"status": "passed",
+			"uploadedPartBytes": 5242880,
+			"listPartsCode": "NoSuchUpload",
+			"absentFromUploads": true
+		},
+		"privacy": {
+			"status": "passed",
+			"anonymousObject": 401,
+			"anonymousBucket": 403,
+			"signedUrlOtherExistingObject": 403,
+			"beforeExpiry": 200,
+			"afterExpiry": 401,
+			"expiresInSeconds": 2,
+			"waitSeconds": 5
+		},
+		"videoDesktop": {
+			"status": "passed",
+			"duration": 6,
+			"width": 320,
+			"height": 180,
+			"played": true,
+			"seekTime": 3,
+			"rangeStatus": 206,
+			"contentRange": "bytes 0-1023/173562"
+		},
+		"videoMobileEmulation": {
+			"status": "passed",
+			"duration": 6,
+			"width": 320,
+			"height": 180,
+			"played": true,
+			"seekTime": 3,
+			"rangeStatus": 206,
+			"contentRange": "bytes 0-1023/173562"
+		},
+		"cleanup": {
+			"status": "passed",
+			"removedVersions": 3,
+			"abortedUploads": 0,
+			"versionsLeft": 0,
+			"uploadsLeft": 0,
+			"deletedObject": 404,
+			"serverStopped": true,
+			"browserStopped": true,
+			"bucketRetained": true,
+			"corsRetained": true
+		}
+	}
+}

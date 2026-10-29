@@ -6,6 +6,7 @@ import {
 	googleConfiguration,
 } from "../src/lib/oauth-protocol";
 import { registrySchema, resolveSubject } from "../src/lib/oauth-registry";
+import { googleStartResponse } from "../src/lib/oauth-start-handler";
 import {
 	changeSchema,
 	recoveryInput,
@@ -292,4 +293,83 @@ test("post-issuance rechecks compensate stale/disabled/MFA/wrong/expired session
 			confirmBrokerSession("imported", issued, checks),
 		).rejects.toThrow();
 	expect(revocations).toBe(5);
+});
+
+describe("Google start HTTP handler", () => {
+	const request = (values: [string, string][]) =>
+		new Request("https://example.test/oauth/google", {
+			method: "POST",
+			body: new URLSearchParams(values),
+		});
+	for (const locale of ["fr", "en"] as const)
+		test(`preserves trusted ${locale} on disabled broker or state outage`, async () => {
+			const response = await googleStartResponse(
+				request([["locale", locale]]),
+				() => {},
+				async () => {
+					throw new Error("Unavailable broker");
+				},
+			);
+			expect(response.status).toBe(303);
+			expect(response.headers.get("location")).toBe(
+				`/${locale}/sign-in?oauth=failed`,
+			);
+			expect(response.headers.get("cache-control")).toBe("private, no-store");
+			expect(response.headers.get("referrer-policy")).toBe("no-referrer");
+			expect(await response.text()).toBe("");
+		});
+	for (const values of [
+		[],
+		[["locale", "../../evil"]],
+		[
+			["locale", "en"],
+			["locale", "fr"],
+		],
+		[
+			["locale", "en"],
+			["userId", "victim"],
+		],
+	] as [string, string][][])
+		test(`unsafe locale/form uses French fallback: ${JSON.stringify(values)}`, async () => {
+			let started = false;
+			const response = await googleStartResponse(
+				request(values),
+				() => {},
+				async () => {
+					started = true;
+					return "https://accounts.google.com";
+				},
+			);
+			expect(response.headers.get("location")).toBe("/fr/sign-in?oauth=failed");
+			expect(started).toBe(false);
+		});
+	test("origin rejection never starts broker or trusts locale", async () => {
+		let started = false;
+		const response = await googleStartResponse(
+			request([["locale", "en"]]),
+			() => {
+				throw new Error("Untrusted origin");
+			},
+			async () => {
+				started = true;
+				return "https://accounts.google.com";
+			},
+		);
+		expect(response.headers.get("location")).toBe("/fr/sign-in?oauth=failed");
+		expect(started).toBe(false);
+	});
+	test("successful authorization uses validated locale and private redirect", async () => {
+		const response = await googleStartResponse(
+			request([["locale", "en"]]),
+			() => {},
+			async (locale) => {
+				expect(locale).toBe("en");
+				return "https://accounts.google.com/o/oauth2/v2/auth?state=synthetic";
+			},
+		);
+		expect(response.status).toBe(303);
+		expect(response.headers.get("location")).toBe(
+			"https://accounts.google.com/o/oauth2/v2/auth?state=synthetic",
+		);
+	});
 });

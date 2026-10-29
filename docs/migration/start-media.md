@@ -100,7 +100,8 @@ another version under the same object key cannot change published bytes.
 Responses use `private, no-store`, `Vary: Cookie` and `no-referrer`; signed URLs
 must never be logged or persisted. B2 GET capabilities last at most 120 seconds:
 withdrawal prevents renewal immediately but an already issued URL can retain
-access for its remaining TTL. Range/206 and seeking operate directly against
+access for its remaining TTL. This bounds new HTTP requests; already downloaded
+or buffered bytes cannot be recalled. Range/206 and seeking operate directly against
 B2. The player renews through an authorized read and retains playback position.
 Public DTOs contain no bucket/key/version, session credential or raw row spread.
 
@@ -145,7 +146,13 @@ proof selects only the six authorized B2 fields from the baseline root
 `.env.local` into a new ignored mode-600 configuration. It uses a UUID-owned
 prefix, generated assets measured in MiB, and journals/deletes only exact owned
 versions/uploads. Its own 3555 CORS rule is appended while preserving existing
-rules, verified, then removed without altering unrelated rules. Protected local
+rules, verified, then removed without altering unrelated rules. Privacy is
+verified before and after using the official S3 GetBucketAcl operation: exactly
+one matching CanonicalUser owner with FULL_CONTROL and no group/URI grant;
+missing, public or ambiguous responses fail closed. Direct anonymous access to
+a tiny owned WebP also must return401/403. This avoids reliance on intermittent
+Native account-authorization availability without relaxing the private gate.
+Protected local
 diagnostics are under `apps/start/scripts/.media-local/`; do not commit them.
 
 The durable task state records final exact-head outcomes and any incomplete
@@ -155,4 +162,5 @@ Source/production browser budgets and production cutover remain unspecified.
 
 Official references: [B2 S3 API](https://www.backblaze.com/docs/cloud-storage-call-the-s3-compatible-api),
 [multipart initiation](https://www.backblaze.com/apidocs/s3-create-multipart-upload),
-[CORS](https://www.backblaze.com/docs/cloud-storage-cross-origin-resource-sharing-rules).
+[CORS](https://www.backblaze.com/docs/cloud-storage-cross-origin-resource-sharing-rules),
+[private/public bucket ACL mapping](https://www.backblaze.com/apidocs/s3-get-bucket-acl).

@@ -1,5 +1,29 @@
 import { MEDIA_PART_BYTES } from "./media-contract";
 
+export function isOwnerOnlyBucketAcl(value: unknown) {
+	const acl = value as {
+		Owner?: { ID?: string };
+		Grants?: {
+			Permission?: string;
+			Grantee?: { Type?: string; ID?: string; URI?: string };
+		}[];
+	} | null;
+	if (
+		typeof acl?.Owner?.ID !== "string" ||
+		!acl.Owner.ID ||
+		!Array.isArray(acl.Grants) ||
+		acl.Grants.length !== 1
+	)
+		return false;
+	const grant = acl.Grants[0];
+	return (
+		grant?.Permission === "FULL_CONTROL" &&
+		grant.Grantee?.Type === "CanonicalUser" &&
+		grant.Grantee.ID === acl.Owner.ID &&
+		grant.Grantee.URI === undefined
+	);
+}
+
 export function acceptsOperationResult(
 	asset: {
 		state: string;

@@ -510,6 +510,20 @@ test("rejected bytes and cancelled allocation cannot publish; avatar persists wi
 		}),
 	);
 	expect(result.image).toBe(`/media/${avatar.id}`);
+	const avatarCapability = value(
+		await call<{ url: string }>(
+			request,
+			"readAsset",
+			{ assetId: avatar.id },
+			-1,
+			true,
+		),
+	);
+	const directAvatar = new URL(avatarCapability.url);
+	directAvatar.search = "";
+	expect([401, 403]).toContain(
+		(await request.get(directAvatar.toString())).status(),
+	);
 	expect((await request.get(result.image, { maxRedirects: 0 })).status()).toBe(
 		307,
 	);

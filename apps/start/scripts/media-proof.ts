@@ -5,12 +5,14 @@ import {
 	type CORSRule,
 	DeleteBucketCorsCommand,
 	DeleteObjectCommand,
+	GetBucketAclCommand,
 	GetBucketCorsCommand,
 	ListMultipartUploadsCommand,
 	ListObjectVersionsCommand,
 	PutBucketCorsCommand,
 } from "@aws-sdk/client-s3";
 import { Query } from "node-appwrite";
+import { isOwnerOnlyBucketAcl } from "../src/lib/media-policy";
 import { storage } from "../src/lib/media-storage.server";
 import {
 	databaseId,
@@ -89,56 +91,22 @@ async function cors() {
 let exit = 1;
 let stage = "private-bucket-preflight";
 report.startedAt = new Date().toISOString();
+report.testScope = process.env.NFE_MEDIA_UI_GREP
+	? "targeted diagnostic; not full acceptance"
+	: "full core + mounted UI";
 await Bun.write(`${state}/test.log`, "");
 await chmod(`${state}/test.log`, 0o600);
 try {
-	const auth = await fetch(
-		"https://api.backblazeb2.com/b2api/v4/b2_authorize_account",
-		{
-			headers: {
-				authorization: `Basic ${Buffer.from(`${b2.B2_APPLICATION_KEY_ID}:${b2.B2_APPLICATION_KEY}`).toString("base64")}`,
-			},
-			signal: AbortSignal.timeout(20000),
-		},
+	const acl = await s3.send(
+		new GetBucketAclCommand({ Bucket: b2.B2_BUCKET_NAME }),
 	);
-	assert(auth.ok);
-	const account = (await auth.json()) as {
-		accountId: string;
-		authorizationToken: string;
-		apiInfo: { storageApi: { apiUrl: string } };
+	assert(isOwnerOnlyBucketAcl(acl), "Bucket ACL is not strictly owner-only");
+	report.bucketPrivacy = {
+		method: "S3 GetBucketAcl",
+		ownerOnlyBefore: true,
+		httpStatus: acl.$metadata.httpStatusCode,
+		noAclOrKeyChanges: true,
 	};
-	assert(
-		/^https:\/\/api[0-9]+\.backblazeb2\.com$/.test(
-			account.apiInfo.storageApi.apiUrl,
-		),
-	);
-	const bucketsResponse = await fetch(
-		`${account.apiInfo.storageApi.apiUrl}/b2api/v4/b2_list_buckets`,
-		{
-			method: "POST",
-			headers: {
-				authorization: account.authorizationToken,
-				"content-type": "application/json",
-			},
-			body: JSON.stringify({
-				accountId: account.accountId,
-				bucketId: b2.B2_BUCKET_ID,
-				bucketName: b2.B2_BUCKET_NAME,
-			}),
-			signal: AbortSignal.timeout(20000),
-		},
-	);
-	assert(bucketsResponse.ok);
-	const buckets = (
-		(await bucketsResponse.json()) as {
-			buckets: { bucketType: string; bucketId: string }[];
-		}
-	).buckets;
-	assert(
-		buckets.length === 1 &&
-			buckets[0]?.bucketId === b2.B2_BUCKET_ID &&
-			buckets[0]?.bucketType === "allPrivate",
-	);
 	stage = "cors-read";
 	baseline = await cors();
 	await Bun.write(`${state}/cors-baseline.json`, JSON.stringify(baseline));
@@ -241,6 +209,7 @@ try {
 		title: string;
 		project: string;
 		engines: string[];
+		playbackWitness: unknown[];
 		status: string;
 		results: { status: string; duration: number }[];
 	}[] = [];
@@ -251,6 +220,9 @@ try {
 					checks.push({
 						title: spec.title,
 						project: t.projectName,
+						playbackWitness: (t.annotations ?? [])
+							.filter((a) => a.type === "playback-witness")
+							.map((a) => JSON.parse(a.description ?? "null")),
 						engines: (t.annotations ?? [])
 							.filter((a) => a.type === "engine")
 							.map((a) => a.description ?? ""),
@@ -267,6 +239,8 @@ try {
 	report.checks = checks;
 	report.stats = results.stats;
 	assert(checks.length > 0, "No executed media checks");
+	if (!process.env.NFE_MEDIA_UI_GREP)
+		assert(checks.length === 11, "Full acceptance requires all11checks");
 	// Keep failures local: assertion diagnostics may include a short-lived capability.
 	console.log(
 		`Media browser/RPC proof exit ${code}; protected diagnostic in scripts/.media-local/test.log`,
@@ -417,6 +391,12 @@ try {
 				);
 			assert(baseline.every((r) => retained.some((v) => sameRule(r, v))));
 		}
+		assert(
+			isOwnerOnlyBucketAcl(
+				await s3.send(new GetBucketAclCommand({ Bucket: b2.B2_BUCKET_NAME })),
+			),
+			"Bucket ACL changed",
+		);
 		report.cleanup = {
 			deletedVersions,
 			abortedUploads,
@@ -428,6 +408,12 @@ try {
 		};
 	} catch {
 		report.status = "failed";
+		assert(
+			isOwnerOnlyBucketAcl(
+				await s3.send(new GetBucketAclCommand({ Bucket: b2.B2_BUCKET_NAME })),
+			),
+			"Bucket ACL changed",
+		);
 		report.cleanup = {
 			failed: true,
 			protectedJournal: "scripts/.media-local/cleanup-*.json",

@@ -11,7 +11,41 @@ import {
 	expectedPartBytes,
 	inspectContent,
 	inspectParts,
+	isOwnerOnlyBucketAcl,
 } from "../src/lib/media-policy";
+
+test("private bucket proof fails closed on public, group, foreign and ambiguous ACLs", () => {
+	const owner = { Owner: { ID: "fixture-owner" } };
+	const grant = {
+		Permission: "FULL_CONTROL",
+		Grantee: { Type: "CanonicalUser", ID: "fixture-owner" },
+	};
+	expect(isOwnerOnlyBucketAcl({ ...owner, Grants: [grant] })).toBe(true);
+	for (const acl of [
+		null,
+		{},
+		{ ...owner, Grants: [] },
+		{ ...owner, Grants: [grant, grant] },
+		{ ...owner, Grants: [{ ...grant, Permission: "READ" }] },
+		{
+			...owner,
+			Grants: [
+				{
+					...grant,
+					Grantee: {
+						Type: "Group",
+						URI: "http://acs.amazonaws.com/groups/global/AllUsers",
+					},
+				},
+			],
+		},
+		{
+			...owner,
+			Grants: [{ ...grant, Grantee: { Type: "CanonicalUser", ID: "foreign" } }],
+		},
+	])
+		expect(isOwnerOnlyBucketAcl(acl)).toBe(false);
+});
 
 test("operation generations survive expired worker, recovery and replacement interleavings", () => {
 	const current = {

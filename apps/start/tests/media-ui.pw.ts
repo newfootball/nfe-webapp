@@ -342,86 +342,163 @@ test.describe("mounted synthetic media workflows", () => {
 });
 
 async function playbackProof(page: Page, locale: Locale) {
+	const startedAt = Date.now();
 	const fixture = JSON.parse(await readFile(`${state}published.json`, "utf8"));
 	await page.goto(`/${locale}/post/${fixture.post.id}`);
 	const player = page.locator("article video");
-	await expect(player).toHaveAttribute("controls", "");
-	await expect(player).toHaveAttribute("playsinline", "");
 	await player.evaluate((element: HTMLVideoElement) => {
-		element.muted = true;
+		const events: unknown[] = [];
+		Object.assign(element, { __nfeWitness: events });
+		for (const name of [
+			"play",
+			"pause",
+			"seeking",
+			"seeked",
+			"loadedmetadata",
+			"emptied",
+			"error",
+		])
+			element.addEventListener(name, () => {
+				events.push({
+					event: name,
+					time: performance.now(),
+					position: element.currentTime,
+					paused: element.paused,
+					seeking: element.seeking,
+					ready: element.readyState,
+					error: element.error?.code ?? 0,
+				});
+				if (events.length > 60) events.shift();
+			});
 	});
-	await page
-		.getByRole("button", { name: mediaMessages[locale].play, exact: true })
-		.click();
-	await expect
-		.poll(
-			() =>
+	try {
+		await expect(player).toHaveAttribute("controls", "");
+		await expect(player).toHaveAttribute("playsinline", "");
+		await player.evaluate((element: HTMLVideoElement) => {
+			element.muted = true;
+		});
+		await page
+			.getByRole("button", { name: mediaMessages[locale].play, exact: true })
+			.click();
+		await expect
+			.poll(
+				() =>
+					player.evaluate(
+						(element: HTMLVideoElement) =>
+							element.readyState >= 2 && !element.paused,
+					),
+				{ timeout: 30_000 },
+			)
+			.toBe(true);
+		// Use actual native media methods/properties: no fabricated media events,
+		// source substitution, fake clocks or stubbed readPostMedia responses.
+		await player.evaluate((element: HTMLVideoElement) => {
+			element.pause();
+			element.currentTime = 3;
+		});
+		await expect
+			.poll(
+				() =>
+					player.evaluate(
+						(element: HTMLVideoElement) =>
+							Math.abs(element.currentTime - 3) < 0.3 && !element.seeking,
+					),
+				{ timeout: 15_000 },
+			)
+			.toBe(true)
+			.catch(async (error) => {
+				test.info().annotations.push({
+					type: "media-witness",
+					description: JSON.stringify(
+						await player.evaluate(
+							(element) =>
+								(element as unknown as { __nfeWitness: unknown[] })
+									.__nfeWitness,
+						),
+					),
+				});
+				throw error;
+			});
+		const pausedSource = await player.evaluate(
+			(element: HTMLVideoElement) => element.currentSrc,
+		);
+		await expect
+			.poll(
+				() =>
+					player.evaluate(
+						(element: HTMLVideoElement, previous) =>
+							element.currentSrc !== previous && element.readyState >= 2,
+						pausedSource,
+					),
+				{ timeout: 15_000 },
+			)
+			.toBe(true);
+		await expect
+			.poll(() =>
 				player.evaluate(
 					(element: HTMLVideoElement) =>
-						element.readyState >= 2 && !element.paused,
+						element.paused && Math.abs(element.currentTime - 3) < 0.3,
 				),
-			{ timeout: 30_000 },
-		)
-		.toBe(true);
-	// Use actual native media methods/properties: no fabricated media events,
-	// source substitution, fake clocks or stubbed readPostMedia responses.
-	await player.evaluate((element: HTMLVideoElement) => {
-		element.pause();
-		element.currentTime = 3;
-	});
-	await expect
-		.poll(() =>
-			player.evaluate(
-				(element: HTMLVideoElement) =>
-					Math.abs(element.currentTime - 3) < 0.3 && !element.seeking,
-			),
-		)
-		.toBe(true);
-	const pausedSource = await player.evaluate(
-		(element: HTMLVideoElement) => element.currentSrc,
-	);
-	await expect
-		.poll(
-			() =>
-				player.evaluate(
-					(element: HTMLVideoElement, previous) =>
-						element.currentSrc !== previous && element.readyState >= 2,
-					pausedSource,
-				),
-			{ timeout: 15_000 },
-		)
-		.toBe(true);
-	await expect
-		.poll(() =>
-			player.evaluate(
-				(element: HTMLVideoElement) =>
-					element.paused && Math.abs(element.currentTime - 3) < 0.3,
-			),
-		)
-		.toBe(true);
-	await player.evaluate(async (element: HTMLVideoElement) => {
-		element.currentTime = 5;
-		await element.play();
-	});
-	const playingSource = await player.evaluate(
-		(element: HTMLVideoElement) => element.currentSrc,
-	);
-	await expect
-		.poll(
-			() =>
-				player.evaluate(
-					(element: HTMLVideoElement, previous) =>
-						element.currentSrc !== previous &&
-						element.readyState >= 2 &&
-						!element.paused &&
-						element.currentTime >= 5 &&
-						element.currentTime < 9,
-					playingSource,
-				),
-			{ timeout: 15_000 },
-		)
-		.toBe(true);
-	await expect(page.getByRole("alert")).toHaveCount(0);
+			)
+			.toBe(true);
+		await player.evaluate(async (element: HTMLVideoElement) => {
+			element.currentTime = 5;
+			await element.play().catch((error: unknown) => {
+				// A renewed source invalidates an earlier native play promise. The
+				// assertions below still require real continued playback, not that promise.
+				if (!(error instanceof DOMException && error.name === "AbortError"))
+					throw error;
+			});
+		});
+		const playingSource = await player.evaluate(
+			(element: HTMLVideoElement) => element.currentSrc,
+		);
+		await expect
+			.poll(
+				() =>
+					player.evaluate(
+						(element: HTMLVideoElement, previous) =>
+							element.currentSrc !== previous &&
+							element.readyState >= 2 &&
+							!element.paused &&
+							element.currentTime >= 5 &&
+							element.currentTime < 9,
+						playingSource,
+					),
+				{ timeout: 15_000 },
+			)
+			.toBe(true);
+		const before = await player.evaluate(
+			(element: HTMLVideoElement) => element.currentTime,
+		);
+		await expect
+			.poll(
+				() =>
+					player.evaluate(
+						(element: HTMLVideoElement, position) =>
+							!element.paused && element.currentTime > position + 0.2,
+						before,
+					),
+				{ timeout: 10_000 },
+			)
+			.toBe(true);
+		await expect(page.getByRole("alert")).toHaveCount(0);
+	} finally {
+		try {
+			test.info().annotations.push({
+				type: "playback-witness",
+				description: JSON.stringify({
+					elapsedMs: Date.now() - startedAt,
+					events: await player.evaluate(
+						(element) =>
+							(element as unknown as { __nfeWitness: unknown[] }).__nfeWitness,
+					),
+				}),
+			});
+		} catch {
+			/* A closed test page must not replace the original failure. */
+		}
+	}
 }
 
 test.describe("mounted MediaPlayer engines (requires author published.json and TTL=3)", () => {

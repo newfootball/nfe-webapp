@@ -53,10 +53,9 @@ test("splash hydrates and continues automatically; robots deny indexing", async 
 	]);
 	const errors: string[] = [];
 	page.on("pageerror", (error) => errors.push(error.message));
-	await page.clock.install();
 	await page.goto("/splash");
-	await page.clock.fastForward(10001);
-	await expect(page).toHaveURL(/\/fr$/);
+	// Observe the real 10-second timer, including hydration, on slower CI hosts.
+	await expect(page).toHaveURL(/\/fr$/, { timeout: 20_000 });
 	expect(
 		(await page.context().cookies()).some(
 			(cookie) => cookie.name === "seen_splash",

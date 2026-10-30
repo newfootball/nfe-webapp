@@ -4,12 +4,13 @@ import { getDirectory } from "../lib/directory";
 import { DirectorySchema, directoryTitle } from "../lib/directory-input";
 import { publicHead } from "../lib/seo";
 export const Route = createFileRoute("/clubs")({
-	validateSearch: (search: Record<string, unknown>) => {
-		const page = search.page === undefined ? 1 : Number(search.page);
+	validateSearch: (search: Record<string, unknown>): { page?: number } => {
+		if (search.page === undefined) return {};
+		const page = Number(search.page);
 		if (!Number.isInteger(page) || page < 1 || page > 50) throw notFound();
 		return { page };
 	},
-	loaderDeps: ({ search }) => ({ page: search.page }),
+	loaderDeps: ({ search }) => ({ page: search.page ?? 1 }),
 	loader: async ({ deps }) => {
 		const input = DirectorySchema.safeParse({
 			type: "clubs",

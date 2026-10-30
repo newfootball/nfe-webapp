@@ -157,15 +157,23 @@ try {
 		"/players/goalkeeper",
 		"/players/city/paris",
 	]) {
-		const { html } = await get(path);
-		if (path.includes("players")) assert.match(html, /Public Player/);
-		assert.ok(!html.includes("HIDDEN-PROFILE"));
-		assert.ok(!html.includes("Public Player 25"));
+		// Neither the historical URL nor explicit page 1 may redirect.
+		for (const suffix of ["", "?page=1"]) {
+			const { html, response } = await get(path + suffix);
+			assert.equal(response.headers.get("location"), null);
+			assert.ok(html.includes(`rel="canonical" href="${base}${path}"`));
+			if (path.includes("players")) assert.match(html, /Public Player/);
+			assert.ok(!html.includes("HIDDEN-PROFILE"));
+			assert.ok(!html.includes("Public Player 25"));
+		}
 	}
 	const first = await get("/players"),
 		second = await get("/players?page=2");
 	assert.ok(first.html.includes("?page=2"));
 	assert.ok(second.html.includes("?page=1"));
+	assert.ok(
+		second.html.includes(`rel="canonical" href="${base}/players?page=2"`),
+	);
 	assert.match(second.html, /Public Player 00/);
 	for (const path of [
 		"/players/no-position",

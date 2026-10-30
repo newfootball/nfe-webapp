@@ -474,98 +474,116 @@ test("idempotent races/retries and persistent sender quota", async ({
 	).toBe(readBefore.readAt);
 });
 
-test("FR/EN history reload, optimistic rollback and delayed SPA account switch", async ({
-	page,
-	context,
-}) => {
-	await context.addCookies([
-		{ name: "nfe-session-dev", value: fixture.actors[0]!.secret, url: origin },
-	]);
-	await page.goto("/fr/messages/actor-B");
-	await expect(
-		page.getByRole("heading", { name: "Messages", exact: true }),
-	).toBeVisible();
-	await expect(
-		page.getByRole("button", { name: "Charger la suite" }),
-	).toBeVisible();
-	for (let pageNumber = 0; pageNumber < 3; pageNumber++) {
-		const more = page.getByRole("button", { name: "Charger la suite" });
-		if (!(await more.isVisible())) break;
-		const before = await page.locator("[data-message-id]").count();
-		await more.click();
-		await expect
-			.poll(() => page.locator("[data-message-id]").count())
-			.toBeGreaterThan(before);
-	}
-	await expect(
-		page.getByText("Imported history 0", { exact: true }),
-	).toBeVisible();
-	await page.reload();
-	await expect(page.getByText("Exactly once", { exact: true })).toBeVisible();
-	await page.goto("/en/messages/actor-C");
-	await page.getByLabel("Your message").fill("Rollback denied opening");
-	await page.getByRole("button", { name: "Send", exact: true }).click();
-	await expect(page.getByRole("alert")).toContainText("not allowed");
-	await expect(page.locator('[data-message-id^="pending-"]')).toHaveCount(0);
-	await expect(page.getByLabel("Your message")).toHaveValue(
-		"Rollback denied opening",
-	);
-	await page.goto("/en/messages/actor-B");
-	await expect(page.getByText("Exactly once", { exact: true })).toBeVisible();
-	let release: () => void = () => {};
-	let intercepted: () => void = () => {};
-	const ready = new Promise<void>((resolve) => {
-			intercepted = resolve;
-		}),
-		hold = new Promise<void>((resolve) => {
-			release = resolve;
+test.describe("delayed history network interception", () => {
+	test.use({ serviceWorkers: "block" });
+
+	test("FR/EN history reload, optimistic rollback and delayed SPA account switch", async ({
+		page,
+		context,
+	}) => {
+		await context.addCookies([
+			{
+				name: "nfe-session-dev",
+				value: fixture.actors[0]!.secret,
+				url: origin,
+			},
+		]);
+		await page.goto("/fr/messages/actor-B");
+		await expect(
+			page.getByRole("heading", { name: "Messages", exact: true }),
+		).toBeVisible();
+		await expect(
+			page.getByRole("button", { name: "Charger la suite" }),
+		).toBeVisible();
+		for (let pageNumber = 0; pageNumber < 3; pageNumber++) {
+			const more = page.getByRole("button", { name: "Charger la suite" });
+			if (!(await more.isVisible())) break;
+			const before = await page.locator("[data-message-id]").count();
+			await more.click();
+			await expect
+				.poll(() => page.locator("[data-message-id]").count())
+				.toBeGreaterThan(before);
+		}
+		await expect(
+			page.getByText("Imported history 0", { exact: true }),
+		).toBeVisible();
+		await page.reload();
+		await expect(page.getByText("Exactly once", { exact: true })).toBeVisible();
+		await page.goto("/en/messages/actor-C");
+		await page.getByLabel("Your message").fill("Rollback denied opening");
+		await page.getByRole("button", { name: "Send", exact: true }).click();
+		await expect(page.getByRole("alert")).toContainText("not allowed");
+		await expect(page.locator('[data-message-id^="pending-"]')).toHaveCount(0);
+		await expect(page.getByLabel("Your message")).toHaveValue(
+			"Rollback denied opening",
+		);
+		await page.goto("/en/messages/actor-B");
+		await expect(page.getByText("Exactly once", { exact: true })).toBeVisible();
+		// page.route cannot intercept GET requests owned by a service worker.
+		// This context alone blocks registration; the production worker is unchanged.
+		expect(
+			await page.evaluate(() => navigator.serviceWorker.controller),
+		).toBeNull();
+		expect(context.serviceWorkers()).toHaveLength(0);
+		let release: () => void = () => {};
+		let intercepted: () => void = () => {};
+		const ready = new Promise<void>((resolve) => {
+				intercepted = resolve;
+			}),
+			hold = new Promise<void>((resolve) => {
+				release = resolve;
+			});
+		await page.route(`${await rpcURL("getMessageHistory")}*`, async (route) => {
+			const response = await route.fetch();
+			intercepted();
+			await hold;
+			await route.fulfill({ response });
 		});
-	await page.route(`${await rpcURL("getMessageHistory")}*`, async (route) => {
-		const response = await route.fetch();
-		intercepted();
-		await hold;
-		await route.fulfill({ response });
+		await page.evaluate(() => {
+			(window as unknown as { messagingSpaMarker: string }).messagingSpaMarker =
+				"preserved";
+		});
+		await page.getByRole("button", { name: "Refresh", exact: true }).click();
+		await ready;
+		// SPA sign-out and sign-in must clear queries while A's old RPC remains delayed.
+		await page.getByRole("link", { name: "My space", exact: true }).click();
+		await page.getByRole("button", { name: "Sign out", exact: true }).click();
+		await page
+			.getByLabel("Email address", { exact: true })
+			.fill(fixture.actors[2]!.email);
+		await page
+			.getByLabel("Password", { exact: true })
+			.fill(fixture.actors[2]!.password);
+		await page.getByRole("button", { name: "Sign in", exact: true }).click();
+		await page.waitForURL("**/en/private");
+		release();
+		expect(
+			await page.evaluate(
+				() =>
+					(window as unknown as { messagingSpaMarker: string })
+						.messagingSpaMarker,
+			),
+		).toBe("preserved");
+		await page.unrouteAll({ behavior: "wait" });
+		await page.getByRole("link", { name: "Messages", exact: true }).click();
+		await expect(page.getByText("Exactly once", { exact: true })).toHaveCount(
+			0,
+		);
+		await expect(
+			page.getByText("Imported history 44", { exact: true }),
+		).toHaveCount(0);
+		await page.getByRole("link", { name: "actor-B", exact: true }).click();
+		await expect(
+			page.getByRole("heading", { name: "Messages", exact: true }),
+		).toBeVisible();
+		await expect(page.getByText("Exactly once", { exact: true })).toHaveCount(
+			0,
+		);
+		await expect(
+			page.getByText("Imported history 44", { exact: true }),
+		).toHaveCount(0);
+		noLeaks(await page.content());
 	});
-	await page.evaluate(() => {
-		(window as unknown as { messagingSpaMarker: string }).messagingSpaMarker =
-			"preserved";
-	});
-	await page.getByRole("button", { name: "Refresh", exact: true }).click();
-	await ready;
-	// SPA sign-out and sign-in must clear queries while A's old RPC remains delayed.
-	await page.getByRole("link", { name: "My space", exact: true }).click();
-	await page.getByRole("button", { name: "Sign out", exact: true }).click();
-	await page
-		.getByLabel("Email address", { exact: true })
-		.fill(fixture.actors[2]!.email);
-	await page
-		.getByLabel("Password", { exact: true })
-		.fill(fixture.actors[2]!.password);
-	await page.getByRole("button", { name: "Sign in", exact: true }).click();
-	await page.waitForURL("**/en/private");
-	release();
-	expect(
-		await page.evaluate(
-			() =>
-				(window as unknown as { messagingSpaMarker: string })
-					.messagingSpaMarker,
-		),
-	).toBe("preserved");
-	await page.unrouteAll({ behavior: "wait" });
-	await page.getByRole("link", { name: "Messages", exact: true }).click();
-	await expect(page.getByText("Exactly once", { exact: true })).toHaveCount(0);
-	await expect(
-		page.getByText("Imported history 44", { exact: true }),
-	).toHaveCount(0);
-	await page.getByRole("link", { name: "actor-B", exact: true }).click();
-	await expect(
-		page.getByRole("heading", { name: "Messages", exact: true }),
-	).toBeVisible();
-	await expect(page.getByText("Exactly once", { exact: true })).toHaveCount(0);
-	await expect(
-		page.getByText("Imported history 44", { exact: true }),
-	).toHaveCount(0);
-	noLeaks(await page.content());
 });
 
 for (const outcome of ["success", "error"] as const)

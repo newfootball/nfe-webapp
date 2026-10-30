@@ -2,6 +2,7 @@ import { canonicalImage } from "../../lib/media-contract";
 import type { Locale } from "../../lib/messages";
 import type { PublicProfile } from "../../lib/profile-contract";
 import { positionMessages, profileMessages } from "../../lib/profile-messages";
+import { FollowControls } from "../follow/follow-controls";
 export function ProfileView({
 	profile,
 	locale,
@@ -22,6 +23,7 @@ export function ProfileView({
 			<h1 className="text-3xl font-bold" data-testid="profile-name">
 				{profile.name}
 			</h1>
+			<FollowControls id={profile.id} locale={locale} />
 			<p>{t.types[profile.userType as keyof typeof t.types]}</p>
 			<p>{profile.localisation}</p>
 			<p className="whitespace-pre-wrap">{profile.biography}</p>

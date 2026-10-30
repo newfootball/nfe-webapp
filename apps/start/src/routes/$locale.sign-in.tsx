@@ -4,16 +4,20 @@ import { signIn, signUp } from "../lib/auth";
 import { clearIdentityCache } from "../lib/auth-cache";
 import { authMessages } from "../lib/auth-messages";
 import { safeReturnPath } from "../lib/auth-policy";
+import { recoveryMessages } from "../lib/recovery-messages";
 
 export const Route = createFileRoute("/$locale/sign-in")({
-	validateSearch: (search: Record<string, unknown>) => ({
+	validateSearch: (
+		search: Record<string, unknown>,
+	): { oauth?: string; returnTo: string } => ({
+		oauth: search.oauth === "failed" ? "failed" : "",
 		returnTo: typeof search.returnTo === "string" ? search.returnTo : "",
 	}),
 	component: AuthPage,
 });
 function AuthPage() {
 	const { locale, queryClient } = Route.useRouteContext();
-	const { returnTo } = Route.useSearch();
+	const { returnTo, oauth } = Route.useSearch();
 	const router = useRouter();
 	const t = authMessages[locale];
 	const [signup, setSignup] = useState(false);
@@ -22,6 +26,20 @@ function AuthPage() {
 	return (
 		<section className="max-w-md space-y-6">
 			<h1 className="text-3xl font-bold">{signup ? t.signUp : t.signIn}</h1>
+			{oauth && <p role="alert">{recoveryMessages[locale].failed}</p>}
+			<form method="post" action="/oauth/google">
+				<input type="hidden" name="locale" value={locale} />
+				<button className="rounded border p-2" type="submit">
+					{recoveryMessages[locale].google}
+				</button>
+			</form>
+			<Link
+				to="/$locale/recovery"
+				params={{ locale }}
+				search={{ flow: "forgot" }}
+			>
+				{recoveryMessages[locale].forgot}
+			</Link>
 			<form
 				className="flex flex-col gap-4"
 				onSubmit={async (event) => {

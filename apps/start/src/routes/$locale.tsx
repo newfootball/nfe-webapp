@@ -5,6 +5,7 @@ import {
 	Outlet,
 } from "@tanstack/react-router";
 import { Button } from "../../../../components/ui/button";
+import { NotificationBell } from "../components/notification-bell";
 import { authMessages } from "../lib/auth-messages";
 import { publicEnv } from "../lib/env-public";
 import { type Locale, messages } from "../lib/messages";
@@ -60,6 +61,7 @@ function Layout() {
 				<Link to="/$locale/private" params={{ locale }}>
 					{authMessages[locale].private}
 				</Link>
+				<NotificationBell locale={locale} />
 				<ThemeToggle label={t.theme} />
 			</header>
 			<main className="py-16">

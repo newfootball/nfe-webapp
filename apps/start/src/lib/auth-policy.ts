@@ -2,6 +2,7 @@ export function safeReturnPath(value: unknown, locale: "fr" | "en") {
 	const allowed = [
 		"post/my",
 		"private",
+		"notifications",
 		"onboarding",
 		"profile",
 		"profile/favorites",

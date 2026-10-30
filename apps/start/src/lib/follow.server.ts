@@ -23,6 +23,10 @@ import type {
 	FollowState,
 } from "./follow-contract";
 import type { FollowInput, FollowListInput } from "./follow-input";
+import {
+	notificationTransaction,
+	stageNotification,
+} from "./notification-outbox.server";
 import { publicProfile } from "./profile-contract";
 import type { Validated } from "./profile-input";
 
@@ -129,17 +133,31 @@ export function changeFollow(input: Validated<FollowInput>) {
 		const edgeId = before?.$id ?? ID.unique();
 		try {
 			if (following && !before) {
-				await writer().createRow({
-					databaseId,
-					tableId: "follows",
-					rowId: edgeId,
-					data: {
-						followerId: viewer.id,
-						followingId: id,
-						createdAt: occurredAt,
-						updatedAt: occurredAt,
-					},
-					permissions: [Permission.read(Role.any())],
+				const db = writer();
+				await notificationTransaction(db, async (transactionId) => {
+					await db.createRow({
+						databaseId,
+						tableId: "follows",
+						rowId: edgeId,
+						transactionId,
+						data: {
+							followerId: viewer.id,
+							followingId: id,
+							createdAt: occurredAt,
+							updatedAt: occurredAt,
+						},
+						permissions: [Permission.read(Role.any())],
+					});
+					await stageNotification(transactionId, {
+						version: 1,
+						eventId: `follow:${edgeId}`,
+						type: "FOLLOW",
+						actorId: viewer.id,
+						recipientId: id,
+						targetId: viewer.id,
+						entityId: edgeId,
+						occurredAt,
+					});
 				});
 			} else if (!following && before) {
 				await writer().deleteRow({

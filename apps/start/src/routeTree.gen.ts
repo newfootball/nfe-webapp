@@ -37,6 +37,7 @@ import { Route as LocaleIndexRouteImport } from './routes/$locale.index'
 import { Route as LocaleAboutRouteImport } from './routes/$locale.about'
 import { Route as LocaleExploreRouteImport } from './routes/$locale.explore'
 import { Route as LocaleFeedRouteImport } from './routes/$locale.feed'
+import { Route as LocaleNotificationsRouteImport } from './routes/$locale.notifications'
 import { Route as LocaleOnboardingRouteImport } from './routes/$locale.onboarding'
 import { Route as LocalePrivateRouteImport } from './routes/$locale.private'
 import { Route as LocaleProfileRouteImport } from './routes/$locale.profile'
@@ -205,6 +206,11 @@ const LocaleExploreRoute = LocaleExploreRouteImport.update({
 const LocaleFeedRoute = LocaleFeedRouteImport.update({
   id: '/feed',
   path: '/feed',
+  getParentRoute: () => LocaleRoute,
+} as any)
+const LocaleNotificationsRoute = LocaleNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => LocaleRoute,
 } as any)
 const LocaleOnboardingRoute = LocaleOnboardingRouteImport.update({
@@ -382,6 +388,7 @@ export interface FileRoutesByFullPath {
   '/$locale/about': typeof LocaleAboutRoute
   '/$locale/explore': typeof LocaleExploreRoute
   '/$locale/feed': typeof LocaleFeedRoute
+  '/$locale/notifications': typeof LocaleNotificationsRoute
   '/$locale/onboarding': typeof LocaleOnboardingRoute
   '/$locale/private': typeof LocalePrivateRoute
   '/$locale/profile': typeof LocaleProfileRoute
@@ -440,6 +447,7 @@ export interface FileRoutesByTo {
   '/$locale/about': typeof LocaleAboutRoute
   '/$locale/explore': typeof LocaleExploreRoute
   '/$locale/feed': typeof LocaleFeedRoute
+  '/$locale/notifications': typeof LocaleNotificationsRoute
   '/$locale/onboarding': typeof LocaleOnboardingRoute
   '/$locale/private': typeof LocalePrivateRoute
   '/$locale/profile': typeof LocaleProfileRoute
@@ -500,6 +508,7 @@ export interface FileRoutesById {
   '/$locale/about': typeof LocaleAboutRoute
   '/$locale/explore': typeof LocaleExploreRoute
   '/$locale/feed': typeof LocaleFeedRoute
+  '/$locale/notifications': typeof LocaleNotificationsRoute
   '/$locale/onboarding': typeof LocaleOnboardingRoute
   '/$locale/private': typeof LocalePrivateRoute
   '/$locale/profile': typeof LocaleProfileRoute
@@ -561,6 +570,7 @@ export interface FileRouteTypes {
     | '/$locale/about'
     | '/$locale/explore'
     | '/$locale/feed'
+    | '/$locale/notifications'
     | '/$locale/onboarding'
     | '/$locale/private'
     | '/$locale/profile'
@@ -619,6 +629,7 @@ export interface FileRouteTypes {
     | '/$locale/about'
     | '/$locale/explore'
     | '/$locale/feed'
+    | '/$locale/notifications'
     | '/$locale/onboarding'
     | '/$locale/private'
     | '/$locale/profile'
@@ -678,6 +689,7 @@ export interface FileRouteTypes {
     | '/$locale/about'
     | '/$locale/explore'
     | '/$locale/feed'
+    | '/$locale/notifications'
     | '/$locale/onboarding'
     | '/$locale/private'
     | '/$locale/profile'
@@ -948,6 +960,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocaleFeedRouteImport
       parentRoute: typeof LocaleRoute
     }
+    '/$locale/notifications': {
+      id: '/$locale/notifications'
+      path: '/notifications'
+      fullPath: '/$locale/notifications'
+      preLoaderRoute: typeof LocaleNotificationsRouteImport
+      parentRoute: typeof LocaleRoute
+    }
     '/$locale/onboarding': {
       id: '/$locale/onboarding'
       path: '/onboarding'
@@ -1158,6 +1177,7 @@ interface LocaleRouteChildren {
   LocaleAboutRoute: typeof LocaleAboutRoute
   LocaleExploreRoute: typeof LocaleExploreRoute
   LocaleFeedRoute: typeof LocaleFeedRoute
+  LocaleNotificationsRoute: typeof LocaleNotificationsRoute
   LocaleOnboardingRoute: typeof LocaleOnboardingRoute
   LocalePrivateRoute: typeof LocalePrivateRoute
   LocaleProfileRoute: typeof LocaleProfileRoute
@@ -1180,6 +1200,7 @@ const LocaleRouteChildren: LocaleRouteChildren = {
   LocaleAboutRoute: LocaleAboutRoute,
   LocaleExploreRoute: LocaleExploreRoute,
   LocaleFeedRoute: LocaleFeedRoute,
+  LocaleNotificationsRoute: LocaleNotificationsRoute,
   LocaleOnboardingRoute: LocaleOnboardingRoute,
   LocalePrivateRoute: LocalePrivateRoute,
   LocaleProfileRoute: LocaleProfileRoute,

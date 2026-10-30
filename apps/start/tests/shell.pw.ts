@@ -1,5 +1,8 @@
 import { expect, test } from "@playwright/test";
 
+// Keep network fault injection observable; platform suites exercise the real worker.
+test.use({ serviceWorkers: "block" });
+
 test("SSR renders both languages and isolates concurrent readers", async ({
 	request,
 }) => {

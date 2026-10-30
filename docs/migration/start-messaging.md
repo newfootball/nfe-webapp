@@ -101,3 +101,25 @@ after execution; a script alone is not runtime evidence.
 
 Fixture-free `bun run smoke:start` also starts a local server, so it waits for
 the same runtime authorization. No production/Vercel or real-data proof exists.
+
+## Isolated acceptance evidence (2026-10-30)
+
+Source head `ed8fdbd38b10cefb52144159b897b7784a0c0074` passed all six
+SDK/RPC/browser scenarios against fresh synthetic Appwrite 2.6.2 in 10.0 seconds
+with zero failures, skips or retries. The source/build fingerprint is recorded in
+`apps/start/evidence/messaging-runtime.json`. Units passed 89/89 (529 assertions);
+both typechecks, build, both 66-artifact client scans and all six CI checks passed.
+Lint exited zero with 121 warnings and 24 infos; fixture-free smoke passed 6/6.
+
+The delayed-history scenario alone blocks service workers in its browser context
+and asserts a null controller and zero workers before intercepting the GET. This
+keeps the real server response pending across SPA sign-out/sign-in. Playwright
+cannot intercept service-worker-owned requests with `page.route`; a separate
+default browser context measured the active `/sw.js` controller. Production worker
+behavior is unchanged, and the other scenarios retain their normal contexts.
+See the [Playwright network documentation](https://playwright.dev/docs/network#missing-network-events-and-service-workers).
+
+All owned containers, volumes and networks were removed, ports 18159/3590/3591
+were verified free, and private runtime files were deleted after the proof.
+These results cover the private messaging core only; durable notification
+production/delivery remains gated on #58, so full #59 stays open.

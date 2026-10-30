@@ -285,7 +285,7 @@ test("follow A/B/anonymous: real UI, direct RPC, concurrent unique pairs, rollba
 					followerId: b.id,
 					followingId: "person-00",
 					createdAt: new Date().toISOString(),
-					updatedAt: null,
+					updatedAt: new Date().toISOString(),
 				},
 				permissions: [Permission.read(Role.any())],
 			});

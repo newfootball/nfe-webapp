@@ -84,7 +84,7 @@ export async function fixtures() {
 				followerId: "follow-a",
 				followingId: `person-${String(i).padStart(2, "0")}`,
 				createdAt: timestamp,
-				updatedAt: null,
+				updatedAt: timestamp,
 			},
 			permissions: [Permission.read(Role.any())],
 		});

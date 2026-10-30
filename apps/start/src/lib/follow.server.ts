@@ -137,7 +137,7 @@ export function changeFollow(input: Validated<FollowInput>) {
 						followerId: viewer.id,
 						followingId: id,
 						createdAt: occurredAt,
-						updatedAt: null,
+						updatedAt: occurredAt,
 					},
 					permissions: [Permission.read(Role.any())],
 				});

@@ -31,7 +31,7 @@
 			{
 				"pass": 3,
 				"reason": "Actual integrated proofaaf20 Playwright route is already handled: releaseMutation immediately followed by unroute without awaiting asynchronous fulfill",
-				"status": "in progress",
+				"status": "approved sourceef771e4; complete real integrated matrix passed",
 				"changes": [
 					"Await delayed response handler completion before removing its route; no acceptance assertions removed or suppressed"
 				]
@@ -45,12 +45,32 @@
 		"PostCard additive integration"
 	],
 	"preservedSlice": "Follow PR87 delivered separately; history is not reset",
-	"phase": "repair3",
-	"runtimeLease": "exclusive regrant active18157/3571; own Appwrite up",
+	"phase": "proof-complete-awaiting-final-documentary-ci",
+	"runtimeLease": "released after strict cleanup; transferred59; no relaunch authorized",
 	"gates": {
 		"lifecycle56": "unproven; do not close57",
-		"independentReview": "REQUEST_CHANGES45d91f8 R1-R5",
-		"runtime": "failedaaf20 proof driver unroute/fulfill synchronization",
-		"ci": "pending"
+		"independentReview": "initial full review plus root delta/integration approval ef771e4; coordinator owns final documentary review",
+		"runtime": "PASS complete integrated matrix ef771e4, testExit0; cleanup zero resources",
+		"ci": "6/6 SUCCESS ef771e4; exact final documentary head required at handover"
+	},
+	"acceptedMain": "12f88c040c3c3a730387c28b7b10e8205cfe0817",
+	"testedHead": "ef771e4ada46a747fc22cd9ca5018ebceb58b642",
+	"sourceTree": "303044eb4641bb8f1a9f0c571321bbf76012ca4c",
+	"localChecks": {
+		"unit": "85 pass,504 assertions,14 files",
+		"shellSmoke": "6 pass",
+		"buildClientScan": "61 artifacts,zero forbidden content",
+		"typecheck": "Start and root pass",
+		"lint": "Start and root pass with warnings"
+	},
+	"cleanup": {
+		"project": "nfe-interactions-57",
+		"containers": 0,
+		"volumes": 0,
+		"networks": 0,
+		"portsFree": [18157, 3571],
+		"privateStateRemoved": true,
+		"proofServerAndEphemeralProxyExited": true,
+		"b2ServicesLaunched": false
 	}
 }

@@ -53,6 +53,7 @@ Only after a coordinator runtime lease:
 ```sh
 bun install --frozen-lockfile
 bun install --cwd apps/start --frozen-lockfile
+bun install --cwd tools/appwrite-schema --frozen-lockfile
 bun run build:start
 bun run typecheck:start
 bun run --cwd apps/start test
@@ -77,3 +78,45 @@ accepted text-only PR #89. A direct synthetic parent revocation/deletion test is
 not a proof of that future application workflow. Keep #57 open until deleting a
 post with likes, comments and favorites through the real #56 action is proven,
 including child cleanup and concurrent writes. This PR only references #57.
+
+## Executed proof and cleanup
+
+On 2026-10-30, the complete real Appwrite 2.6.2/browser/RPC matrix passed at
+`ef771e4` against the integrated accepted media/public base `12f88c0`: one test,
+zero failures/skips/retries, 9.5 seconds. This includes 12-way pair/comment replay,
+controlled two-actor parent transactions, archive/ACL/deletion races, 25 imported
+comments, 23 favorites, delayed draft preservation, and SPA A→B→A with an old
+mutation response delivered after the new A state. The same browser document is
+asserted throughout that account-switch section. The 1000/1001 boundary and
+private favorites ACLs, including denial to a different admin, are exercised.
+
+The final build's source tree is identical to the reviewed `aaf20e4` source tree;
+only test synchronization and evidence/state changed for `ef771e4`. The redacted
+[evidence](../../apps/start/evidence/interactions-synthetic.json) records both
+heads, the source tree and build digest. Local verification: 85 Start unit tests,
+504 assertions; six built shell/public smoke tests; build/client scan (61 files),
+Start/root typechecks and lints pass. Lint has warnings. Independent full initial
+review requested changes; all R1–R5 plus integration and final test-driver deltas
+were approved by the coordinator's independent review before final handover.
+
+Three repair passes are retained in the canonical state, including two honest
+failed runtime checkpoints; there is no reset or hidden retry. The final proof
+passed after explicit fulfillment-before-unroute synchronization. Its synthetic
+posts do not claim media/B2 acceptance; the accepted #55 proof remains separate.
+
+The proof process, Start server and ephemeral transparent proxy exited. Docker
+`down --volumes` removed the exact task project: zero containers, volumes and
+networks, both loopback ports free, ignored credentials/raw state removed.
+The runtime lease was returned to the coordinator. No backend restart is pending.
+
+## Contract handed to #56
+
+Lifecycle writes must touch the same parent `posts` row transactionally before
+purging children, so social transactions either commit before purge or conflict.
+The child tables are `likes`, `comments`, `favorites`, with `postId` and `userId`;
+like/favorite pairs use accepted unique `[postId,userId]` indexes. IDs imported
+from legacy are arbitrary and must be preserved. Likes/comments have empty ACLs;
+favorites grant only owner read. Hidden-parent own favorites are filtered at once.
+An archive/delete purge must use its independently authorized privileged boundary:
+the interactive comment deletion RPC deliberately rejects already hidden posts.
+This handoff is not acceptance of the future lifecycle workflow.

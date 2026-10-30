@@ -12,18 +12,25 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LocaleRouteImport } from './routes/$locale'
 import { Route as AboutUsRouteImport } from './routes/about-us'
+import { Route as ChangePasswordRouteImport } from './routes/change-password'
 import { Route as ClubsRouteImport } from './routes/clubs'
 import { Route as CoachesRouteImport } from './routes/coaches'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ExploreRouteImport } from './routes/explore'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as ManifestDotwebmanifestRouteImport } from './routes/manifest[.]webmanifest'
+import { Route as OfflineDothtmlRouteImport } from './routes/offline[.]html'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RecruitersRouteImport } from './routes/recruiters'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SplashRouteImport } from './routes/splash'
+import { Route as SwDotjsRouteImport } from './routes/sw[.]js'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as LocaleIndexRouteImport } from './routes/$locale.index'
 import { Route as LocaleAboutRouteImport } from './routes/$locale.about'
 import { Route as LocaleExploreRouteImport } from './routes/$locale.explore'
@@ -31,17 +38,22 @@ import { Route as LocaleFeedRouteImport } from './routes/$locale.feed'
 import { Route as LocaleOnboardingRouteImport } from './routes/$locale.onboarding'
 import { Route as LocalePrivateRouteImport } from './routes/$locale.private'
 import { Route as LocaleProfileRouteImport } from './routes/$locale.profile'
+import { Route as LocaleRecoveryRouteImport } from './routes/$locale.recovery'
 import { Route as LocaleSignInRouteImport } from './routes/$locale.sign-in'
+import { Route as OauthCallbackRouteImport } from './routes/oauth.callback'
+import { Route as OauthGoogleRouteImport } from './routes/oauth.google'
 import { Route as PlayersIndexRouteImport } from './routes/players.index'
 import { Route as PlayersPositionRouteImport } from './routes/players.$position'
 import { Route as PostIdRouteImport } from './routes/post.$id'
 import { Route as ProfileAccountSecurityRouteImport } from './routes/profile_.account-security'
 import { Route as ProfileEditUserRouteImport } from './routes/profile_.edit-user'
+import { Route as RecoveryCallbackRouteImport } from './routes/recovery.callback'
 import { Route as SplashContinueRouteImport } from './routes/splash.continue'
 import { Route as UserIdRouteImport } from './routes/user.$id'
 import { Route as LocalePostIdRouteImport } from './routes/$locale.post.$id'
 import { Route as LocaleProfileAccountSecurityRouteImport } from './routes/$locale.profile_.account-security'
 import { Route as LocaleProfileEditUserRouteImport } from './routes/$locale.profile_.edit-user'
+import { Route as LocaleProfileFollowsRouteImport } from './routes/$locale.profile_.follows'
 import { Route as LocaleUserIdRouteImport } from './routes/$locale.user.$id'
 import { Route as PlayersCityCityRouteImport } from './routes/players.city.$city'
 
@@ -58,6 +70,11 @@ const LocaleRoute = LocaleRouteImport.update({
 const AboutUsRoute = AboutUsRouteImport.update({
   id: '/about-us',
   path: '/about-us',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChangePasswordRoute = ChangePasswordRouteImport.update({
+  id: '/change-password',
+  path: '/change-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ClubsRoute = ClubsRouteImport.update({
@@ -80,6 +97,21 @@ const ExploreRoute = ExploreRouteImport.update({
   path: '/explore',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManifestDotwebmanifestRoute = ManifestDotwebmanifestRouteImport.update({
+  id: '/manifest.webmanifest',
+  path: '/manifest.webmanifest',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OfflineDothtmlRoute = OfflineDothtmlRouteImport.update({
+  id: '/offline.html',
+  path: '/offline.html',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -100,6 +132,11 @@ const RecruitersRoute = RecruitersRouteImport.update({
   path: '/recruiters',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
   id: '/robots.txt',
   path: '/robots.txt',
@@ -115,9 +152,19 @@ const SplashRoute = SplashRouteImport.update({
   path: '/splash',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SwDotjsRoute = SwDotjsRouteImport.update({
+  id: '/sw.js',
+  path: '/sw.js',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifyEmailRoute = VerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LocaleIndexRoute = LocaleIndexRouteImport.update({
@@ -155,10 +202,25 @@ const LocaleProfileRoute = LocaleProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => LocaleRoute,
 } as any)
+const LocaleRecoveryRoute = LocaleRecoveryRouteImport.update({
+  id: '/recovery',
+  path: '/recovery',
+  getParentRoute: () => LocaleRoute,
+} as any)
 const LocaleSignInRoute = LocaleSignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
   getParentRoute: () => LocaleRoute,
+} as any)
+const OauthCallbackRoute = OauthCallbackRouteImport.update({
+  id: '/oauth/callback',
+  path: '/oauth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OauthGoogleRoute = OauthGoogleRouteImport.update({
+  id: '/oauth/google',
+  path: '/oauth/google',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const PlayersIndexRoute = PlayersIndexRouteImport.update({
   id: '/players/',
@@ -183,6 +245,11 @@ const ProfileAccountSecurityRoute = ProfileAccountSecurityRouteImport.update({
 const ProfileEditUserRoute = ProfileEditUserRouteImport.update({
   id: '/profile_/edit-user',
   path: '/profile/edit-user',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecoveryCallbackRoute = RecoveryCallbackRouteImport.update({
+  id: '/recovery/callback',
+  path: '/recovery/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SplashContinueRoute = SplashContinueRouteImport.update({
@@ -211,6 +278,11 @@ const LocaleProfileEditUserRoute = LocaleProfileEditUserRouteImport.update({
   path: '/profile/edit-user',
   getParentRoute: () => LocaleRoute,
 } as any)
+const LocaleProfileFollowsRoute = LocaleProfileFollowsRouteImport.update({
+  id: '/profile_/follows',
+  path: '/profile/follows',
+  getParentRoute: () => LocaleRoute,
+} as any)
 const LocaleUserIdRoute = LocaleUserIdRouteImport.update({
   id: '/user/$id',
   path: '/user/$id',
@@ -226,29 +298,40 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$locale': typeof LocaleRouteWithChildren
   '/about-us': typeof AboutUsRoute
+  '/change-password': typeof ChangePasswordRoute
   '/clubs': typeof ClubsRoute
   '/coaches': typeof CoachesRoute
   '/contact': typeof ContactRoute
   '/explore': typeof ExploreRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/manifest.webmanifest': typeof ManifestDotwebmanifestRoute
+  '/offline.html': typeof OfflineDothtmlRoute
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/recruiters': typeof RecruitersRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/splash': typeof SplashRouteWithChildren
+  '/sw.js': typeof SwDotjsRoute
   '/terms': typeof TermsRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/$locale/about': typeof LocaleAboutRoute
   '/$locale/explore': typeof LocaleExploreRoute
   '/$locale/feed': typeof LocaleFeedRoute
   '/$locale/onboarding': typeof LocaleOnboardingRoute
   '/$locale/private': typeof LocalePrivateRoute
   '/$locale/profile': typeof LocaleProfileRoute
+  '/$locale/recovery': typeof LocaleRecoveryRoute
   '/$locale/sign-in': typeof LocaleSignInRoute
+  '/oauth/callback': typeof OauthCallbackRoute
+  '/oauth/google': typeof OauthGoogleRoute
   '/players/$position': typeof PlayersPositionRoute
   '/post/$id': typeof PostIdRoute
   '/profile/account-security': typeof ProfileAccountSecurityRoute
   '/profile/edit-user': typeof ProfileEditUserRoute
+  '/recovery/callback': typeof RecoveryCallbackRoute
   '/splash/continue': typeof SplashContinueRoute
   '/user/$id': typeof UserIdRoute
   '/$locale/': typeof LocaleIndexRoute
@@ -256,35 +339,47 @@ export interface FileRoutesByFullPath {
   '/$locale/post/$id': typeof LocalePostIdRoute
   '/$locale/profile/account-security': typeof LocaleProfileAccountSecurityRoute
   '/$locale/profile/edit-user': typeof LocaleProfileEditUserRoute
+  '/$locale/profile/follows': typeof LocaleProfileFollowsRoute
   '/$locale/user/$id': typeof LocaleUserIdRoute
   '/players/city/$city': typeof PlayersCityCityRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about-us': typeof AboutUsRoute
+  '/change-password': typeof ChangePasswordRoute
   '/clubs': typeof ClubsRoute
   '/coaches': typeof CoachesRoute
   '/contact': typeof ContactRoute
   '/explore': typeof ExploreRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/manifest.webmanifest': typeof ManifestDotwebmanifestRoute
+  '/offline.html': typeof OfflineDothtmlRoute
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/recruiters': typeof RecruitersRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/splash': typeof SplashRouteWithChildren
+  '/sw.js': typeof SwDotjsRoute
   '/terms': typeof TermsRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/$locale/about': typeof LocaleAboutRoute
   '/$locale/explore': typeof LocaleExploreRoute
   '/$locale/feed': typeof LocaleFeedRoute
   '/$locale/onboarding': typeof LocaleOnboardingRoute
   '/$locale/private': typeof LocalePrivateRoute
   '/$locale/profile': typeof LocaleProfileRoute
+  '/$locale/recovery': typeof LocaleRecoveryRoute
   '/$locale/sign-in': typeof LocaleSignInRoute
+  '/oauth/callback': typeof OauthCallbackRoute
+  '/oauth/google': typeof OauthGoogleRoute
   '/players/$position': typeof PlayersPositionRoute
   '/post/$id': typeof PostIdRoute
   '/profile/account-security': typeof ProfileAccountSecurityRoute
   '/profile/edit-user': typeof ProfileEditUserRoute
+  '/recovery/callback': typeof RecoveryCallbackRoute
   '/splash/continue': typeof SplashContinueRoute
   '/user/$id': typeof UserIdRoute
   '/$locale': typeof LocaleIndexRoute
@@ -292,6 +387,7 @@ export interface FileRoutesByTo {
   '/$locale/post/$id': typeof LocalePostIdRoute
   '/$locale/profile/account-security': typeof LocaleProfileAccountSecurityRoute
   '/$locale/profile/edit-user': typeof LocaleProfileEditUserRoute
+  '/$locale/profile/follows': typeof LocaleProfileFollowsRoute
   '/$locale/user/$id': typeof LocaleUserIdRoute
   '/players/city/$city': typeof PlayersCityCityRoute
 }
@@ -300,29 +396,40 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/$locale': typeof LocaleRouteWithChildren
   '/about-us': typeof AboutUsRoute
+  '/change-password': typeof ChangePasswordRoute
   '/clubs': typeof ClubsRoute
   '/coaches': typeof CoachesRoute
   '/contact': typeof ContactRoute
   '/explore': typeof ExploreRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/manifest.webmanifest': typeof ManifestDotwebmanifestRoute
+  '/offline.html': typeof OfflineDothtmlRoute
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
   '/recruiters': typeof RecruitersRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/splash': typeof SplashRouteWithChildren
+  '/sw.js': typeof SwDotjsRoute
   '/terms': typeof TermsRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/$locale/about': typeof LocaleAboutRoute
   '/$locale/explore': typeof LocaleExploreRoute
   '/$locale/feed': typeof LocaleFeedRoute
   '/$locale/onboarding': typeof LocaleOnboardingRoute
   '/$locale/private': typeof LocalePrivateRoute
   '/$locale/profile': typeof LocaleProfileRoute
+  '/$locale/recovery': typeof LocaleRecoveryRoute
   '/$locale/sign-in': typeof LocaleSignInRoute
+  '/oauth/callback': typeof OauthCallbackRoute
+  '/oauth/google': typeof OauthGoogleRoute
   '/players/$position': typeof PlayersPositionRoute
   '/post/$id': typeof PostIdRoute
   '/profile_/account-security': typeof ProfileAccountSecurityRoute
   '/profile_/edit-user': typeof ProfileEditUserRoute
+  '/recovery/callback': typeof RecoveryCallbackRoute
   '/splash/continue': typeof SplashContinueRoute
   '/user/$id': typeof UserIdRoute
   '/$locale/': typeof LocaleIndexRoute
@@ -330,6 +437,7 @@ export interface FileRoutesById {
   '/$locale/post/$id': typeof LocalePostIdRoute
   '/$locale/profile_/account-security': typeof LocaleProfileAccountSecurityRoute
   '/$locale/profile_/edit-user': typeof LocaleProfileEditUserRoute
+  '/$locale/profile_/follows': typeof LocaleProfileFollowsRoute
   '/$locale/user/$id': typeof LocaleUserIdRoute
   '/players/city/$city': typeof PlayersCityCityRoute
 }
@@ -339,29 +447,40 @@ export interface FileRouteTypes {
     | '/'
     | '/$locale'
     | '/about-us'
+    | '/change-password'
     | '/clubs'
     | '/coaches'
     | '/contact'
     | '/explore'
+    | '/forgot-password'
+    | '/manifest.webmanifest'
+    | '/offline.html'
     | '/onboarding'
     | '/privacy'
     | '/profile'
     | '/recruiters'
+    | '/reset-password'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/splash'
+    | '/sw.js'
     | '/terms'
+    | '/verify-email'
     | '/$locale/about'
     | '/$locale/explore'
     | '/$locale/feed'
     | '/$locale/onboarding'
     | '/$locale/private'
     | '/$locale/profile'
+    | '/$locale/recovery'
     | '/$locale/sign-in'
+    | '/oauth/callback'
+    | '/oauth/google'
     | '/players/$position'
     | '/post/$id'
     | '/profile/account-security'
     | '/profile/edit-user'
+    | '/recovery/callback'
     | '/splash/continue'
     | '/user/$id'
     | '/$locale/'
@@ -369,35 +488,47 @@ export interface FileRouteTypes {
     | '/$locale/post/$id'
     | '/$locale/profile/account-security'
     | '/$locale/profile/edit-user'
+    | '/$locale/profile/follows'
     | '/$locale/user/$id'
     | '/players/city/$city'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about-us'
+    | '/change-password'
     | '/clubs'
     | '/coaches'
     | '/contact'
     | '/explore'
+    | '/forgot-password'
+    | '/manifest.webmanifest'
+    | '/offline.html'
     | '/onboarding'
     | '/privacy'
     | '/profile'
     | '/recruiters'
+    | '/reset-password'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/splash'
+    | '/sw.js'
     | '/terms'
+    | '/verify-email'
     | '/$locale/about'
     | '/$locale/explore'
     | '/$locale/feed'
     | '/$locale/onboarding'
     | '/$locale/private'
     | '/$locale/profile'
+    | '/$locale/recovery'
     | '/$locale/sign-in'
+    | '/oauth/callback'
+    | '/oauth/google'
     | '/players/$position'
     | '/post/$id'
     | '/profile/account-security'
     | '/profile/edit-user'
+    | '/recovery/callback'
     | '/splash/continue'
     | '/user/$id'
     | '/$locale'
@@ -405,6 +536,7 @@ export interface FileRouteTypes {
     | '/$locale/post/$id'
     | '/$locale/profile/account-security'
     | '/$locale/profile/edit-user'
+    | '/$locale/profile/follows'
     | '/$locale/user/$id'
     | '/players/city/$city'
   id:
@@ -412,29 +544,40 @@ export interface FileRouteTypes {
     | '/'
     | '/$locale'
     | '/about-us'
+    | '/change-password'
     | '/clubs'
     | '/coaches'
     | '/contact'
     | '/explore'
+    | '/forgot-password'
+    | '/manifest.webmanifest'
+    | '/offline.html'
     | '/onboarding'
     | '/privacy'
     | '/profile'
     | '/recruiters'
+    | '/reset-password'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/splash'
+    | '/sw.js'
     | '/terms'
+    | '/verify-email'
     | '/$locale/about'
     | '/$locale/explore'
     | '/$locale/feed'
     | '/$locale/onboarding'
     | '/$locale/private'
     | '/$locale/profile'
+    | '/$locale/recovery'
     | '/$locale/sign-in'
+    | '/oauth/callback'
+    | '/oauth/google'
     | '/players/$position'
     | '/post/$id'
     | '/profile_/account-security'
     | '/profile_/edit-user'
+    | '/recovery/callback'
     | '/splash/continue'
     | '/user/$id'
     | '/$locale/'
@@ -442,6 +585,7 @@ export interface FileRouteTypes {
     | '/$locale/post/$id'
     | '/$locale/profile_/account-security'
     | '/$locale/profile_/edit-user'
+    | '/$locale/profile_/follows'
     | '/$locale/user/$id'
     | '/players/city/$city'
   fileRoutesById: FileRoutesById
@@ -450,22 +594,32 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LocaleRoute: typeof LocaleRouteWithChildren
   AboutUsRoute: typeof AboutUsRoute
+  ChangePasswordRoute: typeof ChangePasswordRoute
   ClubsRoute: typeof ClubsRoute
   CoachesRoute: typeof CoachesRoute
   ContactRoute: typeof ContactRoute
   ExploreRoute: typeof ExploreRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
+  ManifestDotwebmanifestRoute: typeof ManifestDotwebmanifestRoute
+  OfflineDothtmlRoute: typeof OfflineDothtmlRoute
   OnboardingRoute: typeof OnboardingRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
   RecruitersRoute: typeof RecruitersRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SplashRoute: typeof SplashRouteWithChildren
+  SwDotjsRoute: typeof SwDotjsRoute
   TermsRoute: typeof TermsRoute
+  VerifyEmailRoute: typeof VerifyEmailRoute
+  OauthCallbackRoute: typeof OauthCallbackRoute
+  OauthGoogleRoute: typeof OauthGoogleRoute
   PlayersPositionRoute: typeof PlayersPositionRoute
   PostIdRoute: typeof PostIdRoute
   ProfileAccountSecurityRoute: typeof ProfileAccountSecurityRoute
   ProfileEditUserRoute: typeof ProfileEditUserRoute
+  RecoveryCallbackRoute: typeof RecoveryCallbackRoute
   UserIdRoute: typeof UserIdRoute
   PlayersIndexRoute: typeof PlayersIndexRoute
   PlayersCityCityRoute: typeof PlayersCityCityRoute
@@ -492,6 +646,13 @@ declare module '@tanstack/react-router' {
       path: '/about-us'
       fullPath: '/about-us'
       preLoaderRoute: typeof AboutUsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/change-password': {
+      id: '/change-password'
+      path: '/change-password'
+      fullPath: '/change-password'
+      preLoaderRoute: typeof ChangePasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/clubs': {
@@ -522,6 +683,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ExploreRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manifest.webmanifest': {
+      id: '/manifest.webmanifest'
+      path: '/manifest.webmanifest'
+      fullPath: '/manifest.webmanifest'
+      preLoaderRoute: typeof ManifestDotwebmanifestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/offline.html': {
+      id: '/offline.html'
+      path: '/offline.html'
+      fullPath: '/offline.html'
+      preLoaderRoute: typeof OfflineDothtmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onboarding': {
       id: '/onboarding'
       path: '/onboarding'
@@ -550,6 +732,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecruitersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/robots.txt': {
       id: '/robots.txt'
       path: '/robots.txt'
@@ -571,11 +760,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SplashRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sw.js': {
+      id: '/sw.js'
+      path: '/sw.js'
+      fullPath: '/sw.js'
+      preLoaderRoute: typeof SwDotjsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/terms': {
       id: '/terms'
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify-email': {
+      id: '/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof VerifyEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/$locale/': {
@@ -627,12 +830,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocaleProfileRouteImport
       parentRoute: typeof LocaleRoute
     }
+    '/$locale/recovery': {
+      id: '/$locale/recovery'
+      path: '/recovery'
+      fullPath: '/$locale/recovery'
+      preLoaderRoute: typeof LocaleRecoveryRouteImport
+      parentRoute: typeof LocaleRoute
+    }
     '/$locale/sign-in': {
       id: '/$locale/sign-in'
       path: '/sign-in'
       fullPath: '/$locale/sign-in'
       preLoaderRoute: typeof LocaleSignInRouteImport
       parentRoute: typeof LocaleRoute
+    }
+    '/oauth/callback': {
+      id: '/oauth/callback'
+      path: '/oauth/callback'
+      fullPath: '/oauth/callback'
+      preLoaderRoute: typeof OauthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/oauth/google': {
+      id: '/oauth/google'
+      path: '/oauth/google'
+      fullPath: '/oauth/google'
+      preLoaderRoute: typeof OauthGoogleRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/players/': {
       id: '/players/'
@@ -667,6 +891,13 @@ declare module '@tanstack/react-router' {
       path: '/profile/edit-user'
       fullPath: '/profile/edit-user'
       preLoaderRoute: typeof ProfileEditUserRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recovery/callback': {
+      id: '/recovery/callback'
+      path: '/recovery/callback'
+      fullPath: '/recovery/callback'
+      preLoaderRoute: typeof RecoveryCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/splash/continue': {
@@ -704,6 +935,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocaleProfileEditUserRouteImport
       parentRoute: typeof LocaleRoute
     }
+    '/$locale/profile_/follows': {
+      id: '/$locale/profile_/follows'
+      path: '/profile/follows'
+      fullPath: '/$locale/profile/follows'
+      preLoaderRoute: typeof LocaleProfileFollowsRouteImport
+      parentRoute: typeof LocaleRoute
+    }
     '/$locale/user/$id': {
       id: '/$locale/user/$id'
       path: '/user/$id'
@@ -728,11 +966,13 @@ interface LocaleRouteChildren {
   LocaleOnboardingRoute: typeof LocaleOnboardingRoute
   LocalePrivateRoute: typeof LocalePrivateRoute
   LocaleProfileRoute: typeof LocaleProfileRoute
+  LocaleRecoveryRoute: typeof LocaleRecoveryRoute
   LocaleSignInRoute: typeof LocaleSignInRoute
   LocaleIndexRoute: typeof LocaleIndexRoute
   LocalePostIdRoute: typeof LocalePostIdRoute
   LocaleProfileAccountSecurityRoute: typeof LocaleProfileAccountSecurityRoute
   LocaleProfileEditUserRoute: typeof LocaleProfileEditUserRoute
+  LocaleProfileFollowsRoute: typeof LocaleProfileFollowsRoute
   LocaleUserIdRoute: typeof LocaleUserIdRoute
 }
 
@@ -743,11 +983,13 @@ const LocaleRouteChildren: LocaleRouteChildren = {
   LocaleOnboardingRoute: LocaleOnboardingRoute,
   LocalePrivateRoute: LocalePrivateRoute,
   LocaleProfileRoute: LocaleProfileRoute,
+  LocaleRecoveryRoute: LocaleRecoveryRoute,
   LocaleSignInRoute: LocaleSignInRoute,
   LocaleIndexRoute: LocaleIndexRoute,
   LocalePostIdRoute: LocalePostIdRoute,
   LocaleProfileAccountSecurityRoute: LocaleProfileAccountSecurityRoute,
   LocaleProfileEditUserRoute: LocaleProfileEditUserRoute,
+  LocaleProfileFollowsRoute: LocaleProfileFollowsRoute,
   LocaleUserIdRoute: LocaleUserIdRoute,
 }
 
@@ -769,22 +1011,32 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LocaleRoute: LocaleRouteWithChildren,
   AboutUsRoute: AboutUsRoute,
+  ChangePasswordRoute: ChangePasswordRoute,
   ClubsRoute: ClubsRoute,
   CoachesRoute: CoachesRoute,
   ContactRoute: ContactRoute,
   ExploreRoute: ExploreRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
+  ManifestDotwebmanifestRoute: ManifestDotwebmanifestRoute,
+  OfflineDothtmlRoute: OfflineDothtmlRoute,
   OnboardingRoute: OnboardingRoute,
   PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
   RecruitersRoute: RecruitersRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SplashRoute: SplashRouteWithChildren,
+  SwDotjsRoute: SwDotjsRoute,
   TermsRoute: TermsRoute,
+  VerifyEmailRoute: VerifyEmailRoute,
+  OauthCallbackRoute: OauthCallbackRoute,
+  OauthGoogleRoute: OauthGoogleRoute,
   PlayersPositionRoute: PlayersPositionRoute,
   PostIdRoute: PostIdRoute,
   ProfileAccountSecurityRoute: ProfileAccountSecurityRoute,
   ProfileEditUserRoute: ProfileEditUserRoute,
+  RecoveryCallbackRoute: RecoveryCallbackRoute,
   UserIdRoute: UserIdRoute,
   PlayersIndexRoute: PlayersIndexRoute,
   PlayersCityCityRoute: PlayersCityCityRoute,

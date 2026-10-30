@@ -8,10 +8,15 @@ import {
 	useRouter,
 	useRouterState,
 } from "@tanstack/react-router";
-import { ThemeProvider, useTheme } from "next-themes";
 import type { ReactNode } from "react";
 import { Button } from "../../../../components/ui/button";
+import { PlatformRegistration } from "../components/platform-registration";
 import { messages } from "../lib/messages";
+import {
+	PlatformTheme,
+	themeBootstrap,
+	usePlatformTheme,
+} from "../lib/platform-theme";
 import styles from "../styles.css?url";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
@@ -26,6 +31,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 			links: [
 				{ rel: "stylesheet", href: styles },
 				{ rel: "icon", href: "/logo.svg", type: "image/svg+xml" },
+				{ rel: "manifest", href: "/manifest.webmanifest" },
+				{ rel: "apple-touch-icon", href: "/icons/192.png" },
 			],
 		}),
 		component: Outlet,
@@ -66,11 +73,13 @@ function Document({ children }: { children: ReactNode }) {
 		>
 			<head>
 				<HeadContent />
+				<script>{themeBootstrap}</script>
 			</head>
 			<body className="bg-background text-foreground">
-				<ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+				<PlatformTheme>
+					<PlatformRegistration />
 					{children}
-				</ThemeProvider>
+				</PlatformTheme>
 				<Scripts />
 			</body>
 		</html>
@@ -89,13 +98,9 @@ function NotFound() {
 	);
 }
 export function ThemeToggle({ label }: { label: string }) {
-	const { resolvedTheme, setTheme } = useTheme();
+	const { toggle } = usePlatformTheme();
 	return (
-		<Button
-			variant="outline"
-			type="button"
-			onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-		>
+		<Button variant="outline" type="button" onClick={toggle}>
 			{label}
 		</Button>
 	);

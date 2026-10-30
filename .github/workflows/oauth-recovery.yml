@@ -1,0 +1,36 @@
+name: OAuth and recovery policy
+
+on:
+  pull_request:
+    paths:
+      - "apps/start/**"
+      - "tools/identity-import/**"
+      - ".github/workflows/oauth-recovery.yml"
+  push:
+    branches: [main]
+    paths:
+      - "apps/start/**"
+      - "tools/identity-import/**"
+      - ".github/workflows/oauth-recovery.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  oauth-recovery-policy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+      - run: bun install --frozen-lockfile
+      - run: bun install --cwd apps/start --frozen-lockfile
+      - run: bun install --cwd tools/identity-import --frozen-lockfile
+      - name: Run policy and private projection regressions
+        run: bun test apps/start/tests/auth-policy.test.ts apps/start/tests/oauth-protocol.test.ts tools/identity-import/oauth-registry.test.ts
+      - name: Build and scan the public client boundary
+        run: bun run --cwd apps/start build && bun run --cwd apps/start oauth:check-client

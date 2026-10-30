@@ -52,11 +52,13 @@ import { Route as RecoveryCallbackRouteImport } from './routes/recovery.callback
 import { Route as SplashContinueRouteImport } from './routes/splash.continue'
 import { Route as UserIdRouteImport } from './routes/user.$id'
 import { Route as LocalePostIdRouteImport } from './routes/$locale.post.$id'
+import { Route as LocalePostMyRouteImport } from './routes/$locale.post_.my'
 import { Route as LocaleProfileAccountSecurityRouteImport } from './routes/$locale.profile_.account-security'
 import { Route as LocaleProfileEditUserRouteImport } from './routes/$locale.profile_.edit-user'
 import { Route as LocaleProfileFollowsRouteImport } from './routes/$locale.profile_.follows'
 import { Route as LocaleUserIdRouteImport } from './routes/$locale.user.$id'
 import { Route as PlayersCityCityRouteImport } from './routes/players.city.$city'
+import { Route as LocalePostIdEditRouteImport } from './routes/$locale.post_.$id.edit'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -273,6 +275,11 @@ const LocalePostIdRoute = LocalePostIdRouteImport.update({
   path: '/post/$id',
   getParentRoute: () => LocaleRoute,
 } as any)
+const LocalePostMyRoute = LocalePostMyRouteImport.update({
+  id: '/post_/my',
+  path: '/post/my',
+  getParentRoute: () => LocaleRoute,
+} as any)
 const LocaleProfileAccountSecurityRoute =
   LocaleProfileAccountSecurityRouteImport.update({
     id: '/profile_/account-security',
@@ -298,6 +305,11 @@ const PlayersCityCityRoute = PlayersCityCityRouteImport.update({
   id: '/players/city/$city',
   path: '/players/city/$city',
   getParentRoute: () => rootRouteImport,
+} as any)
+const LocalePostIdEditRoute = LocalePostIdEditRouteImport.update({
+  id: '/post_/$id/edit',
+  path: '/post/$id/edit',
+  getParentRoute: () => LocaleRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -344,11 +356,13 @@ export interface FileRoutesByFullPath {
   '/$locale/': typeof LocaleIndexRoute
   '/players/': typeof PlayersIndexRoute
   '/$locale/post/$id': typeof LocalePostIdRoute
+  '/$locale/post/my': typeof LocalePostMyRoute
   '/$locale/profile/account-security': typeof LocaleProfileAccountSecurityRoute
   '/$locale/profile/edit-user': typeof LocaleProfileEditUserRoute
   '/$locale/profile/follows': typeof LocaleProfileFollowsRoute
   '/$locale/user/$id': typeof LocaleUserIdRoute
   '/players/city/$city': typeof PlayersCityCityRoute
+  '/$locale/post/$id/edit': typeof LocalePostIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -393,11 +407,13 @@ export interface FileRoutesByTo {
   '/$locale': typeof LocaleIndexRoute
   '/players': typeof PlayersIndexRoute
   '/$locale/post/$id': typeof LocalePostIdRoute
+  '/$locale/post/my': typeof LocalePostMyRoute
   '/$locale/profile/account-security': typeof LocaleProfileAccountSecurityRoute
   '/$locale/profile/edit-user': typeof LocaleProfileEditUserRoute
   '/$locale/profile/follows': typeof LocaleProfileFollowsRoute
   '/$locale/user/$id': typeof LocaleUserIdRoute
   '/players/city/$city': typeof PlayersCityCityRoute
+  '/$locale/post/$id/edit': typeof LocalePostIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -444,11 +460,13 @@ export interface FileRoutesById {
   '/$locale/': typeof LocaleIndexRoute
   '/players/': typeof PlayersIndexRoute
   '/$locale/post/$id': typeof LocalePostIdRoute
+  '/$locale/post_/my': typeof LocalePostMyRoute
   '/$locale/profile_/account-security': typeof LocaleProfileAccountSecurityRoute
   '/$locale/profile_/edit-user': typeof LocaleProfileEditUserRoute
   '/$locale/profile_/follows': typeof LocaleProfileFollowsRoute
   '/$locale/user/$id': typeof LocaleUserIdRoute
   '/players/city/$city': typeof PlayersCityCityRoute
+  '/$locale/post_/$id/edit': typeof LocalePostIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -496,11 +514,13 @@ export interface FileRouteTypes {
     | '/$locale/'
     | '/players/'
     | '/$locale/post/$id'
+    | '/$locale/post/my'
     | '/$locale/profile/account-security'
     | '/$locale/profile/edit-user'
     | '/$locale/profile/follows'
     | '/$locale/user/$id'
     | '/players/city/$city'
+    | '/$locale/post/$id/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -545,11 +565,13 @@ export interface FileRouteTypes {
     | '/$locale'
     | '/players'
     | '/$locale/post/$id'
+    | '/$locale/post/my'
     | '/$locale/profile/account-security'
     | '/$locale/profile/edit-user'
     | '/$locale/profile/follows'
     | '/$locale/user/$id'
     | '/players/city/$city'
+    | '/$locale/post/$id/edit'
   id:
     | '__root__'
     | '/'
@@ -595,11 +617,13 @@ export interface FileRouteTypes {
     | '/$locale/'
     | '/players/'
     | '/$locale/post/$id'
+    | '/$locale/post_/my'
     | '/$locale/profile_/account-security'
     | '/$locale/profile_/edit-user'
     | '/$locale/profile_/follows'
     | '/$locale/user/$id'
     | '/players/city/$city'
+    | '/$locale/post_/$id/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -941,6 +965,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocalePostIdRouteImport
       parentRoute: typeof LocaleRoute
     }
+    '/$locale/post_/my': {
+      id: '/$locale/post_/my'
+      path: '/post/my'
+      fullPath: '/$locale/post/my'
+      preLoaderRoute: typeof LocalePostMyRouteImport
+      parentRoute: typeof LocaleRoute
+    }
     '/$locale/profile_/account-security': {
       id: '/$locale/profile_/account-security'
       path: '/profile/account-security'
@@ -976,6 +1007,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlayersCityCityRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$locale/post_/$id/edit': {
+      id: '/$locale/post_/$id/edit'
+      path: '/post/$id/edit'
+      fullPath: '/$locale/post/$id/edit'
+      preLoaderRoute: typeof LocalePostIdEditRouteImport
+      parentRoute: typeof LocaleRoute
+    }
   }
 }
 
@@ -990,10 +1028,12 @@ interface LocaleRouteChildren {
   LocaleSignInRoute: typeof LocaleSignInRoute
   LocaleIndexRoute: typeof LocaleIndexRoute
   LocalePostIdRoute: typeof LocalePostIdRoute
+  LocalePostMyRoute: typeof LocalePostMyRoute
   LocaleProfileAccountSecurityRoute: typeof LocaleProfileAccountSecurityRoute
   LocaleProfileEditUserRoute: typeof LocaleProfileEditUserRoute
   LocaleProfileFollowsRoute: typeof LocaleProfileFollowsRoute
   LocaleUserIdRoute: typeof LocaleUserIdRoute
+  LocalePostIdEditRoute: typeof LocalePostIdEditRoute
 }
 
 const LocaleRouteChildren: LocaleRouteChildren = {
@@ -1007,10 +1047,12 @@ const LocaleRouteChildren: LocaleRouteChildren = {
   LocaleSignInRoute: LocaleSignInRoute,
   LocaleIndexRoute: LocaleIndexRoute,
   LocalePostIdRoute: LocalePostIdRoute,
+  LocalePostMyRoute: LocalePostMyRoute,
   LocaleProfileAccountSecurityRoute: LocaleProfileAccountSecurityRoute,
   LocaleProfileEditUserRoute: LocaleProfileEditUserRoute,
   LocaleProfileFollowsRoute: LocaleProfileFollowsRoute,
   LocaleUserIdRoute: LocaleUserIdRoute,
+  LocalePostIdEditRoute: LocalePostIdEditRoute,
 }
 
 const LocaleRouteWithChildren =

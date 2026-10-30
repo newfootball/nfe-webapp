@@ -1,12 +1,16 @@
 import { chmod, mkdir } from "node:fs/promises";
 import { databaseId, fixtures } from "./interactions-fixtures";
 import { endpoint, state } from "./interactions-local";
+import { proofProxy } from "./interactions-proxy";
 
 const { c, fixture } = await fixtures();
+const proxy = proofProxy(endpoint, c.writerKey);
 const env = {
 	...process.env,
 	START_APP_ORIGIN: "http://127.0.0.1:3571",
-	START_APPWRITE_ENDPOINT: endpoint,
+	START_APPWRITE_ENDPOINT: proxy.endpoint,
+	NFE_INTERACTION_PROXY_CONTROL: proxy.control,
+	NFE_INTERACTION_PROXY_TOKEN: proxy.token,
 	START_APPWRITE_PROJECT: c.project,
 	START_APPWRITE_SESSION_KEY: c.sessionKey,
 	START_APPWRITE_PROFILE_WRITER_KEY: c.writerKey,
@@ -18,6 +22,7 @@ const env = {
 	NODE_ENV: "production",
 };
 const secrets = [
+	proxy.token,
 	c.proofKey,
 	c.writerKey,
 	c.sessionKey,
@@ -98,4 +103,5 @@ try {
 } finally {
 	server.kill();
 	await server.exited;
+	proxy.stop();
 }

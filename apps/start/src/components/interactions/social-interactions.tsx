@@ -153,7 +153,7 @@ export function SocialInteractions({
 				ctx.state?.viewerId === r.state.viewerId
 			) {
 				client.setQueryData(options.queryKey, r.state);
-				if (v.kind === "create") {
+				if (v.kind === "create" && requestId.current === v.requestId) {
 					setContent("");
 					requestId.current = null;
 				}
@@ -267,7 +267,7 @@ export function SocialInteractions({
 								{t.content}
 								<textarea
 									required
-									maxLength={5000}
+									maxLength={1000}
 									value={content}
 									onChange={(e) => {
 										setContent(e.target.value);

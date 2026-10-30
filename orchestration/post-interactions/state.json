@@ -1,7 +1,26 @@
 {
 	"task": "57-post-interactions",
 	"base": "96c0819cad63637dc962ebdbf0d04d0263f2311a",
-	"budget": { "maximumRepairPasses": 3, "used": 0, "history": [] },
+	"budget": {
+		"maximumRepairPasses": 3,
+		"used": 1,
+		"history": [
+			{
+				"pass": 1,
+				"reason": "Independent review45d91f8 REQUEST_CHANGES R1-R5 plus runtime test gaps",
+				"status": "source complete; static checks in progress",
+				"review": "/Users/faharihamadasidi/.agents/tasks/nfe-start-appwrite-2026-10-29/orchestration/review-post-interactions.json",
+				"changes": [
+					"R1 legacy1000",
+					"R2 bounded fresh-revision retry preserving transactional anchor",
+					"R3 scoped business-date cursors",
+					"R4 token-guarded draft clearing",
+					"R5 narrow returnTo allowlist",
+					"Controlled proxy races, >20 comments/favorites, delayed draft and SPA A->B->A proof"
+				]
+			}
+		]
+	},
 	"scope": [
 		"likes",
 		"comments",
@@ -9,11 +28,11 @@
 		"PostCard additive integration"
 	],
 	"preservedSlice": "Follow PR87 delivered separately; history is not reset",
-	"phase": "implementation",
-	"runtimeLease": "not granted; no service launch",
+	"phase": "repair1",
+	"runtimeLease": "released unused to55; regrant required before bootstrap",
 	"gates": {
 		"lifecycle56": "unproven; do not close57",
-		"independentReview": "pending",
+		"independentReview": "REQUEST_CHANGES45d91f8 R1-R5",
 		"runtime": "pending",
 		"ci": "pending"
 	}

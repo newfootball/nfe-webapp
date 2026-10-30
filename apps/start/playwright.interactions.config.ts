@@ -4,7 +4,7 @@ export default defineConfig({
 	testMatch: "interactions.pw.ts",
 	workers: 1,
 	retries: 0,
-	timeout: 180_000,
+	timeout: 300_000,
 	use: {
 		baseURL: "http://127.0.0.1:3571",
 		headless: true,

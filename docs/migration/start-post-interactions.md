@@ -19,10 +19,14 @@ business dates and imported arbitrary pair IDs are preserved.
 
 Each child write also stages a parent status-preserving write in an Appwrite
 transaction and rechecks its live revision. A concurrent parent lifecycle change
-must conflict rather than leave a newly accepted orphan. Pair uniqueness uses the
+uses bounded retries with fresh visibility/revision checks and must conflict rather than leave a newly accepted orphan. Pair uniqueness uses the
 accepted schema indexes, not synthetic IDs; comments derive a stable ID from the
-server actor, post ID and client logical request UUID. A replay with different
+server actor, post ID and client logical request UUID. Comments retain the legacy 1000-character limit and date-descending
+ordering with a stable, post-scoped composite cursor. A replay with different
 content fails. Explicit desired states avoid double-click toggling.
+
+A test-runner-owned transparent loopback proxy controls actual parent-anchor and
+commit interleavings; production code has no test hooks.
 
 Runtime requires `START_APPWRITE_INTERACTION_WRITER_KEY` (rows.write, separate
 from the session key), `START_APPWRITE_FEED_READER_KEY` (rows.read), and existing

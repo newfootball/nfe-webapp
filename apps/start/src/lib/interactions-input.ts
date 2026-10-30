@@ -11,15 +11,15 @@ export const InteractionPairSchema = z.strictObject({
 export const CommentCreateSchema = z.strictObject({
 	id,
 	requestId: z.string().uuid(),
-	content: z.string().trim().min(1).max(5000),
+	content: z.string().trim().min(1).max(1000),
 });
 export const CommentDeleteSchema = z.strictObject({ id, commentId: id });
 export const InteractionPageSchema = z.strictObject({
 	id,
-	cursor: id.nullable().default(null),
+	cursor: z.string().max(1500).nullable().default(null),
 });
 export const FavoritePageSchema = z.strictObject({
-	cursor: id.nullable().default(null),
+	cursor: z.string().max(1500).nullable().default(null),
 });
 export const validateInteractionTarget = (v: unknown) =>
 	validate(InteractionTargetSchema, v);
@@ -38,3 +38,26 @@ export type CommentInput = z.infer<typeof CommentCreateSchema>;
 export type DeleteInput = z.infer<typeof CommentDeleteSchema>;
 export type PageInput = z.infer<typeof InteractionPageSchema>;
 export type FavoriteInput = z.infer<typeof FavoritePageSchema>;
+
+const CursorSchema = z.strictObject({
+	version: z.literal(1),
+	scope: z.string().max(100),
+	time: z.iso.datetime({ precision: 3 }),
+	id: ProfileIdSchema.shape.id,
+});
+export function interactionCursor(scope: string, time: string, id: string) {
+	return encodeURIComponent(
+		JSON.stringify({
+			version: 1,
+			scope,
+			time: new Date(time).toISOString(),
+			id,
+		}),
+	);
+}
+export function parseInteractionCursor(scope: string, value: string | null) {
+	if (!value) return null;
+	const cursor = CursorSchema.parse(JSON.parse(decodeURIComponent(value)));
+	if (cursor.scope !== scope) throw new Error("Invalid cursor scope");
+	return cursor;
+}

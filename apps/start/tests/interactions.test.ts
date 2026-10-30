@@ -1,11 +1,19 @@
 import { describe, expect, test } from "bun:test";
 import { QueryClient } from "@tanstack/react-query";
 import { clearIdentityCache } from "../src/lib/auth-cache";
+import { safeReturnPath } from "../src/lib/auth-policy";
+import {
+	INTERACTION_ATTEMPTS,
+	InteractionRevisionConflict,
+	retryInteraction,
+} from "../src/lib/interactions-concurrency";
 import {
 	type InteractionState,
 	optimisticInteraction,
 } from "../src/lib/interactions-contract";
 import {
+	interactionCursor,
+	parseInteractionCursor,
 	validateCommentCreate,
 	validateCommentDelete,
 	validateFavoritePage,
@@ -46,7 +54,7 @@ describe("interaction boundaries", () => {
 		expect(
 			validateCommentCreate({ id: "post", requestId, content: " ok " }),
 		).toEqual({ valid: true, data: { id: "post", requestId, content: "ok" } });
-		for (const content of [" ", "x".repeat(5001)])
+		for (const content of [" ", "x".repeat(1001)])
 			expect(
 				validateCommentCreate({ id: "post", requestId, content }).valid,
 			).toBe(false);
@@ -93,5 +101,95 @@ describe("interaction boundaries", () => {
 		await clearIdentityCache(client);
 		client.setQueryData(key, state);
 		expect(client.getQueryCache().find({ queryKey: key })).not.toBe(original);
+	});
+});
+
+describe("review regression guards", () => {
+	test("1000 characters is accepted and 1001 rejected", () => {
+		const requestId = crypto.randomUUID();
+		expect(
+			validateCommentCreate({
+				id: "post",
+				requestId,
+				content: "x".repeat(1000),
+			}).valid,
+		).toBe(true);
+		expect(
+			validateCommentCreate({
+				id: "post",
+				requestId,
+				content: "x".repeat(1001),
+			}).valid,
+		).toBe(false);
+	});
+	test("business-date cursor is scoped and preserves imported arbitrary IDs", () => {
+		const time = "2026-10-30T10:00:00.000Z",
+			cursor = interactionCursor("comments:post", time, "legacy-id");
+		expect(parseInteractionCursor("comments:post", cursor)).toMatchObject({
+			time,
+			id: "legacy-id",
+		});
+		expect(() => parseInteractionCursor("comments:other", cursor)).toThrow();
+		expect(() => parseInteractionCursor("comments:post", "bad-json")).toThrow();
+	});
+	test("concurrent revision retries with a fresh visibility check; revocation never retries", async () => {
+		let checks = 0,
+			revision = 1;
+		const result = await retryInteraction(
+			async () => {
+				checks++;
+				const before = revision;
+				if (checks === 1) revision++;
+				if (before !== revision) throw new InteractionRevisionConflict();
+				return revision;
+			},
+			(e) => e instanceof InteractionRevisionConflict,
+			async () => {},
+		);
+		expect(result).toBe(2);
+		expect(checks).toBe(2);
+		let attempts = 0;
+		await expect(
+			retryInteraction(
+				async () => {
+					attempts++;
+					throw new Error("forbidden");
+				},
+				(e) => e instanceof InteractionRevisionConflict,
+				async () => {},
+			),
+		).rejects.toThrow("forbidden");
+		expect(attempts).toBe(1);
+	});
+	test("revision contention has a strict attempt bound", async () => {
+		let attempts = 0;
+		await expect(
+			retryInteraction(
+				async () => {
+					attempts++;
+					throw new InteractionRevisionConflict();
+				},
+				(e) => e instanceof InteractionRevisionConflict,
+				async () => {},
+			),
+		).rejects.toBeInstanceOf(InteractionRevisionConflict);
+		expect(attempts).toBe(INTERACTION_ATTEMPTS);
+	});
+	test("new return paths remain locale-local, bounded, and cannot redirect externally", () => {
+		expect(safeReturnPath("/en/profile/favorites", "en")).toBe(
+			"/en/profile/favorites",
+		);
+		expect(safeReturnPath("/en/post/legacy-post", "en")).toBe(
+			"/en/post/legacy-post",
+		);
+		for (const path of [
+			"//evil.test",
+			"https://evil.test/en/post/id",
+			"/fr/post/id",
+			"/en/post/../private",
+			"/en/post/id?next=https://evil.test",
+			"/en/post/id/other",
+		])
+			expect(safeReturnPath(path, "en")).toBe("/en/private");
 	});
 });

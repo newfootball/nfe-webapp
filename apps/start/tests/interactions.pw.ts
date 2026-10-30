@@ -1,6 +1,13 @@
 import { readFile } from "node:fs/promises";
 import { type APIResponse, expect, test } from "@playwright/test";
-import { Client, Permission, Query, Role, TablesDB } from "node-appwrite";
+import {
+	Client,
+	Permission,
+	Query,
+	Role,
+	TablesDB,
+	Users,
+} from "node-appwrite";
 import { fromCrossJSON, toJSON } from "seroval";
 import { endpoint, state } from "../scripts/interactions-local";
 import type {
@@ -71,6 +78,18 @@ async function rows(tableId: string, postId = id, userId?: string) {
 		],
 	});
 }
+test.beforeEach(async () => {
+	for (const tableId of ["likes", "comments", "favorites"]) {
+		const r = await db.listRows({
+			databaseId,
+			tableId,
+			queries: [Query.limit(100)],
+		});
+		if (r.total > 100) throw new Error("Unexpected synthetic proof capacity");
+		for (const row of r.rows)
+			await db.deleteRow({ databaseId, tableId, rowId: row.$id });
+	}
+});
 test("real interactions: A B admin anonymous, concurrent pairs, ownership, privacy, rollback, reload, FR EN and account switch", async ({
 	page,
 	context,
@@ -318,7 +337,7 @@ test("real interactions: A B admin anonymous, concurrent pairs, ownership, priva
 		error: "invalid",
 	});
 	expect(
-		await call(commentUrl, { ...createData, content: "x".repeat(5001) }),
+		await call(commentUrl, { ...createData, content: "x".repeat(1001) }),
 	).toEqual({ ok: false, error: "invalid" });
 	expect(await call(commentUrl, createData, "")).toEqual({
 		ok: false,
@@ -432,20 +451,314 @@ test("real interactions: A B admin anonymous, concurrent pairs, ownership, priva
 	).toBeVisible();
 	await guestPage.goto(`${origin}/en/profile/favorites`);
 	await expect(guestPage).toHaveURL(/\/en\/sign-in/);
+
+	await guestPage.getByLabel("Email address").fill(`${b.id}@example.test`);
+	await guestPage.getByLabel("Password", { exact: true }).fill(b.password);
+	await guestPage.getByRole("button", { name: "Sign in", exact: true }).click();
+	await expect(guestPage).toHaveURL(/\/en\/profile\/favorites$/);
+	await expect(guestPage.getByText("No visible favorites.")).toBeVisible();
 	await guest.close();
-	// Real same-tab signout/login invokes cancellation and clearing, then B sees only B's list.
-	await page.goto("/en/private");
-	await page.getByRole("button", { name: "Sign out", exact: true }).click();
-	await expect(page).toHaveURL(/\/en\/sign-in/);
-	await page.getByLabel("Email address").fill(`${b.id}@example.test`);
-	await page.getByLabel("Password", { exact: true }).fill(b.password);
-	await page.getByRole("button", { name: "Sign in", exact: true }).click();
-	await expect(page.getByTestId("identity")).toHaveText(b.id);
-	await page.goto("/en/profile/favorites");
-	await expect(page.getByText("No visible favorites.")).toBeVisible();
+	// Controlled Appwrite interleavings: the proxy holds real upstream traffic,
+	// without any production header or business-code hook.
+	const control = process.env.NFE_INTERACTION_PROXY_CONTROL,
+		proxyToken = process.env.NFE_INTERACTION_PROXY_TOKEN;
+	if (!control || !proxyToken) throw new Error("Proof proxy required");
+	const proxy = async (method: string, data?: unknown) =>
+		request.fetch(control, {
+			method,
+			headers: { "x-proof-token": proxyToken },
+			data,
+		});
+	const arm = async (postId: string, phase = "anchor", when = "after") => {
+		await proxy("POST", { postId, phase, when });
+	};
+	const hit = async () => {
+		await expect
+			.poll(
+				async () =>
+					((await (await proxy("GET")).json()) as { hit: boolean }).hit,
+			)
+			.toBe(true);
+	};
+	const release = async () => {
+		await proxy("DELETE");
+	};
+	await pair(false, "like", a.secret);
+	await pair(false, "like", b.secret);
+	await arm(id);
+	const slowLike = pair(true, "like", a.secret);
+	await hit();
+	expect(await pair(true, "like", b.secret)).toMatchObject({ ok: true });
+	await release();
+	expect(await slowLike).toMatchObject({ ok: true });
+	expect((await rows("likes")).total).toBe(2);
+	await arm(id);
+	const slowComment = call(commentUrl, {
+		id,
+		requestId: crypto.randomUUID(),
+		content: "Controlled A",
+	});
+	await hit();
+	expect(
+		await call(
+			commentUrl,
+			{ id, requestId: crypto.randomUUID(), content: "Controlled B" },
+			b.secret,
+		),
+	).toMatchObject({ ok: true });
+	await release();
+	expect(await slowComment).toMatchObject({ ok: true });
+	// Archive, ACL withdrawal and deletion at different transaction boundaries.
+	const parentId = "social-second",
+		parent = await db.getRow({ databaseId, tableId: "posts", rowId: parentId });
+	const parentData = Object.fromEntries(
+		Object.entries(parent).filter(([key]) => !key.startsWith("$")),
+	);
+	for (const mode of ["archive", "acl", "delete"] as const) {
+		await arm(
+			parentId,
+			mode === "archive" ? "commit" : "anchor",
+			mode === "archive" ? "before" : "after",
+		);
+		const pending = pair(true, "like", a.secret, parentId);
+		await hit();
+		if (mode === "delete")
+			await db.deleteRow({ databaseId, tableId: "posts", rowId: parentId });
+		else
+			await db.updateRow({
+				databaseId,
+				tableId: "posts",
+				rowId: parentId,
+				data: mode === "archive" ? { status: "ARCHIVED" } : {},
+				permissions: [Permission.read(Role.user(a.id))],
+			});
+		await release();
+		const denied = await pending;
+		expect(denied.ok).toBe(false);
+		expect((await rows("likes", parentId)).total).toBe(0);
+		if (mode === "delete")
+			await db.createRow({
+				databaseId,
+				tableId: "posts",
+				rowId: parentId,
+				data: parentData,
+				permissions: [Permission.read(Role.any())],
+			});
+		else
+			await db.updateRow({
+				databaseId,
+				tableId: "posts",
+				rowId: parentId,
+				data: { status: "PUBLISHED" },
+				permissions: [Permission.read(Role.any())],
+			});
+	}
+	// More than one page, arbitrary imported IDs and tied business timestamps.
+	for (const row of (await rows("comments")).rows)
+		await db.deleteRow({ databaseId, tableId: "comments", rowId: row.$id });
+	const expectedComments = [] as { id: string; createdAt: string }[];
+	for (let i = 0; i < 25; i++) {
+		const rowId = `legacy-comment-${String(24 - i).padStart(2, "0")}`,
+			createdAt = `2026-10-${String(25 + (i % 3)).padStart(2, "0")}T10:00:00.000Z`;
+		await db.createRow({
+			databaseId,
+			tableId: "comments",
+			rowId,
+			data: {
+				postId: id,
+				userId: a.id,
+				content: `Imported comment ${i}`,
+				createdAt,
+				updatedAt: createdAt,
+			},
+			permissions: [],
+		});
+		expectedComments.push({ id: rowId, createdAt });
+	}
+	expectedComments.sort(
+		(a, b) =>
+			b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id),
+	);
 	await page.goto(`/en/post/${id}`);
+	const commentsRead = page.waitForRequest(
+		(r) =>
+			r.method() === "GET" &&
+			r.url().includes("/_serverFn/") &&
+			decodeURIComponent(r.url()).includes('"cursor"'),
+	);
+	await panel.getByRole("button", { name: "Comments", exact: true }).click();
+	const commentListUrl = (await commentsRead).url();
+	type CommentsResult = {
+		ok: true;
+		value: {
+			comments: { id: string; content: string }[];
+			nextCursor: string | null;
+		};
+	};
+	const first = await result<CommentsResult>(
+		await request.get(commentListUrl, { headers: headers() }),
+	);
+	expect(first.value.comments.map((c) => c.id)).toEqual(
+		expectedComments.slice(0, 20).map((c) => c.id),
+	);
+	expect(first.value.nextCursor).not.toBeNull();
+	const next = new URL(commentListUrl);
+	next.searchParams.set(
+		"payload",
+		JSON.stringify(toJSON({ data: { id, cursor: first.value.nextCursor } })),
+	);
+	const last = await result<CommentsResult>(
+		await request.get(next.href, { headers: headers() }),
+	);
+	expect(last.value.comments.map((c) => c.id)).toEqual(
+		expectedComments.slice(20).map((c) => c.id),
+	);
+	expect(last.value.nextCursor).toBeNull();
+	await panel.getByRole("button", { name: "Show more", exact: true }).click();
+	await expect(panel.locator("article")).toHaveCount(25);
+	let releaseDraft!: () => void, hitDraft!: () => void;
+	const heldDraft = new Promise<void>((resolve) => {
+			releaseDraft = resolve;
+		}),
+		draftReached = new Promise<void>((resolve) => {
+			hitDraft = resolve;
+		});
+	await page.route(commentUrl, async (route) => {
+		const response = await route.fetch();
+		hitDraft();
+		await heldDraft;
+		await route.fulfill({ response });
+	});
+	const acceptedContent = "x".repeat(1000);
+	await panel.getByLabel("Your comment").fill(acceptedContent);
+	await panel.getByRole("button", { name: "Comment", exact: true }).click();
+	await draftReached;
+	await panel.getByLabel("Your comment").fill("New unsent draft");
+	releaseDraft();
+	await expect(panel.getByLabel("Your comment")).toHaveValue(
+		"New unsent draft",
+	);
+	await expect(panel.getByText(acceptedContent, { exact: true })).toBeVisible();
+	await page.unroute(commentUrl);
+	const reconciled = await result<CommentsResult>(
+		await request.get(commentListUrl, { headers: headers() }),
+	);
+	expect(reconciled.value.comments[0]?.content).toBe(acceptedContent);
+	// Favorites also retain business ordering and page through an imported set.
+	for (let i = 0; i < 22; i++) {
+		const postId = `social-fav-${String(i).padStart(2, "0")}`,
+			createdAt = "2026-10-24T10:00:00.000Z";
+		try {
+			await db.getRow({ databaseId, tableId: "posts", rowId: postId });
+		} catch (e) {
+			if ((e as { code: number }).code !== 404) throw e;
+			await db.createRow({
+				databaseId,
+				tableId: "posts",
+				rowId: postId,
+				data: {
+					...parentData,
+					slug: postId,
+					createdAt,
+					updatedAt: createdAt,
+					title: postId,
+					titleFolded: postId,
+				},
+				permissions: [Permission.read(Role.any())],
+			});
+		}
+		await db.createRow({
+			databaseId,
+			tableId: "favorites",
+			rowId: `legacy-favorite-${String(i).padStart(2, "0")}`,
+			data: { userId: a.id, postId, createdAt, updatedAt: createdAt },
+			permissions: [Permission.read(Role.user(a.id))],
+		});
+	}
+	await panel.getByRole("link", { name: "My favorites", exact: true }).click();
+	await expect(page.locator("[data-post-id]")).toHaveCount(20);
+	await page.getByRole("button", { name: "Show more", exact: true }).click();
+	await expect(page.locator("[data-post-id]")).toHaveCount(23);
+	// This entire section must keep one browser document and one router QueryClient.
+	await page.goto(`/en/post/${id}`);
+	const documentToken = await page.evaluate(() => {
+		const w = window as Window & { nfeInteractionDocument?: string };
+		w.nfeInteractionDocument = crypto.randomUUID();
+		return w.nfeInteractionDocument;
+	});
+	const sameDocument = async () =>
+		expect(
+			await page.evaluate(
+				() =>
+					(window as Window & { nfeInteractionDocument?: string })
+						.nfeInteractionDocument,
+			),
+		).toBe(documentToken);
+	const switchTo = async (actor: { id: string; password: string }) => {
+		await page.getByRole("link", { name: "My space", exact: true }).click();
+		await page.getByRole("button", { name: "Sign out", exact: true }).click();
+		await expect(page).toHaveURL(/\/en\/sign-in/);
+		await page.getByLabel("Email address").fill(`${actor.id}@example.test`);
+		await page.getByLabel("Password", { exact: true }).fill(actor.password);
+		await page.getByRole("button", { name: "Sign in", exact: true }).click();
+		await expect(page.getByTestId("identity")).toHaveText(actor.id);
+		await sameDocument();
+	};
+	const openPost = async () => {
+		await page.getByRole("link", { name: "Home", exact: true }).click();
+		await page
+			.locator(`[data-post-id="${id}"]`)
+			.getByRole("link", { name: "Public social-public", exact: true })
+			.click();
+		await expect(panel.getByTestId("interaction-counts")).toBeVisible();
+		await sameDocument();
+	};
+	let releaseMutation!: () => void, hitMutation!: () => void;
+	const heldMutation = new Promise<void>((resolve) => {
+			releaseMutation = resolve;
+		}),
+		mutationReached = new Promise<void>((resolve) => {
+			hitMutation = resolve;
+		});
+	await page.route(pairUrl, async (route) => {
+		const response = await route.fetch();
+		hitMutation();
+		await heldMutation;
+		await route.fulfill({ response });
+	});
+	await panel
+		.getByRole("button", { name: "Remove favorite", exact: true })
+		.click();
+	await mutationReached;
+	await switchTo(b);
+	await openPost();
 	await expect(
 		panel.getByRole("button", { name: "Save", exact: true }),
 	).toBeVisible();
+	await switchTo(a);
+	// Intervening A state differs from the delayed old A result; late callbacks must
+	// not restore the old Query object even when viewerId is A again.
+	const replacement = await new Users(base().setKey(c.proofKey)).createSession({
+		userId: a.id,
+	});
+	secrets.push(replacement.secret);
+	expect(await pair(true, "favorite", replacement.secret)).toMatchObject({
+		ok: true,
+	});
+	await openPost();
+	await expect(
+		panel.getByRole("button", { name: "Remove favorite", exact: true }),
+	).toBeVisible();
+	releaseMutation();
+	await page.unroute(pairUrl);
+	await expect(
+		panel.getByRole("button", { name: "Remove favorite", exact: true }),
+	).toBeVisible();
+	await sameDocument();
+	await switchTo(b);
+	await openPost();
+	await panel.getByRole("link", { name: "My favorites", exact: true }).click();
+	await expect(page.getByText("No visible favorites.")).toBeVisible();
+	await sameDocument();
 	expect(errors).toEqual([]);
 });

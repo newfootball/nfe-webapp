@@ -40,6 +40,7 @@ import { Route as UserIdRouteImport } from './routes/user.$id'
 import { Route as LocalePostIdRouteImport } from './routes/$locale.post.$id'
 import { Route as LocaleProfileAccountSecurityRouteImport } from './routes/$locale.profile_.account-security'
 import { Route as LocaleProfileEditUserRouteImport } from './routes/$locale.profile_.edit-user'
+import { Route as LocaleProfileFollowsRouteImport } from './routes/$locale.profile_.follows'
 import { Route as LocaleUserIdRouteImport } from './routes/$locale.user.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -198,6 +199,11 @@ const LocaleProfileEditUserRoute = LocaleProfileEditUserRouteImport.update({
   path: '/profile/edit-user',
   getParentRoute: () => LocaleRoute,
 } as any)
+const LocaleProfileFollowsRoute = LocaleProfileFollowsRouteImport.update({
+  id: '/profile_/follows',
+  path: '/profile/follows',
+  getParentRoute: () => LocaleRoute,
+} as any)
 const LocaleUserIdRoute = LocaleUserIdRouteImport.update({
   id: '/user/$id',
   path: '/user/$id',
@@ -236,6 +242,7 @@ export interface FileRoutesByFullPath {
   '/$locale/post/$id': typeof LocalePostIdRoute
   '/$locale/profile/account-security': typeof LocaleProfileAccountSecurityRoute
   '/$locale/profile/edit-user': typeof LocaleProfileEditUserRoute
+  '/$locale/profile/follows': typeof LocaleProfileFollowsRoute
   '/$locale/user/$id': typeof LocaleUserIdRoute
 }
 export interface FileRoutesByTo {
@@ -269,6 +276,7 @@ export interface FileRoutesByTo {
   '/$locale/post/$id': typeof LocalePostIdRoute
   '/$locale/profile/account-security': typeof LocaleProfileAccountSecurityRoute
   '/$locale/profile/edit-user': typeof LocaleProfileEditUserRoute
+  '/$locale/profile/follows': typeof LocaleProfileFollowsRoute
   '/$locale/user/$id': typeof LocaleUserIdRoute
 }
 export interface FileRoutesById {
@@ -304,6 +312,7 @@ export interface FileRoutesById {
   '/$locale/post/$id': typeof LocalePostIdRoute
   '/$locale/profile_/account-security': typeof LocaleProfileAccountSecurityRoute
   '/$locale/profile_/edit-user': typeof LocaleProfileEditUserRoute
+  '/$locale/profile_/follows': typeof LocaleProfileFollowsRoute
   '/$locale/user/$id': typeof LocaleUserIdRoute
 }
 export interface FileRouteTypes {
@@ -340,6 +349,7 @@ export interface FileRouteTypes {
     | '/$locale/post/$id'
     | '/$locale/profile/account-security'
     | '/$locale/profile/edit-user'
+    | '/$locale/profile/follows'
     | '/$locale/user/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -373,6 +383,7 @@ export interface FileRouteTypes {
     | '/$locale/post/$id'
     | '/$locale/profile/account-security'
     | '/$locale/profile/edit-user'
+    | '/$locale/profile/follows'
     | '/$locale/user/$id'
   id:
     | '__root__'
@@ -407,6 +418,7 @@ export interface FileRouteTypes {
     | '/$locale/post/$id'
     | '/$locale/profile_/account-security'
     | '/$locale/profile_/edit-user'
+    | '/$locale/profile_/follows'
     | '/$locale/user/$id'
   fileRoutesById: FileRoutesById
 }
@@ -651,6 +663,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocaleProfileEditUserRouteImport
       parentRoute: typeof LocaleRoute
     }
+    '/$locale/profile_/follows': {
+      id: '/$locale/profile_/follows'
+      path: '/profile/follows'
+      fullPath: '/$locale/profile/follows'
+      preLoaderRoute: typeof LocaleProfileFollowsRouteImport
+      parentRoute: typeof LocaleRoute
+    }
     '/$locale/user/$id': {
       id: '/$locale/user/$id'
       path: '/user/$id'
@@ -674,6 +693,7 @@ interface LocaleRouteChildren {
   LocalePostIdRoute: typeof LocalePostIdRoute
   LocaleProfileAccountSecurityRoute: typeof LocaleProfileAccountSecurityRoute
   LocaleProfileEditUserRoute: typeof LocaleProfileEditUserRoute
+  LocaleProfileFollowsRoute: typeof LocaleProfileFollowsRoute
   LocaleUserIdRoute: typeof LocaleUserIdRoute
 }
 
@@ -690,6 +710,7 @@ const LocaleRouteChildren: LocaleRouteChildren = {
   LocalePostIdRoute: LocalePostIdRoute,
   LocaleProfileAccountSecurityRoute: LocaleProfileAccountSecurityRoute,
   LocaleProfileEditUserRoute: LocaleProfileEditUserRoute,
+  LocaleProfileFollowsRoute: LocaleProfileFollowsRoute,
   LocaleUserIdRoute: LocaleUserIdRoute,
 }
 

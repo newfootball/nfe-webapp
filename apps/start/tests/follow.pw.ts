@@ -72,6 +72,28 @@ async function pairCount() {
 	).total;
 }
 
+// Reset only the two synthetic proof pairs, so a failed run can be replayed
+// without touching imported fixture edges, user profiles or another database.
+test.beforeEach(async () => {
+	for (const [from, to] of [
+		[a.id, b.id],
+		[b.id, a.id],
+	] as const) {
+		const edges = await db.listRows({
+			databaseId,
+			tableId: "follows",
+			queries: [
+				Query.equal("followerId", from),
+				Query.equal("followingId", to),
+				Query.limit(2),
+			],
+		});
+		expect(edges.rows.length).toBeLessThanOrEqual(1);
+		for (const edge of edges.rows)
+			await db.deleteRow({ databaseId, tableId: "follows", rowId: edge.$id });
+	}
+});
+
 test("follow A/B/anonymous: real UI, direct RPC, concurrent unique pairs, rollback and identity isolation", async ({
 	page,
 	context,
@@ -171,8 +193,29 @@ test("follow A/B/anonymous: real UI, direct RPC, concurrent unique pairs, rollba
 		Array.from({ length: 12 }, () => call({ id: b.id, following: false })),
 	);
 	expect(removes.every((r) => r.ok)).toBe(true);
-	expect(removes.filter((r) => r.ok && r.value.event)).toHaveLength(1);
+	const removalEvents = removes.flatMap((r) =>
+		r.ok && r.value.event ? [r.value.event] : [],
+	);
+	expect(removalEvents.length).toBeGreaterThanOrEqual(1);
+	expect(new Set(removalEvents.map((e) => e.eventId)).size).toBe(1);
+	expect(
+		removalEvents.every(
+			(e) =>
+				e.type === "FOLLOW_REMOVED" &&
+				e.edgeId === events[0]?.edgeId &&
+				e.actorId === a.id &&
+				e.recipientId === b.id,
+		),
+	).toBe(true);
 	expect(await pairCount()).toBe(0);
+	const recreated = await call({ id: b.id, following: true });
+	expect(recreated.ok).toBe(true);
+	if (recreated.ok) {
+		expect(recreated.value.event?.type).toBe("FOLLOW_CREATED");
+		expect(recreated.value.event?.eventId).not.toBe(events[0]?.eventId);
+		expect(recreated.value.event?.edgeId).not.toBe(events[0]?.edgeId);
+	}
+	await call({ id: b.id, following: false });
 	// Opposing requests may linearize either way. The authoritative reload must
 	// match the persisted unique pair rather than preserve a guessed client order.
 	await Promise.all(

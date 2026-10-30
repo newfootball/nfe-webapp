@@ -33,9 +33,12 @@ restores its snapshot on failure and refetches authoritative state on settlement
 Existing auth sign-in/sign-out cancels and clears Query state; late mutation
 callbacks cannot restore a removed prior-account follow snapshot.
 
-`FollowEvent` is a versioned typed business contract for #58. Only the winning
-create/delete emits an event, identified by transition plus edge ID; replays
-return null. It contains actor, recipient, edge, timestamp and event type, with
+`FollowEvent` is a versioned typed business contract for #58. The winning create emits one
+event; repeated no-op reads return null. Concurrent successful delete
+acknowledgments may repeat a removal event with the same transition-plus-edge
+`eventId`, actor and recipient. A recreated edge receives a different ID. This
+distinguishes one persisted transition and one business event ID from repeated
+transport acknowledgments; exactly-once emission is not guaranteed. It contains actor, recipient, edge, timestamp and event type, with
 no localized text. This return contract does **not** establish durable event
 delivery or a notification outbox; #58 must persist/deliver events atomically
 before claiming notification acceptance.

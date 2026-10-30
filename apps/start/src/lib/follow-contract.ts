@@ -7,7 +7,9 @@ export type FollowState = {
 	followers: number;
 	followings: number;
 };
-// Versioned business contract for #58. Consumers dedupe by eventId; no translated
+// Versioned business contract for #58. Concurrent delete acknowledgments may
+// repeat the same eventId; this is not exactly-once emission. Consumers dedupe
+// by eventId before delivery; no translated
 // text, credentials or private profile fields cross this boundary. Delivery and
 // durable notification outbox are deliberately owned by #58.
 export type FollowEvent = {

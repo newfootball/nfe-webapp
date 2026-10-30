@@ -22,6 +22,7 @@ import {
 	selectedB2Configuration,
 } from "./media-fixtures";
 import { endpoint, state } from "./media-local";
+import { finalizeMediaProof } from "./media-proof-finalize";
 
 const { c, db, fixture } = await fixtureSetup();
 await generateMediaFixtures();
@@ -94,6 +95,11 @@ report.startedAt = new Date().toISOString();
 report.testScope = process.env.NFE_MEDIA_UI_GREP
 	? "targeted diagnostic; not full acceptance"
 	: "full core + mounted UI";
+await Bun.write(
+	`${state}/proof-summary.json`,
+	`${JSON.stringify(report, null, 2)}\n`,
+);
+await chmod(`${state}/proof-summary.json`, 0o600);
 await Bun.write(`${state}/test.log`, "");
 await chmod(`${state}/test.log`, 0o600);
 try {
@@ -295,137 +301,130 @@ try {
 	report.failure =
 		"Proof failed; details suppressed to protect credentials and capabilities";
 } finally {
-	server?.kill();
-	if (server) await server.exited;
-	try {
-		const assets = await db.listRows({
-			databaseId,
-			tableId: "media_assets",
-			queries: [Query.limit(100)],
-			total: false,
-		});
-		assert(assets.rows.length < 100);
-		let deletedVersions = 0,
-			abortedUploads = 0;
-		for (const a of assets.rows) {
-			assert(
-				a.bucket === b2.B2_BUCKET_NAME &&
-					a.objectKey.startsWith(fixture.prefix) &&
-					a.objectKey.endsWith(`/${a.$id}`),
-			);
-			const ref = { Bucket: a.bucket, Key: a.objectKey };
-			const uploads = await s3.send(
-				new ListMultipartUploadsCommand({
-					Bucket: a.bucket,
-					Prefix: a.objectKey,
-					MaxUploads: 100,
-				}),
-			);
-			const versions = await s3.send(
-				new ListObjectVersionsCommand({
-					Bucket: a.bucket,
-					Prefix: a.objectKey,
-					MaxKeys: 100,
-				}),
-			);
-			assert(!uploads.IsTruncated && !versions.IsTruncated);
-			const us = (uploads.Uploads ?? []).filter((u) => u.Key === a.objectKey),
-				vs = [
-					...(versions.Versions ?? []),
-					...(versions.DeleteMarkers ?? []),
-				].filter((v) => v.Key === a.objectKey);
-			// Journal exact owned resources before deletion; no broad bucket/prefix cleanup.
-			await Bun.write(
-				`${state}/cleanup-${a.$id}.json`,
-				JSON.stringify({ ...ref, uploads: us, versions: vs }),
-			);
-			await chmod(`${state}/cleanup-${a.$id}.json`, 0o600);
-			for (const u of us) {
-				assert(u.UploadId);
-				await s3.send(
-					new AbortMultipartUploadCommand({ ...ref, UploadId: u.UploadId }),
+	exit = await finalizeMediaProof(report, exit, {
+		stop: async () => {
+			server?.kill();
+			if (server) await server.exited;
+		},
+		cleanup: async () => {
+			const assets = await db.listRows({
+				databaseId,
+				tableId: "media_assets",
+				queries: [Query.limit(100)],
+				total: false,
+			});
+			assert(assets.rows.length < 100);
+			let deletedVersions = 0,
+				abortedUploads = 0;
+			for (const a of assets.rows) {
+				assert(
+					a.bucket === b2.B2_BUCKET_NAME &&
+						a.objectKey.startsWith(fixture.prefix) &&
+						a.objectKey.endsWith(`/${a.$id}`),
 				);
-				abortedUploads++;
-			}
-			for (const v of vs) {
-				assert(v.VersionId);
-				await s3.send(
-					new DeleteObjectCommand({ ...ref, VersionId: v.VersionId }),
-				);
-				deletedVersions++;
-			}
-		}
-		const remainingVersions = await s3.send(
-			new ListObjectVersionsCommand({
-				Bucket: b2.B2_BUCKET_NAME,
-				Prefix: fixture.prefix,
-				MaxKeys: 1,
-			}),
-		);
-		const remainingUploads = await s3.send(
-			new ListMultipartUploadsCommand({
-				Bucket: b2.B2_BUCKET_NAME,
-				Prefix: fixture.prefix,
-				MaxUploads: 1,
-			}),
-		);
-		assert(
-			!remainingVersions.Versions?.length &&
-				!remainingVersions.DeleteMarkers?.length &&
-				!remainingUploads.Uploads?.length,
-		);
-		await removeFixtureRows(db, assets.rows, fixture);
-		if (baseline && !baseline.some((r) => sameRule(r, ownRule))) {
-			const current = await cors();
-			const retained = current.filter((r) => !sameRule(r, ownRule));
-			if (retained.length)
-				await s3.send(
-					new PutBucketCorsCommand({
-						Bucket: b2.B2_BUCKET_NAME,
-						CORSConfiguration: { CORSRules: retained },
+				const ref = { Bucket: a.bucket, Key: a.objectKey };
+				const uploads = await s3.send(
+					new ListMultipartUploadsCommand({
+						Bucket: a.bucket,
+						Prefix: a.objectKey,
+						MaxUploads: 100,
 					}),
 				);
-			else
-				await s3.send(
-					new DeleteBucketCorsCommand({ Bucket: b2.B2_BUCKET_NAME }),
+				const versions = await s3.send(
+					new ListObjectVersionsCommand({
+						Bucket: a.bucket,
+						Prefix: a.objectKey,
+						MaxKeys: 100,
+					}),
 				);
-			assert(baseline.every((r) => retained.some((v) => sameRule(r, v))));
-		}
-		assert(
-			isOwnerOnlyBucketAcl(
-				await s3.send(new GetBucketAclCommand({ Bucket: b2.B2_BUCKET_NAME })),
-			),
-			"Bucket ACL changed",
-		);
-		report.cleanup = {
-			deletedVersions,
-			abortedUploads,
-			remainingVersions: 0,
-			remainingUploads: 0,
-			corsOwnRuleRemovedExistingRulesPreserved: true,
-			appServerStopped: true,
-			bucketRetainedPrivate: true,
-		};
-	} catch {
-		report.status = "failed";
-		assert(
-			isOwnerOnlyBucketAcl(
-				await s3.send(new GetBucketAclCommand({ Bucket: b2.B2_BUCKET_NAME })),
-			),
-			"Bucket ACL changed",
-		);
-		report.cleanup = {
-			failed: true,
-			protectedJournal: "scripts/.media-local/cleanup-*.json",
-			action: "retry owned cleanup before deleting local backend",
-		};
-		exit = 1;
-	}
-	s3.destroy();
-	await Bun.write(
-		`${state}/proof-summary.json`,
-		`${JSON.stringify(report, null, 2)}\n`,
-	);
-	await chmod(`${state}/proof-summary.json`, 0o600);
+				assert(!uploads.IsTruncated && !versions.IsTruncated);
+				const us = (uploads.Uploads ?? []).filter((u) => u.Key === a.objectKey),
+					vs = [
+						...(versions.Versions ?? []),
+						...(versions.DeleteMarkers ?? []),
+					].filter((v) => v.Key === a.objectKey);
+				// Journal exact owned resources before deletion; no broad bucket/prefix cleanup.
+				await Bun.write(
+					`${state}/cleanup-${a.$id}.json`,
+					JSON.stringify({ ...ref, uploads: us, versions: vs }),
+				);
+				await chmod(`${state}/cleanup-${a.$id}.json`, 0o600);
+				for (const u of us) {
+					assert(u.UploadId);
+					await s3.send(
+						new AbortMultipartUploadCommand({ ...ref, UploadId: u.UploadId }),
+					);
+					abortedUploads++;
+				}
+				for (const v of vs) {
+					assert(v.VersionId);
+					await s3.send(
+						new DeleteObjectCommand({ ...ref, VersionId: v.VersionId }),
+					);
+					deletedVersions++;
+				}
+			}
+			const remainingVersions = await s3.send(
+				new ListObjectVersionsCommand({
+					Bucket: b2.B2_BUCKET_NAME,
+					Prefix: fixture.prefix,
+					MaxKeys: 1,
+				}),
+			);
+			const remainingUploads = await s3.send(
+				new ListMultipartUploadsCommand({
+					Bucket: b2.B2_BUCKET_NAME,
+					Prefix: fixture.prefix,
+					MaxUploads: 1,
+				}),
+			);
+			assert(
+				!remainingVersions.Versions?.length &&
+					!remainingVersions.DeleteMarkers?.length &&
+					!remainingUploads.Uploads?.length,
+			);
+			await removeFixtureRows(db, assets.rows, fixture);
+			if (baseline && !baseline.some((r) => sameRule(r, ownRule))) {
+				const current = await cors();
+				const retained = current.filter((r) => !sameRule(r, ownRule));
+				if (retained.length)
+					await s3.send(
+						new PutBucketCorsCommand({
+							Bucket: b2.B2_BUCKET_NAME,
+							CORSConfiguration: { CORSRules: retained },
+						}),
+					);
+				else
+					await s3.send(
+						new DeleteBucketCorsCommand({ Bucket: b2.B2_BUCKET_NAME }),
+					);
+				assert(baseline.every((r) => retained.some((v) => sameRule(r, v))));
+			}
+			return {
+				deletedVersions,
+				abortedUploads,
+				remainingVersions: 0,
+				remainingUploads: 0,
+				corsOwnRuleRemovedExistingRulesPreserved: true,
+				appServerStopped: true,
+			};
+		},
+		verifyPrivacy: async () => {
+			assert(
+				isOwnerOnlyBucketAcl(
+					await s3.send(new GetBucketAclCommand({ Bucket: b2.B2_BUCKET_NAME })),
+				),
+				"Bucket ACL changed",
+			);
+		},
+		destroy: () => s3.destroy(),
+		persist: async () => {
+			await Bun.write(
+				`${state}/proof-summary.json`,
+				`${JSON.stringify(report, null, 2)}\n`,
+			);
+			await chmod(`${state}/proof-summary.json`, 0o600);
+		},
+	});
 }
 process.exitCode = exit;

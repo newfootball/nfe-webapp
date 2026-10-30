@@ -5,14 +5,15 @@ export function safeReturnPath(value: unknown, locale: "fr" | "en") {
 		"private",
 		"onboarding",
 		"profile",
+		"profile/favorites",
 		"profile/edit-user",
 		"profile/account-security",
 	].map((path) => `/${locale}/${path}`);
 	const ownEdit =
 		typeof value === "string" &&
-		new RegExp(`^/${locale}/post/[a-zA-Z0-9][a-zA-Z0-9._-]{0,35}/edit$`).test(
-			value,
-		);
+		new RegExp(
+			`^/${locale}/post/[a-zA-Z0-9][a-zA-Z0-9._-]{0,35}(?:/edit)?$`,
+		).test(value);
 	const messageThread =
 		typeof value === "string" &&
 		new RegExp(`^/${locale}/messages/[a-zA-Z0-9][a-zA-Z0-9._-]{0,35}$`).test(

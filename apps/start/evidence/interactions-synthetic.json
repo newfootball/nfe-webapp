@@ -1,0 +1,17 @@
+{
+	"at": "2026-10-30T13:04:57.968Z",
+	"appwrite": "2.6.2",
+	"source": "synthetic only",
+	"testExit": 1,
+	"databaseId": "interactions-proof",
+	"sensitiveScan": {
+		"files": 57,
+		"matches": 0
+	},
+	"buildSha256": "a0a46aac8193417fa6dfcdfe97ea6088c566a4afe183fc1b0115895afae68b32",
+	"limitations": [
+		"Post interactions slice #57 only",
+		"No durable notification delivery; contract only",
+		"No full lifecycle56, real import or production acceptance"
+	]
+}

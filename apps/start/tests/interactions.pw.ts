@@ -79,6 +79,13 @@ async function rows(tableId: string, postId = id, userId?: string) {
 	});
 }
 test.beforeEach(async () => {
+	await db.updateRow({
+		databaseId,
+		tableId: "posts",
+		rowId: "social-orphan",
+		data: {},
+		permissions: [Permission.read(Role.any())],
+	});
 	for (const tableId of ["likes", "comments", "favorites"]) {
 		const r = await db.listRows({
 			databaseId,
@@ -458,6 +465,15 @@ test("real interactions: A B admin anonymous, concurrent pairs, ownership, priva
 	await expect(guestPage).toHaveURL(/\/en\/profile\/favorites$/);
 	await expect(guestPage.getByText("No visible favorites.")).toBeVisible();
 	await guest.close();
+	// The orphan denial fixture is intentionally malformed; accepted feed fails
+	// closed on that row. Withdraw it only after all orphan mutation denials above.
+	await db.updateRow({
+		databaseId,
+		tableId: "posts",
+		rowId: "social-orphan",
+		data: {},
+		permissions: [],
+	});
 	// Controlled Appwrite interleavings: the proxy holds real upstream traffic,
 	// without any production header or business-code hook.
 	const control = process.env.NFE_INTERACTION_PROXY_CONTROL,

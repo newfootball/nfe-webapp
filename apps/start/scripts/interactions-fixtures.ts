@@ -27,8 +27,22 @@ export async function fixtures() {
 	}
 	await provisionProfileV2(db, databaseId);
 	const file = `${state}/fixture.json`;
-	if (await Bun.file(file).exists())
-		return { c, fixture: await Bun.file(file).json() };
+	if (await Bun.file(file).exists()) {
+		const fixture = (await Bun.file(file).json()) as {
+			actors: { id: string; password: string; secret: string }[];
+		};
+		const users = new Users(
+			new Client()
+				.setEndpoint(endpoint)
+				.setProject(c.project)
+				.setKey(c.proofKey),
+		);
+		for (const actor of fixture.actors)
+			actor.secret = (await users.createSession({ userId: actor.id })).secret;
+		await Bun.write(file, JSON.stringify(fixture));
+		await chmod(file, 0o600);
+		return { c, fixture };
+	}
 	const users = new Users(
 		new Client().setEndpoint(endpoint).setProject(c.project).setKey(c.proofKey),
 	);

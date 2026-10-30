@@ -1,6 +1,6 @@
 # Start public pages and SEO — issue #61
 
-Status: **partial / draft, do not merge**. Resumes `fbc89c7` without replacing
+Status: **partial issue #61; isolated public proof passed**. Resumes `fbc89c7` without replacing
 its seven localized content/component files. No production, Vercel, real import,
 OAuth #52 or B2 #55 changes are included. Issue #56 is still open.
 
@@ -34,61 +34,79 @@ OAuth #52 or B2 #55 changes are included. Issue #56 is still open.
   Production indexability and a trusted permanent canonical origin are gates
   for the future permanent host, not enabled environment switches in this PR.
 
-## Known blocking URL defect
+## Historical URL and signup repairs
 
-TanStack Router serializes the default `page: 1` returned by `validateSearch`.
-Consequently `/players`, `/coaches`, `/recruiters`, `/clubs` and filtered
-annuary paths return **307** to the same path plus `?page=1`. Explicit
-`?page=1` and `?page=2` return 200. The canonical for page 1 omits that query.
-This is a demonstrated URL-contract blocker, not an accepted permanent
-redirect. The full isolated proof correctly fails at this point. Repair budget
-is **3/3**, retained in the canonical task artifact; no fourth batch was made.
+Historical directory URLs now return **200 without a redirect**. Search validation
+preserves an absent `page`; only loader dependencies default to page 1. Explicit
+`?page=1` also returns 200 and canonicalizes to the historical query-free path;
+`?page=2` keeps its own canonical. All six directory route variants are exercised
+through actual Appwrite reads, with manual redirect handling in the proof.
+
+The historical About-us Join CTA reaches `/sign-up` directly with HTTP 200.
+That route selects the existing request locale and renders the shared auth form
+in signup mode. Existing `signUp`, session creation, cache clearing and
+`safeReturnPath` are reused; no new authentication mechanism is introduced.
+The original localized sign-in route keeps its prior behavior. Optional string
+`returnTo` is preserved and the existing allowlist still controls navigation.
+
+The shared credential form explicitly uses POST. Without JavaScript, submitting
+it does not expose credentials in the URL; it does not implement no-JS account
+creation. The smoke test submits synthetic values with JavaScript disabled and
+asserts a navigation POST to `/sign-up` with no query string. Actual account
+creation is tested separately through the hydrated form against isolated Appwrite.
+
+The original three repair attempts remain recorded, including the failed 307
+proof on `d770635`. The explicit user grant on 30 October extended the limit
+from 3 to 6. Batches 4–6 fixed URL defaults/splash test timing, the missing signup
+entry, and the no-JS credential GET respectively. The budget is **6/6**; this
+record does not reset or authorize further repairs.
 
 ## Local verification (30 October 2026)
 
-Node 24.22.1, Bun 1.3.14, macOS arm64. Both frozen installs and the isolated
-schema-tool frozen install passed, without dependency/lockfile changes.
+Node 24.22.1, Bun 1.3.14, macOS arm64. Frozen installs passed without dependency
+or lockfile changes in this lot. Accepted main `96c0819` was integrated normally;
+final runtime source is `ea13dad` (later changes only document the evidence).
 
 | Verification | Result |
 | --- | --- |
-| `bun run build:start` including client-boundary scan | Passed, 39 client JS artifacts |
+| `bun run build:start` including client-boundary scan | Passed, 56 client JS artifacts |
 | `bun run typecheck:start` after build | Passed |
-| `bun run --cwd apps/start lint` | Exit 0; existing and new warnings/infos remain |
-| `bun run --cwd apps/start test` | 17 tests, 135 assertions passed |
-| `START_SMOKE_PORT=3562 PLAYWRIGHT_CHANNEL=chrome bun run smoke:start` | 5 browser tests passed |
-| `NFE_PUBLIC_SYNTHETIC=1 PLAYWRIGHT_CHANNEL=chrome bun apps/start/scripts/public-proof.ts` | **Failed:** `/players` 307 instead of expected 200 |
+| `bun run --cwd apps/start lint` | Exit 0; 72 warnings and 23 infos remain |
+| `bun run --cwd apps/start test` | 56 tests, 371 assertions passed |
+| `START_SMOKE_PORT=3562 PLAYWRIGHT_CHANNEL=chrome bun run smoke:start` | 6 browser tests passed |
+| `NFE_PUBLIC_SYNTHETIC=1 PLAYWRIGHT_CHANNEL=chrome bun apps/start/scripts/public-proof.ts` | Passed: 37 HTTP requests (28 HTTP 200, nine expected 404), plus FR/EN browser flows |
 
-Browser smoke covers both languages without JavaScript, one h1, document lang,
-canonical/social tags, splash cookie after a no-JS click, hydrated automatic
-continuation, shell navigation/theme, concurrent synthetic-reader isolation,
-and the existing recoverable error boundary. The host's port 3501 belongs to
-PostgreSQL and was not stopped; the optional smoke-port override preserves the
-default 3501 for existing consumers.
+The [sanitized runtime evidence](../../apps/start/evidence/public-synthetic.json)
+records individual HTTP observations and the source/base commits. The same full
+proof also passed before the final credential-form repair and was rerun afterward.
+Actual Appwrite **2.6.2/PostgreSQL** verification covers:
 
-Additional actual Appwrite **2.6.2/PostgreSQL** diagnostics on the isolated
-`nfe-public-61` instance verified:
-
-- 25 eligible public players, one unonboarded profile, one ACL-hidden profile;
-  both `Paris` and `PARIS` match the lower-case city query; goalkeeper filtering
-  returns the eligible profiles.
-- HTTP 200 for four directories and position/city filters with explicit
-  `?page=1`, and for `/players?page=2`; hidden/unonboarded profiles are absent.
-- Published post and profile content/metadata render in initial HTTP HTML.
-  Sitemap omits DRAFT/ARCHIVED/hidden/unonboarded entries.
+- FR/EN initial HTML for the five static pages, canonical/social metadata and
+  private no-store responses; browser smoke also verifies one h1/document lang,
+  no-JS splash persistence and the real 10-second automatic continuation.
+- Four directories plus position/city filters, with and without explicit page 1;
+  pagination to page 2, eligible-profile visibility and nine expected 404 cases.
+  Fixtures include 25 eligible players, an unonboarded player and an ACL-hidden
+  profile; alternating `Paris`/`PARIS` values match the lower-case city query.
+- Initial published post/profile content and metadata; keyless sitemap exclusion
+  of DRAFT, ARCHIVED, hidden and unonboarded entries.
 - Direct synthetic status + ACL revocation removes the post from the next
-  sitemap response and returns detail 404; fixture state was restored afterward.
-  This is **not** a test of the unimplemented #56 mutation/cache lifecycle.
+  sitemap response and returns detail 404; the fixture is restored afterward.
+  This is **not** acceptance of #56's withdrawal/deletion/cache mutation workflow.
+- No-JS FR/EN directory pagination and historical user/post shared links.
+- Hydrated About-us CTA → historical signup → real synthetic account creation
+  → the localized private page in both FR and EN, with the expected account name.
 
-Ten diagnostic HTTP reads measured 5.56–61.52 ms and 3,476–11,982 HTML/XML bytes
-on a tiny synthetic dataset. These are individual observations, **not** p50/p95,
-production budgets or representative performance acceptance. No numeric budgets
-were approved in the baseline, and none are invented here.
+All 37 timings/byte sizes are individual observations on a tiny synthetic dataset
+and include expected error responses. They are **not** p50/p95, representative
+performance acceptance or production budgets; no numeric budget is invented.
 
 The source route inventory and static translated copy were compared by
 inspection; there was **no live before/after Next-versus-Start crawl**. A
 representative source database/import, real shared-media parity, directory
-ranking/card parity, historical signup links supplied by #52, and withdrawal
-through #56 remain unverified. Issue #61 must remain open.
+ranking/card parity, full #56 lifecycle integration and approved performance
+budgets remain unverified. Signup-path repair is not whole #52/#53 acceptance.
+Issue #61 must remain open; production indexability remains disabled.
 
 ## Reproduction and resource ownership
 
@@ -109,7 +127,12 @@ bun apps/start/scripts/public-local.ts down
 `prepare` refuses existing owned resources/state. The proof uses only a fresh
 synthetic project on loopback 19571, subnet `10.245.71.0/24`, app port 3561;
 compose, credentials and server logs are gitignored with private file modes.
-The known full-proof failure above is expected until the URL defect is fixed.
 Its server is stopped in `finally`; run `down` after a failure to remove only
 this instance's containers, network, volumes and private synthetic state.
 No existing source database, #52/#55 state or deferred monitoring is touched.
+
+After the final proof, the owned instance was removed: zero `nfe-public-61`
+containers, volumes or networks; ports 19571, 3561 and smoke port 3562 were free,
+and private state/credentials were removed. Existing unrelated services were
+preserved. Source review passed; the coordinator owns final evidence review,
+exact-head CI acceptance and any PR merge. No deferred monitoring is armed.

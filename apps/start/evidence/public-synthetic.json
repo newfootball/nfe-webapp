@@ -1,0 +1,244 @@
+{
+	"kind": "isolated-synthetic-public-pages",
+	"measurements": [
+		{
+			"path": "/about-us",
+			"status": 200,
+			"ms": 17.638791999999967,
+			"bytes": 12071
+		},
+		{
+			"path": "/contact",
+			"status": 200,
+			"ms": 1.9257920000000013,
+			"bytes": 7912
+		},
+		{
+			"path": "/privacy",
+			"status": 200,
+			"ms": 1.51237500000002,
+			"bytes": 11937
+		},
+		{
+			"path": "/terms",
+			"status": 200,
+			"ms": 2.8787079999999605,
+			"bytes": 12321
+		},
+		{
+			"path": "/splash",
+			"status": 200,
+			"ms": 1.3954590000000735,
+			"bytes": 8220
+		},
+		{
+			"path": "/about-us",
+			"status": 200,
+			"ms": 0.90787499999999,
+			"bytes": 11648
+		},
+		{
+			"path": "/contact",
+			"status": 200,
+			"ms": 0.8047090000000026,
+			"bytes": 7872
+		},
+		{
+			"path": "/privacy",
+			"status": 200,
+			"ms": 0.8872079999999869,
+			"bytes": 11208
+		},
+		{
+			"path": "/terms",
+			"status": 200,
+			"ms": 0.8041660000000093,
+			"bytes": 11935
+		},
+		{
+			"path": "/splash",
+			"status": 200,
+			"ms": 0.8289999999999509,
+			"bytes": 8146
+		},
+		{
+			"path": "/players",
+			"status": 200,
+			"ms": 14.178416999999968,
+			"bytes": 12006
+		},
+		{
+			"path": "/players?page=1",
+			"status": 200,
+			"ms": 5.419750000000022,
+			"bytes": 12006
+		},
+		{
+			"path": "/coaches",
+			"status": 200,
+			"ms": 4.800958000000037,
+			"bytes": 7522
+		},
+		{
+			"path": "/coaches?page=1",
+			"status": 200,
+			"ms": 3.613833999999997,
+			"bytes": 7522
+		},
+		{
+			"path": "/recruiters",
+			"status": 200,
+			"ms": 4.270040999999992,
+			"bytes": 7527
+		},
+		{
+			"path": "/recruiters?page=1",
+			"status": 200,
+			"ms": 3.297292000000084,
+			"bytes": 7527
+		},
+		{
+			"path": "/clubs",
+			"status": 200,
+			"ms": 3.9813749999999573,
+			"bytes": 7452
+		},
+		{
+			"path": "/clubs?page=1",
+			"status": 200,
+			"ms": 3.7232079999999996,
+			"bytes": 7452
+		},
+		{
+			"path": "/players/goalkeeper",
+			"status": 200,
+			"ms": 5.153832999999963,
+			"bytes": 12128
+		},
+		{
+			"path": "/players/goalkeeper?page=1",
+			"status": 200,
+			"ms": 4.407083000000057,
+			"bytes": 12128
+		},
+		{
+			"path": "/players/city/paris",
+			"status": 200,
+			"ms": 4.833333000000039,
+			"bytes": 12140
+		},
+		{
+			"path": "/players/city/paris?page=1",
+			"status": 200,
+			"ms": 4.009416000000101,
+			"bytes": 12140
+		},
+		{
+			"path": "/players",
+			"status": 200,
+			"ms": 4.342292000000043,
+			"bytes": 12006
+		},
+		{
+			"path": "/players?page=2",
+			"status": 200,
+			"ms": 3.4050829999999905,
+			"bytes": 8679
+		},
+		{
+			"path": "/players/no-position",
+			"status": 404,
+			"ms": 1.7321660000000065,
+			"bytes": 5274
+		},
+		{
+			"path": "/players/city/no-city",
+			"status": 404,
+			"ms": 2.0290410000000065,
+			"bytes": 5274
+		},
+		{
+			"path": "/no-type",
+			"status": 404,
+			"ms": 0.6965000000000146,
+			"bytes": 5274
+		},
+		{
+			"path": "/players?page=3",
+			"status": 404,
+			"ms": 3.583500000000072,
+			"bytes": 5274
+		},
+		{
+			"path": "/es",
+			"status": 404,
+			"ms": 0.5757909999999811,
+			"bytes": 5274
+		},
+		{
+			"path": "/fr/missing",
+			"status": 404,
+			"ms": 0.6547910000000456,
+			"bytes": 5286
+		},
+		{
+			"path": "/fr/post/post-DRAFT",
+			"status": 404,
+			"ms": 6.520958999999948,
+			"bytes": 5721
+		},
+		{
+			"path": "/fr/post/post-ARCHIVED",
+			"status": 404,
+			"ms": 3.808750000000032,
+			"bytes": 5727
+		},
+		{
+			"path": "/fr/post/post-PUBLISHED",
+			"status": 200,
+			"ms": 15.727416999999946,
+			"bytes": 11569
+		},
+		{
+			"path": "/en/user/player-00",
+			"status": 200,
+			"ms": 26.815083000000072,
+			"bytes": 12704
+		},
+		{
+			"path": "/sitemap.xml",
+			"status": 200,
+			"ms": 7.406833000000006,
+			"bytes": 3476
+		},
+		{
+			"path": "/sitemap.xml",
+			"status": 200,
+			"ms": 4.318707999999901,
+			"bytes": 3413
+		},
+		{
+			"path": "/fr/post/post-PUBLISHED",
+			"status": 404,
+			"ms": 4.543250000000057,
+			"bytes": 5729
+		}
+	],
+	"scope": "HTTP SSR FR/EN/static/directory pagination/keyless visibility/sitemap revocation; no real import/56 mutation or production budget acceptance",
+	"date": "2026-10-30",
+	"sourceHead": "ea13dadb69bcb80c1abcb1c65a1e844a7f95cf0a",
+	"acceptedBase": "96c0819cad63637dc962ebdbf0d04d0263f2311a",
+	"appwriteVersion": "2.6.2",
+	"database": "PostgreSQL",
+	"browserChecks": {
+		"noJavaScriptSharedLinksAndPagination": ["fr", "en"],
+		"realSyntheticSignupThroughExistingAuth": ["fr", "en"]
+	},
+	"limitations": [
+		"No real56withdrawal/deletion/cache lifecycle acceptance",
+		"No representative source import or live before/after crawl",
+		"No production performance budget acceptance",
+		"Directory ranking/card enrichment parity not established",
+		"No production/Vercel/real data touched"
+	]
+}

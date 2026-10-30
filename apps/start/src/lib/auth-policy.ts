@@ -1,6 +1,7 @@
 export function safeReturnPath(value: unknown, locale: "fr" | "en") {
 	const allowed = [
 		"post/my",
+		"messages",
 		"private",
 		"onboarding",
 		"profile",
@@ -12,7 +13,13 @@ export function safeReturnPath(value: unknown, locale: "fr" | "en") {
 		new RegExp(`^/${locale}/post/[a-zA-Z0-9][a-zA-Z0-9._-]{0,35}/edit$`).test(
 			value,
 		);
-	return typeof value === "string" && (allowed.includes(value) || ownEdit)
+	const messageThread =
+		typeof value === "string" &&
+		new RegExp(`^/${locale}/messages/[a-zA-Z0-9][a-zA-Z0-9._-]{0,35}$`).test(
+			value,
+		);
+	return typeof value === "string" &&
+		(allowed.includes(value) || ownEdit || messageThread)
 		? value
 		: `/${locale}/private`;
 }

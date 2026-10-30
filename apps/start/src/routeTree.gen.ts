@@ -19,6 +19,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as ManifestDotwebmanifestRouteImport } from './routes/manifest[.]webmanifest'
+import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as OfflineDothtmlRouteImport } from './routes/offline[.]html'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -36,11 +37,13 @@ import { Route as LocaleIndexRouteImport } from './routes/$locale.index'
 import { Route as LocaleAboutRouteImport } from './routes/$locale.about'
 import { Route as LocaleExploreRouteImport } from './routes/$locale.explore'
 import { Route as LocaleFeedRouteImport } from './routes/$locale.feed'
+import { Route as LocaleMessagesRouteImport } from './routes/$locale.messages'
 import { Route as LocaleOnboardingRouteImport } from './routes/$locale.onboarding'
 import { Route as LocalePrivateRouteImport } from './routes/$locale.private'
 import { Route as LocaleProfileRouteImport } from './routes/$locale.profile'
 import { Route as LocaleRecoveryRouteImport } from './routes/$locale.recovery'
 import { Route as LocaleSignInRouteImport } from './routes/$locale.sign-in'
+import { Route as MessagesIdRouteImport } from './routes/messages.$id'
 import { Route as OauthCallbackRouteImport } from './routes/oauth.callback'
 import { Route as OauthGoogleRouteImport } from './routes/oauth.google'
 import { Route as PlayersIndexRouteImport } from './routes/players.index'
@@ -51,6 +54,7 @@ import { Route as ProfileEditUserRouteImport } from './routes/profile_.edit-user
 import { Route as RecoveryCallbackRouteImport } from './routes/recovery.callback'
 import { Route as SplashContinueRouteImport } from './routes/splash.continue'
 import { Route as UserIdRouteImport } from './routes/user.$id'
+import { Route as LocaleMessagesIdRouteImport } from './routes/$locale.messages_.$id'
 import { Route as LocalePostIdRouteImport } from './routes/$locale.post.$id'
 import { Route as LocalePostMyRouteImport } from './routes/$locale.post_.my'
 import { Route as LocaleProfileAccountSecurityRouteImport } from './routes/$locale.profile_.account-security'
@@ -108,6 +112,11 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
 const ManifestDotwebmanifestRoute = ManifestDotwebmanifestRouteImport.update({
   id: '/manifest.webmanifest',
   path: '/manifest.webmanifest',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MessagesRoute = MessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OfflineDothtmlRoute = OfflineDothtmlRouteImport.update({
@@ -195,6 +204,11 @@ const LocaleFeedRoute = LocaleFeedRouteImport.update({
   path: '/feed',
   getParentRoute: () => LocaleRoute,
 } as any)
+const LocaleMessagesRoute = LocaleMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => LocaleRoute,
+} as any)
 const LocaleOnboardingRoute = LocaleOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -219,6 +233,11 @@ const LocaleSignInRoute = LocaleSignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
   getParentRoute: () => LocaleRoute,
+} as any)
+const MessagesIdRoute = MessagesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => MessagesRoute,
 } as any)
 const OauthCallbackRoute = OauthCallbackRouteImport.update({
   id: '/oauth/callback',
@@ -269,6 +288,11 @@ const UserIdRoute = UserIdRouteImport.update({
   id: '/user/$id',
   path: '/user/$id',
   getParentRoute: () => rootRouteImport,
+} as any)
+const LocaleMessagesIdRoute = LocaleMessagesIdRouteImport.update({
+  id: '/messages_/$id',
+  path: '/messages/$id',
+  getParentRoute: () => LocaleRoute,
 } as any)
 const LocalePostIdRoute = LocalePostIdRouteImport.update({
   id: '/post/$id',
@@ -323,6 +347,7 @@ export interface FileRoutesByFullPath {
   '/explore': typeof ExploreRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/manifest.webmanifest': typeof ManifestDotwebmanifestRoute
+  '/messages': typeof MessagesRouteWithChildren
   '/offline.html': typeof OfflineDothtmlRoute
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
@@ -339,11 +364,13 @@ export interface FileRoutesByFullPath {
   '/$locale/about': typeof LocaleAboutRoute
   '/$locale/explore': typeof LocaleExploreRoute
   '/$locale/feed': typeof LocaleFeedRoute
+  '/$locale/messages': typeof LocaleMessagesRoute
   '/$locale/onboarding': typeof LocaleOnboardingRoute
   '/$locale/private': typeof LocalePrivateRoute
   '/$locale/profile': typeof LocaleProfileRoute
   '/$locale/recovery': typeof LocaleRecoveryRoute
   '/$locale/sign-in': typeof LocaleSignInRoute
+  '/messages/$id': typeof MessagesIdRoute
   '/oauth/callback': typeof OauthCallbackRoute
   '/oauth/google': typeof OauthGoogleRoute
   '/players/$position': typeof PlayersPositionRoute
@@ -355,6 +382,7 @@ export interface FileRoutesByFullPath {
   '/user/$id': typeof UserIdRoute
   '/$locale/': typeof LocaleIndexRoute
   '/players/': typeof PlayersIndexRoute
+  '/$locale/messages/$id': typeof LocaleMessagesIdRoute
   '/$locale/post/$id': typeof LocalePostIdRoute
   '/$locale/post/my': typeof LocalePostMyRoute
   '/$locale/profile/account-security': typeof LocaleProfileAccountSecurityRoute
@@ -374,6 +402,7 @@ export interface FileRoutesByTo {
   '/explore': typeof ExploreRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/manifest.webmanifest': typeof ManifestDotwebmanifestRoute
+  '/messages': typeof MessagesRouteWithChildren
   '/offline.html': typeof OfflineDothtmlRoute
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
@@ -390,11 +419,13 @@ export interface FileRoutesByTo {
   '/$locale/about': typeof LocaleAboutRoute
   '/$locale/explore': typeof LocaleExploreRoute
   '/$locale/feed': typeof LocaleFeedRoute
+  '/$locale/messages': typeof LocaleMessagesRoute
   '/$locale/onboarding': typeof LocaleOnboardingRoute
   '/$locale/private': typeof LocalePrivateRoute
   '/$locale/profile': typeof LocaleProfileRoute
   '/$locale/recovery': typeof LocaleRecoveryRoute
   '/$locale/sign-in': typeof LocaleSignInRoute
+  '/messages/$id': typeof MessagesIdRoute
   '/oauth/callback': typeof OauthCallbackRoute
   '/oauth/google': typeof OauthGoogleRoute
   '/players/$position': typeof PlayersPositionRoute
@@ -406,6 +437,7 @@ export interface FileRoutesByTo {
   '/user/$id': typeof UserIdRoute
   '/$locale': typeof LocaleIndexRoute
   '/players': typeof PlayersIndexRoute
+  '/$locale/messages/$id': typeof LocaleMessagesIdRoute
   '/$locale/post/$id': typeof LocalePostIdRoute
   '/$locale/post/my': typeof LocalePostMyRoute
   '/$locale/profile/account-security': typeof LocaleProfileAccountSecurityRoute
@@ -427,6 +459,7 @@ export interface FileRoutesById {
   '/explore': typeof ExploreRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/manifest.webmanifest': typeof ManifestDotwebmanifestRoute
+  '/messages': typeof MessagesRouteWithChildren
   '/offline.html': typeof OfflineDothtmlRoute
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
@@ -443,11 +476,13 @@ export interface FileRoutesById {
   '/$locale/about': typeof LocaleAboutRoute
   '/$locale/explore': typeof LocaleExploreRoute
   '/$locale/feed': typeof LocaleFeedRoute
+  '/$locale/messages': typeof LocaleMessagesRoute
   '/$locale/onboarding': typeof LocaleOnboardingRoute
   '/$locale/private': typeof LocalePrivateRoute
   '/$locale/profile': typeof LocaleProfileRoute
   '/$locale/recovery': typeof LocaleRecoveryRoute
   '/$locale/sign-in': typeof LocaleSignInRoute
+  '/messages/$id': typeof MessagesIdRoute
   '/oauth/callback': typeof OauthCallbackRoute
   '/oauth/google': typeof OauthGoogleRoute
   '/players/$position': typeof PlayersPositionRoute
@@ -459,6 +494,7 @@ export interface FileRoutesById {
   '/user/$id': typeof UserIdRoute
   '/$locale/': typeof LocaleIndexRoute
   '/players/': typeof PlayersIndexRoute
+  '/$locale/messages_/$id': typeof LocaleMessagesIdRoute
   '/$locale/post/$id': typeof LocalePostIdRoute
   '/$locale/post_/my': typeof LocalePostMyRoute
   '/$locale/profile_/account-security': typeof LocaleProfileAccountSecurityRoute
@@ -481,6 +517,7 @@ export interface FileRouteTypes {
     | '/explore'
     | '/forgot-password'
     | '/manifest.webmanifest'
+    | '/messages'
     | '/offline.html'
     | '/onboarding'
     | '/privacy'
@@ -497,11 +534,13 @@ export interface FileRouteTypes {
     | '/$locale/about'
     | '/$locale/explore'
     | '/$locale/feed'
+    | '/$locale/messages'
     | '/$locale/onboarding'
     | '/$locale/private'
     | '/$locale/profile'
     | '/$locale/recovery'
     | '/$locale/sign-in'
+    | '/messages/$id'
     | '/oauth/callback'
     | '/oauth/google'
     | '/players/$position'
@@ -513,6 +552,7 @@ export interface FileRouteTypes {
     | '/user/$id'
     | '/$locale/'
     | '/players/'
+    | '/$locale/messages/$id'
     | '/$locale/post/$id'
     | '/$locale/post/my'
     | '/$locale/profile/account-security'
@@ -532,6 +572,7 @@ export interface FileRouteTypes {
     | '/explore'
     | '/forgot-password'
     | '/manifest.webmanifest'
+    | '/messages'
     | '/offline.html'
     | '/onboarding'
     | '/privacy'
@@ -548,11 +589,13 @@ export interface FileRouteTypes {
     | '/$locale/about'
     | '/$locale/explore'
     | '/$locale/feed'
+    | '/$locale/messages'
     | '/$locale/onboarding'
     | '/$locale/private'
     | '/$locale/profile'
     | '/$locale/recovery'
     | '/$locale/sign-in'
+    | '/messages/$id'
     | '/oauth/callback'
     | '/oauth/google'
     | '/players/$position'
@@ -564,6 +607,7 @@ export interface FileRouteTypes {
     | '/user/$id'
     | '/$locale'
     | '/players'
+    | '/$locale/messages/$id'
     | '/$locale/post/$id'
     | '/$locale/post/my'
     | '/$locale/profile/account-security'
@@ -584,6 +628,7 @@ export interface FileRouteTypes {
     | '/explore'
     | '/forgot-password'
     | '/manifest.webmanifest'
+    | '/messages'
     | '/offline.html'
     | '/onboarding'
     | '/privacy'
@@ -600,11 +645,13 @@ export interface FileRouteTypes {
     | '/$locale/about'
     | '/$locale/explore'
     | '/$locale/feed'
+    | '/$locale/messages'
     | '/$locale/onboarding'
     | '/$locale/private'
     | '/$locale/profile'
     | '/$locale/recovery'
     | '/$locale/sign-in'
+    | '/messages/$id'
     | '/oauth/callback'
     | '/oauth/google'
     | '/players/$position'
@@ -616,6 +663,7 @@ export interface FileRouteTypes {
     | '/user/$id'
     | '/$locale/'
     | '/players/'
+    | '/$locale/messages_/$id'
     | '/$locale/post/$id'
     | '/$locale/post_/my'
     | '/$locale/profile_/account-security'
@@ -637,6 +685,7 @@ export interface RootRouteChildren {
   ExploreRoute: typeof ExploreRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   ManifestDotwebmanifestRoute: typeof ManifestDotwebmanifestRoute
+  MessagesRoute: typeof MessagesRouteWithChildren
   OfflineDothtmlRoute: typeof OfflineDothtmlRoute
   OnboardingRoute: typeof OnboardingRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -732,6 +781,13 @@ declare module '@tanstack/react-router' {
       path: '/manifest.webmanifest'
       fullPath: '/manifest.webmanifest'
       preLoaderRoute: typeof ManifestDotwebmanifestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/messages': {
+      id: '/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof MessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/offline.html': {
@@ -853,6 +909,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocaleFeedRouteImport
       parentRoute: typeof LocaleRoute
     }
+    '/$locale/messages': {
+      id: '/$locale/messages'
+      path: '/messages'
+      fullPath: '/$locale/messages'
+      preLoaderRoute: typeof LocaleMessagesRouteImport
+      parentRoute: typeof LocaleRoute
+    }
     '/$locale/onboarding': {
       id: '/$locale/onboarding'
       path: '/onboarding'
@@ -887,6 +950,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/$locale/sign-in'
       preLoaderRoute: typeof LocaleSignInRouteImport
       parentRoute: typeof LocaleRoute
+    }
+    '/messages/$id': {
+      id: '/messages/$id'
+      path: '/$id'
+      fullPath: '/messages/$id'
+      preLoaderRoute: typeof MessagesIdRouteImport
+      parentRoute: typeof MessagesRoute
     }
     '/oauth/callback': {
       id: '/oauth/callback'
@@ -958,6 +1028,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UserIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$locale/messages_/$id': {
+      id: '/$locale/messages_/$id'
+      path: '/messages/$id'
+      fullPath: '/$locale/messages/$id'
+      preLoaderRoute: typeof LocaleMessagesIdRouteImport
+      parentRoute: typeof LocaleRoute
+    }
     '/$locale/post/$id': {
       id: '/$locale/post/$id'
       path: '/post/$id'
@@ -1021,12 +1098,14 @@ interface LocaleRouteChildren {
   LocaleAboutRoute: typeof LocaleAboutRoute
   LocaleExploreRoute: typeof LocaleExploreRoute
   LocaleFeedRoute: typeof LocaleFeedRoute
+  LocaleMessagesRoute: typeof LocaleMessagesRoute
   LocaleOnboardingRoute: typeof LocaleOnboardingRoute
   LocalePrivateRoute: typeof LocalePrivateRoute
   LocaleProfileRoute: typeof LocaleProfileRoute
   LocaleRecoveryRoute: typeof LocaleRecoveryRoute
   LocaleSignInRoute: typeof LocaleSignInRoute
   LocaleIndexRoute: typeof LocaleIndexRoute
+  LocaleMessagesIdRoute: typeof LocaleMessagesIdRoute
   LocalePostIdRoute: typeof LocalePostIdRoute
   LocalePostMyRoute: typeof LocalePostMyRoute
   LocaleProfileAccountSecurityRoute: typeof LocaleProfileAccountSecurityRoute
@@ -1040,12 +1119,14 @@ const LocaleRouteChildren: LocaleRouteChildren = {
   LocaleAboutRoute: LocaleAboutRoute,
   LocaleExploreRoute: LocaleExploreRoute,
   LocaleFeedRoute: LocaleFeedRoute,
+  LocaleMessagesRoute: LocaleMessagesRoute,
   LocaleOnboardingRoute: LocaleOnboardingRoute,
   LocalePrivateRoute: LocalePrivateRoute,
   LocaleProfileRoute: LocaleProfileRoute,
   LocaleRecoveryRoute: LocaleRecoveryRoute,
   LocaleSignInRoute: LocaleSignInRoute,
   LocaleIndexRoute: LocaleIndexRoute,
+  LocaleMessagesIdRoute: LocaleMessagesIdRoute,
   LocalePostIdRoute: LocalePostIdRoute,
   LocalePostMyRoute: LocalePostMyRoute,
   LocaleProfileAccountSecurityRoute: LocaleProfileAccountSecurityRoute,
@@ -1057,6 +1138,18 @@ const LocaleRouteChildren: LocaleRouteChildren = {
 
 const LocaleRouteWithChildren =
   LocaleRoute._addFileChildren(LocaleRouteChildren)
+
+interface MessagesRouteChildren {
+  MessagesIdRoute: typeof MessagesIdRoute
+}
+
+const MessagesRouteChildren: MessagesRouteChildren = {
+  MessagesIdRoute: MessagesIdRoute,
+}
+
+const MessagesRouteWithChildren = MessagesRoute._addFileChildren(
+  MessagesRouteChildren,
+)
 
 interface SplashRouteChildren {
   SplashContinueRoute: typeof SplashContinueRoute
@@ -1080,6 +1173,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExploreRoute: ExploreRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
   ManifestDotwebmanifestRoute: ManifestDotwebmanifestRoute,
+  MessagesRoute: MessagesRouteWithChildren,
   OfflineDothtmlRoute: OfflineDothtmlRoute,
   OnboardingRoute: OnboardingRoute,
   PrivacyRoute: PrivacyRoute,

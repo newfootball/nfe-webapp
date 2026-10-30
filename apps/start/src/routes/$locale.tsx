@@ -60,6 +60,9 @@ function Layout() {
 				<Link to="/$locale/private" params={{ locale }}>
 					{authMessages[locale].private}
 				</Link>
+				<Link to="/$locale/messages" params={{ locale }}>
+					Messages
+				</Link>
 				<ThemeToggle label={t.theme} />
 			</header>
 			<main className="py-16">

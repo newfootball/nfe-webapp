@@ -7,13 +7,26 @@ import {
 	PostCard,
 } from "../components/feed/posts";
 import { postOptions } from "../lib/feed";
+import { getPublicPageContext } from "../lib/public-pages";
+import { publicHead } from "../lib/seo";
 export const Route = createFileRoute("/$locale/post/$id")({
 	loader: async ({ params, context }) => {
 		const p = await context.queryClient.ensureQueryData(
 			postOptions(context.locale, params.id),
 		);
 		if (!p) throw notFound();
+		return { post: p, seo: await getPublicPageContext() };
 	},
+	head: ({ loaderData, params }) =>
+		loaderData
+			? publicHead(
+					loaderData.seo.origin,
+					`/${params.locale}/post/${encodeURIComponent(params.id)}`,
+					params.locale === "en" ? "en" : "fr",
+					loaderData.post.title,
+					loaderData.post.description,
+				)
+			: {},
 	headers: () => ({ "Cache-Control": "private, no-store" }),
 	pendingComponent: FeedRoutePending,
 	errorComponent: FeedRouteError,

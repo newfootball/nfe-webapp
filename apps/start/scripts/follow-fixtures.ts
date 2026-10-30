@@ -13,7 +13,18 @@ export async function fixtures() {
 	const directory = resolve(import.meta.dir, "../../../tools/appwrite-schema");
 	const { provision } = await import(`${directory}/provision.mts`);
 	const { provisionProfileV2 } = await import(`${directory}/profile-v2.mts`);
-	await provision(db, databaseId);
+	// v1 intentionally rejects unknown columns; an already-applied additive v2
+	// must use its own replay validator, as in the accepted profile proof.
+	try {
+		await db.getRow({
+			databaseId,
+			tableId: "schema_versions",
+			rowId: "v2-club-profile",
+		});
+	} catch (error) {
+		if ((error as { code?: number }).code !== 404) throw error;
+		await provision(db, databaseId);
+	}
 	await provisionProfileV2(db, databaseId);
 	const file = `${state}/fixture.json`;
 	if (await Bun.file(file).exists())

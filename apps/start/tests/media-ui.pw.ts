@@ -8,6 +8,7 @@ import {
 	test,
 } from "@playwright/test";
 import { mediaMessages } from "../src/lib/media-messages";
+import { mediaNetworkWitness } from "./media-network-witness";
 
 /**
  * Author runner integration (not the public shell smoke configuration):
@@ -120,6 +121,13 @@ async function holdPart(page: Page, partNumber: number) {
 }
 
 test.describe("mounted synthetic media workflows", () => {
+	let flushNetwork: (() => Promise<void>) | undefined;
+	test.beforeEach(async ({ page }) => {
+		flushNetwork = mediaNetworkWitness(page);
+	});
+	test.afterEach(async () => {
+		await flushNetwork?.();
+	});
 	test.setTimeout(240_000);
 	for (const locale of ["fr", "en"] as const) {
 		test(`PublishForm ${locale}: five covers, manual replacement, publish and feed refresh`, async ({
@@ -342,6 +350,7 @@ test.describe("mounted synthetic media workflows", () => {
 });
 
 async function playbackProof(page: Page, locale: Locale) {
+	const flushNetwork = mediaNetworkWitness(page);
 	const startedAt = Date.now();
 	const fixture = JSON.parse(await readFile(`${state}published.json`, "utf8"));
 	await page.goto(`/${locale}/post/${fixture.post.id}`);
@@ -484,6 +493,7 @@ async function playbackProof(page: Page, locale: Locale) {
 			.toBe(true);
 		await expect(page.getByRole("alert")).toHaveCount(0);
 	} finally {
+		await flushNetwork();
 		try {
 			test.info().annotations.push({
 				type: "playback-witness",

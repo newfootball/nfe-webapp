@@ -49,12 +49,16 @@ function Editor({
 		queryClient = useQueryClient(),
 		router = useRouter();
 	const [file, setFile] = useState<File | null>(null),
+		[currentImage, setCurrentImage] = useState(image),
 		[error, setError] = useState(""),
 		[preparing, setPreparing] = useState(false),
 		[saved, setSaved] = useState(false);
 	const alive = useRef(true),
 		transfer = useTransfer(file, "avatar"),
 		url = useObjectUrl(file);
+	useEffect(() => {
+		setCurrentImage(image);
+	}, [image]);
 	useEffect(() => {
 		alive.current = true;
 		return () => {
@@ -69,7 +73,7 @@ function Editor({
 				throw new Error("invalid");
 			return unwrapMedia(await replaceAvatar({ data: { assetId } }));
 		},
-		onSuccess: async () => {
+		onSuccess: async ({ image: committedImage }) => {
 			if (!(await verify())) return;
 			await Promise.all([
 				queryClient.invalidateQueries({ queryKey: ["profile"] }),
@@ -78,6 +82,9 @@ function Editor({
 			]);
 			await router.invalidate();
 			if (alive.current) {
+				// Loader invalidation can commit its new props after this callback.
+				// Show the exact canonical descriptor acknowledged by the mutation.
+				setCurrentImage(committedImage);
 				setFile(null);
 				setSaved(true);
 			}
@@ -121,7 +128,7 @@ function Editor({
 			{preparing && <p role="status">{t.preparing}</p>}
 			{
 				<img
-					src={url || canonicalImage(image) || "/logo.svg"}
+					src={url || canonicalImage(currentImage) || "/logo.svg"}
 					alt={t.avatar}
 					width={96}
 					height={96}

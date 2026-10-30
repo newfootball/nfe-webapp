@@ -254,6 +254,34 @@ try {
 			);
 			await context.close();
 		}
+		// The historical CTA reaches the existing auth implementation, not a dead alias.
+		for (const locale of ["fr", "en"]) {
+			const context = await browser.newContext({
+				locale: locale === "fr" ? "fr-FR" : "en-GB",
+				extraHTTPHeaders: { "Accept-Language": locale },
+			});
+			const page = await context.newPage();
+			await page.goto(`${base}/about-us`);
+			await page.locator('a[href="/sign-up"]').click();
+			assert.equal(page.url(), `${base}/sign-up`);
+			const name = `Synthetic Signup ${locale}`;
+			await page.locator('input[name="name"]').fill(name);
+			await page
+				.locator('input[name="email"]')
+				.fill(`public-${crypto.randomUUID()}@example.test`);
+			await page
+				.locator('input[name="password"]')
+				.fill(`Synthetic-${crypto.randomUUID()}-Aa1!`);
+			await page
+				.getByRole("button", {
+					name: locale === "fr" ? "Inscription" : "Sign up",
+					exact: true,
+				})
+				.click();
+			await page.waitForURL(`${base}/${locale}/private`);
+			assert.equal(await page.getByTestId("name").innerText(), name);
+			await context.close();
+		}
 	} finally {
 		await browser.close();
 	}

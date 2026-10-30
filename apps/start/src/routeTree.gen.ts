@@ -26,6 +26,7 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RecruitersRouteImport } from './routes/recruiters'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SplashRouteImport } from './routes/splash'
 import { Route as SwDotjsRouteImport } from './routes/sw[.]js'
@@ -140,6 +141,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
   id: '/robots.txt',
   path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignUpRoute = SignUpRouteImport.update({
+  id: '/sign-up',
+  path: '/sign-up',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -312,6 +318,7 @@ export interface FileRoutesByFullPath {
   '/recruiters': typeof RecruitersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/sign-up': typeof SignUpRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/splash': typeof SplashRouteWithChildren
   '/sw.js': typeof SwDotjsRoute
@@ -360,6 +367,7 @@ export interface FileRoutesByTo {
   '/recruiters': typeof RecruitersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/sign-up': typeof SignUpRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/splash': typeof SplashRouteWithChildren
   '/sw.js': typeof SwDotjsRoute
@@ -410,6 +418,7 @@ export interface FileRoutesById {
   '/recruiters': typeof RecruitersRoute
   '/reset-password': typeof ResetPasswordRoute
   '/robots.txt': typeof RobotsDottxtRoute
+  '/sign-up': typeof SignUpRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/splash': typeof SplashRouteWithChildren
   '/sw.js': typeof SwDotjsRoute
@@ -461,6 +470,7 @@ export interface FileRouteTypes {
     | '/recruiters'
     | '/reset-password'
     | '/robots.txt'
+    | '/sign-up'
     | '/sitemap.xml'
     | '/splash'
     | '/sw.js'
@@ -509,6 +519,7 @@ export interface FileRouteTypes {
     | '/recruiters'
     | '/reset-password'
     | '/robots.txt'
+    | '/sign-up'
     | '/sitemap.xml'
     | '/splash'
     | '/sw.js'
@@ -558,6 +569,7 @@ export interface FileRouteTypes {
     | '/recruiters'
     | '/reset-password'
     | '/robots.txt'
+    | '/sign-up'
     | '/sitemap.xml'
     | '/splash'
     | '/sw.js'
@@ -608,6 +620,7 @@ export interface RootRouteChildren {
   RecruitersRoute: typeof RecruitersRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
+  SignUpRoute: typeof SignUpRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SplashRoute: typeof SplashRouteWithChildren
   SwDotjsRoute: typeof SwDotjsRoute
@@ -744,6 +757,13 @@ declare module '@tanstack/react-router' {
       path: '/robots.txt'
       fullPath: '/robots.txt'
       preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-up': {
+      id: '/sign-up'
+      path: '/sign-up'
+      fullPath: '/sign-up'
+      preLoaderRoute: typeof SignUpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sitemap.xml': {
@@ -1025,6 +1045,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecruitersRoute: RecruitersRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
+  SignUpRoute: SignUpRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SplashRoute: SplashRouteWithChildren,
   SwDotjsRoute: SwDotjsRoute,

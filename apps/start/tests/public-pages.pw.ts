@@ -35,6 +35,23 @@ test("historical pages expose localized content and metadata without JavaScript"
 				?.value,
 		).toBe("true");
 		await expect(page).toHaveURL(new RegExp(`/${locale}$`));
+		await page.goto(`${baseURL}/about-us`);
+		const signupResponse = page.waitForResponse(
+			(response) =>
+				response.url() === `${baseURL}/sign-up` &&
+				response.request().isNavigationRequest(),
+		);
+		await page.locator('a[href="/sign-up"]').click();
+		expect((await signupResponse).status()).toBe(200);
+		await expect(page).toHaveURL(`${baseURL}/sign-up`);
+		await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+			locale === "fr" ? "Inscription" : "Sign up",
+		);
+		await expect(page.locator('input[name="name"]')).toBeVisible();
+		await expect(page.locator('input[name="password"]')).toHaveAttribute(
+			"autocomplete",
+			"new-password",
+		);
 		await context.close();
 	}
 });
@@ -64,4 +81,46 @@ test("splash hydrates and continues automatically; robots deny indexing", async 
 	expect(errors).toEqual([]);
 	const robots = await request.get("/robots.txt");
 	expect(await robots.text()).toBe("User-agent: *\nDisallow: /\n");
+});
+
+test("historical signup reuses the hydrated auth form in both languages", async ({
+	browser,
+	baseURL,
+}) => {
+	for (const locale of ["fr", "en"]) {
+		const context = await browser.newContext({
+			locale: locale === "fr" ? "fr-FR" : "en-GB",
+			extraHTTPHeaders: { "Accept-Language": locale },
+		});
+		const page = await context.newPage();
+		await page.goto(`${baseURL}/sign-up?returnTo=/${locale}/profile`);
+		await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+			locale === "fr" ? "Inscription" : "Sign up",
+		);
+		await page
+			.getByRole("button", {
+				name: locale === "fr" ? "Connexion" : "Sign in",
+				exact: true,
+			})
+			.click();
+		await expect(page.locator('input[name="name"]')).toHaveCount(0);
+		await expect(page.locator('input[name="password"]')).toHaveAttribute(
+			"autocomplete",
+			"current-password",
+		);
+		await page
+			.getByRole("button", {
+				name: locale === "fr" ? "Inscription" : "Sign up",
+				exact: true,
+			})
+			.click();
+		await expect(page.locator('input[name="name"]')).toBeVisible();
+		await expect(page).toHaveURL(new RegExp(`returnTo=.*${locale}.*profile`));
+		await page.goto(`${baseURL}/${locale}/sign-in`);
+		await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+			locale === "fr" ? "Connexion" : "Sign in",
+		);
+		await expect(page.locator('input[name="name"]')).toHaveCount(0);
+		await context.close();
+	}
 });

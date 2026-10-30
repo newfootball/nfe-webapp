@@ -1,0 +1,25 @@
+{
+	"status": "failed",
+	"source": "synthetic only",
+	"appwrite": "2.6.2",
+	"project": "nfe-lifecycle-56",
+	"base": "accepted55 + social57",
+	"retention": "immediate exact known synthetic versions only; legacy retained fail-closed",
+	"phases": [
+		{
+			"phase": "normal",
+			"exit": 1
+		}
+	],
+	"noProductionClaim": true,
+	"failure": {
+		"name": "AssertionError",
+		"message": "Lifecycle phase normal\n\n1 !== 0\n"
+	},
+	"cleanup": {
+		"knownKeys": 6,
+		"extraVersions": 2,
+		"complete": true
+	},
+	"corsRestored": true
+}

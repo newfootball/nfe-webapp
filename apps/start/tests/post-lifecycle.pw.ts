@@ -6,7 +6,12 @@ import {
 	HeadObjectCommand,
 	PutObjectCommand,
 } from "@aws-sdk/client-s3";
-import { type APIRequestContext, expect, test } from "@playwright/test";
+import {
+	type APIRequestContext,
+	expect,
+	type Page,
+	test,
+} from "@playwright/test";
 import { Client, Permission, Query, Role, TablesDB } from "node-appwrite";
 import { fromCrossJSON, toJSON } from "seroval";
 import { databaseId } from "../scripts/post-lifecycle-fixtures";
@@ -371,13 +376,25 @@ test("normal: archive old links, private preview and actual residual signed TTL"
 	const expired = await request.get(signed.url, {
 		headers: { Range: "bytes=0-15" },
 	});
-	expect(expired.status()).toBe(403);
+	const expiryBody = await expired.text();
+	const expiryCode = expiryBody.match(/<Code>([^<]+)<\/Code>/)?.[1];
+	const expiryMessage =
+		expiryBody.match(/<Message>([^<]+)<\/Message>/)?.[1] ?? "";
+	expect([401, 403]).toContain(expired.status());
+	expect(["UnauthorizedAccess", "AccessDenied", "ExpiredToken"]).toContain(
+		expiryCode,
+	);
+	expect(expiryMessage).toMatch(
+		/(?:request has expired|request.*expired|expired.*token)/i,
+	);
 	await Bun.write(
 		`${state}/ttl-proof.json`,
 		JSON.stringify({
 			configuredSeconds: 3,
 			firstStatus: first,
 			expiredStatus: expired.status(),
+			expiryCode,
+			explicitExpiryMessage: true,
 			measuredAfterExpiresMs: Date.now() - signed.expiresAt,
 			cachePolicy: "private,no-store; no CDN claim",
 		}),
@@ -968,3 +985,267 @@ test("replacement-failure: forced transaction rollback preserves ACL media and a
 	).rejects.toMatchObject({ code: 404 });
 	await finish(request, (await remove(request, p.id)).operationId);
 });
+
+// Navigate the mounted production Router, preserving its real QueryClient and document.
+// No server data, cache contents or responses are injected by this helper.
+async function navigateMounted(page: Page, href: string) {
+	await page.evaluate(async (href) => {
+		const router = (
+			window as unknown as {
+				__TSR_ROUTER__: {
+					navigate(options: { href: string }): Promise<void>;
+				};
+			}
+		).__TSR_ROUTER__;
+		await router.navigate({ href });
+	}, href);
+	await expect(page).toHaveURL(`${origin}${href}`);
+}
+async function cachedVariants(page: Page) {
+	return page.evaluate(() => {
+		const router = (
+			window as unknown as {
+				__TSR_ROUTER__: {
+					options: {
+						context: {
+							queryClient: {
+								getQueryCache(): {
+									getAll(): { queryKey: readonly unknown[] }[];
+								};
+							};
+						};
+					};
+				};
+			}
+		).__TSR_ROUTER__;
+		return router.options.context.queryClient
+			.getQueryCache()
+			.getAll()
+			.map((q) => [...q.queryKey]);
+	});
+}
+for (const locale of ["fr", "en"] as const)
+	test(`normal: mounted ${locale} replacement seek and both-locale cache withdrawal`, async ({
+		page,
+		context,
+		request,
+	}) => {
+		const publishedPost = await published(request),
+			id = publishedPost.id;
+		const parent = await db.getRow(parentRef(id));
+		await context.addCookies([
+			{
+				name: "nfe-session-dev",
+				value: fixture.actors[0].secret,
+				url: origin,
+				httpOnly: true,
+				sameSite: "Lax",
+			},
+		]);
+		const card = page.locator(`[data-post-id="${id}"]`);
+		await page.goto(`/${locale}/feed`);
+		// Prime all mounted public families in both languages in one document.
+		for (const language of ["fr", "en"] as const) {
+			for (const path of [
+				`/${language}/feed`,
+				`/${language}/user/${fixture.actors[0].id}`,
+				`/${language}/post/${id}`,
+				`/${language}/explore?q=lifecycle&tab=posts`,
+				`/${language}/explore?q=lifecycle&tab=top`,
+			]) {
+				await navigateMounted(page, path);
+				await expect(card).toBeVisible();
+			}
+			await navigateMounted(page, `/${language}/post/my`);
+			await expect(
+				page.getByTestId("own-post").filter({ hasText: parent.title }).first(),
+			).toBeVisible();
+		}
+		const warm = await cachedVariants(page);
+		for (const language of ["fr", "en"]) {
+			expect(
+				warm.some(
+					(key) => key[0] === "post" && key[1] === language && key[2] === id,
+				),
+			).toBe(true);
+			expect(
+				warm.some(
+					(key) => key[0] === "feed" && key[1] === language && key[2] === null,
+				),
+			).toBe(true);
+			expect(
+				warm.some(
+					(key) =>
+						key[0] === "feed" &&
+						key[1] === language &&
+						key[2] === fixture.actors[0].id,
+				),
+			).toBe(true);
+			expect(
+				warm.filter((key) => key[0] === "explore" && key[1] === language)
+					.length,
+			).toBeGreaterThanOrEqual(2);
+		}
+		await navigateMounted(page, `/${locale}/post/${id}/edit`);
+		for (const [label, file] of [
+			[locale === "fr" ? "Nouvelle vidéo MP4" : "New MP4 video", "video.mp4"],
+			[
+				locale === "fr" ? "Nouvelle couverture WebP" : "New WebP cover",
+				"thumbnail.webp",
+			],
+		] as const) {
+			const input = page.getByLabel(label),
+				group = input.locator("../..");
+			await input.setInputFiles(`${state}/${file}`);
+			await group
+				.getByRole("button", {
+					name: locale === "fr" ? "Envoyer" : "Upload",
+					exact: true,
+				})
+				.click();
+			await expect(group.getByRole("status")).toHaveText(
+				locale === "fr" ? "Fichier prêt" : "File ready",
+				{ timeout: 60000 },
+			);
+		}
+		await page
+			.getByRole("button", {
+				name:
+					locale === "fr"
+						? "Remplacer la vidéo et la couverture"
+						: "Replace video and cover",
+				exact: true,
+			})
+			.click();
+		const cleanup = page.getByRole("button", {
+			name: locale === "fr" ? "Reprendre le nettoyage" : "Resume cleanup",
+			exact: true,
+		});
+		await expect(cleanup).toBeVisible({ timeout: 15000 });
+		const afterReplace = await cachedVariants(page);
+		expect(
+			afterReplace.some((key) =>
+				["feed", "post", "explore"].includes(String(key[0])),
+			),
+		).toBe(false);
+		await noSignature(request, publishedPost.videoId);
+		await noSignature(request, publishedPost.thumbnailId);
+		expect(snapshot(await db.getRow(parentRef(id)))).toEqual(snapshot(parent));
+		const linked = await db.listRows({
+			databaseId,
+			tableId: "media",
+			queries: [Query.equal("postId", id), Query.limit(10)],
+			total: false,
+		});
+		expect(linked.rows).toHaveLength(2);
+		expect(
+			linked.rows.every(
+				(m) =>
+					![publishedPost.videoId, publishedPost.thumbnailId].includes(m.$id),
+			),
+		).toBe(true);
+		await cleanup.click();
+		await expect(cleanup).toHaveCount(0, { timeout: 60000 });
+		await navigateMounted(page, `/${locale}/post/${id}`);
+		await expect(card).toBeVisible();
+		const responses: number[] = [];
+		page.on("response", (response) => {
+			if (response.request().resourceType() === "media")
+				responses.push(response.status());
+		});
+		await card
+			.getByRole("button", {
+				name: locale === "fr" ? "Lire la vidéo" : "Play video",
+				exact: true,
+			})
+			.click();
+		const video = card.locator("video");
+		await expect
+			.poll(() => video.evaluate((element) => element.readyState), {
+				timeout: 20000,
+			})
+			.toBeGreaterThanOrEqual(1);
+		await video.evaluate(async (element) => {
+			element.pause();
+			await new Promise<void>((resolve, reject) => {
+				const timer = setTimeout(
+					() => reject(new Error("Seek did not complete")),
+					15000,
+				);
+				element.addEventListener(
+					"seeked",
+					() => {
+						clearTimeout(timer);
+						resolve();
+					},
+					{ once: true },
+				);
+				element.currentTime = 5;
+			});
+		});
+		expect(
+			await video.evaluate((element) => element.currentTime),
+		).toBeGreaterThanOrEqual(4.5);
+		expect(responses).toContain(206);
+		// Re-prime cache after replacement, then archive through mounted owner controls.
+		for (const language of ["fr", "en"] as const)
+			for (const path of [
+				`/${language}/feed`,
+				`/${language}/user/${fixture.actors[0].id}`,
+				`/${language}/post/${id}`,
+				`/${language}/explore?q=lifecycle&tab=posts`,
+				`/${language}/explore?q=lifecycle&tab=top`,
+			]) {
+				await navigateMounted(page, path);
+				await expect(card).toBeVisible();
+			}
+		await navigateMounted(page, `/${locale}/post/${id}/edit`);
+		await page
+			.getByRole("button", {
+				name: locale === "fr" ? "Archiver" : "Archive",
+				exact: true,
+			})
+			.click();
+		await expect(
+			page.getByRole("button", {
+				name: locale === "fr" ? "Archiver" : "Archive",
+				exact: true,
+			}),
+		).toHaveCount(0);
+		const afterArchive = await cachedVariants(page);
+		expect(
+			afterArchive.some((key) =>
+				["feed", "post", "explore"].includes(String(key[0])),
+			),
+		).toBe(false);
+		for (const language of ["fr", "en"] as const) {
+			for (const path of [
+				`/${language}/feed`,
+				`/${language}/user/${fixture.actors[0].id}`,
+				`/${language}/post/${id}`,
+				`/${language}/explore?q=lifecycle&tab=posts`,
+				`/${language}/explore?q=lifecycle&tab=top`,
+			]) {
+				await navigateMounted(page, path);
+				await expect(card).toHaveCount(0);
+			}
+			await navigateMounted(page, `/${language}/post/my`);
+			const mine = page
+				.getByTestId("own-post")
+				.filter({ hasText: parent.title });
+			await expect(
+				mine
+					.filter({ hasText: language === "fr" ? "Archivée" : "Archived" })
+					.first(),
+			).toBeVisible();
+		}
+		await page.goBack();
+		await expect(card).toHaveCount(0);
+		await page.reload();
+		await expect(card).toHaveCount(0);
+		for (const language of ["fr", "en"])
+			expect(
+				(await request.get(`${origin}/${language}/post/${id}`)).status(),
+			).toBe(404);
+		await finish(request, (await remove(request, id)).operationId);
+	});

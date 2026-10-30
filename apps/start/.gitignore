@@ -13,6 +13,7 @@ scripts/.profile-local/
 
 scripts/.feed-local/
 
+scripts/.media-local/
 scripts/.public-local/
 scripts/.post-text-local/
 scripts/.follow-local/

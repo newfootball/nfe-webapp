@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { canonicalImage, postMediaPath } from "./media-contract";
 
 const isoDate = z.string().transform((v) => new Date(v).toISOString());
 const nullableText = z.string().nullable();
@@ -40,9 +41,8 @@ export function authorDTO(value: unknown) {
 		position: r.position,
 	};
 }
-// #55 owns real media resolution. Only known public fixture assets are permitted here.
 export function safeImage(value: string | null) {
-	return value === "/logo.svg" ? value : null;
+	return canonicalImage(value);
 }
 export function postDTO(
 	value: unknown,
@@ -65,7 +65,7 @@ export function postDTO(
 		publishedAt: p.publishedAt,
 		expiresAt: p.expiresAt,
 		author,
-		mediaPreview: "/logo.svg",
+		mediaPreview: postMediaPath(p.$id, "thumbnail"),
 		_count: { likes: s.likes, comments: s.comments },
 	};
 }

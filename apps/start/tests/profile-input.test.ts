@@ -120,6 +120,7 @@ describe("strict onboarding contract", () => {
 	test("public allowlist exactly matches v1; club v2 stays private", () => {
 		const row = {
 			$id: "id",
+			image: null,
 			name: "public",
 			email: "secret",
 			birthday: "secret",

@@ -1,3 +1,4 @@
+import { canonicalImage } from "../../lib/media-contract";
 import type { Locale } from "../../lib/messages";
 import type { PublicProfile } from "../../lib/profile-contract";
 import { positionMessages, profileMessages } from "../../lib/profile-messages";
@@ -12,7 +13,13 @@ export function ProfileView({
 	const t = profileMessages[locale];
 	return (
 		<article className="space-y-5 rounded-xl border bg-card p-6 text-card-foreground">
-			<img src="/logo.svg" width="72" height="72" alt={t.avatar} />
+			<img
+				src={canonicalImage(profile.image) ?? "/logo.svg"}
+				width="72"
+				height="72"
+				className="size-18 rounded-full object-cover"
+				alt={t.avatar}
+			/>
 			<h1 className="text-3xl font-bold" data-testid="profile-name">
 				{profile.name}
 			</h1>

@@ -14,6 +14,7 @@ import { notificationText } from "../src/lib/notification-messages";
 import {
 	deliverClaim,
 	notificationId,
+	stageLegacyNotification,
 	stageNotification,
 } from "../src/lib/notification-outbox.server";
 
@@ -76,6 +77,7 @@ test("reader locale and enum drive display, arbitrary actor names are never pars
 		createdAt: "2026-10-30T00:00:00.000Z",
 	});
 	expect(migrated.actorId).toBeNull();
+	expect(migrated.targetId).toBeNull();
 	expect(migrated.type).toBe("FOLLOW");
 });
 test("stage uses the business transaction, stable event ID and no client ACL", async () => {
@@ -111,6 +113,26 @@ test("stage uses the business transaction, stable event ID and no client ACL", a
 		);
 		await stageNotification("business-tx", { ...event, recipientId: "a" });
 		expect(writes).toHaveLength(1);
+		await stageLegacyNotification(
+			"business-tx",
+			legacyNotification({
+				id: "old-follow",
+				userId: "b",
+				type: "FOLLOW",
+				createdAt: event.occurredAt,
+			}),
+		);
+		expect(writes[1]).toMatchObject({
+			data: {
+				actorId: null,
+				targetId: null,
+				source: "legacy",
+				recipientId: "b",
+			},
+		});
+		await expect(
+			stageNotification("business-tx", { ...event, targetId: null }),
+		).rejects.toThrow("Business actor and target required");
 	} finally {
 		create.mockRestore();
 	}
@@ -223,4 +245,19 @@ test("A→B→A cache switch cancels late A data and replaces mutation ownership
 	await clearIdentityCache(client);
 	client.setQueryData(key, "new-a");
 	expect(client.getQueryCache().find({ queryKey: key })).not.toBe(owner);
+});
+
+test("FR/EN UTC first render is identical under distinct host timezones", () => {
+	for (const locale of ["fr", "en"]) {
+		const script = `import {formatNotificationDate} from ${JSON.stringify(new URL("../src/lib/notification-messages.ts", import.meta.url).pathname)}; process.stdout.write(formatNotificationDate(${JSON.stringify(locale)},"2026-10-30T10:00:00.000Z"));`;
+		const render = (TZ: string) => {
+			const result = Bun.spawnSync(["bun", "-e", script], {
+				env: { ...process.env, TZ },
+			});
+			expect(result.exitCode).toBe(0);
+			return result.stdout.toString();
+		};
+		expect(render("UTC")).toBe(render("America/New_York"));
+		expect(render("Africa/Cairo")).toContain("10:00");
+	}
 });

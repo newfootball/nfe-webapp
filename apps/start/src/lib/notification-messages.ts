@@ -53,3 +53,7 @@ export function notificationText(
 		item.actor.name ?? notificationMessages[locale].unknown,
 	);
 }
+
+export function formatNotificationDate(locale: Locale, value: string) {
+	return `${new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }).format(new Date(value))} UTC`;
+}

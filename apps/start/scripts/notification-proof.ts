@@ -1,13 +1,19 @@
 import { chmod, mkdir } from "node:fs/promises";
 import { databaseId, fixtures } from "./notification-fixtures";
 import { endpoint, state } from "./notification-local";
+import { notificationProxy } from "./notification-proxy";
 
 const { c, fixture } = await fixtures();
 
+const proxy = notificationProxy(endpoint, c.notificationKey);
 const env = {
 	...process.env,
 	START_APP_ORIGIN: "http://127.0.0.1:3588",
-	START_APPWRITE_ENDPOINT: endpoint,
+	START_APPWRITE_ENDPOINT: proxy.endpoint,
+	NFE_NOTIFICATION_PROXY_ENDPOINT: proxy.endpoint,
+	NFE_NOTIFICATION_PROXY_CONTROL: proxy.control,
+	NFE_NOTIFICATION_PROXY_TOKEN: proxy.token,
+	TZ: "UTC",
 	START_APPWRITE_PROJECT: c.project,
 	START_APPWRITE_SESSION_KEY: c.sessionKey,
 	START_APPWRITE_PROFILE_WRITER_KEY: c.writerKey,
@@ -21,6 +27,7 @@ const env = {
 	NODE_ENV: "production",
 };
 const secrets = [
+	proxy.token,
 	c.proofKey,
 	c.writerKey,
 	c.sessionKey,
@@ -71,6 +78,9 @@ try {
 		new Response(p.stderr).text(),
 		p.exited,
 	]);
+	const runtimeSecrets = Bun.file(`${state}/runtime-secrets.json`);
+	if (await runtimeSecrets.exists())
+		secrets.push(...((await runtimeSecrets.json()) as string[]));
 	let diagnostic = out + err;
 	for (const secret of secrets)
 		diagnostic = diagnostic.replaceAll(secret, "[REDACTED]");
@@ -96,10 +106,37 @@ try {
 	await mkdir(`${import.meta.dir}/../evidence`, { recursive: true });
 	await Bun.write(
 		`${import.meta.dir}/../evidence/notifications-synthetic.json`,
-		`${JSON.stringify({ at: new Date().toISOString(), appwrite: "2.6.2", source: "synthetic only", testExit: exit, databaseId, sensitiveScan: { files: scanned, matches: 0 }, buildSha256: new Bun.CryptoHasher("sha256").update(await Bun.file(`${import.meta.dir}/../dist/server/server.js`).arrayBuffer()).digest("hex"), limitations: ["Notification58 synthetic proof only", "MESSAGE producer pending accepted59 integration", "No real import or production acceptance"] }, null, 2)}\n`,
+		`${JSON.stringify(
+			{
+				at: new Date().toISOString(),
+				appwrite: "2.6.2",
+				source: "synthetic only",
+				testExit: exit,
+				durability: (await Bun.file(`${state}/durability-result.json`).exists())
+					? await Bun.file(`${state}/durability-result.json`).json()
+					: null,
+				databaseId,
+				sensitiveScan: { files: scanned, matches: 0 },
+				buildSha256: new Bun.CryptoHasher("sha256")
+					.update(
+						await Bun.file(
+							`${import.meta.dir}/../dist/server/server.js`,
+						).arrayBuffer(),
+					)
+					.digest("hex"),
+				limitations: [
+					"Notification58 synthetic proof only",
+					"MESSAGE producer pending accepted59 integration",
+					"No real import or production acceptance",
+				],
+			},
+			null,
+			2,
+		)}\n`,
 	);
 	if (exit) throw new Error(`Notifications browser/RPC proof failed (${exit})`);
 } finally {
 	server.kill();
 	await server.exited;
+	proxy.stop();
 }

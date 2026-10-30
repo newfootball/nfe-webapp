@@ -11,7 +11,7 @@ export type NotificationEvent = {
 	type: NotificationType;
 	actorId: string | null;
 	recipientId: string;
-	targetId: string;
+	targetId: string | null;
 	entityId: string;
 	occurredAt: string;
 };
@@ -19,7 +19,7 @@ export type Notification = {
 	id: string;
 	type: NotificationType;
 	actor: { id: string | null; name: string | null };
-	target: { id: string; available: boolean };
+	target: { id: string | null; available: boolean };
 	metadata: { entityId: string; source: "business" | "legacy" };
 	createdAt: string;
 	readAt: string | null;
@@ -45,7 +45,7 @@ export function legacyNotification(input: {
 		type: input.type,
 		actorId: null,
 		recipientId: input.userId,
-		targetId: input.targetId ?? input.userId,
+		targetId: input.targetId ?? null,
 		entityId: input.id,
 		occurredAt: input.createdAt,
 	};

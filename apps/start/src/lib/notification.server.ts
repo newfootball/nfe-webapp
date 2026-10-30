@@ -44,10 +44,10 @@ async function presentation(row: Models.DefaultRow): Promise<Notification> {
 		? await publicRow("profiles", String(row.actorId))
 		: null;
 	let available = false;
-	if (row.type === "FOLLOW") {
+	if (row.targetId && row.type === "FOLLOW") {
 		const target = await publicRow("profiles", String(row.targetId));
 		available = !!target?.isOnboarded;
-	} else if (row.type === "LIKE" || row.type === "COMMENT") {
+	} else if (row.targetId && (row.type === "LIKE" || row.type === "COMMENT")) {
 		const post = await publicRow("posts", String(row.targetId));
 		if (post?.status === "PUBLISHED") {
 			const author = await publicRow("profiles", String(post.userId));
@@ -65,7 +65,10 @@ async function presentation(row: Models.DefaultRow): Promise<Notification> {
 					? actor.name
 					: null,
 		},
-		target: { id: String(row.targetId), available },
+		target: {
+			id: typeof row.targetId === "string" ? row.targetId : null,
+			available,
+		},
 		metadata: { entityId: String(row.entityId), source: row.source },
 		createdAt: new Date(String(row.occurredAt)).toISOString(),
 		readAt: row.readAt ? new Date(String(row.readAt)).toISOString() : null,

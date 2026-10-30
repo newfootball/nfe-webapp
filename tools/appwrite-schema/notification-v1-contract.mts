@@ -15,7 +15,7 @@ const base = {
 	} as Column,
 	actorId: s(255, false),
 	recipientId: s(),
-	targetId: s(),
+	targetId: s(255, false),
 	entityId: s(),
 	occurredAt: date(),
 };

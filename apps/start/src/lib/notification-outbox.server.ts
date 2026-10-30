@@ -20,11 +20,17 @@ const EventSchema = z.strictObject({
 	type: z.enum(NOTIFICATION_TYPES),
 	actorId: ProfileIdSchema.shape.id.nullable(),
 	recipientId: ProfileIdSchema.shape.id,
-	targetId: ProfileIdSchema.shape.id,
+	targetId: ProfileIdSchema.shape.id.nullable(),
 	entityId: ProfileIdSchema.shape.id,
 	occurredAt: z.iso.datetime({ precision: 3 }),
 });
 export const OUTBOX_ATTEMPTS = 5;
+// Internal operator/test-runner callbacks only; no RPC or environment switch.
+export type NotificationDeliveryHooks = {
+	afterClaim?: (row: Models.DefaultRow) => Promise<void>;
+	afterFence?: (row: Models.DefaultRow, transactionId: string) => Promise<void>;
+	beforeAck?: (row: Models.DefaultRow, transactionId: string) => Promise<void>;
+};
 export function notificationId(eventId: string) {
 	return createHash("sha256")
 		.update(`notification-v1:${eventId}`)
@@ -46,7 +52,8 @@ export async function stageNotification(
 	event: NotificationEvent,
 ) {
 	const e = EventSchema.parse(event);
-	if (!e.actorId) throw new Error("Business notification actor required");
+	if (!e.actorId || !e.targetId)
+		throw new Error("Business actor and target required");
 	if (e.actorId === e.recipientId) return;
 	return stageEvent(transactionId, e, "business");
 }
@@ -117,6 +124,7 @@ async function optionalRow(
 async function fenced<T>(
 	row: Models.DefaultRow,
 	run: (tx: string) => Promise<T>,
+	afterFence?: (row: Models.DefaultRow, transactionId: string) => Promise<void>,
 ) {
 	const c = notificationConnection(),
 		ref = {
@@ -133,6 +141,7 @@ async function fenced<T>(
 		const current = await c.db.getRow(ref);
 		if (current.$updatedAt !== row.$updatedAt || current.claim !== row.claim)
 			throw new Error("Outbox fence changed");
+		await afterFence?.(row, tx);
 		return run(tx);
 	});
 }
@@ -169,7 +178,10 @@ async function claim(row: Models.DefaultRow) {
 	});
 	return claimed.claim === token ? claimed : null;
 }
-export async function deliverClaim(row: Models.DefaultRow) {
+export async function deliverClaim(
+	row: Models.DefaultRow,
+	hooks: NotificationDeliveryHooks = {},
+) {
 	const c = notificationConnection(),
 		ref = {
 			databaseId: c.databaseId,
@@ -178,49 +190,57 @@ export async function deliverClaim(row: Models.DefaultRow) {
 		};
 	if (!row.claim || Date.parse(String(row.leaseUntil)) <= Date.now())
 		throw new Error("Expired outbox claim");
-	await fenced(row, async (transactionId) => {
-		const existing = await optionalRow(c.db, ref);
-		if (
-			existing &&
-			(existing.eventId !== row.eventId ||
-				existing.recipientId !== row.recipientId)
-		)
-			throw new Error("Notification identity conflict");
-		// Never update an existing notification: readAt survives create-before-ack replay.
-		if (!existing)
-			await c.db.createRow({
-				...ref,
+	await fenced(
+		row,
+		async (transactionId) => {
+			const existing = await optionalRow(c.db, ref);
+			if (
+				existing &&
+				(existing.eventId !== row.eventId ||
+					existing.recipientId !== row.recipientId)
+			)
+				throw new Error("Notification identity conflict");
+			// Never update an existing notification: readAt survives create-before-ack replay.
+			if (!existing)
+				await c.db.createRow({
+					...ref,
+					transactionId,
+					data: {
+						eventId: row.eventId,
+						type: row.type,
+						actorId: row.actorId ?? null,
+						recipientId: row.recipientId,
+						targetId: row.targetId,
+						entityId: row.entityId,
+						occurredAt: row.occurredAt,
+						source: row.source,
+					},
+					permissions: [Permission.read(Role.user(String(row.recipientId)))],
+				});
+			await hooks.beforeAck?.(row, transactionId);
+			if (Date.parse(String(row.leaseUntil)) <= Date.now())
+				throw new Error("Expired outbox claim");
+			await c.db.updateRow({
+				databaseId: c.databaseId,
+				tableId: "notification_outbox_v1",
+				rowId: row.$id,
 				transactionId,
 				data: {
-					eventId: row.eventId,
-					type: row.type,
-					actorId: row.actorId ?? null,
-					recipientId: row.recipientId,
-					targetId: row.targetId,
-					entityId: row.entityId,
-					occurredAt: row.occurredAt,
-					source: row.source,
+					status: "DELIVERED",
+					deliveredAt: new Date().toISOString(),
+					leaseUntil: null,
+					claim: null,
 				},
-				permissions: [Permission.read(Role.user(String(row.recipientId)))],
 			});
-		if (Date.parse(String(row.leaseUntil)) <= Date.now())
-			throw new Error("Expired outbox claim");
-		await c.db.updateRow({
-			databaseId: c.databaseId,
-			tableId: "notification_outbox_v1",
-			rowId: row.$id,
-			transactionId,
-			data: {
-				status: "DELIVERED",
-				deliveredAt: new Date().toISOString(),
-				leaseUntil: null,
-				claim: null,
-			},
-		});
-	});
+		},
+		hooks.afterFence,
+	);
 }
 // Explicit operator runner only, bounded both per invocation and per event. No scheduler.
-export async function consumeNotifications(limit = 20) {
+export async function consumeNotifications(
+	limit = 20,
+	hooks: NotificationDeliveryHooks = {},
+) {
 	if (!Number.isInteger(limit) || limit < 1 || limit > 20)
 		throw new Error("Invalid delivery bound");
 	const c = notificationConnection(),
@@ -247,7 +267,8 @@ export async function consumeNotifications(limit = 20) {
 		try {
 			owned = await claim(row);
 			if (!owned) continue;
-			await deliverClaim(owned);
+			await hooks.afterClaim?.(owned);
+			await deliverClaim(owned, hooks);
 			delivered++;
 		} catch {
 			failed++;

@@ -63,7 +63,7 @@ resets retry state transactionally. There is no cron, realtime or implicit worke
 Stored enum/type is authoritative; neither English/French keywords nor username
 regexes select type or reconstruct identity. `legacyNotification` creates a
 stable `legacy:<oldId>` event with actorId:null; an audited importer may supply
-trusted typed target metadata, otherwise the unavailable target fallback is used.
+trusted typed target metadata, otherwise targetId:null is persisted and rendered unavailable, even when the recipient has a public profile.
 `stageLegacyNotification` is a separate offline seam, enforcing unknown actor
 and the legacy namespace, and marks source:legacy. Localized content is not
 parsed or copied. Names such as `a aimé te t’a <script>` remain plain React text.
@@ -90,10 +90,18 @@ Next3500/Postgres3501 and existing environments alone. `down` is mandatory even
 after failure. Credentials stay in mode600 files and are scanned from diagnostics
 and client assets. Evidence is written only after a real test execution.
 
-The authored Playwright proof covers actual business producers, commit-before-
-delivery recovery, concurrent consumers, SDK/RPC anon/A/B/admin privacy, bad
-Origin/currentrecipient, pagination, FR/EN, read badge, recovery journal,
-already-read replay and SPA signout/signin. It is **not run yet** at this source
-checkpoint. Delayed-read cancellation also has a deterministic Query unit test;
-a fully delayed browser A→B→A interleaving remains an explicit runtime review gate.
+The authored Playwright matrix covers actual producer staging failure/rollback,
+SIGKILL of a private runner after business commit/claim with real lease expiry,
+SIGKILL after staged create before ack with transaction rollback, prior read receipt
+preservation, and a stale anchored transaction losing to a real concurrent reclaim
+(the latter shortens a synthetic lease explicitly). Internal runner callbacks are
+never RPC hooks. A runner-owned origin proxy controls backend staging failure and
+holds a real private read response, leaving the product service worker untouched.
+The SPA A→B→A test compares the original Query object to its replacement before
+releasing that response. FR/EN browser timezone America/New_York differs from
+server TZ=UTC; initial date rendering explicitly uses UTC. Hidden/deleted actors,
+deleted targets and historical FOLLOW without target have explicit fallback checks.
+These scenarios, the SDK/RPC privacy matrix and pagination/read badge tests are
+**authored but not executed yet** at this source checkpoint. Seven targeted units
+pass, including FR/EN date equality under UTC/Cairo/New York host timezones.
 MESSAGE producer/membership proof requires accepted59 before integration.

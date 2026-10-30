@@ -8,7 +8,7 @@ export function NotificationBell({ locale }: { locale: Locale }) {
 	const session = useQuery({
 		queryKey: ["notification-session"],
 		queryFn: async ({ signal }) => {
-			const r = await getSession();
+			const r = await getSession({ signal });
 			signal.throwIfAborted();
 			return r.ok ? r.value : null;
 		},

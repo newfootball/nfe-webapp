@@ -9,6 +9,7 @@ import { getSession } from "../lib/auth";
 import { notificationOptions, setNotificationsRead } from "../lib/notification";
 import type { NotificationMarkInput } from "../lib/notification-input";
 import {
+	formatNotificationDate,
 	notificationMessages,
 	notificationText,
 } from "../lib/notification-messages";
@@ -90,12 +91,9 @@ function Page() {
 					>
 						<p>{notificationText(locale, item)}</p>
 						<time dateTime={item.createdAt}>
-							{new Intl.DateTimeFormat(locale, {
-								dateStyle: "medium",
-								timeStyle: "short",
-							}).format(new Date(item.createdAt))}
+							{formatNotificationDate(locale, item.createdAt)}
 						</time>
-						{!item.target.available ? (
+						{!item.target.available || !item.target.id ? (
 							<p>{t.unavailable}</p>
 						) : item.type === "FOLLOW" ? (
 							<Link

@@ -8,6 +8,7 @@ export default defineConfig({
 	use: {
 		baseURL: "http://127.0.0.1:3588",
 		headless: true,
+		timezoneId: "America/New_York",
 		actionTimeout: 10000,
 		channel: process.env.PLAYWRIGHT_CHANNEL,
 	},

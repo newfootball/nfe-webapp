@@ -1,13 +1,17 @@
-import { readFile } from "node:fs/promises";
+import { chmod, readFile } from "node:fs/promises";
 import { type APIResponse, expect, test } from "@playwright/test";
+import type { QueryClient } from "@tanstack/react-query";
 import { Client, Permission, Query, Role, TablesDB } from "node-appwrite";
 import { fromCrossJSON, toJSON } from "seroval";
 import { endpoint, state } from "../scripts/notification-local";
 import type { NotificationPage } from "../src/lib/notification-contract";
+import { legacyNotification } from "../src/lib/notification-contract";
+import { formatNotificationDate } from "../src/lib/notification-messages";
 import {
 	consumeNotifications,
 	notificationTransaction,
 	recoverNotification,
+	stageLegacyNotification,
 	stageNotification,
 } from "../src/lib/notification-outbox.server";
 
@@ -16,7 +20,8 @@ const databaseId = "notifications-proof",
 if (
 	process.env.NFE_NOTIFICATIONS_SYNTHETIC !== "1" ||
 	process.env.START_APPWRITE_DATABASE !== databaseId ||
-	process.env.START_APPWRITE_ENDPOINT !== endpoint
+	process.env.START_APPWRITE_ENDPOINT !==
+		process.env.NFE_NOTIFICATION_PROXY_ENDPOINT
 )
 	throw new Error("Dedicated isolated proof required");
 const c = JSON.parse(await readFile(`${state}/credentials.json`, "utf8"));
@@ -34,6 +39,7 @@ const a = actor(0),
 const base = () => new Client().setEndpoint(endpoint).setProject(c.project);
 const db = new TablesDB(base().setKey(c.proofKey));
 const secrets = [
+	process.env.NFE_NOTIFICATION_PROXY_TOKEN ?? "proxy-token-not-set",
 	c.proofKey,
 	c.notificationKey,
 	c.writerKey,
@@ -474,4 +480,492 @@ test("COMMENT and FOLLOW business producers stage once and preserve imported pai
 	expect(
 		(await rows("notifications_v1")).rows.some((r) => r.type === "COMMENT"),
 	).toBe(true);
+});
+
+async function control(data?: { failStage?: boolean; recipient?: string }) {
+	const url = process.env.NFE_NOTIFICATION_PROXY_CONTROL,
+		token = process.env.NFE_NOTIFICATION_PROXY_TOKEN;
+	if (!url || !token) throw new Error("Runner proxy required");
+	const r = await fetch(url, {
+		method: data ? "POST" : "DELETE",
+		headers: { "x-proof-token": token, "content-type": "application/json" },
+		body: data ? JSON.stringify(data) : undefined,
+	});
+	expect(r.ok).toBe(true);
+}
+async function fault(phase: "claim" | "fence" | "ack") {
+	const nonce = crypto.randomUUID(),
+		path = `${state}/fault-${nonce}.json`;
+	await Bun.write(`${state}/fault-${nonce}.log`, "");
+	await chmod(`${state}/fault-${nonce}.log`, 0o600);
+	const child = Bun.spawn(
+		["bun", "scripts/notification-fault-worker.ts", phase, nonce],
+		{
+			cwd: `${import.meta.dir}/..`,
+			env: process.env,
+			stdout: Bun.file(`${state}/fault-${nonce}.log`),
+			stderr: Bun.file(`${state}/fault-${nonce}.log`),
+		},
+	);
+	try {
+		for (let i = 0; i < 250; i++) {
+			if (await Bun.file(path).exists())
+				return {
+					child,
+					journal: (await Bun.file(path).json()) as {
+						rowId: string;
+						claim: string;
+						leaseUntil: string;
+						transactionId: string | null;
+					},
+				};
+			if (child.exitCode !== null)
+				throw new Error("Fault child exited before boundary");
+			await Bun.sleep(100);
+		}
+		throw new Error("Fault boundary timeout");
+	} catch (e) {
+		child.kill("SIGKILL");
+		await child.exited;
+		throw e;
+	}
+}
+async function killFault(f: Awaited<ReturnType<typeof fault>>) {
+	f.child.kill("SIGKILL");
+	await f.child.exited;
+	expect(f.child.signalCode).toBe("SIGKILL");
+	if (f.journal.transactionId)
+		await db.updateTransaction({
+			transactionId: f.journal.transactionId,
+			rollback: true,
+		});
+}
+async function expire(id: string) {
+	await db.updateRow({
+		databaseId,
+		tableId: "notification_outbox_v1",
+		rowId: id,
+		data: { leaseUntil: "2026-01-01T00:00:00.000Z" },
+	});
+}
+async function stage(label: string, recipientId = a.id) {
+	const event = {
+		version: 1 as const,
+		eventId: `proof:${label}`,
+		type: "FOLLOW" as const,
+		actorId: admin.id,
+		recipientId,
+		targetId: admin.id,
+		entityId: label,
+		occurredAt: new Date().toISOString(),
+	};
+	await notificationTransaction(db, (tx) => stageNotification(tx, event));
+	const row = (await rows("notification_outbox_v1")).rows.find(
+		(r) => r.eventId === event.eventId,
+	);
+	if (!row) throw new Error("Staged event missing");
+	return row.$id;
+}
+
+test("real staging rollback, process death, transactional create/ack rollback and fenced reclaim", async ({
+	page,
+	context,
+}) => {
+	const proof: Record<string, unknown> = {};
+	await context.addCookies([
+		{
+			name: "nfe-session-dev",
+			value: admin.secret,
+			url: origin,
+			httpOnly: true,
+			sameSite: "Lax",
+		},
+	]);
+	await page.goto("/en/post/social-public");
+	const panel = page.getByTestId("social-interactions");
+	await control({ failStage: true });
+	try {
+		await panel.getByRole("button", { name: "Like", exact: true }).click();
+		await expect(panel.getByRole("alert")).toBeVisible();
+		expect(
+			(await rows("likes")).rows.filter((r) => r.userId === admin.id),
+		).toHaveLength(0);
+		expect(
+			(await rows("notification_outbox_v1")).rows.filter(
+				(r) => r.type === "LIKE" && r.actorId === admin.id,
+			),
+		).toHaveLength(0);
+		proof.stageRollback = true;
+	} finally {
+		await control();
+	}
+	await panel.getByRole("button", { name: "Like", exact: true }).click();
+	await expect(
+		panel.getByRole("button", { name: "Unlike", exact: true }),
+	).toBeEnabled();
+	const claimed = await fault("claim");
+	expect(
+		(
+			await db.getRow({
+				databaseId,
+				tableId: "notification_outbox_v1",
+				rowId: claimed.journal.rowId,
+			})
+		).claim,
+	).toBe(claimed.journal.claim);
+	await killFault(claimed);
+	// One actual wall-clock expiry, not an edited status pretending to be a crash.
+	while (Date.parse(claimed.journal.leaseUntil) >= Date.now())
+		await Bun.sleep(250);
+	await consumeNotifications();
+	expect(
+		(
+			await db.getRow({
+				databaseId,
+				tableId: "notification_outbox_v1",
+				rowId: claimed.journal.rowId,
+			})
+		).status,
+	).toBe("DELIVERED");
+	proof.killedAfterBusinessCommitAndClaim = {
+		signal: "SIGKILL",
+		realLeaseExpired: true,
+	};
+	const freshId = await stage("create-crash");
+	const created = await fault("ack");
+	expect(created.journal.rowId).toBe(freshId);
+	await expect(
+		db.getRow({ databaseId, tableId: "notifications_v1", rowId: freshId }),
+	).rejects.toBeDefined();
+	await killFault(created);
+	await expect(
+		db.getRow({ databaseId, tableId: "notifications_v1", rowId: freshId }),
+	).rejects.toBeDefined();
+	await expire(freshId);
+	await consumeNotifications();
+	expect(
+		(
+			await db.getRow({
+				databaseId,
+				tableId: "notification_outbox_v1",
+				rowId: freshId,
+			})
+		).status,
+	).toBe("DELIVERED");
+	proof.killedAfterStagedCreateBeforeAck = {
+		signal: "SIGKILL",
+		transactionRolledBack: true,
+	};
+	// An audited prior receipt is a separate recovery fixture; current create+ack is atomic.
+	const receiptId = await stage("read-receipt"),
+		receipt = await db.getRow({
+			databaseId,
+			tableId: "notification_outbox_v1",
+			rowId: receiptId,
+		}),
+		readAt = new Date().toISOString();
+	await db.createRow({
+		databaseId,
+		tableId: "notifications_v1",
+		rowId: receiptId,
+		data: {
+			eventId: receipt.eventId,
+			type: receipt.type,
+			actorId: receipt.actorId,
+			recipientId: receipt.recipientId,
+			targetId: receipt.targetId,
+			entityId: receipt.entityId,
+			occurredAt: receipt.occurredAt,
+			source: receipt.source,
+			readAt,
+		},
+		permissions: [Permission.read(Role.user(a.id))],
+	});
+	const expectedReadAt = (
+		await db.getRow({
+			databaseId,
+			tableId: "notifications_v1",
+			rowId: receiptId,
+		})
+	).readAt;
+	const ack = await fault("ack");
+	expect(ack.journal.rowId).toBe(receiptId);
+	await killFault(ack);
+	await expire(receiptId);
+	await consumeNotifications();
+	expect(
+		(
+			await db.getRow({
+				databaseId,
+				tableId: "notifications_v1",
+				rowId: receiptId,
+			})
+		).readAt,
+	).toBe(expectedReadAt);
+	proof.priorReadReceiptSurvivedKilledAck = true;
+	const staleId = await stage("stale-fence");
+	let reached!: () => void, resume!: () => void;
+	const hit = new Promise<void>((r) => {
+			reached = r;
+		}),
+		hold = new Promise<void>((r) => {
+			resume = r;
+		});
+	const stale = consumeNotifications(1, {
+		afterFence: async (row) => {
+			expect(row.$id).toBe(staleId);
+			reached();
+			await hold;
+		},
+	});
+	await hit;
+	await expire(staleId);
+	const reclaimed = await consumeNotifications(1);
+	expect(reclaimed.delivered).toBe(1);
+	const savedReadAt = new Date().toISOString();
+	await db.updateRow({
+		databaseId,
+		tableId: "notifications_v1",
+		rowId: staleId,
+		data: { readAt: savedReadAt },
+	});
+	const expectedSavedReadAt = (
+		await db.getRow({ databaseId, tableId: "notifications_v1", rowId: staleId })
+	).readAt;
+	resume();
+	const old = await stale;
+	expect(old.delivered).toBe(0);
+	expect(old.failed).toBe(1);
+	const final = await db.getRow({
+		databaseId,
+		tableId: "notification_outbox_v1",
+		rowId: staleId,
+	});
+	expect(final.status).toBe("DELIVERED");
+	expect(final.claim).toBeNull();
+	expect(
+		(
+			await db.getRow({
+				databaseId,
+				tableId: "notifications_v1",
+				rowId: staleId,
+			})
+		).readAt,
+	).toBe(expectedSavedReadAt);
+	proof.oldAnchorLostToRealReclaim = {
+		shortenedLeaseFixture: true,
+		oldDelivered: 0,
+		newDelivered: 1,
+	};
+	await Bun.write(`${state}/durability-result.json`, JSON.stringify(proof));
+});
+
+test("legacy unknown target, FR/EN distinct timezone hydration, delayed SPA A-B-A and hidden/deleted fallback", async ({
+	page,
+	context,
+	request,
+}) => {
+	const legacy = legacyNotification({
+		id: "legacy-follow-no-target",
+		userId: b.id,
+		type: "FOLLOW",
+		createdAt: new Date().toISOString(),
+	});
+	await notificationTransaction(db, (tx) =>
+		stageLegacyNotification(tx, legacy),
+	);
+	await consumeNotifications();
+	const errors: string[] = [];
+	page.on("pageerror", (e) => errors.push(e.message));
+	page.on("console", (m) => {
+		if (m.type() === "error" && /hydration|did not match/i.test(m.text()))
+			errors.push(m.text());
+	});
+	async function login(who: typeof a, locale = "en") {
+		await page.locator('input[name="email"]').fill(`${who.id}@example.test`);
+		await page.locator('input[name="password"]').fill(who.password);
+		await page
+			.locator("form")
+			.filter({ has: page.locator('input[name="email"]') })
+			.getByRole("button", {
+				name: locale === "fr" ? "Connexion" : "Sign in",
+				exact: true,
+			})
+			.click();
+		await expect(page.getByTestId("identity")).toHaveText(who.id);
+		const cookie = (await context.cookies()).find(
+			(x) => x.name === "nfe-session-dev",
+		);
+		if (cookie) secrets.push(cookie.value);
+		await Bun.write(`${state}/runtime-secrets.json`, JSON.stringify(secrets));
+		await chmod(`${state}/runtime-secrets.json`, 0o600);
+	}
+	await page.goto("/en/sign-in");
+	await login(b);
+	await page.locator('a[href="/en/notifications"]').click();
+	const historical = page
+		.getByTestId("notification-item")
+		.filter({ hasText: "Someone started following you" });
+	await expect(historical).toContainText("Target unavailable");
+	await expect(historical.locator("a")).toHaveCount(0);
+	for (const locale of ["fr", "en"] as const) {
+		const html = await request.get(`${origin}/${locale}/notifications`, {
+			headers: {
+				Cookie: (await context.cookies())
+					.filter((x) => x.name === "nfe-session-dev")
+					.map((x) => `${x.name}=${x.value}`)
+					.join("; "),
+			},
+		});
+		const expected = formatNotificationDate(locale, legacy.occurredAt);
+		expect(await html.text()).toContain(expected);
+		await page.goto(`/${locale}/notifications`);
+		await expect(
+			page
+				.getByTestId("notification-item")
+				.filter({
+					hasText:
+						locale === "fr"
+							? "Quelqu’un vous suit"
+							: "Someone started following you",
+				})
+				.locator("time"),
+		).toHaveText(expected);
+	}
+	await page.locator('a[href="/en/private"]').click();
+	await page.getByRole("button", { name: "Sign out", exact: true }).click();
+	await login(a);
+	await page.locator('a[href="/en/notifications"]').click();
+	type RouterWindow = {
+		__TSR_ROUTER__: { options: { context: { queryClient: QueryClient } } };
+	};
+	const original = await page.evaluateHandle(() => {
+		const c = (window as unknown as RouterWindow).__TSR_ROUTER__.options.context
+			.queryClient;
+		return c
+			.getQueryCache()
+			.find({ queryKey: ["notifications", "notifications-a"] });
+	});
+	await control({ recipient: a.id });
+	await page.evaluate(() => {
+		const c = (window as unknown as RouterWindow).__TSR_ROUTER__.options.context
+			.queryClient;
+		void c.invalidateQueries({
+			queryKey: ["notifications", "notifications-a"],
+		});
+	});
+	await expect
+		.poll(async () => {
+			const controlUrl = process.env.NFE_NOTIFICATION_PROXY_CONTROL,
+				controlToken = process.env.NFE_NOTIFICATION_PROXY_TOKEN;
+			if (!controlUrl || !controlToken) throw new Error("Proxy not configured");
+			const r = await fetch(controlUrl, {
+				headers: { "x-proof-token": controlToken },
+			});
+			return ((await r.json()) as { hit: boolean }).hit;
+		})
+		.toBe(true);
+	try {
+		await page.locator('a[href="/en/private"]').click();
+		await page.getByRole("button", { name: "Sign out", exact: true }).click();
+		await login(b);
+		await page.locator('a[href="/en/notifications"]').click();
+		await expect(
+			page.getByTestId("notification-item").filter({
+				hasText: "Public notifications-admin started following you",
+			}),
+		).toHaveCount(0);
+		await page.locator('a[href="/en/private"]').click();
+		await page.getByRole("button", { name: "Sign out", exact: true }).click();
+		await login(a);
+		await page.locator('a[href="/en/notifications"]').click();
+		expect(
+			await page.evaluate((old) => {
+				const c = (window as unknown as RouterWindow).__TSR_ROUTER__.options
+					.context.queryClient;
+				return (
+					c
+						.getQueryCache()
+						.find({ queryKey: ["notifications", "notifications-a"] }) !== old
+				);
+			}, original),
+		).toBe(true);
+	} finally {
+		await control();
+	}
+	await expect(
+		page
+			.getByTestId("notification-item")
+			.filter({ hasText: "Public notifications-admin started following you" }),
+	).toHaveCount(3);
+	// Now hide/delete actor A and delete a target; no privileged fallback may recover names/content.
+	await db.updateRow({
+		databaseId,
+		tableId: "profiles",
+		rowId: a.id,
+		data: { isOnboarded: false },
+		permissions: [],
+	});
+	await page.locator('a[href="/en/private"]').click();
+	await page.getByRole("button", { name: "Sign out", exact: true }).click();
+	await login(b);
+	const capture = page.waitForRequest(
+		(r) =>
+			r.url().includes("/_serverFn/") &&
+			r.method() === "GET" &&
+			decodeURIComponent(r.url()).includes("cursor"),
+	);
+	await page.locator('a[href="/en/notifications"]').click();
+	const listUrl = (await capture).url();
+	async function all() {
+		const secret = (await context.cookies()).find(
+			(x) => x.name === "nfe-session-dev",
+		)?.value;
+		if (!secret) throw new Error("Session missing");
+		const found: NotificationPage["notifications"] = [];
+		let cursor: string | null = null;
+		do {
+			const url = new URL(listUrl);
+			url.searchParams.set(
+				"payload",
+				JSON.stringify(toJSON({ data: { viewerId: b.id, cursor } })),
+			);
+			const r = await result<Reply<NotificationPage>>(
+				await request.get(url.href, { headers: headers(secret) }),
+			);
+			if (!r.ok) throw new Error("List denied");
+			found.push(...r.value.notifications);
+			cursor = r.value.nextCursor;
+		} while (cursor);
+		return found;
+	}
+	let items = await all();
+	expect(
+		items.filter((n) => n.metadata.entityId.startsWith("imported-edge-"))
+			.length,
+	).toBe(25);
+	expect(
+		items
+			.filter((n) => n.metadata.entityId.startsWith("imported-edge-"))
+			.every((n) => n.actor.name === null && n.actor.id === null),
+	).toBe(true);
+	await db.deleteRow({ databaseId, tableId: "profiles", rowId: a.id });
+	await db.deleteRow({ databaseId, tableId: "posts", rowId: "social-public" });
+	items = await all();
+	expect(
+		items.filter((n) => n.target.id === "social-public").length,
+	).toBeGreaterThanOrEqual(2);
+	expect(
+		items
+			.filter((n) => n.target.id === "social-public")
+			.every((n) => !n.target.available),
+	).toBe(true);
+	expect(
+		items.find((n) => n.metadata.entityId === "legacy-follow-no-target")
+			?.target,
+	).toEqual({ id: null, available: false });
+	expect(items.every((n) => n.actor.name !== "Public notifications-a")).toBe(
+		true,
+	);
+	expect(errors).toEqual([]);
 });

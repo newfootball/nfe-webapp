@@ -18,6 +18,7 @@ export const notificationOptions = (viewerId: string) =>
 		queryFn: async ({ pageParam, signal }) => {
 			const r = await getNotifications({
 				data: { viewerId, cursor: pageParam },
+				signal,
 			});
 			signal.throwIfAborted();
 			if (!r.ok) throw new Error(r.error);

@@ -33,6 +33,13 @@ function Page() {
 		<section className="space-y-6">
 			{own.profile && <ProfileView profile={own.profile} locale={locale} />}
 			<nav className="flex flex-wrap gap-6">
+				<Link
+					to="/$locale/post/my"
+					params={{ locale }}
+					search={{ cursor: null }}
+				>
+					{locale === "fr" ? "Mes publications" : "My posts"}
+				</Link>
 				<Link to="/$locale/profile/edit-user" params={{ locale }}>
 					{t.edit}
 				</Link>

@@ -76,3 +76,27 @@ observed result and build fingerprint; its existence alone is not a pass.
 Independent exact-head review and CI are coordinator merge gates. No production,
 representative graph import, notification delivery or full social acceptance is
 claimed.
+
+## Observed local result (2026-10-30)
+
+The complete synthetic browser/RPC proof passed (1 test, 4.5 seconds) against
+Appwrite 2.6.2 on source `99eac1d24e39b46f2fda3a73905e7befb51e5db8`.
+It exercised the matrix above, including 12 concurrent creates, 12 concurrent
+deletes, eight opposing requests, stable removal event IDs and distinct IDs on
+recreation. Client scanning checked 35 JS artifacts with zero sensitive matches;
+the server log was also scanned. The machine result is
+[`follow-synthetic.json`](../../apps/start/evidence/follow-synthetic.json).
+
+Start build/client scan, typecheck and lint exited zero; lint retains existing
+warnings and the copied local-compose preparer's complexity warning. All 47
+Start unit tests passed during implementation and the three follow units were
+rerun after the required-timestamp repair. Fixture-free shell smoke passed all
+three tests on owned port 3570 through an ignored temporary Playwright config
+that preserved the normal shell tests; unrelated PostgreSQL already used 3501.
+
+Three bounded repairs were used: required follow timestamps, the approved
+stable-ID event acknowledgment contract, and v2-aware schema replay in the
+fixture harness. Docker was temporarily unavailable and recovered by the
+coordinator. Final cleanup succeeded: zero owned containers, volumes or networks,
+no listeners on 3570/18156, and the private fixture directory removed. The shared
+proof slot was released; no monitoring or service was left running by this slice.

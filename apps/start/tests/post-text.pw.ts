@@ -201,13 +201,20 @@ test("direct RPC: bounded owner-only pagination, all statuses, anonymous/forged 
 		).toEqual({ ok: false, error: "notFound" });
 	}
 	for (const locale of ["fr", "en"])
-		for (const path of ["post/my", `post/${fixture.ids[0]}/edit`]) {
+		for (const path of [
+			"post/my",
+			"post/my?cursor=null",
+			`post/${fixture.ids[0]}/edit`,
+		]) {
 			const response = await request.get(`${origin}/${locale}/${path}`, {
 				maxRedirects: 0,
 			});
 			const html = await response.text();
 			expect(html).not.toContain("Original 0");
-			expect(response.headers()["cache-control"]).toContain("no-store");
+			expect(response.status()).toBe(307);
+			expect(response.headers()["location"]).toBeTruthy();
+			expect(response.headers()["cache-control"]).toBe("private, no-store");
+			expect(response.headers()["vary"]).toContain("Cookie");
 			noLeaks(html);
 		}
 });

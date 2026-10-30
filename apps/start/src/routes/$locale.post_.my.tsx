@@ -2,6 +2,7 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { getOwnPosts } from "../lib/post-text";
 import { OwnPostsSchema } from "../lib/post-text-input";
 import { postTextMessages } from "../lib/post-text-messages";
+import { privatePostTextResponse } from "../lib/post-text-response";
 
 export const Route = createFileRoute("/$locale/post_/my")({
 	validateSearch: (search: Record<string, unknown>) => {
@@ -12,6 +13,7 @@ export const Route = createFileRoute("/$locale/post_/my")({
 		return result.success ? { cursor: result.data.cursor } : { cursor: null };
 	},
 	loaderDeps: ({ search }) => search,
+	server: { middleware: [privatePostTextResponse] },
 	loader: async ({ params, deps }) => {
 		const result = await getOwnPosts({
 			data: { limit: 10, cursor: deps.cursor },

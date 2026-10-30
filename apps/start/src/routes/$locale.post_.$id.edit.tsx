@@ -2,7 +2,9 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { PostTextForm } from "../components/posts/post-text-form";
 import { getOwnPost } from "../lib/post-text";
 import { postTextMessages } from "../lib/post-text-messages";
+import { privatePostTextResponse } from "../lib/post-text-response";
 export const Route = createFileRoute("/$locale/post_/$id/edit")({
+	server: { middleware: [privatePostTextResponse] },
 	loader: async ({ params }) => {
 		const result = await getOwnPost({ data: { id: params.id } });
 		if (!result.ok && result.error === "unauthorized")

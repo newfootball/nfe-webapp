@@ -1,0 +1,17 @@
+{
+	"at": "2026-10-30T11:49:22.613Z",
+	"appwrite": "2.6.2",
+	"source": "synthetic only",
+	"testExit": 0,
+	"databaseId": "follow-proof",
+	"sensitiveScan": {
+		"files": 35,
+		"matches": 0
+	},
+	"buildSha256": "3134a710493c16b7544a22a75531f0ca0c2e44dd6abd5a8b89e593f2c3dc96f6",
+	"limitations": [
+		"Follow/unfollow partial #57 only",
+		"No durable notification delivery; contract only",
+		"No post interactions, lifecycle, real import or production acceptance"
+	]
+}

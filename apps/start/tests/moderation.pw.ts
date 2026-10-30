@@ -214,7 +214,9 @@ test("isolated moderation: SSR/RPC guards, spoof, unique reports, thresholds, bo
 	await cookie(a.secret);
 	await page.goto(`/en/post/${postId}`);
 	await page.getByText("Report this post", { exact: true }).click();
-	await page.getByLabel("Reason", { exact: true }).selectOption("SPAM");
+	await page
+		.getByRole("combobox", { name: "Reason", exact: true })
+		.selectOption("SPAM");
 	await page.getByLabel("Details (optional)").fill("Synthetic detail");
 	await page.getByRole("button", { name: "Submit", exact: true }).click();
 	await expect(

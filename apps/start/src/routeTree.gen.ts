@@ -35,6 +35,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as LocaleIndexRouteImport } from './routes/$locale.index'
 import { Route as LocaleAboutRouteImport } from './routes/$locale.about'
+import { Route as LocaleAdminRouteImport } from './routes/$locale.admin'
 import { Route as LocaleExploreRouteImport } from './routes/$locale.explore'
 import { Route as LocaleFeedRouteImport } from './routes/$locale.feed'
 import { Route as LocaleOnboardingRouteImport } from './routes/$locale.onboarding'
@@ -195,6 +196,11 @@ const LocaleIndexRoute = LocaleIndexRouteImport.update({
 const LocaleAboutRoute = LocaleAboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => LocaleRoute,
+} as any)
+const LocaleAdminRoute = LocaleAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => LocaleRoute,
 } as any)
 const LocaleExploreRoute = LocaleExploreRouteImport.update({
@@ -380,6 +386,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
   '/$locale/about': typeof LocaleAboutRoute
+  '/$locale/admin': typeof LocaleAdminRoute
   '/$locale/explore': typeof LocaleExploreRoute
   '/$locale/feed': typeof LocaleFeedRoute
   '/$locale/onboarding': typeof LocaleOnboardingRoute
@@ -438,6 +445,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
   '/$locale/about': typeof LocaleAboutRoute
+  '/$locale/admin': typeof LocaleAdminRoute
   '/$locale/explore': typeof LocaleExploreRoute
   '/$locale/feed': typeof LocaleFeedRoute
   '/$locale/onboarding': typeof LocaleOnboardingRoute
@@ -498,6 +506,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
   '/$locale/about': typeof LocaleAboutRoute
+  '/$locale/admin': typeof LocaleAdminRoute
   '/$locale/explore': typeof LocaleExploreRoute
   '/$locale/feed': typeof LocaleFeedRoute
   '/$locale/onboarding': typeof LocaleOnboardingRoute
@@ -559,6 +568,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/verify-email'
     | '/$locale/about'
+    | '/$locale/admin'
     | '/$locale/explore'
     | '/$locale/feed'
     | '/$locale/onboarding'
@@ -617,6 +627,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/verify-email'
     | '/$locale/about'
+    | '/$locale/admin'
     | '/$locale/explore'
     | '/$locale/feed'
     | '/$locale/onboarding'
@@ -676,6 +687,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/verify-email'
     | '/$locale/about'
+    | '/$locale/admin'
     | '/$locale/explore'
     | '/$locale/feed'
     | '/$locale/onboarding'
@@ -934,6 +946,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocaleAboutRouteImport
       parentRoute: typeof LocaleRoute
     }
+    '/$locale/admin': {
+      id: '/$locale/admin'
+      path: '/admin'
+      fullPath: '/$locale/admin'
+      preLoaderRoute: typeof LocaleAdminRouteImport
+      parentRoute: typeof LocaleRoute
+    }
     '/$locale/explore': {
       id: '/$locale/explore'
       path: '/explore'
@@ -1156,6 +1175,7 @@ declare module '@tanstack/react-router' {
 
 interface LocaleRouteChildren {
   LocaleAboutRoute: typeof LocaleAboutRoute
+  LocaleAdminRoute: typeof LocaleAdminRoute
   LocaleExploreRoute: typeof LocaleExploreRoute
   LocaleFeedRoute: typeof LocaleFeedRoute
   LocaleOnboardingRoute: typeof LocaleOnboardingRoute
@@ -1178,6 +1198,7 @@ interface LocaleRouteChildren {
 
 const LocaleRouteChildren: LocaleRouteChildren = {
   LocaleAboutRoute: LocaleAboutRoute,
+  LocaleAdminRoute: LocaleAdminRoute,
   LocaleExploreRoute: LocaleExploreRoute,
   LocaleFeedRoute: LocaleFeedRoute,
   LocaleOnboardingRoute: LocaleOnboardingRoute,

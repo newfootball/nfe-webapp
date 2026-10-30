@@ -6,6 +6,7 @@ import {
 	FeedRoutePending,
 	PostCard,
 } from "../components/feed/posts";
+import { ReportForm } from "../components/moderation/report-form";
 import { postOptions } from "../lib/feed";
 import { getPublicPageContext } from "../lib/public-pages";
 import { publicHead } from "../lib/seo";
@@ -41,6 +42,7 @@ function Page() {
 		<>
 			<FeedNav locale={locale} page="post" id={id} />
 			<PostCard post={data} locale={locale} />
+			<ReportForm key={id} postId={id} locale={locale} />
 		</>
 	);
 }

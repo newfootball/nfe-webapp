@@ -40,10 +40,13 @@ const secrets = [
 	c.sessionKey,
 	c.writerKey,
 	c.readerKey,
-	...fixture.actors.flatMap((a: { secret: string; password: string }) => [
-		a.secret,
-		a.password,
-	]),
+	...fixture.actors.flatMap(
+		(a: { secret: string; password: string; secondarySecret: string }) => [
+			a.secret,
+			a.password,
+			a.secondarySecret,
+		],
+	),
 ];
 let exit = 1;
 try {

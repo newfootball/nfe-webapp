@@ -10,6 +10,7 @@ export type FixtureActor = {
 	email: string;
 	password: string;
 	secret: string;
+	secondarySecret: string;
 };
 export type Fixture = { actors: FixtureActor[]; ids: string[] };
 export async function fixtures(): Promise<Fixture> {
@@ -50,7 +51,14 @@ export async function fixtures(): Promise<Fixture> {
 		if (id === "actor-admin")
 			await users.updateLabels({ userId: id, labels: ["admin"] });
 		const session = await users.createSession({ userId: id });
-		actors.push({ id, email, password, secret: session.secret });
+		const secondary = await users.createSession({ userId: id });
+		actors.push({
+			id,
+			email,
+			password,
+			secret: session.secret,
+			secondarySecret: secondary.secret,
+		});
 		const data = {
 			name: id,
 			nameFolded: id.toLowerCase(),
@@ -113,6 +121,19 @@ export async function fixtures(): Promise<Fixture> {
 			permissions: permissions("messages", data, id),
 		});
 	}
+	const quotaFollow = {
+		followerId: "actor-C",
+		followingId: "actor-admin",
+		createdAt: timestamp,
+		updatedAt: timestamp,
+	};
+	await db.createRow({
+		databaseId,
+		tableId: "follows",
+		rowId: "quota.follow",
+		data: quotaFollow,
+		permissions: permissions("follows", quotaFollow, ""),
+	});
 	// >one page of conversations, with equal business dates and stable synthetic IDs.
 	for (let i = 0; i < 23; i++) {
 		const id = `peer-${i}`;

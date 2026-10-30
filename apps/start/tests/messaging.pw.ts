@@ -1,6 +1,6 @@
 import { readdir, readFile } from "node:fs/promises";
 import { type APIRequestContext, expect, test } from "@playwright/test";
-import { Client, TablesDB } from "node-appwrite";
+import { Client, Query, TablesDB } from "node-appwrite";
 import { fromCrossJSON, toJSON } from "seroval";
 import { databaseId, type Fixture } from "../scripts/messaging-fixtures";
 import { endpoint, state } from "../scripts/messaging-local";
@@ -25,7 +25,7 @@ const secrets = [
 	c.sessionKey,
 	c.writerKey,
 	c.readerKey,
-	...fixture.actors.flatMap((a) => [a.password, a.secret]),
+	...fixture.actors.flatMap((a) => [a.password, a.secret, a.secondarySecret]),
 ];
 const ids = new Map<string, string>();
 async function rpcURL(name: string) {
@@ -60,6 +60,7 @@ async function call<T>(
 	actor = -1,
 	method = "GET",
 	badOrigin = false,
+	secret?: string,
 ): Promise<MessagingResult<T>> {
 	const url = new URL(await rpcURL(name)),
 		payload = JSON.stringify(toJSON({ data }));
@@ -72,7 +73,9 @@ async function call<T>(
 			"sec-fetch-site": "same-origin",
 			Accept: "application/json",
 			Cookie:
-				actor < 0 ? "" : `nfe-session-dev=${fixture.actors[actor]!.secret}`,
+				actor < 0
+					? ""
+					: `nfe-session-dev=${secret ?? fixture.actors[actor]!.secret}`,
 			...(method === "POST" ? { "Content-Type": "application/json" } : {}),
 		},
 		...(method === "POST" ? { data: payload } : {}),
@@ -100,21 +103,31 @@ const send = (
 	toUserId: string,
 	content: string,
 	requestId = crypto.randomUUID(),
+	secret?: string,
 ) =>
 	call<{
 		ownerId: string;
 		message: PrivateMessage;
 		event: { eventId: string; type: string };
-	}>(request, "sendMessage", { toUserId, content, requestId }, actor, "POST");
+	}>(
+		request,
+		"sendMessage",
+		{ toUserId, content, requestId },
+		actor,
+		"POST",
+		false,
+		secret,
+	);
 async function retrySend(
 	request: APIRequestContext,
 	actor: number,
 	toUserId: string,
 	content: string,
 	requestId = crypto.randomUUID(),
+	secret?: string,
 ) {
 	for (let attempt = 0; attempt < 8; attempt++) {
-		const r = await send(request, actor, toUserId, content, requestId);
+		const r = await send(request, actor, toUserId, content, requestId, secret);
 		if (r.ok || r.error !== "conflict") return r;
 	}
 	throw new Error("Send race did not settle");
@@ -161,7 +174,14 @@ test("participant confidentiality, imported history/list pagination, durable pol
 			databaseId,
 			tableId: "messages",
 			rowId: "sdk-attack",
-			data: {},
+			data: {
+				fromUserId: "actor-A",
+				toUserId: "actor-B",
+				content: "valid but SDK forbidden",
+				readAt: null,
+				createdAt: new Date().toISOString(),
+				updatedAt: new Date().toISOString(),
+			},
 		}),
 	).rejects.toBeDefined();
 	let cursor: string | null = null;
@@ -319,21 +339,126 @@ test("idempotent races/retries and persistent sender quota", async ({
 		await new Promise((resolve) =>
 			setTimeout(resolve, 60_000 - (Date.now() % 60_000) + 50),
 		);
-	const tokens = Array.from({ length: 20 }, () => crypto.randomUUID());
-	for (let i = 0; i < 20; i++)
-		expect(
-			(await retrySend(request, 2, "actor-B", `Quota ${i}`, tokens[i])).ok,
-		).toBe(true);
-	expect(await send(request, 2, "actor-B", "Over quota")).toEqual({
-		ok: false,
-		error: "rateLimited",
-	});
+	const tokens = Array.from({ length: 19 }, () => crypto.randomUUID());
+	for (let i = 0; i < 19; i++)
+		value(await retrySend(request, 2, "actor-B", `Quota ${i}`, tokens[i]));
+	const race = await Promise.all([
+		retrySend(
+			request,
+			2,
+			"actor-B",
+			"Quota boundary B",
+			crypto.randomUUID(),
+			fixture.actors[2]!.secret,
+		),
+		retrySend(
+			request,
+			2,
+			"actor-admin",
+			"Quota boundary admin",
+			crypto.randomUUID(),
+			fixture.actors[2]!.secondarySecret,
+		),
+	]);
+	expect(race.filter((r) => r.ok)).toHaveLength(1);
+	expect(race.filter((r) => !r.ok)).toEqual([
+		{ ok: false, error: "rateLimited" },
+	]);
+	expect(
+		await send(
+			request,
+			2,
+			"actor-B",
+			"Over quota",
+			crypto.randomUUID(),
+			fixture.actors[2]!.secondarySecret,
+		),
+	).toEqual({ ok: false, error: "rateLimited" });
 	expect((await send(request, 2, "actor-B", "Quota 0", tokens[0])).ok).toBe(
 		true,
 	);
-	// A separate fresh session still sees the same server-side limit.
-	const quota = await admin.listRows({ databaseId, tableId: "message_limits" });
-	expect(quota.rows.find((r) => r.senderId === "actor-C")?.count).toBe(20);
+	const quotas = await admin.listRows({
+		databaseId,
+		tableId: "message_limits",
+	});
+	const quota = quotas.rows.find((r) => r.senderId === "actor-C");
+	expect(quota?.count).toBe(20);
+	if (!quota) throw new Error("Quota absent");
+	for (const actor of [-1, 0, 1, 2, 3]) {
+		const db =
+			actor < 0
+				? new TablesDB(new Client().setEndpoint(endpoint).setProject(c.project))
+				: sessionDB(actor);
+		await expect(
+			db.getRow({ databaseId, tableId: "message_limits", rowId: quota.$id }),
+		).rejects.toMatchObject({ code: expect.any(Number) });
+		const rows = await db.listRows({ databaseId, tableId: "message_limits" });
+		expect(rows.rows).toEqual([]);
+	}
+	const committed = await admin.listRows({
+		databaseId,
+		tableId: "messages",
+		queries: [Query.equal("fromUserId", "actor-C"), Query.limit(100)],
+	});
+	expect(committed.rows).toHaveLength(20);
+	const loser = race[0]!.ok ? "Quota boundary admin" : "Quota boundary B";
+	expect(committed.rows.some((r) => r.content === loser)).toBe(false);
+	const conversations = await admin.listRows({
+		databaseId,
+		tableId: "message_conversations",
+		queries: [Query.limit(100)],
+	});
+	for (const peer of ["actor-B", "actor-admin"]) {
+		const rows = await admin.listRows({
+			databaseId,
+			tableId: "messages",
+			queries: [
+				Query.or([
+					Query.and([
+						Query.equal("fromUserId", "actor-C"),
+						Query.equal("toUserId", peer),
+					]),
+					Query.and([
+						Query.equal("fromUserId", peer),
+						Query.equal("toUserId", "actor-C"),
+					]),
+				]),
+				Query.orderDesc("createdAt"),
+				Query.orderDesc("$id"),
+				Query.limit(1),
+			],
+		});
+		const pointer = conversations.rows.find(
+			(r) =>
+				[r.participantA, r.participantB].sort().join("|") ===
+				["actor-C", peer].sort().join("|"),
+		);
+		expect(pointer?.latestId).toBe(rows.rows[0]?.$id);
+	}
+	// Replaying the same token after the recipient read must preserve the live read timestamp.
+	value(
+		await call(request, "markRead", { ids: [replay.message.id] }, 1, "POST"),
+	);
+	const readBefore = await admin.getRow({
+		databaseId,
+		tableId: "messages",
+		rowId: replay.message.id,
+	});
+	const readReplay = value(
+		await send(request, 0, "actor-B", "Exactly once", requestId),
+	);
+	expect(readReplay.message.readAt).toBe(
+		new Date(readBefore.readAt).toISOString(),
+	);
+	expect(
+		(
+			await admin.getRow({
+				databaseId,
+				tableId: "messages",
+				rowId: replay.message.id,
+			})
+		).readAt,
+	).toBe(readBefore.readAt);
 });
 
 test("FR/EN history reload, optimistic rollback and delayed SPA account switch", async ({
@@ -414,5 +539,118 @@ test("FR/EN history reload, optimistic rollback and delayed SPA account switch",
 	await expect(
 		page.getByText("Imported history 44", { exact: true }),
 	).toHaveCount(0);
+	await page.getByRole("link", { name: "actor-B", exact: true }).click();
+	await expect(
+		page.getByRole("heading", { name: "Messages", exact: true }),
+	).toBeVisible();
+	await expect(page.getByText("Exactly once", { exact: true })).toHaveCount(0);
+	await expect(
+		page.getByText("Imported history 44", { exact: true }),
+	).toHaveCount(0);
 	noLeaks(await page.content());
+});
+
+for (const outcome of ["success", "error"] as const)
+	test(`delayed send ${outcome} cannot restore A data after SPA logout`, async ({
+		page,
+	}) => {
+		await page.goto("/en/sign-in");
+		await page
+			.getByLabel("Email", { exact: true })
+			.fill(fixture.actors[0]!.email);
+		await page
+			.getByLabel("Password", { exact: true })
+			.fill(fixture.actors[0]!.password);
+		await page.getByRole("button", { name: "Sign in", exact: true }).click();
+		await page.waitForURL("**/en/private");
+		await page.goto(
+			`/en/messages/${outcome === "success" ? "actor-B" : "actor-C"}`,
+		);
+		await expect(
+			page.getByRole("heading", { name: "Messages", exact: true }),
+		).toBeVisible();
+		let release: () => void = () => {};
+		let intercepted: () => void = () => {};
+		const ready = new Promise<void>((r) => {
+				intercepted = r;
+			}),
+			hold = new Promise<void>((r) => {
+				release = r;
+			});
+		const unique = `Delayed A send ${outcome} ${crypto.randomUUID()}`;
+		await page.route(`${await rpcURL("sendMessage")}*`, async (route) => {
+			const response = await route.fetch();
+			intercepted();
+			await hold;
+			await route.fulfill({ response });
+		});
+		await page.evaluate(() => {
+			(window as unknown as { messagingSpaMarker: string }).messagingSpaMarker =
+				"preserved";
+		});
+		await page.getByLabel("Your message").fill(unique);
+		await page.getByRole("button", { name: "Send", exact: true }).click();
+		await ready;
+		await page.getByRole("link", { name: "My space", exact: true }).click();
+		await page.getByRole("button", { name: "Sign out", exact: true }).click();
+		await page
+			.getByLabel("Email", { exact: true })
+			.fill(fixture.actors[2]!.email);
+		await page
+			.getByLabel("Password", { exact: true })
+			.fill(fixture.actors[2]!.password);
+		await page.getByRole("button", { name: "Sign in", exact: true }).click();
+		await page.waitForURL("**/en/private");
+		release();
+		await page.unrouteAll({ behavior: "wait" });
+		expect(
+			await page.evaluate(
+				() =>
+					(window as unknown as { messagingSpaMarker: string })
+						.messagingSpaMarker,
+			),
+		).toBe("preserved");
+		await page.getByRole("link", { name: "Messages", exact: true }).click();
+		await page.getByRole("link", { name: "actor-B", exact: true }).click();
+		await expect(
+			page.getByRole("heading", { name: "Messages", exact: true }),
+		).toBeVisible();
+		await expect(page.getByText(unique, { exact: true })).toHaveCount(0);
+		await expect(page.getByText("Exactly once", { exact: true })).toHaveCount(
+			0,
+		);
+		await expect(page.locator('[data-message-id^="pending-"]')).toHaveCount(0);
+		await expect(page.getByRole("alert")).toHaveCount(0);
+		noLeaks(await page.content());
+	});
+
+test("legacy conversation links preserve recipient, preferred FR/EN and guest returnTo", async ({
+	page,
+	context,
+}) => {
+	for (const locale of ["fr", "en"] as const) {
+		await context.clearCookies();
+		await context.addCookies([
+			{ name: "NEXT_LOCALE", value: locale, url: origin },
+		]);
+		await page.goto("/messages/imported.peer");
+		await expect(page).toHaveURL(new RegExp(`/${locale}/sign-in\\?returnTo=`));
+		expect(new URL(page.url()).searchParams.get("returnTo")).toBe(
+			`/${locale}/messages/imported.peer`,
+		);
+		await context.addCookies([
+			{
+				name: "nfe-session-dev",
+				value: fixture.actors[1]!.secondarySecret,
+				url: origin,
+			},
+		]);
+		await page.goto("/messages/actor-A");
+		await expect(page).toHaveURL(`${origin}/${locale}/messages/actor-A`);
+		await expect(
+			page.getByRole("heading", { name: "Messages", exact: true }),
+		).toBeVisible();
+		await page.goto("/messages");
+		await expect(page).toHaveURL(`${origin}/${locale}/messages`);
+	}
 });

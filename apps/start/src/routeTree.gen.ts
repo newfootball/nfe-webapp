@@ -14,9 +14,12 @@ import { Route as LocaleRouteImport } from './routes/$locale'
 import { Route as ChangePasswordRouteImport } from './routes/change-password'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as ManifestDotwebmanifestRouteImport } from './routes/manifest[.]webmanifest'
+import { Route as OfflineDothtmlRouteImport } from './routes/offline[.]html'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SwDotjsRouteImport } from './routes/sw[.]js'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as LocaleIndexRouteImport } from './routes/$locale.index'
 import { Route as LocaleAboutRouteImport } from './routes/$locale.about'
@@ -65,6 +68,16 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ManifestDotwebmanifestRoute = ManifestDotwebmanifestRouteImport.update({
+  id: '/manifest.webmanifest',
+  path: '/manifest.webmanifest',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OfflineDothtmlRoute = OfflineDothtmlRouteImport.update({
+  id: '/offline.html',
+  path: '/offline.html',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -78,6 +91,11 @@ const ProfileRoute = ProfileRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SwDotjsRoute = SwDotjsRouteImport.update({
+  id: '/sw.js',
+  path: '/sw.js',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
@@ -198,9 +216,12 @@ export interface FileRoutesByFullPath {
   '/change-password': typeof ChangePasswordRoute
   '/explore': typeof ExploreRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/manifest.webmanifest': typeof ManifestDotwebmanifestRoute
+  '/offline.html': typeof OfflineDothtmlRoute
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sw.js': typeof SwDotjsRoute
   '/verify-email': typeof VerifyEmailRoute
   '/$locale/about': typeof LocaleAboutRoute
   '/$locale/explore': typeof LocaleExploreRoute
@@ -229,9 +250,12 @@ export interface FileRoutesByTo {
   '/change-password': typeof ChangePasswordRoute
   '/explore': typeof ExploreRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/manifest.webmanifest': typeof ManifestDotwebmanifestRoute
+  '/offline.html': typeof OfflineDothtmlRoute
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sw.js': typeof SwDotjsRoute
   '/verify-email': typeof VerifyEmailRoute
   '/$locale/about': typeof LocaleAboutRoute
   '/$locale/explore': typeof LocaleExploreRoute
@@ -262,9 +286,12 @@ export interface FileRoutesById {
   '/change-password': typeof ChangePasswordRoute
   '/explore': typeof ExploreRoute
   '/forgot-password': typeof ForgotPasswordRoute
+  '/manifest.webmanifest': typeof ManifestDotwebmanifestRoute
+  '/offline.html': typeof OfflineDothtmlRoute
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sw.js': typeof SwDotjsRoute
   '/verify-email': typeof VerifyEmailRoute
   '/$locale/about': typeof LocaleAboutRoute
   '/$locale/explore': typeof LocaleExploreRoute
@@ -296,9 +323,12 @@ export interface FileRouteTypes {
     | '/change-password'
     | '/explore'
     | '/forgot-password'
+    | '/manifest.webmanifest'
+    | '/offline.html'
     | '/onboarding'
     | '/profile'
     | '/reset-password'
+    | '/sw.js'
     | '/verify-email'
     | '/$locale/about'
     | '/$locale/explore'
@@ -327,9 +357,12 @@ export interface FileRouteTypes {
     | '/change-password'
     | '/explore'
     | '/forgot-password'
+    | '/manifest.webmanifest'
+    | '/offline.html'
     | '/onboarding'
     | '/profile'
     | '/reset-password'
+    | '/sw.js'
     | '/verify-email'
     | '/$locale/about'
     | '/$locale/explore'
@@ -359,9 +392,12 @@ export interface FileRouteTypes {
     | '/change-password'
     | '/explore'
     | '/forgot-password'
+    | '/manifest.webmanifest'
+    | '/offline.html'
     | '/onboarding'
     | '/profile'
     | '/reset-password'
+    | '/sw.js'
     | '/verify-email'
     | '/$locale/about'
     | '/$locale/explore'
@@ -392,9 +428,12 @@ export interface RootRouteChildren {
   ChangePasswordRoute: typeof ChangePasswordRoute
   ExploreRoute: typeof ExploreRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
+  ManifestDotwebmanifestRoute: typeof ManifestDotwebmanifestRoute
+  OfflineDothtmlRoute: typeof OfflineDothtmlRoute
   OnboardingRoute: typeof OnboardingRoute
   ProfileRoute: typeof ProfileRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SwDotjsRoute: typeof SwDotjsRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
   OauthCallbackRoute: typeof OauthCallbackRoute
   OauthGoogleRoute: typeof OauthGoogleRoute
@@ -442,6 +481,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/manifest.webmanifest': {
+      id: '/manifest.webmanifest'
+      path: '/manifest.webmanifest'
+      fullPath: '/manifest.webmanifest'
+      preLoaderRoute: typeof ManifestDotwebmanifestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/offline.html': {
+      id: '/offline.html'
+      path: '/offline.html'
+      fullPath: '/offline.html'
+      preLoaderRoute: typeof OfflineDothtmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onboarding': {
       id: '/onboarding'
       path: '/onboarding'
@@ -461,6 +514,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sw.js': {
+      id: '/sw.js'
+      path: '/sw.js'
+      fullPath: '/sw.js'
+      preLoaderRoute: typeof SwDotjsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/verify-email': {
@@ -663,9 +723,12 @@ const rootRouteChildren: RootRouteChildren = {
   ChangePasswordRoute: ChangePasswordRoute,
   ExploreRoute: ExploreRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
+  ManifestDotwebmanifestRoute: ManifestDotwebmanifestRoute,
+  OfflineDothtmlRoute: OfflineDothtmlRoute,
   OnboardingRoute: OnboardingRoute,
   ProfileRoute: ProfileRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SwDotjsRoute: SwDotjsRoute,
   VerifyEmailRoute: VerifyEmailRoute,
   OauthCallbackRoute: OauthCallbackRoute,
   OauthGoogleRoute: OauthGoogleRoute,

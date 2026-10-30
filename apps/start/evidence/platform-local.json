@@ -1,0 +1,113 @@
+{
+	"scope": "Partial local independent #62 foundation; no full issue acceptance",
+	"base": "f7e297dd418f6e4c7e8611bba2dbf50e178901de",
+	"recordedAt": "2026-10-30T11:44:55.224019+00:00",
+	"toolchain": {
+		"node": "24.22.1",
+		"bun": "1.3.14"
+	},
+	"productionFiles": {
+		"apps/start/bun.lock": "b9027499ec536af9d55b5f862def28eef1accf239fa49a42cdc465c688b9c2fd",
+		"apps/start/package.json": "0c32f256180a7a4a9757938601f6d4b1712a82b1158e4dad28a2743cd8be281f",
+		"apps/start/src/components/platform-registration.tsx": "5fd6510cbdfaebb98ad48d2813c550d7572f68e3ff61be84bd16a8b640928991",
+		"apps/start/src/lib/platform-i18n.ts": "511064ca774d64819016677eb294d9c760611294e89833f24e7517f9a2ce7873",
+		"apps/start/src/lib/platform-pwa.ts": "410b8e980cdc896e439649ca29be8c57e7826d4447a74ad7b3cfa0386ec32496",
+		"apps/start/src/lib/platform-theme.tsx": "33554bd22d17000d9513f1de8cb4f8adffb3dcd8d7cb11d67218d4cdf3fa869b",
+		"apps/start/src/routes/__root.tsx": "41e579ed65b3f7982dc3ac300f56109a7245039bdc78e1a27b0026c2d43e98e1",
+		"apps/start/src/routes/manifest[.]webmanifest.ts": "bffd8a3c4c8ca47d046f7a1e81dbc3f42b4b37b6f21455cd18c151216797c044",
+		"apps/start/src/routes/offline[.]html.ts": "7ba4e002aea7f8bc5a348dd887e74d37d56902f02307519b94f3a13d79d7e2aa",
+		"apps/start/src/routes/sw[.]js.ts": "3198da7cd5cd23f9de36b7b7be810198c4542200b27a6b088e827fd69a388efd"
+	},
+	"checks": {
+		"unit": {
+			"command": "bun run --cwd apps/start test",
+			"passed": 47,
+			"failed": 0
+		},
+		"buildClientScan": {
+			"command": "bun run build:start",
+			"result": "pass;28 client JS artifacts inspected"
+		},
+		"typecheck": {
+			"command": "bun run typecheck:start",
+			"result": "pass"
+		},
+		"lint": {
+			"command": "bun run --cwd apps/start lint",
+			"result": "pass;55 pre-existing warnings,5 infos;0 errors"
+		},
+		"platformBrowser": {
+			"command": "PLAYWRIGHT_CHANNEL=chrome bun run --cwd apps/start smoke --config playwright.platform.config.ts",
+			"result": "2 passed,0 failed,0 skipped",
+			"attempts": 3,
+			"earlierAttempts": "test locator/navigation timing and generic resource-console assertions corrected;production source unchanged during browser passes"
+		},
+		"realAppwriteLogoutOffline": {
+			"command": "NFE_AUTH_SYNTHETIC=1 PLAYWRIGHT_CHANNEL=chrome bun run --cwd apps/start scripts/platform-auth-proof.ts",
+			"passed": 0,
+			"failed": 1,
+			"skipped": 0,
+			"result": "FAILED initial scenario at authenticated SSR header assertion before logout/offline checks",
+			"observation": "Real browser login and private identity succeeded; independent APIRequestContext omitted browser session cookie; response cache-control undefined. No test/production repair or rerun after budget3/3.",
+			"productionSourceUnchanged": true,
+			"cleanup": {
+				"ownedProject": "nfe-auth-51",
+				"containers": 0,
+				"volumes": 0,
+				"networks": 0,
+				"ports3572and19561": "available",
+				"privateFixtureDirectory": "removed"
+			},
+			"acceptance": "Real logout/offline privacy remains UNPROVEN; do not merge PWA on fixture-free proof alone"
+		}
+	},
+	"excluded": [
+		"real B2 media and URL renewal",
+		"accepted55/61 integration",
+		"actual Google/mail/analytics",
+		"actual production installed PWA and final origin headers",
+		"root command switch"
+	],
+	"privacyPolicy": "Only offline.html,logo.svg,icons192/512 precached;no runtime cache writes",
+	"independentReview": {
+		"sourceCommit": "2f7ce1f4ad18bed88e5a261c0e0082d2c8a62d16",
+		"verdict": "APPROVE WITH COMMENTS",
+		"nonBlocking": "cross-tab theme synchronization",
+		"stillRequired": "auth proof and review of final test/evidence delta"
+	},
+	"renewal": {
+		"recordedAt": "2026-10-30T12:18:17.295458+00:00",
+		"base": "d27e7effc65d4c6ebecd898e0aba2afc2eed50d6",
+		"priorHead": "f703f7936407f6ffcae006bc8c6edd19f20ae1e7",
+		"budget": {
+			"used": 5,
+			"limit": 6
+		},
+		"delta": "Normal merge of current main; regenerated route tree unchanged after build; two test-only fixture repairs; production platform source unchanged. Prior evidence and independent source review retained.",
+		"realAuth": {
+			"command": "NFE_AUTH_SYNTHETIC=1 PLAYWRIGHT_CHANNEL=chrome bun run --cwd apps/start scripts/platform-auth-proof.ts",
+			"passed": 1,
+			"failed": 0,
+			"skipped": 0,
+			"coverage": "Both FR/EN: actual Appwrite UI login; browser-cookie SSR identity and no-store; signed-in offline503 without identity; online logout; browser cookie removed; server sessions zero; revoked-cookie replay redirects; offline private/profile/notifications/conversations503 without identity; POST network failure; exact four public cache entries without identity or secret; reconnect remains signed out."
+		},
+		"checks": {
+			"unit": "50 passed/0 failed",
+			"buildClientScan": "pass;35 client JS artifacts",
+			"typecheck": "pass",
+			"startLint": "pass;56 existing warnings/5 infos",
+			"rootLint": "pass;133 existing warnings/5 infos",
+			"shellBrowser": "3 passed/0 failed/0 skipped; own3572 via temporary config because3501 is an unrelated database; temporary config removed",
+			"platformBrowser": "2 passed/0 failed/0 skipped; real service worker enabled"
+		},
+		"cleanup": {
+			"ownedProject": "nfe-auth-51",
+			"containers": 0,
+			"volumes": 0,
+			"networks": 0,
+			"privateFixtureDirectory": "removed using trash",
+			"ports3572and19561": "available"
+		},
+		"remaining": "Independent delta review and exact-head CI; full62 integration/actual legacy installation/final origin still outside partial proof."
+	}
+}

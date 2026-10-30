@@ -1,0 +1,23 @@
+{
+	"source": "fresh filesystem tree; no inherited node_modules; tools sources present but no tools/*/node_modules installed",
+	"commands": [
+		{
+			"command": "bun install --frozen-lockfile",
+			"exit": 0
+		},
+		{
+			"command": "bun install --cwd apps/start --frozen-lockfile",
+			"exit": 0
+		},
+		{
+			"command": "bun run build:start",
+			"exit": 0
+		},
+		{
+			"command": "bun run typecheck:start",
+			"exit": 0
+		}
+	],
+	"earlierSetupAttempt": "omitting pure schema source contracts broke pre-existing profile-input.test.ts imports; corrected the isolated fixture to include repository source files without installing optional tools dependencies",
+	"at": "2026-10-29T16:08:44Z"
+}

@@ -25,7 +25,11 @@
 		"recovery:up": "bun scripts/recovery-local.ts up",
 		"recovery:down": "bun scripts/recovery-local.ts down",
 		"recovery:proof": "bun scripts/recovery-proof.ts",
-		"oauth:broker-proof": "bun scripts/oauth-broker-proof.ts"
+		"oauth:broker-proof": "bun scripts/oauth-broker-proof.ts",
+		"feed:prepare": "bun scripts/feed-local.ts prepare",
+		"feed:up": "bun scripts/feed-local.ts up",
+		"feed:down": "bun scripts/feed-local.ts down",
+		"feed:proof": "bun scripts/feed-proof.ts"
 	},
 	"dependencies": {
 		"@radix-ui/react-slot": "1.2.4",

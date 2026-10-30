@@ -10,3 +10,5 @@ playwright-report/
 scripts/.local/
 
 scripts/.profile-local/
+
+scripts/.feed-local/

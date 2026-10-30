@@ -44,6 +44,10 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
   const request = event.request;
   const url = new URL(request.url);
+  // Native media transport owns cross-origin Range requests and signed URLs.
+  // Re-fetching an opaque media response here can turn a partial request into
+  // a full download and consume a short capability before seeking completes.
+  if (url.origin !== self.location.origin) return;
   if (request.method !== "GET") return;
   if (url.origin === self.location.origin && !url.search && PUBLIC.includes(url.pathname)) {
     event.respondWith(caches.open(CACHE).then(cache => cache.match(url.pathname)).then(response => response || fetch(request, {cache: "no-store"})));

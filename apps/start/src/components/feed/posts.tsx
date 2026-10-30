@@ -4,8 +4,10 @@ import { Button } from "../../../../../components/ui/button";
 import { feedOptions } from "../../lib/feed";
 import type { PublicPost } from "../../lib/feed-contract";
 import { feedMessages } from "../../lib/feed-messages";
+import { mediaMessages } from "../../lib/media-messages";
 import type { Locale } from "../../lib/messages";
 import { SocialInteractions } from "../interactions/social-interactions";
+import { MediaPlayer } from "../media/media-player";
 export function PostCard({
 	post,
 	locale,
@@ -29,12 +31,7 @@ export function PostCard({
 				</Link>
 			</h2>
 			<p className="my-4 whitespace-pre-wrap break-words">{post.description}</p>
-			<figure className="flex items-center gap-3 rounded-lg bg-muted p-3">
-				<img src={post.mediaPreview} width="32" height="32" alt="" />
-				<figcaption className="text-sm text-muted-foreground">
-					{t.preview}
-				</figcaption>
-			</figure>
+			<MediaPlayer postId={post.id} locale={locale} title={post.title} />
 			<p className="mt-3 text-sm">
 				{t.likes}: {post._count.likes} · {t.comments}: {post._count.comments}
 			</p>
@@ -61,6 +58,11 @@ export function Posts({
 	const posts = query.data?.pages.flatMap((p) => p.posts) ?? [];
 	return (
 		<section aria-label={t.posts} className="mt-8 space-y-5">
+			<Button asChild variant="outline">
+				<Link to="/$locale/publish" params={{ locale }}>
+					{mediaMessages[locale].publish}
+				</Link>
+			</Button>
 			{query.isPending && <FeedPending locale={locale} />}
 			{posts.map((post) => (
 				<PostCard key={post.id} post={post} locale={locale} />

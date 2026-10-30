@@ -382,6 +382,7 @@ async function playbackProof(page: Page, locale: Locale) {
 	});
 	try {
 		await expect(player).toHaveAttribute("controls", "");
+		await expect(player).toHaveAttribute("preload", "none");
 		await expect(player).toHaveAttribute("playsinline", "");
 		await player.evaluate((element: HTMLVideoElement) => {
 			element.muted = true;
@@ -389,6 +390,7 @@ async function playbackProof(page: Page, locale: Locale) {
 		await page
 			.getByRole("button", { name: mediaMessages[locale].play, exact: true })
 			.click();
+		await expect(player).toHaveAttribute("preload", "auto");
 		await expect
 			.poll(
 				() =>

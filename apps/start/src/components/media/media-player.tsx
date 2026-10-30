@@ -6,6 +6,8 @@ import { mediaMessages } from "../../lib/media-messages";
 import { unwrapMedia } from "../../lib/media-upload";
 import type { Locale } from "../../lib/messages";
 
+class ExpiredMediaCapability extends Error {}
+
 export function MediaPlayer({
 	postId,
 	locale,
@@ -25,6 +27,7 @@ export function MediaPlayer({
 		let alive = true,
 			pending = false,
 			switching = false,
+			expiredRetries = 0,
 			expiresAt = 0,
 			renewalMargin = 20_000;
 		let timer: ReturnType<typeof setTimeout> | undefined;
@@ -40,6 +43,7 @@ export function MediaPlayer({
 				}
 				const cleanup = () => {
 					clearTimeout(timeout);
+					clearTimeout(expiry);
 					element.removeEventListener(name, ready);
 					element.removeEventListener("error", failed);
 					waits.delete(cancel);
@@ -57,6 +61,18 @@ export function MediaPlayer({
 					reject(new DOMException("Aborted", "AbortError"));
 				};
 				const timeout = setTimeout(failed, 20_000);
+				// Native browsers can silently retry an expired Range URL without
+				// emitting a media error. Do not leave renewal blocked on seeked.
+				const expiry =
+					name === "seeked"
+						? setTimeout(
+								() => {
+									cleanup();
+									reject(new ExpiredMediaCapability());
+								},
+								Math.max(0, expiresAt - Date.now()),
+							)
+						: undefined;
 				waits.add(cancel);
 				element.addEventListener(name, ready, { once: true });
 				element.addEventListener("error", failed, { once: true });
@@ -72,11 +88,13 @@ export function MediaPlayer({
 			checkpoint.position = element.currentTime;
 			checkpoint.playing = !element.paused && !element.ended;
 		}
-		async function load(play = false) {
+		async function load(play = false, retryExpired = false) {
 			if (!element || pending || !alive) return;
+			if (!retryExpired) expiredRetries = 0;
+			let retry = false;
 			pending = true;
 			clearTimeout(timer);
-			record();
+			if (!retryExpired) record();
 			checkpoint.playing ||= play;
 			setStatus("loading");
 			try {
@@ -86,7 +104,7 @@ export function MediaPlayer({
 				if (!alive) return;
 				// Playback may have advanced or been paused during the authorized read.
 				const requestedPlay = checkpoint.playing;
-				record();
+				if (!retryExpired) record();
 				checkpoint.playing ||= play || requestedPlay;
 				expiresAt = capability.expiresAt;
 				renewalMargin = Math.min(
@@ -115,6 +133,7 @@ export function MediaPlayer({
 					});
 				if (!alive) return;
 				switching = false;
+				expiredRetries = 0;
 				record();
 				setStatus("ready");
 				// A new source must finish metadata/seek restoration before another renewal.
@@ -124,11 +143,19 @@ export function MediaPlayer({
 					},
 					Math.max(500, expiresAt - Date.now() - renewalMargin),
 				);
-			} catch {
-				if (alive) setStatus("error");
+			} catch (error) {
+				if (
+					alive &&
+					error instanceof ExpiredMediaCapability &&
+					expiredRetries < 2
+				) {
+					expiredRetries++;
+					retry = true;
+				} else if (alive) setStatus("error");
 			} finally {
 				pending = false;
 				switching = false;
+				if (retry && alive) void load(false, true);
 			}
 		}
 		const failed = () => {
@@ -175,7 +202,7 @@ export function MediaPlayer({
 				ref={video}
 				controls
 				playsInline
-				preload="none"
+				preload={status === "idle" ? "none" : "auto"}
 				poster={postMediaPath(postId, "thumbnail")}
 				aria-label={title}
 				className="aspect-video w-full rounded-lg bg-muted"

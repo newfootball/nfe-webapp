@@ -5,6 +5,7 @@ import { feedOptions } from "../../lib/feed";
 import type { PublicPost } from "../../lib/feed-contract";
 import { feedMessages } from "../../lib/feed-messages";
 import type { Locale } from "../../lib/messages";
+import { SocialInteractions } from "../interactions/social-interactions";
 export function PostCard({
 	post,
 	locale,
@@ -37,6 +38,7 @@ export function PostCard({
 			<p className="mt-3 text-sm">
 				{t.likes}: {post._count.likes} · {t.comments}: {post._count.comments}
 			</p>
+			<SocialInteractions id={post.id} locale={locale} />
 		</article>
 	);
 }

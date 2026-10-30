@@ -41,6 +41,7 @@ import { Route as LocalePostIdRouteImport } from './routes/$locale.post.$id'
 import { Route as LocalePostMyRouteImport } from './routes/$locale.post_.my'
 import { Route as LocaleProfileAccountSecurityRouteImport } from './routes/$locale.profile_.account-security'
 import { Route as LocaleProfileEditUserRouteImport } from './routes/$locale.profile_.edit-user'
+import { Route as LocaleProfileFavoritesRouteImport } from './routes/$locale.profile_.favorites'
 import { Route as LocaleProfileFollowsRouteImport } from './routes/$locale.profile_.follows'
 import { Route as LocaleUserIdRouteImport } from './routes/$locale.user.$id'
 import { Route as LocalePostIdEditRouteImport } from './routes/$locale.post_.$id.edit'
@@ -206,6 +207,11 @@ const LocaleProfileEditUserRoute = LocaleProfileEditUserRouteImport.update({
   path: '/profile/edit-user',
   getParentRoute: () => LocaleRoute,
 } as any)
+const LocaleProfileFavoritesRoute = LocaleProfileFavoritesRouteImport.update({
+  id: '/profile_/favorites',
+  path: '/profile/favorites',
+  getParentRoute: () => LocaleRoute,
+} as any)
 const LocaleProfileFollowsRoute = LocaleProfileFollowsRouteImport.update({
   id: '/profile_/follows',
   path: '/profile/follows',
@@ -255,6 +261,7 @@ export interface FileRoutesByFullPath {
   '/$locale/post/my': typeof LocalePostMyRoute
   '/$locale/profile/account-security': typeof LocaleProfileAccountSecurityRoute
   '/$locale/profile/edit-user': typeof LocaleProfileEditUserRoute
+  '/$locale/profile/favorites': typeof LocaleProfileFavoritesRoute
   '/$locale/profile/follows': typeof LocaleProfileFollowsRoute
   '/$locale/user/$id': typeof LocaleUserIdRoute
   '/$locale/post/$id/edit': typeof LocalePostIdEditRoute
@@ -291,6 +298,7 @@ export interface FileRoutesByTo {
   '/$locale/post/my': typeof LocalePostMyRoute
   '/$locale/profile/account-security': typeof LocaleProfileAccountSecurityRoute
   '/$locale/profile/edit-user': typeof LocaleProfileEditUserRoute
+  '/$locale/profile/favorites': typeof LocaleProfileFavoritesRoute
   '/$locale/profile/follows': typeof LocaleProfileFollowsRoute
   '/$locale/user/$id': typeof LocaleUserIdRoute
   '/$locale/post/$id/edit': typeof LocalePostIdEditRoute
@@ -329,6 +337,7 @@ export interface FileRoutesById {
   '/$locale/post_/my': typeof LocalePostMyRoute
   '/$locale/profile_/account-security': typeof LocaleProfileAccountSecurityRoute
   '/$locale/profile_/edit-user': typeof LocaleProfileEditUserRoute
+  '/$locale/profile_/favorites': typeof LocaleProfileFavoritesRoute
   '/$locale/profile_/follows': typeof LocaleProfileFollowsRoute
   '/$locale/user/$id': typeof LocaleUserIdRoute
   '/$locale/post_/$id/edit': typeof LocalePostIdEditRoute
@@ -368,6 +377,7 @@ export interface FileRouteTypes {
     | '/$locale/post/my'
     | '/$locale/profile/account-security'
     | '/$locale/profile/edit-user'
+    | '/$locale/profile/favorites'
     | '/$locale/profile/follows'
     | '/$locale/user/$id'
     | '/$locale/post/$id/edit'
@@ -404,6 +414,7 @@ export interface FileRouteTypes {
     | '/$locale/post/my'
     | '/$locale/profile/account-security'
     | '/$locale/profile/edit-user'
+    | '/$locale/profile/favorites'
     | '/$locale/profile/follows'
     | '/$locale/user/$id'
     | '/$locale/post/$id/edit'
@@ -441,6 +452,7 @@ export interface FileRouteTypes {
     | '/$locale/post_/my'
     | '/$locale/profile_/account-security'
     | '/$locale/profile_/edit-user'
+    | '/$locale/profile_/favorites'
     | '/$locale/profile_/follows'
     | '/$locale/user/$id'
     | '/$locale/post_/$id/edit'
@@ -694,6 +706,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocaleProfileEditUserRouteImport
       parentRoute: typeof LocaleRoute
     }
+    '/$locale/profile_/favorites': {
+      id: '/$locale/profile_/favorites'
+      path: '/profile/favorites'
+      fullPath: '/$locale/profile/favorites'
+      preLoaderRoute: typeof LocaleProfileFavoritesRouteImport
+      parentRoute: typeof LocaleRoute
+    }
     '/$locale/profile_/follows': {
       id: '/$locale/profile_/follows'
       path: '/profile/follows'
@@ -732,6 +751,7 @@ interface LocaleRouteChildren {
   LocalePostMyRoute: typeof LocalePostMyRoute
   LocaleProfileAccountSecurityRoute: typeof LocaleProfileAccountSecurityRoute
   LocaleProfileEditUserRoute: typeof LocaleProfileEditUserRoute
+  LocaleProfileFavoritesRoute: typeof LocaleProfileFavoritesRoute
   LocaleProfileFollowsRoute: typeof LocaleProfileFollowsRoute
   LocaleUserIdRoute: typeof LocaleUserIdRoute
   LocalePostIdEditRoute: typeof LocalePostIdEditRoute
@@ -751,6 +771,7 @@ const LocaleRouteChildren: LocaleRouteChildren = {
   LocalePostMyRoute: LocalePostMyRoute,
   LocaleProfileAccountSecurityRoute: LocaleProfileAccountSecurityRoute,
   LocaleProfileEditUserRoute: LocaleProfileEditUserRoute,
+  LocaleProfileFavoritesRoute: LocaleProfileFavoritesRoute,
   LocaleProfileFollowsRoute: LocaleProfileFollowsRoute,
   LocaleUserIdRoute: LocaleUserIdRoute,
   LocalePostIdEditRoute: LocalePostIdEditRoute,

@@ -1,0 +1,20 @@
+{
+	"task": "57-post-interactions",
+	"base": "96c0819cad63637dc962ebdbf0d04d0263f2311a",
+	"budget": { "maximumRepairPasses": 3, "used": 0, "history": [] },
+	"scope": [
+		"likes",
+		"comments",
+		"private favorites",
+		"PostCard additive integration"
+	],
+	"preservedSlice": "Follow PR87 delivered separately; history is not reset",
+	"phase": "implementation",
+	"runtimeLease": "not granted; no service launch",
+	"gates": {
+		"lifecycle56": "unproven; do not close57",
+		"independentReview": "pending",
+		"runtime": "pending",
+		"ci": "pending"
+	}
+}

@@ -1,0 +1,68 @@
+export const postTextMessages = {
+	fr: {
+		mine: "Mes publications",
+		edit: "Modifier le texte",
+		title: "Titre",
+		description: "Description",
+		save: "Enregistrer",
+		saving: "Enregistrement…",
+		saved: "Texte enregistré.",
+		empty: "Aucune publication.",
+		next: "Page suivante",
+		first: "Première page",
+		reload: "Recharger la version actuelle",
+		language: "English",
+		statuses: {
+			DRAFT: "Brouillon",
+			PUBLISHED: "Publiée",
+			PENDING: "En attente",
+			REJECTED: "Rejetée",
+			ARCHIVED: "Archivée",
+			legacy: "Statut historique",
+		},
+		errors: {
+			unauthorized: "Connectez-vous pour continuer.",
+			forbidden: "Accès refusé.",
+			origin: "Origine de la requête refusée.",
+			invalid:
+				"Titre requis (200 caractères maximum), description de 10 000 caractères maximum.",
+			unavailable: "Service indisponible. Réessayez.",
+			conflict:
+				"Cette publication a changé. Copiez votre texte puis rechargez la version actuelle.",
+			notFound: "Publication introuvable.",
+		},
+	},
+	en: {
+		mine: "My posts",
+		edit: "Edit text",
+		title: "Title",
+		description: "Description",
+		save: "Save",
+		saving: "Saving…",
+		saved: "Text saved.",
+		empty: "No posts yet.",
+		next: "Next page",
+		first: "First page",
+		reload: "Reload current version",
+		language: "Français",
+		statuses: {
+			DRAFT: "Draft",
+			PUBLISHED: "Published",
+			PENDING: "Pending",
+			REJECTED: "Rejected",
+			ARCHIVED: "Archived",
+			legacy: "Legacy status",
+		},
+		errors: {
+			unauthorized: "Sign in to continue.",
+			forbidden: "Access denied.",
+			origin: "Request origin denied.",
+			invalid:
+				"Title required (up to 200 characters), description up to 10,000 characters.",
+			unavailable: "Service unavailable. Try again.",
+			conflict:
+				"This post has changed. Copy your text, then reload the current version.",
+			notFound: "Post not found.",
+		},
+	},
+} as const;

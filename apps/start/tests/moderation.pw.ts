@@ -526,7 +526,10 @@ test("isolated moderation: SSR/RPC guards, spoof, unique reports, thresholds, bo
 		(await list("PENDING", "public moderation-a", null, "users")).users.map(
 			(u) => u.id,
 		),
-	).toEqual([a.id]);
+	).toEqual([admin.id, a.id]);
+	expect(
+		(await list("PENDING", "public missing-prefix", null, "users")).users,
+	).toEqual([]);
 	for (const operation of ["review", "dismiss"] as const) {
 		const r = (await list()).reports.find((r) => r.postId === "social-second");
 		if (!r) throw new Error("Decision fixture missing");

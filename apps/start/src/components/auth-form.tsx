@@ -44,6 +44,7 @@ export function AuthForm({
 				{recoveryMessages[locale].forgot}
 			</Link>
 			<form
+				method="post"
 				className="flex flex-col gap-4"
 				onSubmit={async (event) => {
 					event.preventDefault();

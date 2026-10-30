@@ -52,6 +52,27 @@ test("historical pages expose localized content and metadata without JavaScript"
 			"autocomplete",
 			"new-password",
 		);
+		const credentialForm = page.locator('form:has(input[name="password"])');
+		await expect(credentialForm).toHaveAttribute("method", "post");
+		await page.locator('input[name="name"]').fill("Synthetic NoJS");
+		await page.locator('input[name="email"]').fill("nojs@example.test");
+		await page
+			.locator('input[name="password"]')
+			.fill("Synthetic-NoJS-password");
+		const submitted = page.waitForRequest(
+			(request) =>
+				request.isNavigationRequest() && request.frame() === page.mainFrame(),
+		);
+		await credentialForm
+			.getByRole("button", {
+				name: locale === "fr" ? "Inscription" : "Sign up",
+				exact: true,
+			})
+			.click();
+		const request = await submitted;
+		expect(request.method()).toBe("POST");
+		expect(request.url()).toBe(`${baseURL}/sign-up`);
+		expect(new URL(page.url()).search).toBe("");
 		await context.close();
 	}
 });

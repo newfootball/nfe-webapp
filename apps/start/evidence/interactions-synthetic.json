@@ -1,0 +1,59 @@
+{
+	"at": "2026-10-30T13:09:44.394Z",
+	"appwrite": "2.6.2",
+	"source": "synthetic only",
+	"testExit": 0,
+	"databaseId": "interactions-proof",
+	"sensitiveScan": {
+		"files": 61,
+		"matches": 0
+	},
+	"buildSha256": "d5bf6fdccfee7846b381273ae8203fbf790aece4d50ac73dafb5b333dc34434e",
+	"limitations": [
+		"Post interactions slice #57 only",
+		"No durable notification delivery; contract only",
+		"No full lifecycle56, real import or production acceptance"
+	],
+	"testedHead": "ef771e4ada46a747fc22cd9ca5018ebceb58b642",
+	"acceptedBase": "12f88c040c3c3a730387c28b7b10e8205cfe0817",
+	"originalBase": "96c0819cad63637dc962ebdbf0d04d0263f2311a",
+	"sourceTree": "303044eb4641bb8f1a9f0c571321bbf76012ca4c",
+	"buildSourceHead": "aaf20e4e35c7a0911c059df4269df5013459048c",
+	"buildSourceTreeMatchesTestedHead": true,
+	"browser": {
+		"passed": 1,
+		"failed": 0,
+		"skipped": 0,
+		"retries": 0,
+		"seconds": 9.5
+	},
+	"coverage": [
+		"A/B/admin/anonymous direct RPC and UI",
+		"Strict identity/role/input forgery and Origin rejection",
+		"Private/draft/archived/orphan parent denial",
+		"12-way same-pair creates/removes and comment request replay",
+		"Opposing mutations reconcile after reload",
+		"Two actors with controlled staged-parent interleavings",
+		"Archive before commit, ACL withdrawal and deletion after staging leave no child",
+		"Author/admin comment deletion; post owner alone denied",
+		"Favorites private through RPC and direct ACL, including admin denial",
+		"25 imported comments ordered by business date and stable ID across pages",
+		"23 own favorites across pages",
+		"1000-character comment succeeds,1001 fails",
+		"Optimistic rollback on real network rejection",
+		"New draft survives a delayed successful submission",
+		"SPA A->B->A in one document with delayed old mutation and changed new A state",
+		"FR/EN controls and login return to own favorites",
+		"Post IDs/slugs/business dates preserved"
+	],
+	"cleanup": {
+		"project": "nfe-interactions-57",
+		"containers": 0,
+		"volumes": 0,
+		"networks": 0,
+		"portsFree": [18157, 3571],
+		"privateStateRemoved": true,
+		"proofServerAndEphemeralProxyExited": true,
+		"b2ServicesLaunched": false
+	}
+}

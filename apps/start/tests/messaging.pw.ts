@@ -132,6 +132,15 @@ async function retrySend(
 	}
 	throw new Error("Send race did not settle");
 }
+async function deniedWrite(action: Promise<unknown>) {
+	let code: number | undefined;
+	try {
+		await action;
+	} catch (e) {
+		code = (e as { code: number }).code;
+	}
+	expect([401, 403]).toContain(code);
+}
 function sessionDB(actor: number) {
 	return new TablesDB(
 		new Client()
@@ -169,7 +178,7 @@ test("participant confidentiality, imported history/list pagination, durable pol
 			data: { content: "SDK attack" },
 		}),
 	).rejects.toBeDefined();
-	await expect(
+	await deniedWrite(
 		sessionDB(0).createRow({
 			databaseId,
 			tableId: "messages",
@@ -183,7 +192,10 @@ test("participant confidentiality, imported history/list pagination, durable pol
 				updatedAt: new Date().toISOString(),
 			},
 		}),
-	).rejects.toBeDefined();
+	);
+	await expect(
+		admin.getRow({ databaseId, tableId: "messages", rowId: "sdk-attack" }),
+	).rejects.toMatchObject({ code: 404 });
 	let cursor: string | null = null;
 	const all: PrivateMessage[] = [];
 	do {

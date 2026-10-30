@@ -1,12 +1,18 @@
 export function safeReturnPath(value: unknown, locale: "fr" | "en") {
 	const allowed = [
+		"post/my",
 		"private",
 		"onboarding",
 		"profile",
 		"profile/edit-user",
 		"profile/account-security",
 	].map((path) => `/${locale}/${path}`);
-	return typeof value === "string" && allowed.includes(value)
+	const ownEdit =
+		typeof value === "string" &&
+		new RegExp(`^/${locale}/post/[a-zA-Z0-9][a-zA-Z0-9._-]{0,35}/edit$`).test(
+			value,
+		);
+	return typeof value === "string" && (allowed.includes(value) || ownEdit)
 		? value
 		: `/${locale}/private`;
 }

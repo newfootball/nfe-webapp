@@ -1,4 +1,7 @@
-import { chmod, readFile } from "node:fs/promises";
+import { spawn } from "node:child_process";
+import { chmod, open, readFile, writeFile } from "node:fs/promises";
+import { setTimeout as sleep } from "node:timers/promises";
+import { fileURLToPath } from "node:url";
 import { type APIResponse, expect, test } from "@playwright/test";
 import type { QueryClient } from "@tanstack/react-query";
 import { Client, Permission, Query, Role, TablesDB } from "node-appwrite";
@@ -496,43 +499,53 @@ async function control(data?: { failStage?: boolean; recipient?: string }) {
 async function fault(phase: "claim" | "fence" | "ack") {
 	const nonce = crypto.randomUUID(),
 		path = `${state}/fault-${nonce}.json`;
-	await Bun.write(`${state}/fault-${nonce}.log`, "");
-	await chmod(`${state}/fault-${nonce}.log`, 0o600);
-	const child = Bun.spawn(
-		["bun", "scripts/notification-fault-worker.ts", phase, nonce],
+	const log = await open(`${state}/fault-${nonce}.log`, "w", 0o600);
+	let spawnError: Error | undefined;
+	const child = spawn(
+		"bun",
+		["scripts/notification-fault-worker.ts", phase, nonce],
 		{
-			cwd: `${import.meta.dir}/..`,
+			cwd: fileURLToPath(new URL("../", import.meta.url)),
 			env: process.env,
-			stdout: Bun.file(`${state}/fault-${nonce}.log`),
-			stderr: Bun.file(`${state}/fault-${nonce}.log`),
+			stdio: ["ignore", log.fd, log.fd],
 		},
 	);
+	const exited = new Promise<void>((resolve) => {
+		child.once("error", (error) => {
+			spawnError = error;
+			resolve();
+		});
+		child.once("close", () => resolve());
+	});
+	await log.close();
 	try {
 		for (let i = 0; i < 250; i++) {
-			if (await Bun.file(path).exists())
-				return {
-					child,
-					journal: (await Bun.file(path).json()) as {
-						rowId: string;
-						claim: string;
-						leaseUntil: string;
-						transactionId: string | null;
-					},
+			try {
+				const journal = JSON.parse(await readFile(path, "utf8")) as {
+					rowId: string;
+					claim: string;
+					leaseUntil: string;
+					transactionId: string | null;
 				};
-			if (child.exitCode !== null)
+				return { child, exited, journal };
+			} catch (error) {
+				if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+			}
+			if (spawnError) throw spawnError;
+			if (child.exitCode !== null || child.signalCode !== null)
 				throw new Error("Fault child exited before boundary");
-			await Bun.sleep(100);
+			await sleep(100);
 		}
 		throw new Error("Fault boundary timeout");
 	} catch (e) {
 		child.kill("SIGKILL");
-		await child.exited;
+		await exited;
 		throw e;
 	}
 }
 async function killFault(f: Awaited<ReturnType<typeof fault>>) {
 	f.child.kill("SIGKILL");
-	await f.child.exited;
+	await f.exited;
 	expect(f.child.signalCode).toBe("SIGKILL");
 	if (f.journal.transactionId)
 		await db.updateTransaction({
@@ -615,8 +628,7 @@ test("real staging rollback, process death, transactional create/ack rollback an
 	).toBe(claimed.journal.claim);
 	await killFault(claimed);
 	// One actual wall-clock expiry, not an edited status pretending to be a crash.
-	while (Date.parse(claimed.journal.leaseUntil) >= Date.now())
-		await Bun.sleep(250);
+	while (Date.parse(claimed.journal.leaseUntil) >= Date.now()) await sleep(250);
 	await consumeNotifications();
 	expect(
 		(
@@ -757,7 +769,7 @@ test("real staging rollback, process death, transactional create/ack rollback an
 		oldDelivered: 0,
 		newDelivered: 1,
 	};
-	await Bun.write(`${state}/durability-result.json`, JSON.stringify(proof));
+	await writeFile(`${state}/durability-result.json`, JSON.stringify(proof));
 });
 
 test("legacy unknown target, FR/EN distinct timezone hydration, delayed SPA A-B-A and hidden/deleted fallback", async ({
@@ -797,7 +809,7 @@ test("legacy unknown target, FR/EN distinct timezone hydration, delayed SPA A-B-
 			(x) => x.name === "nfe-session-dev",
 		);
 		if (cookie) secrets.push(cookie.value);
-		await Bun.write(`${state}/runtime-secrets.json`, JSON.stringify(secrets));
+		await writeFile(`${state}/runtime-secrets.json`, JSON.stringify(secrets));
 		await chmod(`${state}/runtime-secrets.json`, 0o600);
 	}
 	await page.goto("/en/sign-in");

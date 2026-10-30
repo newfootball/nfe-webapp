@@ -21,6 +21,13 @@ const env = {
 	START_APPWRITE_FEED_READER_KEY: c.readerKey,
 	START_APPWRITE_DATABASE: databaseId,
 	START_AUTH_ALLOW_HTTP_LOOPBACK: "true",
+	// Synthetic signer only; never used to contact Backblaze or create an object.
+	B2_APPLICATION_KEY_ID: "synthetic-no-b2-access",
+	B2_APPLICATION_KEY: "synthetic-no-b2-secret",
+	B2_BUCKET_NAME: "synthetic",
+	B2_REGION: "us-west-004",
+	B2_ENDPOINT: "https://s3.us-west-004.backblazeb2.com",
+	START_MEDIA_PREFIX: "moderation-proof/",
 	PORT: "3574",
 	NODE_ENV: "production",
 };
@@ -38,12 +45,15 @@ const secrets = [
 const log = `${state}/server.log`;
 await Bun.write(log, "");
 await chmod(log, 0o600);
-const server = Bun.spawn(["bun", "server.ts"], {
-	cwd: `${import.meta.dir}/..`,
-	env,
-	stdout: Bun.file(log),
-	stderr: Bun.file(log),
-});
+const server = Bun.spawn(
+	["bun", "--preload", "./scripts/moderation-signing-preload.ts", "server.ts"],
+	{
+		cwd: `${import.meta.dir}/..`,
+		env,
+		stdout: Bun.file(log),
+		stderr: Bun.file(log),
+	},
+);
 try {
 	let ready = false;
 	for (let attempt = 0; attempt < 80; attempt++) {
@@ -100,7 +110,7 @@ try {
 	await mkdir(`${import.meta.dir}/../evidence`, { recursive: true });
 	await Bun.write(
 		`${import.meta.dir}/../evidence/moderation-synthetic.json`,
-		`${JSON.stringify({ at: new Date().toISOString(), appwrite: "2.6.2", source: "synthetic only", testExit: exit, databaseId, sensitiveScan: { files: scanned, matches: 0 }, buildSha256: new Bun.CryptoHasher("sha256").update(await Bun.file(`${import.meta.dir}/../dist/server/server.js`).arrayBuffer()).digest("hex"), limitations: ["Admin/reporting core #60 only; account lifecycle excluded", "No durable notification delivery; contract only", "No full lifecycle56, real import or production acceptance"] }, null, 2)}\n`,
+		`${JSON.stringify({ at: new Date().toISOString(), appwrite: "2.6.2", source: "synthetic only", testExit: exit, databaseId, sensitiveScan: { files: scanned, matches: 0 }, buildSha256: new Bun.CryptoHasher("sha256").update(await Bun.file(`${import.meta.dir}/../dist/server/server.js`).arrayBuffer()).digest("hex"), limitations: ["Admin/reporting core #60 only; account lifecycle excluded", "External async signer mocked in test preload; no B2 object or TTL proof", "No full lifecycle56, real import or production acceptance"] }, null, 2)}\n`,
 	);
 	if (exit) throw new Error(`Moderation browser/RPC proof failed (${exit})`);
 } finally {

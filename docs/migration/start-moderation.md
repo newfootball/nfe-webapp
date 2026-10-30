@@ -65,11 +65,15 @@ NFE_MODERATION_SYNTHETIC=1 PLAYWRIGHT_CHANNEL=chrome bun apps/start/scripts/mode
 bun apps/start/scripts/moderation-local.ts down
 ```
 
+The test runner preloads a synthetic external signer into its own Bun server process: it can suspend the asynchronous signing boundary while real Appwrite parent checks run. It never contacts B2 or creates a real signed capability; this does not prove object access or TTL expiration. Product RPCs and signing code have no test hook.
+
 The Playwright harness exercises A/B/admin/anonymous SSR and direct RPC guards,
 profile/payload spoofing, unique reports, five/ten thresholds, bounded search and
 pagination, direct SDK confidentiality, review/dismiss/reject, real Appwrite
-transaction conflict and injected commit failure rollback, parent IDs/dates/ACL,
-rejected asset signing, FR/EN and account switching. Its targeted browser context
+transaction conflict and injected commit failure rollback, parent IDs/dates/ACL, stale-before-stage parent and concurrent signal revisions,
+revocation of an admin label on an existing session, rejected asset signing
+(including a held asynchronous signer), preserved owner ARCHIVED preview, FR/EN
+and account switching. Its targeted browser context
 blocks service workers to keep test traffic deterministic; the product worker is
 unchanged. Node-run Playwright modules use `fileURLToPath(import.meta.url)`.
 

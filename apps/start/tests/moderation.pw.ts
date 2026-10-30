@@ -2,7 +2,14 @@ import { readdir, readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type APIResponse, expect, test } from "@playwright/test";
-import { Client, Permission, Query, Role, TablesDB } from "node-appwrite";
+import {
+	Client,
+	Permission,
+	Query,
+	Role,
+	TablesDB,
+	Users,
+} from "node-appwrite";
 import { fromCrossJSON, toJSON } from "seroval";
 import { endpoint, state } from "../scripts/moderation-local";
 import type { AdminPage, ReportDTO } from "../src/lib/moderation-contract";
@@ -257,6 +264,23 @@ test("isolated moderation: SSR/RPC guards, spoof, unique reports, thresholds, bo
 			})
 		).ok,
 	).toBe(false);
+	// Existing sessions must lose admin privileges immediately when Auth labels change.
+	const users = new Users(base().setKey(c.proofKey));
+	await users.updateLabels({ userId: admin.id, labels: [] });
+	expect(
+		(await get("getModerationDashboard", undefined, admin.secret)).ok,
+	).toBe(false);
+	expect(
+		(await get("getAdminPage", { kind: "reports" }, admin.secret)).ok,
+	).toBe(false);
+	expect(
+		(await call("moderateReport", await decision(s, "reject"), admin.secret))
+			.ok,
+	).toBe(false);
+	await users.updateLabels({ userId: admin.id, labels: ["admin"] });
+	expect(
+		(await get("getModerationDashboard", undefined, admin.secret)).ok,
+	).toBe(true);
 	// Real staged transaction rollback and conflict, controlled solely in test proxy.
 	const control = process.env.NFE_MODERATION_PROXY_CONTROL,
 		token = process.env.NFE_MODERATION_PROXY_TOKEN;
@@ -270,6 +294,9 @@ test("isolated moderation: SSR/RPC guards, spoof, unique reports, thresholds, bo
 	await proxy("POST", { postId, phase: "commit", when: "fail" });
 	expect((await call("moderateReport", await decision(s, "reject"))).ok).toBe(
 		false,
+	);
+	expect(((await (await proxy("GET")).json()) as { hit: boolean }).hit).toBe(
+		true,
 	);
 	expect((await post()).status).toBe("PUBLISHED");
 	expect((await post()).$permissions).toEqual(before.$permissions);
@@ -303,6 +330,75 @@ test("isolated moderation: SSR/RPC guards, spoof, unique reports, thresholds, bo
 		rowId: postId,
 		data: { status: "PUBLISHED" },
 		permissions: [Permission.read(Role.any())],
+	});
+	// Pause BEFORE staging the anchor, so this explicitly covers stale-before-stage.
+	await proxy("POST", { postId, phase: "anchor", when: "before" });
+	const beforeStage = call("moderateReport", await decision(s, "reject"));
+	await expect
+		.poll(
+			async () => ((await (await proxy("GET")).json()) as { hit: boolean }).hit,
+		)
+		.toBe(true);
+	const archivedACL = [
+		Permission.read(Role.user(b.id)),
+		Permission.read(Role.label("admin")),
+	];
+	await db.updateRow({
+		databaseId,
+		tableId: "posts",
+		rowId: postId,
+		data: { status: "ARCHIVED" },
+		permissions: archivedACL,
+	});
+	await proxy("DELETE");
+	expect((await beforeStage).ok).toBe(false);
+	expect((await post()).status).toBe("ARCHIVED");
+	expect((await post()).$permissions.sort()).toEqual([...archivedACL].sort());
+	expect(
+		(await db.getRow({ databaseId, tableId: "signals", rowId: s.id })).status,
+	).toBe("PENDING");
+	await db.updateRow({
+		databaseId,
+		tableId: "posts",
+		rowId: postId,
+		data: { status: "PUBLISHED" },
+		permissions: [Permission.read(Role.any())],
+	});
+	// A signal changes after its first read but before its staged update.
+	await proxy("POST", { postId, phase: "signal", when: "before" });
+	const signalRace = call("moderateReport", await decision(s, "reject"));
+	await expect
+		.poll(
+			async () => ((await (await proxy("GET")).json()) as { hit: boolean }).hit,
+		)
+		.toBe(true);
+	const concurrent = await db.updateRow({
+		databaseId,
+		tableId: "signals",
+		rowId: s.id,
+		data: { details: "Concurrent revision" },
+	});
+	expect(concurrent.$updatedAt).not.toBe(s.version);
+	await proxy("DELETE");
+	expect((await signalRace).ok).toBe(false);
+	const retained = await db.getRow({
+		databaseId,
+		tableId: "signals",
+		rowId: s.id,
+	});
+	expect(retained.details).toBe("Concurrent revision");
+	expect(retained.status).toBe("PENDING");
+	expect((await post()).status).toBe("PUBLISHED");
+	expect((await post()).$permissions).toEqual(before.$permissions);
+	// The now-stale signal token remains syntactically valid but cannot authorize a decision.
+	expect((await call("moderateReport", await decision(s, "reject"))).ok).toBe(
+		false,
+	);
+	await db.updateRow({
+		databaseId,
+		tableId: "signals",
+		rowId: s.id,
+		data: { details: "Synthetic detail" },
 	});
 	// Thresholds count all unique reports, retaining accepted legacy semantics.
 	const now = "2026-10-30T11:00:00.000Z";
@@ -451,7 +547,7 @@ test("isolated moderation: SSR/RPC guards, spoof, unique reports, thresholds, bo
 			state: "ATTACHED",
 			provider: "B2",
 			bucket: "synthetic",
-			objectKey: "synthetic",
+			objectKey: `moderation-proof/${assetId}`,
 			versionId: "synthetic",
 			byteSize: 1,
 			sha256: "a".repeat(64),
@@ -461,6 +557,43 @@ test("isolated moderation: SSR/RPC guards, spoof, unique reports, thresholds, bo
 			updatedAt: now,
 		},
 	});
+	// Synthetic signer exercises the real owner fallback; no B2 object is used.
+	await db.updateRow({
+		databaseId,
+		tableId: "posts",
+		rowId: postId,
+		data: { status: "ARCHIVED" },
+		permissions: [
+			Permission.read(Role.user(b.id)),
+			Permission.read(Role.label("admin")),
+		],
+	});
+	const preview = await get<{ url: string }>(
+		"readAsset",
+		{ assetId },
+		b.secret,
+	);
+	expect(preview.ok).toBe(true);
+	if (preview.ok)
+		expect(preview.value.url).toBe(
+			"https://signing.invalid/synthetic-capability",
+		);
+	for (const secret of ["", a.secret, admin.secret])
+		expect((await get("readAsset", { assetId }, secret)).ok).toBe(false);
+	await db.updateRow({
+		databaseId,
+		tableId: "posts",
+		rowId: postId,
+		data: { status: "PUBLISHED" },
+		permissions: [Permission.read(Role.any())],
+	});
+	await proxy("POST", { postId, phase: "signature", when: "before" });
+	const signingRace = get("readAsset", { assetId }, b.secret);
+	await expect
+		.poll(
+			async () => ((await (await proxy("GET")).json()) as { hit: boolean }).hit,
+		)
+		.toBe(true);
 	await cookie(admin.secret);
 	await page.goto("/fr/admin");
 	await expect(
@@ -471,6 +604,8 @@ test("isolated moderation: SSR/RPC guards, spoof, unique reports, thresholds, bo
 		.getByRole("button", { name: "Retirer la publication", exact: true })
 		.click();
 	await expect(card).toHaveCount(0);
+	await proxy("DELETE");
+	expect(await signingRace).toEqual({ ok: false, error: "forbidden" });
 	const rejected = await post();
 	expect(rejected.status).toBe("REJECTED");
 	expect(rejected.$permissions).not.toContain(Permission.read(Role.any()));

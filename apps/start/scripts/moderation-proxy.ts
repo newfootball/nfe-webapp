@@ -4,7 +4,7 @@ export function proofProxy(upstream: string, writerKey: string) {
 	const token = crypto.randomUUID();
 	type Plan = {
 		postId: string;
-		phase: "anchor" | "commit";
+		phase: "anchor" | "signal" | "commit" | "signature";
 		when: "before" | "after" | "fail";
 		hit: boolean;
 		release: () => void;
@@ -17,6 +17,19 @@ export function proofProxy(upstream: string, writerKey: string) {
 		port: 0,
 		async fetch(request) {
 			const url = new URL(request.url);
+			if (url.pathname === "/signature") {
+				if (request.headers.get("x-proof-token") !== token)
+					return new Response(null, { status: 403 });
+				const gate =
+					plan?.phase === "signature" && !plan.hit ? plan : undefined;
+				if (gate) {
+					gate.hit = true;
+					await gate.wait;
+				}
+				return Response.json({
+					url: "https://signing.invalid/synthetic-capability",
+				});
+			}
 			if (url.pathname === "/control") {
 				if (request.headers.get("x-proof-token") !== token)
 					return new Response(null, { status: 403 });
@@ -26,7 +39,9 @@ export function proofProxy(upstream: string, writerKey: string) {
 						"postId" | "phase" | "when"
 					>;
 					if (
-						!["anchor", "commit"].includes(input.phase) ||
+						!["anchor", "signal", "commit", "signature"].includes(
+							input.phase,
+						) ||
 						!["before", "after", "fail"].includes(input.when) ||
 						!/^social-/.test(input.postId)
 					)
@@ -60,13 +75,24 @@ export function proofProxy(upstream: string, writerKey: string) {
 			)
 				transactions.set(payload.transactionId, parent[1] ?? "");
 			const commit = url.pathname.match(/\/transactions\/([^/]+)$/);
-			const phase = parent
-				? "anchor"
-				: commit && payload.commit === true
-					? "commit"
-					: null;
+			const signal = url.pathname.match(/\/tables\/signals\/rows\/([^/]+)$/);
+			const phase =
+				signal &&
+				request.method === "PATCH" &&
+				typeof payload.transactionId === "string"
+					? "signal"
+					: parent
+						? "anchor"
+						: commit && payload.commit === true
+							? "commit"
+							: null;
 			const postId =
-				parent?.[1] ?? (commit ? transactions.get(commit[1] ?? "") : undefined);
+				parent?.[1] ??
+				(typeof payload.transactionId === "string"
+					? transactions.get(payload.transactionId)
+					: commit
+						? transactions.get(commit[1] ?? "")
+						: undefined);
 			const gate =
 				ownWriter &&
 				plan &&

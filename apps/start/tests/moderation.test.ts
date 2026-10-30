@@ -14,6 +14,43 @@ import {
 
 const version = "2026-10-30T12:00:00.000Z";
 describe("moderation boundaries", () => {
+	test("preserves Appwrite offset revision tokens for all three admin operations", () => {
+		const token = "2026-10-29T16:09:07.762+00:00";
+		for (const operation of ["review", "dismiss", "reject"] as const) {
+			const input = {
+				signalId: "s",
+				postId: "p",
+				operation,
+				signalVersion: token,
+				postVersion: token,
+			};
+			expect(DecisionSchema.parse(input)).toEqual(input);
+			expect(
+				DecisionSchema.safeParse({ ...input, role: "admin" }).success,
+			).toBe(false);
+		}
+		expect(
+			DecisionSchema.safeParse({
+				signalId: "s",
+				postId: "p",
+				operation: "reject",
+				signalVersion: "not-a-revision",
+				postVersion: token,
+			}).success,
+		).toBe(false);
+		const parent = {
+			$id: "p",
+			$updatedAt: token,
+			userId: "a",
+			status: "PUBLISHED",
+		};
+		expect(
+			sameRevision(parent, {
+				...parent,
+				$updatedAt: "2026-10-29T16:09:08.762+00:00",
+			}),
+		).toBe(false);
+	});
 	test("accepts every legacy reason and imported ID without renaming", () => {
 		for (const reason of SIGNAL_REASONS)
 			expect(

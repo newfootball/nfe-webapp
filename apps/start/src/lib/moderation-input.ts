@@ -25,8 +25,8 @@ export const DecisionSchema = z.strictObject({
 	signalId: id,
 	postId: id,
 	operation: z.enum(["review", "dismiss", "reject"]),
-	signalVersion: z.iso.datetime({ precision: 3 }),
-	postVersion: z.iso.datetime({ precision: 3 }),
+	signalVersion: z.iso.datetime({ precision: 3, offset: true }),
+	postVersion: z.iso.datetime({ precision: 3, offset: true }),
 });
 export const validateReport = (v: unknown) => validate(ReportSchema, v);
 export const validateAdminPage = (v: unknown) => validate(AdminPageSchema, v);

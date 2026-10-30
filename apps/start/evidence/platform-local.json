@@ -74,5 +74,40 @@
 		"verdict": "APPROVE WITH COMMENTS",
 		"nonBlocking": "cross-tab theme synchronization",
 		"stillRequired": "auth proof and review of final test/evidence delta"
+	},
+	"renewal": {
+		"recordedAt": "2026-10-30T12:18:17.295458+00:00",
+		"base": "d27e7effc65d4c6ebecd898e0aba2afc2eed50d6",
+		"priorHead": "f703f7936407f6ffcae006bc8c6edd19f20ae1e7",
+		"budget": {
+			"used": 5,
+			"limit": 6
+		},
+		"delta": "Normal merge of current main; regenerated route tree unchanged after build; two test-only fixture repairs; production platform source unchanged. Prior evidence and independent source review retained.",
+		"realAuth": {
+			"command": "NFE_AUTH_SYNTHETIC=1 PLAYWRIGHT_CHANNEL=chrome bun run --cwd apps/start scripts/platform-auth-proof.ts",
+			"passed": 1,
+			"failed": 0,
+			"skipped": 0,
+			"coverage": "Both FR/EN: actual Appwrite UI login; browser-cookie SSR identity and no-store; signed-in offline503 without identity; online logout; browser cookie removed; server sessions zero; revoked-cookie replay redirects; offline private/profile/notifications/conversations503 without identity; POST network failure; exact four public cache entries without identity or secret; reconnect remains signed out."
+		},
+		"checks": {
+			"unit": "50 passed/0 failed",
+			"buildClientScan": "pass;35 client JS artifacts",
+			"typecheck": "pass",
+			"startLint": "pass;56 existing warnings/5 infos",
+			"rootLint": "pass;133 existing warnings/5 infos",
+			"shellBrowser": "3 passed/0 failed/0 skipped; own3572 via temporary config because3501 is an unrelated database; temporary config removed",
+			"platformBrowser": "2 passed/0 failed/0 skipped; real service worker enabled"
+		},
+		"cleanup": {
+			"ownedProject": "nfe-auth-51",
+			"containers": 0,
+			"volumes": 0,
+			"networks": 0,
+			"privateFixtureDirectory": "removed using trash",
+			"ports3572and19561": "available"
+		},
+		"remaining": "Independent delta review and exact-head CI; full62 integration/actual legacy installation/final origin still outside partial proof."
 	}
 }

@@ -134,3 +134,32 @@ Cleanup completed for the owned `nfe-auth-51` project only:0 containers,0 volume
 Next3500/Start3501 and other workers' services were untouched. Independent source
 review at2f7ce1f approved with a nonblocking cross-tab theme comment; do not merge
 this PWA on that review and the synthetic worker proof alone. Full #62 remains open.
+
+## Authorized renewal on current main (2026-10-30)
+
+The failed real-auth gate above is historical and is superseded by this renewal;
+its initial failure and original source review remain recorded. The user extended
+the repair limit to6; attempts4/5 correct only test fixtures. Current main
+`d27e7effc65d4c6ebecd898e0aba2afc2eed50d6` was merged normally. Build regenerated
+the route tree without a further generated diff. Platform production code is unchanged.
+
+The authenticated SSR request now uses `context.request`, sharing the browser's
+real session cookies. The separate request fixture still replays the revoked cookie.
+No privacy assertion was removed or relaxed. The complete actual Appwrite scenario
+passed1/0/0, exercising both FR/EN: online identity/no-store, signed-in offline503
+without identity, online logout, zero server sessions, removed browser cookie,
+rejected old-cookie replay, private/profile/notifications/conversations offline503,
+POST network failure and exactly four public cache entries without identity/secrets.
+
+The shell network-fault test initially reproduced the CI failure: an active worker
+bypassed Playwright request routing. Only the shell suite blocks service workers
+so network fault injection reaches its error/retry assertions. The dedicated platform
+suites keep the real worker enabled. Renewed results:50 unit tests; build plus
+35-file client scan; typecheck; Start/root lint (warnings only); shell3/3; PWA2/2.
+The shell suite used a temporary config on owned3572 because3501 hosts an unrelated
+database; that config was removed. Owned Appwrite containers, volumes and network
+are gone, the private fixture directory was trashed, and3572/19561 are free.
+
+Independent delta review and exact-head CI remain coordinator gates. This renewal
+does not establish real B2/media, actual legacy installed Next PWA on final origin,
+production hosting, or full issue62 acceptance. See the appended `renewal` evidence.

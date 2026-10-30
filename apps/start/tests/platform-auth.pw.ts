@@ -68,7 +68,7 @@ test("real Appwrite logout revokes session before FR/EN offline negative checks"
 				(value) => value.name === "nfe-session-dev",
 			);
 			if (!cookie) throw new Error("Synthetic login did not set a session");
-			const response = await request.get(`/${locale}/private`);
+			const response = await context.request.get(`/${locale}/private`);
 			expect(response.headers()["cache-control"]).toContain("no-store");
 			expect(await response.text()).toContain(name);
 			// Even while still signed in, a fresh offline document cannot show the

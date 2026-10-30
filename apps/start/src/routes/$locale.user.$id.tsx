@@ -4,6 +4,8 @@ import { Posts } from "../components/feed/posts";
 import { ProfileView } from "../components/profile/profile-view";
 import { feedOptions } from "../lib/feed";
 import { getPublicProfile } from "../lib/profile";
+import { getPublicPageContext } from "../lib/public-pages";
+import { publicHead } from "../lib/seo";
 export const Route = createFileRoute("/$locale/user/$id")({
 	loader: async ({ params, context }) => {
 		const r = await getPublicProfile({ data: { id: params.id } });
@@ -15,13 +17,23 @@ export const Route = createFileRoute("/$locale/user/$id")({
 		await context.queryClient.ensureInfiniteQueryData(
 			feedOptions(context.locale, { authorId: params.id }),
 		);
-		return r.value;
+		return { profile: r.value, seo: await getPublicPageContext() };
 	},
+	head: ({ loaderData, params }) =>
+		loaderData
+			? publicHead(
+					loaderData.seo.origin,
+					`/${params.locale}/user/${encodeURIComponent(params.id)}`,
+					params.locale === "en" ? "en" : "fr",
+					loaderData.profile.name ?? "NFE",
+					loaderData.profile.biography ?? "Next Football Experience",
+				)
+			: {},
 	staleTime: 0,
 	component: Page,
 });
 function Page() {
-	const profile = Route.useLoaderData();
+	const { profile } = Route.useLoaderData();
 	const { locale } = Route.useRouteContext();
 	return (
 		<>

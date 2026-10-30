@@ -423,3 +423,6 @@ export function readExplore(
 		return { users: people, posts };
 	});
 }
+
+// Keyless connection shared with public SEO directories. Never carries a session.
+export { connection as publicReadConnection };

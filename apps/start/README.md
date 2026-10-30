@@ -59,3 +59,12 @@ Official references (Context7 unavailable in the implementation session):
 - https://tanstack.com/start/latest/docs/framework/react/guide/import-protection
 - https://tanstack.com/start/latest/docs/framework/react/guide/environment-variables
 - https://tanstack.com/start/latest/docs/framework/react/guide/hosting
+
+## Public-page migration (#61)
+
+The resumed public-page lot remains partial against whole issue #61; its isolated
+public/signup proof passes. See
+[public pages, SEO, evidence and remaining acceptance gates](../../docs/migration/start-public-pages.md).
+Use `START_SMOKE_PORT=3562 PLAYWRIGHT_CHANNEL=chrome bun run smoke:start` from
+root when the default port 3501 is already occupied; the existing default stays
+unchanged. Production indexing is deliberately disabled throughout the shell.

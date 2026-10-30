@@ -26,6 +26,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 				{ charSet: "utf-8" },
 				{ name: "viewport", content: "width=device-width, initial-scale=1" },
 				{ title: "Next Football Experience" },
+				{ name: "robots", content: "noindex, nofollow" },
 			],
 			links: [
 				{ rel: "stylesheet", href: styles },
@@ -54,9 +55,22 @@ function RouteError() {
 	);
 }
 function Document({ children }: { children: ReactNode }) {
-	const path = useRouterState({ select: (state) => state.location.pathname });
+	const { path, locale } = useRouterState({
+		select: (state) => ({
+			path: state.location.pathname,
+			locale: state.matches
+				.map(
+					(match) =>
+						(match.loaderData as { locale?: string } | undefined)?.locale,
+				)
+				.find(Boolean),
+		}),
+	});
 	return (
-		<html lang={path.startsWith("/en") ? "en" : "fr"} suppressHydrationWarning>
+		<html
+			lang={locale ?? (path.startsWith("/en") ? "en" : "fr")}
+			suppressHydrationWarning
+		>
 			<head>
 				<HeadContent />
 				<script>{themeBootstrap}</script>

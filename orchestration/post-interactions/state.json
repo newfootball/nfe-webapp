@@ -3,7 +3,7 @@
 	"base": "96c0819cad63637dc962ebdbf0d04d0263f2311a",
 	"budget": {
 		"maximumRepairPasses": 3,
-		"used": 2,
+		"used": 3,
 		"history": [
 			{
 				"pass": 1,
@@ -22,10 +22,18 @@
 			{
 				"pass": 2,
 				"reason": "Actual proof9223 failed at SPA Home: public orphan fixture makes accepted feed fail closed; cached fixture session revoked after signout",
-				"status": "in progress",
+				"status": "source approvedaaf20; actual integrated matrix passed through A->B->A assertions, failed while unroute raced delayed route.fulfill",
 				"changes": [
 					"Hide orphan fixture only after verifying orphan denials; restore it at test reset",
 					"Refresh cached synthetic sessions for replay"
+				]
+			},
+			{
+				"pass": 3,
+				"reason": "Actual integrated proofaaf20 Playwright route is already handled: releaseMutation immediately followed by unroute without awaiting asynchronous fulfill",
+				"status": "in progress",
+				"changes": [
+					"Await delayed response handler completion before removing its route; no acceptance assertions removed or suppressed"
 				]
 			}
 		]
@@ -37,12 +45,12 @@
 		"PostCard additive integration"
 	],
 	"preservedSlice": "Follow PR87 delivered separately; history is not reset",
-	"phase": "repair2",
+	"phase": "repair3",
 	"runtimeLease": "exclusive regrant active18157/3571; own Appwrite up",
 	"gates": {
 		"lifecycle56": "unproven; do not close57",
 		"independentReview": "REQUEST_CHANGES45d91f8 R1-R5",
-		"runtime": "failed9223 at SPA Home before delayed callback completion",
+		"runtime": "failedaaf20 proof driver unroute/fulfill synchronization",
 		"ci": "pending"
 	}
 }

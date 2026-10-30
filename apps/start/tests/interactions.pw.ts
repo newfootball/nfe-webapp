@@ -729,7 +729,12 @@ test("real interactions: A B admin anonymous, concurrent pairs, ownership, priva
 		await expect(panel.getByTestId("interaction-counts")).toBeVisible();
 		await sameDocument();
 	};
-	let releaseMutation!: () => void, hitMutation!: () => void;
+	let releaseMutation!: () => void,
+		hitMutation!: () => void,
+		doneMutation!: () => void;
+	const mutationDone = new Promise<void>((resolve) => {
+		doneMutation = resolve;
+	});
 	const heldMutation = new Promise<void>((resolve) => {
 			releaseMutation = resolve;
 		}),
@@ -741,6 +746,7 @@ test("real interactions: A B admin anonymous, concurrent pairs, ownership, priva
 		hitMutation();
 		await heldMutation;
 		await route.fulfill({ response });
+		doneMutation();
 	});
 	await panel
 		.getByRole("button", { name: "Remove favorite", exact: true })
@@ -766,6 +772,7 @@ test("real interactions: A B admin anonymous, concurrent pairs, ownership, priva
 		panel.getByRole("button", { name: "Remove favorite", exact: true }),
 	).toBeVisible();
 	releaseMutation();
+	await mutationDone;
 	await page.unroute(pairUrl);
 	await expect(
 		panel.getByRole("button", { name: "Remove favorite", exact: true }),

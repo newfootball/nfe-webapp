@@ -43,7 +43,22 @@
 			"earlierAttempts": "test locator/navigation timing and generic resource-console assertions corrected;production source unchanged during browser passes"
 		},
 		"realAppwriteLogoutOffline": {
-			"result": "pending shared runtime slot;initial scenario implemented,not executed"
+			"command": "NFE_AUTH_SYNTHETIC=1 PLAYWRIGHT_CHANNEL=chrome bun run --cwd apps/start scripts/platform-auth-proof.ts",
+			"passed": 0,
+			"failed": 1,
+			"skipped": 0,
+			"result": "FAILED initial scenario at authenticated SSR header assertion before logout/offline checks",
+			"observation": "Real browser login and private identity succeeded; independent APIRequestContext omitted browser session cookie; response cache-control undefined. No test/production repair or rerun after budget3/3.",
+			"productionSourceUnchanged": true,
+			"cleanup": {
+				"ownedProject": "nfe-auth-51",
+				"containers": 0,
+				"volumes": 0,
+				"networks": 0,
+				"ports3572and19561": "available",
+				"privateFixtureDirectory": "removed"
+			},
+			"acceptance": "Real logout/offline privacy remains UNPROVEN; do not merge PWA on fixture-free proof alone"
 		}
 	},
 	"excluded": [
@@ -53,5 +68,11 @@
 		"actual production installed PWA and final origin headers",
 		"root command switch"
 	],
-	"privacyPolicy": "Only offline.html,logo.svg,icons192/512 precached;no runtime cache writes"
+	"privacyPolicy": "Only offline.html,logo.svg,icons192/512 precached;no runtime cache writes",
+	"independentReview": {
+		"sourceCommit": "2f7ce1f4ad18bed88e5a261c0e0082d2c8a62d16",
+		"verdict": "APPROVE WITH COMMENTS",
+		"nonBlocking": "cross-tab theme synchronization",
+		"stillRequired": "auth proof and review of final test/evidence delta"
+	}
 }

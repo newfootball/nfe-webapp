@@ -115,7 +115,22 @@ typecheck and lint passed(lint retains55 pre-existing warnings and5 infos).
 Chrome platform browser suite:2 passed,0 failed,0 skipped on the third execution;
 first two executions corrected test-only locator/reload/assertion problems.
 See `apps/start/evidence/platform-local.json` for source fingerprints. The initial
-real-auth scenario lives in `platform-auth.pw.ts` and is deliberately pending the
-coordinator-owned Appwrite slot. After allocation, reuse the isolated auth stack:
+real-auth scenario lives in `platform-auth.pw.ts`. The coordinator allocated the
+isolated runtime slot and this command was executed once:
 `NFE_AUTH_SYNTHETIC=1 PLAYWRIGHT_CHANNEL=chrome bun run --cwd apps/start scripts/platform-auth-proof.ts`.
 Do not run another stack concurrently or treat cookie removal as revocation proof.
+
+**Real auth gate FAILED / UNPROVEN:** the initial scenario produced0 passed,
+1 failed,0 skipped. Real Appwrite login through the UI and private identity checks
+succeeded. It stopped at `platform-auth.pw.ts`'s authenticated SSR header assertion:
+the independent Playwright `request` fixture made `/fr/private` without the browser
+session cookie, and the response had no `cache-control` header. The intended real
+logout/revocation/offline assertions were not reached. This is an initial fixture
+defect, not a passed privacy check or proof of a production cache leak. No repair
+or rerun was performed after the3/3 budget; explicit extension is required.
+
+Cleanup completed for the owned `nfe-auth-51` project only:0 containers,0 volumes,
+0 networks, and ports3572/19561 available; its private fixture directory was removed.
+Next3500/Start3501 and other workers' services were untouched. Independent source
+review at2f7ce1f approved with a nonblocking cross-tab theme comment; do not merge
+this PWA on that review and the synthetic worker proof alone. Full #62 remains open.

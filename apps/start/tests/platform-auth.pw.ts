@@ -1,8 +1,9 @@
+import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 import { Client, Users } from "node-appwrite";
 import { endpoint, state } from "../scripts/auth-local";
 
-const config = await Bun.file(`${state}/credentials.json`).json();
+const config = JSON.parse(await readFile(`${state}/credentials.json`, "utf8"));
 const users = new Users(
 	new Client()
 		.setEndpoint(endpoint)

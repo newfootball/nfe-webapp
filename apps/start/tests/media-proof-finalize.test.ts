@@ -29,6 +29,7 @@ test("consecutive cleanup and ACL errors still destroy and persist a fresh failu
 			failed: true,
 			failedSteps: ["owned-cleanup", "privacy-verification"],
 			bucketRetainedPrivate: "unverified",
+			appServerStopped: true,
 			protectedJournal: "scripts/.media-local/cleanup-*.json",
 			action: "retry owned cleanup before deleting local backend",
 		},
@@ -62,4 +63,7 @@ test("server and client failures cannot prevent owned cleanup or report emission
 	).toBe(1);
 	expect(calls).toEqual(["cleanup", "privacy", "persist"]);
 	expect(report.status).toBe("failed");
+	expect((report.cleanup as Record<string, unknown>).appServerStopped).toBe(
+		false,
+	);
 });

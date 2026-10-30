@@ -14,9 +14,11 @@ export async function finalizeMediaProof(
 ) {
 	const failedSteps: string[] = [];
 	let cleanup: Report = {};
+	let stopped = false;
 	try {
 		try {
 			await steps.stop();
+			stopped = true;
 		} catch {
 			failedSteps.push("stop-server");
 		}
@@ -48,6 +50,7 @@ export async function finalizeMediaProof(
 					action: "retry owned cleanup before deleting local backend",
 				});
 			}
+			cleanup.appServerStopped = stopped;
 			report.cleanup = cleanup;
 			await steps.persist();
 		}

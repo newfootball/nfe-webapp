@@ -15,7 +15,7 @@ import type { UploadAsset } from "../src/lib/media-contract";
 import { storage } from "../src/lib/media-storage.server";
 import type { LifecycleProgress } from "../src/lib/post-lifecycle-contract";
 import {
-	assertLifecycleLease,
+	claimLifecycleOperation,
 	fencedLifecycleCheckpoint,
 } from "../src/lib/post-lifecycle-db.server";
 import type { OwnPost, PostTextResult } from "../src/lib/post-text-contract";
@@ -572,7 +572,7 @@ test("normal: social staged anchor cannot commit an orphan after owner deletion"
 	}
 });
 
-test("normal: owner FR EN controls, failure rollback, reload/back and identity change", async ({
+test("normal: owner FR EN status controls, reload/back and identity change", async ({
 	page,
 	context,
 	request,
@@ -675,44 +675,96 @@ test("version-failure: interruption after exact version delete retains checkpoin
 	await noSignature(request, saved.post.videoId);
 });
 
+test("crash: process dies after DeleteObject with a durable unadvanced checkpoint", async ({
+	request,
+}) => {
+	const post = await published(request),
+		operation = await remove(request, post.id);
+	const saved = { post, operationId: operation.operationId };
+	await Bun.write(`${state}/crash-operation.json`, JSON.stringify(saved));
+	let before = await db.getRow(
+		rowRef("post_lifecycle_operations", saved.operationId),
+	);
+	for (let n = 0; n < 10 && before.phase === "CHILDREN"; n++) {
+		value(
+			await call(request, "continuePostLifecycle", {
+				operationId: saved.operationId,
+			}),
+		);
+		before = await db.getRow(
+			rowRef("post_lifecycle_operations", saved.operationId),
+		);
+	}
+	const inventory = JSON.parse(before.inventoryJson),
+		asset = inventory[before.assetStep];
+	const { s3 } = storage();
+	const exact = {
+		Bucket: asset.bucket,
+		Key: asset.objectKey,
+		VersionId: asset.versions[before.versionStep].id,
+	};
+	expect((await s3.send(new HeadObjectCommand(exact))).VersionId).toBe(
+		exact.VersionId,
+	);
+	expect(before.phase).toBe("OBJECTS");
+	await expect(
+		call(request, "continuePostLifecycle", { operationId: saved.operationId }),
+	).rejects.toThrow();
+	const after = await db.getRow(
+		rowRef("post_lifecycle_operations", saved.operationId),
+	);
+	expect(after.versionStep).toBe(before.versionStep);
+	expect(after.token).toBeTruthy();
+	expect(Date.parse(after.leaseUntil)).toBeGreaterThan(Date.now());
+
+	try {
+		await expect(s3.send(new HeadObjectCommand(exact))).rejects.toMatchObject({
+			$metadata: { httpStatusCode: 404 },
+		});
+	} finally {
+		s3.destroy();
+	}
+	await Bun.write(
+		`${state}/crash-journal.json`,
+		JSON.stringify({
+			leaseUntil: after.leaseUntil,
+			token: after.token,
+			versionStep: after.versionStep,
+		}),
+	);
+});
+
 test("recovery: restart resumes idempotently with expired lease fencing and no dangling refs", async ({
 	request,
 }) => {
-	const saved = JSON.parse(
+	const interrupted = JSON.parse(
 		await readFile(`${state}/recovery-operation.json`, "utf8"),
 	);
-	await db.updateRow({
-		...rowRef("post_lifecycle_operations", saved.operationId),
-		data: {
-			token: crypto.randomUUID(),
-			leaseUntil: new Date(Date.now() - 1000).toISOString(),
-		},
-	});
-	const staleToken = crypto.randomUUID(),
-		liveToken = crypto.randomUUID();
-	await db.updateRow({
-		...rowRef("post_lifecycle_operations", saved.operationId),
-		data: {
-			token: liveToken,
-			leaseUntil: new Date(Date.now() + 60000).toISOString(),
-		},
-	});
-	await expect(
-		assertLifecycleLease(db, saved.operationId, staleToken),
-	).rejects.toThrow();
-	await expect(
-		fencedLifecycleCheckpoint(db, saved.operationId, staleToken, {
-			phase: "DONE",
-		}),
-	).rejects.toThrow();
-	expect(
-		(await db.getRow(rowRef("post_lifecycle_operations", saved.operationId)))
-			.phase,
-	).not.toBe("DONE");
-	await db.updateRow({
-		...rowRef("post_lifecycle_operations", saved.operationId),
-		data: { leaseUntil: new Date(Date.now() - 1000).toISOString() },
-	});
+	await finish(request, interrupted.operationId);
+	await noSignature(request, interrupted.post.videoId);
+	const saved = JSON.parse(
+		await readFile(`${state}/crash-operation.json`, "utf8"),
+	);
+	const crash = JSON.parse(
+		await readFile(`${state}/crash-journal.json`, "utf8"),
+	);
+	const held = await db.getRow(
+		rowRef("post_lifecycle_operations", saved.operationId),
+	);
+	expect(held.token).toBe(crash.token);
+	// A real worker death does not release its lease; do not force expiry in this proof.
+	if (Date.parse(crash.leaseUntil) > Date.now()) {
+		expect(
+			(
+				await call(request, "continuePostLifecycle", {
+					operationId: saved.operationId,
+				})
+			).ok,
+		).toBe(false);
+		await new Promise((resolve) =>
+			setTimeout(resolve, Date.parse(crash.leaseUntil) - Date.now() + 100),
+		);
+	}
 	await finish(request, saved.operationId);
 	await noSignature(request, saved.post.videoId);
 	for (const tableId of [
@@ -727,4 +779,192 @@ test("recovery: restart resumes idempotently with expired lease fencing and no d
 	await expect(db.getRow(parentRef(saved.post.id))).rejects.toMatchObject({
 		code: 404,
 	});
+});
+
+// Only SDK transport boundaries are paused: all rows and commits remain real Appwrite.
+// These cases are intentionally NOT executed before the exclusive backend lease.
+test("normal: controlled claim checkpoint and catch-release interleavings preserve the winner", async ({
+	request,
+}) => {
+	for (const scenario of [
+		"claim-read",
+		"checkpoint-read",
+		"checkpoint-stage",
+		"release-read",
+	] as const) {
+		const id = await seed("DRAFT"),
+			operation = await remove(request, id);
+		const operationId = operation.operationId,
+			owner = fixture.actors[0].id;
+		const oldToken = crypto.randomUUID(),
+			newToken = crypto.randomUUID();
+		await db.updateRow({
+			...rowRef("post_lifecycle_operations", operationId),
+			data: {
+				token: oldToken,
+				leaseUntil: new Date(Date.now() + 60000).toISOString(),
+			},
+		});
+		if (scenario === "claim-read")
+			await db.updateRow({
+				...rowRef("post_lifecycle_operations", operationId),
+				data: { leaseUntil: new Date(Date.now() - 1000).toISOString() },
+			});
+		let reached!: () => void, release!: () => void;
+		const hit = new Promise<void>((resolve) => {
+			reached = resolve;
+		});
+		const resume = new Promise<void>((resolve) => {
+			release = resolve;
+		});
+		let held = false;
+		const delayed = new Proxy(db, {
+			get(target, property) {
+				if (property === "getRow" || property === "updateRow")
+					return async (...args: unknown[]) => {
+						const input = args[0] as {
+							tableId?: string;
+							rowId?: string;
+							transactionId?: string;
+						};
+						const shouldHold =
+							!held &&
+							input.tableId === "post_lifecycle_operations" &&
+							input.rowId === operationId &&
+							(scenario === "checkpoint-stage"
+								? property === "updateRow"
+								: property === "getRow" && !input.transactionId);
+						const method = target[property].bind(target) as (
+							...a: unknown[]
+						) => Promise<unknown>;
+						if (shouldHold && scenario === "checkpoint-stage") {
+							held = true;
+							reached();
+							await resume;
+						}
+						const result = await method(...args);
+						if (shouldHold && scenario !== "checkpoint-stage") {
+							held = true;
+							reached();
+							await resume;
+						}
+						return result;
+					};
+				const value = Reflect.get(target, property);
+				return typeof value === "function" ? value.bind(target) : value;
+			},
+		});
+		let childRan = false;
+		const old = (
+			scenario === "claim-read"
+				? claimLifecycleOperation(delayed, operationId, owner, oldToken)
+				: fencedLifecycleCheckpoint(
+						delayed,
+						operationId,
+						oldToken,
+						scenario === "release-read" ? {} : { phase: "DONE", childStep: 99 },
+						scenario === "release-read"
+							? undefined
+							: async (tx) => {
+									childRan = true;
+									await db.deleteRow({ ...parentRef(id), transactionId: tx });
+								},
+					)
+		).then(
+			() => ({ rejected: false }),
+			() => ({ rejected: true }),
+		);
+		try {
+			await Promise.race([
+				hit,
+				new Promise<never>((_, reject) =>
+					setTimeout(
+						() => reject(new Error("Race barrier not reached")),
+						10000,
+					),
+				),
+			]);
+			// Expiration occurs after A's observed valid read, not as a preset stale token.
+			await db.updateRow({
+				...rowRef("post_lifecycle_operations", operationId),
+				data: {
+					leaseUntil: new Date(Date.now() - 1000).toISOString(),
+				},
+			});
+			await claimLifecycleOperation(db, operationId, owner, newToken);
+			const winner = await db.getRow(
+				rowRef("post_lifecycle_operations", operationId),
+			);
+			release();
+			expect((await old).rejected).toBe(true);
+			const after = await db.getRow(
+				rowRef("post_lifecycle_operations", operationId),
+			);
+			for (const field of [
+				"token",
+				"leaseUntil",
+				"phase",
+				"childStep",
+				"assetStep",
+				"versionStep",
+			])
+				expect(after[field]).toEqual(winner[field]);
+			expect((await db.getRow(parentRef(id))).$id).toBe(id);
+			if (scenario === "checkpoint-stage") expect(childRan).toBe(false);
+		} finally {
+			release();
+			await old;
+		}
+		await db.updateRow({
+			...rowRef("post_lifecycle_operations", operationId),
+			data: {
+				leaseUntil: new Date(Date.now() - 1000).toISOString(),
+			},
+		});
+		await finish(request, operationId);
+	}
+});
+
+test("replacement-failure: forced transaction rollback preserves ACL media and allocation links", async ({
+	request,
+}) => {
+	const p = await published(request),
+		post = await own(request, p.id);
+	const videoId = await upload(request, "video"),
+		thumbnailId = await upload(request, "thumbnail");
+	const parent = await db.getRow(parentRef(p.id));
+	const ids = [p.videoId, p.thumbnailId, videoId, thumbnailId];
+	const assets = await Promise.all(
+		ids.map((id) => db.getRow(rowRef("media_assets", id))),
+	);
+	const media = await Promise.all(
+		[p.videoId, p.thumbnailId].map((id) => db.getRow(rowRef("media", id))),
+	);
+	const requestId = crypto.randomUUID();
+	expect(
+		(
+			await call(request, "changePostMedia", {
+				...base(post),
+				requestId,
+				videoId,
+				thumbnailId,
+			})
+		).ok,
+	).toBe(false);
+	expect(await db.getRow(parentRef(p.id))).toEqual(parent);
+	for (const [i, id] of ids.entries())
+		expect(await db.getRow(rowRef("media_assets", id))).toEqual(assets[i]);
+	for (const [i, id] of [p.videoId, p.thumbnailId].entries())
+		expect(await db.getRow(rowRef("media", id))).toEqual(media[i]);
+	for (const id of [videoId, thumbnailId])
+		await expect(db.getRow(rowRef("media", id))).rejects.toMatchObject({
+			code: 404,
+		});
+	await expect(
+		db.getRow(rowRef("post_lifecycle_operations", requestId)),
+	).rejects.toMatchObject({ code: 404 });
+	await expect(
+		db.getRow(rowRef("post_lifecycle_locks", p.id)),
+	).rejects.toMatchObject({ code: 404 });
+	await finish(request, (await remove(request, p.id)).operationId);
 });

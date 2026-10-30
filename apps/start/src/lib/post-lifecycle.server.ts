@@ -23,6 +23,7 @@ import {
 import {
 	assertLifecycleLease,
 	BATCH_SIZE,
+	claimLifecycleOperation,
 	fencedLifecycleCheckpoint,
 	LifecycleConflict,
 	lifecycleDB,
@@ -266,6 +267,7 @@ async function start(
 				});
 			}
 		}
+		if (kind === "REPLACE") failAt("replacement-before-journal");
 		await db.createRow({
 			...ref(lockTable, v.id, tx),
 			permissions: [],
@@ -308,33 +310,21 @@ const childTables = [
 // Synthetic failure points live on the server only, never in a client payload.
 function failAt(point: string) {
 	if (
-		process.env.START_LIFECYCLE_FAILURE_POINT === point &&
+		process.env.START_LIFECYCLE_SYNTHETIC_PROJECT &&
 		process.env.START_LIFECYCLE_SYNTHETIC_PROJECT ===
 			process.env.START_APPWRITE_PROJECT
-	)
-		throw new Error("Synthetic lifecycle interruption");
+	) {
+		if (process.env.START_LIFECYCLE_FAILURE_POINT === `crash:${point}`)
+			process.exit(86);
+		if (process.env.START_LIFECYCLE_FAILURE_POINT === point)
+			throw new Error("Synthetic lifecycle interruption");
+	}
 }
 export function resumePostLifecycle(input: Validated<{ operationId: string }>) {
 	return boundary(async () => {
 		const { owner, data: v, db } = await actor(input),
 			token = crypto.randomUUID();
-		const op = await lifecycleTransaction(db, async (tx) => {
-			const current = await db.getRow(ref(operationTable, v.operationId, tx));
-			if (current.ownerId !== owner) throw new AuthFailure("forbidden");
-			if (current.phase === "DONE") return current;
-			if (current.leaseUntil && Date.parse(current.leaseUntil) > Date.now())
-				throw new Conflict();
-			const lock = await db.getRow(ref(lockTable, current.postId, tx));
-			if (lock.operationId !== current.$id || lock.ownerId !== owner)
-				throw new AuthFailure("forbidden");
-			return db.updateRow({
-				...ref(operationTable, current.$id, tx),
-				data: {
-					token,
-					leaseUntil: new Date(Date.now() + 120000).toISOString(),
-				},
-			});
-		});
+		const op = await claimLifecycleOperation(db, v.operationId, owner, token);
 		if (op.phase === "DONE") return operationDTO(op);
 		const checkpoint = (
 			data: Record<string, unknown>,

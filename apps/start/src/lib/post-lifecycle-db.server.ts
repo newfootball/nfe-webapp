@@ -83,9 +83,9 @@ export async function assertLifecycleLease(
 	db: TablesDB,
 	operationId: string,
 	token: string,
-	tx?: string,
 ) {
-	const live = await db.getRow(ref(operationTable, operationId, tx));
+	// Deliberately outside a transaction: a staged write must never satisfy this read.
+	const live = await db.getRow(ref(operationTable, operationId));
 	if (
 		live.token !== token ||
 		!live.leaseUntil ||
@@ -93,6 +93,33 @@ export async function assertLifecycleLease(
 	)
 		throw new LifecycleConflict();
 	return live;
+}
+export async function claimLifecycleOperation(
+	db: TablesDB,
+	operationId: string,
+	owner: string,
+	token: string,
+) {
+	return lifecycleTransaction(db, async (tx) => {
+		// Anchor first, then read live. A takeover before the anchor is seen by
+		// the read; a takeover after it conflicts at commit (accepted Appwrite contract).
+		await db.updateRow({
+			...ref(operationTable, operationId, tx),
+			data: { updatedAt: new Date().toISOString() },
+		});
+		const current = await db.getRow(ref(operationTable, operationId));
+		if (current.ownerId !== owner) throw new AuthFailure("forbidden");
+		if (current.phase === "DONE") return current;
+		if (current.leaseUntil && Date.parse(current.leaseUntil) > Date.now())
+			throw new LifecycleConflict();
+		const lock = await db.getRow(ref(lockTable, current.postId, tx));
+		if (lock.operationId !== current.$id || lock.ownerId !== owner)
+			throw new AuthFailure("forbidden");
+		return db.updateRow({
+			...ref(operationTable, operationId, tx),
+			data: { token, leaseUntil: new Date(Date.now() + 120000).toISOString() },
+		});
+	});
 }
 export async function fencedLifecycleCheckpoint(
 	db: TablesDB,
@@ -102,9 +129,7 @@ export async function fencedLifecycleCheckpoint(
 	run?: (tx: string) => Promise<void>,
 ) {
 	return lifecycleTransaction(db, async (tx) => {
-		await assertLifecycleLease(db, operationId, token, tx);
-		if (run) await run(tx);
-		return db.updateRow({
+		const staged = await db.updateRow({
 			...ref(operationTable, operationId, tx),
 			data: {
 				...data,
@@ -113,5 +138,8 @@ export async function fencedLifecycleCheckpoint(
 				updatedAt: new Date().toISOString(),
 			},
 		});
+		await assertLifecycleLease(db, operationId, token);
+		if (run) await run(tx);
+		return staged;
 	});
 }

@@ -102,8 +102,10 @@ try {
 	);
 	for (const phase of [
 		"normal",
+		"replacement-failure",
 		"withdrawal-failure",
 		"version-failure",
+		"crash",
 		"recovery",
 	]) {
 		const log = `${state}/server-${phase}.log`;
@@ -131,11 +133,15 @@ try {
 			START_LIFECYCLE_SYNTHETIC_PROJECT: c.project,
 			START_LIFECYCLE_SYNTHETIC_PREFIX: fixture.prefix,
 			START_LIFECYCLE_FAILURE_POINT:
-				phase === "withdrawal-failure"
-					? "after-withdrawal"
-					: phase === "version-failure"
-						? "after-version-delete"
-						: "",
+				phase === "replacement-failure"
+					? "replacement-before-journal"
+					: phase === "crash"
+						? "crash:after-version-delete"
+						: phase === "withdrawal-failure"
+							? "after-withdrawal"
+							: phase === "version-failure"
+								? "after-version-delete"
+								: "",
 			START_AUTH_ALLOW_HTTP_LOOPBACK: "true",
 			NFE_LIFECYCLE_PHASE: phase,
 			PORT: "3556",
@@ -187,8 +193,10 @@ try {
 		process.stdout.write(diagnostic);
 		(report.phases as unknown[]).push({ phase, exit });
 		await save();
-		server.kill();
-		await server.exited;
+		if (server.exitCode === null) server.kill();
+		const serverExit = await server.exited;
+		if (phase === "crash")
+			assert.equal(serverExit, 86, "Worker must terminate after DeleteObject");
 		server = undefined;
 		assert(
 			!sensitive.some((value) => (diagnostic + "").includes(value)),
@@ -203,7 +211,7 @@ try {
 	throw e;
 } finally {
 	if (server) {
-		server.kill();
+		if (server.exitCode === null) server.kill();
 		await server.exited;
 	}
 	// Teardown owns this entire synthetic project, but every B2 delete is still

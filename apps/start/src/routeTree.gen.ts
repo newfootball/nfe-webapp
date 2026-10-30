@@ -11,9 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LocaleRouteImport } from './routes/$locale'
+import { Route as ChangePasswordRouteImport } from './routes/change-password'
 import { Route as ExploreRouteImport } from './routes/explore'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as LocaleIndexRouteImport } from './routes/$locale.index'
 import { Route as LocaleAboutRouteImport } from './routes/$locale.about'
 import { Route as LocaleExploreRouteImport } from './routes/$locale.explore'
@@ -21,10 +25,14 @@ import { Route as LocaleFeedRouteImport } from './routes/$locale.feed'
 import { Route as LocaleOnboardingRouteImport } from './routes/$locale.onboarding'
 import { Route as LocalePrivateRouteImport } from './routes/$locale.private'
 import { Route as LocaleProfileRouteImport } from './routes/$locale.profile'
+import { Route as LocaleRecoveryRouteImport } from './routes/$locale.recovery'
 import { Route as LocaleSignInRouteImport } from './routes/$locale.sign-in'
+import { Route as OauthCallbackRouteImport } from './routes/oauth.callback'
+import { Route as OauthGoogleRouteImport } from './routes/oauth.google'
 import { Route as PostIdRouteImport } from './routes/post.$id'
 import { Route as ProfileAccountSecurityRouteImport } from './routes/profile_.account-security'
 import { Route as ProfileEditUserRouteImport } from './routes/profile_.edit-user'
+import { Route as RecoveryCallbackRouteImport } from './routes/recovery.callback'
 import { Route as UserIdRouteImport } from './routes/user.$id'
 import { Route as LocalePostIdRouteImport } from './routes/$locale.post.$id'
 import { Route as LocaleProfileAccountSecurityRouteImport } from './routes/$locale.profile_.account-security'
@@ -41,9 +49,19 @@ const LocaleRoute = LocaleRouteImport.update({
   path: '/$locale',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChangePasswordRoute = ChangePasswordRouteImport.update({
+  id: '/change-password',
+  path: '/change-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ExploreRoute = ExploreRouteImport.update({
   id: '/explore',
   path: '/explore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingRoute = OnboardingRouteImport.update({
@@ -54,6 +72,16 @@ const OnboardingRoute = OnboardingRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifyEmailRoute = VerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LocaleIndexRoute = LocaleIndexRouteImport.update({
@@ -91,10 +119,25 @@ const LocaleProfileRoute = LocaleProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => LocaleRoute,
 } as any)
+const LocaleRecoveryRoute = LocaleRecoveryRouteImport.update({
+  id: '/recovery',
+  path: '/recovery',
+  getParentRoute: () => LocaleRoute,
+} as any)
 const LocaleSignInRoute = LocaleSignInRouteImport.update({
   id: '/sign-in',
   path: '/sign-in',
   getParentRoute: () => LocaleRoute,
+} as any)
+const OauthCallbackRoute = OauthCallbackRouteImport.update({
+  id: '/oauth/callback',
+  path: '/oauth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OauthGoogleRoute = OauthGoogleRouteImport.update({
+  id: '/oauth/google',
+  path: '/oauth/google',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const PostIdRoute = PostIdRouteImport.update({
   id: '/post/$id',
@@ -109,6 +152,11 @@ const ProfileAccountSecurityRoute = ProfileAccountSecurityRouteImport.update({
 const ProfileEditUserRoute = ProfileEditUserRouteImport.update({
   id: '/profile_/edit-user',
   path: '/profile/edit-user',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecoveryCallbackRoute = RecoveryCallbackRouteImport.update({
+  id: '/recovery/callback',
+  path: '/recovery/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UserIdRoute = UserIdRouteImport.update({
@@ -141,19 +189,27 @@ const LocaleUserIdRoute = LocaleUserIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$locale': typeof LocaleRouteWithChildren
+  '/change-password': typeof ChangePasswordRoute
   '/explore': typeof ExploreRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/$locale/about': typeof LocaleAboutRoute
   '/$locale/explore': typeof LocaleExploreRoute
   '/$locale/feed': typeof LocaleFeedRoute
   '/$locale/onboarding': typeof LocaleOnboardingRoute
   '/$locale/private': typeof LocalePrivateRoute
   '/$locale/profile': typeof LocaleProfileRoute
+  '/$locale/recovery': typeof LocaleRecoveryRoute
   '/$locale/sign-in': typeof LocaleSignInRoute
+  '/oauth/callback': typeof OauthCallbackRoute
+  '/oauth/google': typeof OauthGoogleRoute
   '/post/$id': typeof PostIdRoute
   '/profile/account-security': typeof ProfileAccountSecurityRoute
   '/profile/edit-user': typeof ProfileEditUserRoute
+  '/recovery/callback': typeof RecoveryCallbackRoute
   '/user/$id': typeof UserIdRoute
   '/$locale/': typeof LocaleIndexRoute
   '/$locale/post/$id': typeof LocalePostIdRoute
@@ -163,19 +219,27 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/change-password': typeof ChangePasswordRoute
   '/explore': typeof ExploreRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/$locale/about': typeof LocaleAboutRoute
   '/$locale/explore': typeof LocaleExploreRoute
   '/$locale/feed': typeof LocaleFeedRoute
   '/$locale/onboarding': typeof LocaleOnboardingRoute
   '/$locale/private': typeof LocalePrivateRoute
   '/$locale/profile': typeof LocaleProfileRoute
+  '/$locale/recovery': typeof LocaleRecoveryRoute
   '/$locale/sign-in': typeof LocaleSignInRoute
+  '/oauth/callback': typeof OauthCallbackRoute
+  '/oauth/google': typeof OauthGoogleRoute
   '/post/$id': typeof PostIdRoute
   '/profile/account-security': typeof ProfileAccountSecurityRoute
   '/profile/edit-user': typeof ProfileEditUserRoute
+  '/recovery/callback': typeof RecoveryCallbackRoute
   '/user/$id': typeof UserIdRoute
   '/$locale': typeof LocaleIndexRoute
   '/$locale/post/$id': typeof LocalePostIdRoute
@@ -187,19 +251,27 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$locale': typeof LocaleRouteWithChildren
+  '/change-password': typeof ChangePasswordRoute
   '/explore': typeof ExploreRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/$locale/about': typeof LocaleAboutRoute
   '/$locale/explore': typeof LocaleExploreRoute
   '/$locale/feed': typeof LocaleFeedRoute
   '/$locale/onboarding': typeof LocaleOnboardingRoute
   '/$locale/private': typeof LocalePrivateRoute
   '/$locale/profile': typeof LocaleProfileRoute
+  '/$locale/recovery': typeof LocaleRecoveryRoute
   '/$locale/sign-in': typeof LocaleSignInRoute
+  '/oauth/callback': typeof OauthCallbackRoute
+  '/oauth/google': typeof OauthGoogleRoute
   '/post/$id': typeof PostIdRoute
   '/profile_/account-security': typeof ProfileAccountSecurityRoute
   '/profile_/edit-user': typeof ProfileEditUserRoute
+  '/recovery/callback': typeof RecoveryCallbackRoute
   '/user/$id': typeof UserIdRoute
   '/$locale/': typeof LocaleIndexRoute
   '/$locale/post/$id': typeof LocalePostIdRoute
@@ -212,19 +284,27 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/$locale'
+    | '/change-password'
     | '/explore'
+    | '/forgot-password'
     | '/onboarding'
     | '/profile'
+    | '/reset-password'
+    | '/verify-email'
     | '/$locale/about'
     | '/$locale/explore'
     | '/$locale/feed'
     | '/$locale/onboarding'
     | '/$locale/private'
     | '/$locale/profile'
+    | '/$locale/recovery'
     | '/$locale/sign-in'
+    | '/oauth/callback'
+    | '/oauth/google'
     | '/post/$id'
     | '/profile/account-security'
     | '/profile/edit-user'
+    | '/recovery/callback'
     | '/user/$id'
     | '/$locale/'
     | '/$locale/post/$id'
@@ -234,19 +314,27 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/change-password'
     | '/explore'
+    | '/forgot-password'
     | '/onboarding'
     | '/profile'
+    | '/reset-password'
+    | '/verify-email'
     | '/$locale/about'
     | '/$locale/explore'
     | '/$locale/feed'
     | '/$locale/onboarding'
     | '/$locale/private'
     | '/$locale/profile'
+    | '/$locale/recovery'
     | '/$locale/sign-in'
+    | '/oauth/callback'
+    | '/oauth/google'
     | '/post/$id'
     | '/profile/account-security'
     | '/profile/edit-user'
+    | '/recovery/callback'
     | '/user/$id'
     | '/$locale'
     | '/$locale/post/$id'
@@ -257,19 +345,27 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/$locale'
+    | '/change-password'
     | '/explore'
+    | '/forgot-password'
     | '/onboarding'
     | '/profile'
+    | '/reset-password'
+    | '/verify-email'
     | '/$locale/about'
     | '/$locale/explore'
     | '/$locale/feed'
     | '/$locale/onboarding'
     | '/$locale/private'
     | '/$locale/profile'
+    | '/$locale/recovery'
     | '/$locale/sign-in'
+    | '/oauth/callback'
+    | '/oauth/google'
     | '/post/$id'
     | '/profile_/account-security'
     | '/profile_/edit-user'
+    | '/recovery/callback'
     | '/user/$id'
     | '/$locale/'
     | '/$locale/post/$id'
@@ -281,12 +377,19 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LocaleRoute: typeof LocaleRouteWithChildren
+  ChangePasswordRoute: typeof ChangePasswordRoute
   ExploreRoute: typeof ExploreRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   OnboardingRoute: typeof OnboardingRoute
   ProfileRoute: typeof ProfileRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  VerifyEmailRoute: typeof VerifyEmailRoute
+  OauthCallbackRoute: typeof OauthCallbackRoute
+  OauthGoogleRoute: typeof OauthGoogleRoute
   PostIdRoute: typeof PostIdRoute
   ProfileAccountSecurityRoute: typeof ProfileAccountSecurityRoute
   ProfileEditUserRoute: typeof ProfileEditUserRoute
+  RecoveryCallbackRoute: typeof RecoveryCallbackRoute
   UserIdRoute: typeof UserIdRoute
 }
 
@@ -306,11 +409,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocaleRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/change-password': {
+      id: '/change-password'
+      path: '/change-password'
+      fullPath: '/change-password'
+      preLoaderRoute: typeof ChangePasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/explore': {
       id: '/explore'
       path: '/explore'
       fullPath: '/explore'
       preLoaderRoute: typeof ExploreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding': {
@@ -325,6 +442,20 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify-email': {
+      id: '/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof VerifyEmailRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/$locale/': {
@@ -376,12 +507,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocaleProfileRouteImport
       parentRoute: typeof LocaleRoute
     }
+    '/$locale/recovery': {
+      id: '/$locale/recovery'
+      path: '/recovery'
+      fullPath: '/$locale/recovery'
+      preLoaderRoute: typeof LocaleRecoveryRouteImport
+      parentRoute: typeof LocaleRoute
+    }
     '/$locale/sign-in': {
       id: '/$locale/sign-in'
       path: '/sign-in'
       fullPath: '/$locale/sign-in'
       preLoaderRoute: typeof LocaleSignInRouteImport
       parentRoute: typeof LocaleRoute
+    }
+    '/oauth/callback': {
+      id: '/oauth/callback'
+      path: '/oauth/callback'
+      fullPath: '/oauth/callback'
+      preLoaderRoute: typeof OauthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/oauth/google': {
+      id: '/oauth/google'
+      path: '/oauth/google'
+      fullPath: '/oauth/google'
+      preLoaderRoute: typeof OauthGoogleRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/post/$id': {
       id: '/post/$id'
@@ -402,6 +554,13 @@ declare module '@tanstack/react-router' {
       path: '/profile/edit-user'
       fullPath: '/profile/edit-user'
       preLoaderRoute: typeof ProfileEditUserRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recovery/callback': {
+      id: '/recovery/callback'
+      path: '/recovery/callback'
+      fullPath: '/recovery/callback'
+      preLoaderRoute: typeof RecoveryCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/user/$id': {
@@ -449,6 +608,7 @@ interface LocaleRouteChildren {
   LocaleOnboardingRoute: typeof LocaleOnboardingRoute
   LocalePrivateRoute: typeof LocalePrivateRoute
   LocaleProfileRoute: typeof LocaleProfileRoute
+  LocaleRecoveryRoute: typeof LocaleRecoveryRoute
   LocaleSignInRoute: typeof LocaleSignInRoute
   LocaleIndexRoute: typeof LocaleIndexRoute
   LocalePostIdRoute: typeof LocalePostIdRoute
@@ -464,6 +624,7 @@ const LocaleRouteChildren: LocaleRouteChildren = {
   LocaleOnboardingRoute: LocaleOnboardingRoute,
   LocalePrivateRoute: LocalePrivateRoute,
   LocaleProfileRoute: LocaleProfileRoute,
+  LocaleRecoveryRoute: LocaleRecoveryRoute,
   LocaleSignInRoute: LocaleSignInRoute,
   LocaleIndexRoute: LocaleIndexRoute,
   LocalePostIdRoute: LocalePostIdRoute,
@@ -478,12 +639,19 @@ const LocaleRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LocaleRoute: LocaleRouteWithChildren,
+  ChangePasswordRoute: ChangePasswordRoute,
   ExploreRoute: ExploreRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   OnboardingRoute: OnboardingRoute,
   ProfileRoute: ProfileRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
+  VerifyEmailRoute: VerifyEmailRoute,
+  OauthCallbackRoute: OauthCallbackRoute,
+  OauthGoogleRoute: OauthGoogleRoute,
   PostIdRoute: PostIdRoute,
   ProfileAccountSecurityRoute: ProfileAccountSecurityRoute,
   ProfileEditUserRoute: ProfileEditUserRoute,
+  RecoveryCallbackRoute: RecoveryCallbackRoute,
   UserIdRoute: UserIdRoute,
 }
 export const routeTree = rootRouteImport

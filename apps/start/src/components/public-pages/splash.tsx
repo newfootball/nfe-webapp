@@ -32,9 +32,11 @@ export function SplashPage({
 	locale,
 	onContinue,
 	activeImage = 0,
+	continueHref = "/",
 }: PublicPageProps & {
 	onContinue: MouseEventHandler<HTMLAnchorElement>;
 	activeImage?: 0 | 1 | 2;
+	continueHref?: string;
 }) {
 	const t = publicPageContent[locale].splash;
 	return (
@@ -61,7 +63,7 @@ export function SplashPage({
 					size="lg"
 					className="mt-3 min-h-12 h-auto whitespace-normal py-3 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
 				>
-					<a href="/" onClick={onContinue}>
+					<a href={continueHref} onClick={onContinue}>
 						{t["get-started"]}
 					</a>
 				</Button>

@@ -12,3 +12,5 @@ scripts/.local/
 scripts/.profile-local/
 
 scripts/.feed-local/
+
+scripts/.public-local/

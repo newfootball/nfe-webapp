@@ -195,14 +195,18 @@ test("isolated moderation: SSR/RPC guards, spoof, unique reports, thresholds, bo
 		(await call("reportPost", { ...report, role: "admin" }, a.secret)).ok,
 	).toBe(false);
 	expect((await call("reportPost", report, "")).ok).toBe(false);
-	expect(
-		(
-			await call("reportPost", report, a.secret, {
-				Origin: "https://evil.example",
-				"sec-fetch-site": "cross-site",
-			})
-		).ok,
-	).toBe(false);
+	const crossOrigin = await request.post(rpc("reportPost"), {
+		headers: headers(a.secret, {
+			Origin: "https://evil.example",
+			"sec-fetch-site": "cross-site",
+		}),
+		data: JSON.stringify(toJSON({ data: report })),
+	});
+	// Start rejects cross-origin RPCs before the serialized application boundary.
+	expect(crossOrigin.status()).toBe(403);
+	const deniedBody = await crossOrigin.text();
+	for (const secret of secrets) expect(deniedBody.includes(secret)).toBe(false);
+	expect((await signals()).total).toBe(0);
 	for (const id of ["social-draft", "social-private", "social-orphan"])
 		expect(
 			(await call("reportPost", { ...report, postId: id }, a.secret)).ok,

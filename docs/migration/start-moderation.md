@@ -1,6 +1,7 @@
 # Start administration and reporting core (#60, partial)
 
-This bounded slice targets accepted main `8160720`. Issue #60 stays open:
+This bounded slice started from accepted main `8160720` and integrates accepted
+messaging main `a36136c`. Issue #60 stays open:
 account deletion, business/message cleanup, B2 object/version purge, Auth/session
 revocation and resumable account lifecycle acceptance remain excluded and depend
 on #56/#59. No production retention policy or production deployment is introduced.
@@ -50,7 +51,11 @@ bun run typecheck:start
 bun run --cwd apps/start lint
 ```
 
-The synthetic runtime harness is **authored, not yet executed**. An exclusive
+The first isolated runtime attempt stopped on a test-helper mismatch: Start
+correctly returned HTTP 403 for a cross-origin RPC, while the helper expected
+a serialized HTTP 200 response. The repaired assertion checks HTTP 403 explicitly,
+checks the denial body for secrets, and verifies that no report was created.
+The remaining runtime matrix is **not yet proven**. An exclusive
 backend lease from the coordinator is required before prepare/up/proof. It owns
 only compose project `nfe-moderation-60`, backend loopback `18160`, test app `3574`
 and ignored mode-600 credential/fixture files in `scripts/.moderation-local`.

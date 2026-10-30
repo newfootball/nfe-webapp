@@ -40,6 +40,9 @@ export function FeedNav({
 			>
 				{locale === "fr" ? "Administration" : "Administration"}
 			</Link>
+			<Link to="/$locale/messages" params={{ locale }}>
+				Messages
+			</Link>
 			{page === "post" && id ? (
 				<Link to="/$locale/post/$id" params={{ locale: other, id }}>
 					{label}

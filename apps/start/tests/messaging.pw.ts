@@ -1,4 +1,6 @@
 import { readdir, readFile } from "node:fs/promises";
+import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { type APIRequestContext, expect, test } from "@playwright/test";
 import { Client, type Models, Query, TablesDB } from "node-appwrite";
 import { fromCrossJSON, toJSON } from "seroval";
@@ -11,6 +13,7 @@ import type {
 	PrivateMessage,
 } from "../src/lib/messaging-contract";
 
+const testRoot = dirname(fileURLToPath(import.meta.url));
 const origin = "http://127.0.0.1:3590";
 const c = JSON.parse(await readFile(`${state}/credentials.json`, "utf8"));
 const fixture = JSON.parse(
@@ -30,11 +33,9 @@ const secrets = [
 const ids = new Map<string, string>();
 async function rpcURL(name: string) {
 	if (!ids.has(name))
-		for (const file of await readdir(
-			`${import.meta.dir}/../dist/server/assets`,
-		)) {
+		for (const file of await readdir(`${testRoot}/../dist/server/assets`)) {
 			const text = await readFile(
-					`${import.meta.dir}/../dist/server/assets/${file}`,
+					`${testRoot}/../dist/server/assets/${file}`,
 					"utf8",
 				),
 				start = text.indexOf(`var ${name} = createServerFn(`);
@@ -484,13 +485,18 @@ test("FR/EN history reload, optimistic rollback and delayed SPA account switch",
 	await expect(
 		page.getByRole("heading", { name: "Messages", exact: true }),
 	).toBeVisible();
-	for (
-		let pageNumber = 0;
-		pageNumber < 3 &&
-		(await page.getByRole("button", { name: "Charger la suite" }).isVisible());
-		pageNumber++
-	)
-		await page.getByRole("button", { name: "Charger la suite" }).click();
+	await expect(
+		page.getByRole("button", { name: "Charger la suite" }),
+	).toBeVisible();
+	for (let pageNumber = 0; pageNumber < 3; pageNumber++) {
+		const more = page.getByRole("button", { name: "Charger la suite" });
+		if (!(await more.isVisible())) break;
+		const before = await page.locator("[data-message-id]").count();
+		await more.click();
+		await expect
+			.poll(() => page.locator("[data-message-id]").count())
+			.toBeGreaterThan(before);
+	}
 	await expect(
 		page.getByText("Imported history 0", { exact: true }),
 	).toBeVisible();
@@ -530,7 +536,7 @@ test("FR/EN history reload, optimistic rollback and delayed SPA account switch",
 	await page.getByRole("link", { name: "My space", exact: true }).click();
 	await page.getByRole("button", { name: "Sign out", exact: true }).click();
 	await page
-		.getByLabel("Email", { exact: true })
+		.getByLabel("Email address", { exact: true })
 		.fill(fixture.actors[2]!.email);
 	await page
 		.getByLabel("Password", { exact: true })
@@ -568,7 +574,7 @@ for (const outcome of ["success", "error"] as const)
 	}) => {
 		await page.goto("/en/sign-in");
 		await page
-			.getByLabel("Email", { exact: true })
+			.getByLabel("Email address", { exact: true })
 			.fill(fixture.actors[0]!.email);
 		await page
 			.getByLabel("Password", { exact: true })
@@ -592,6 +598,13 @@ for (const outcome of ["success", "error"] as const)
 		const unique = `Delayed A send ${outcome} ${crypto.randomUUID()}`;
 		await page.route(`${await rpcURL("sendMessage")}*`, async (route) => {
 			const response = await route.fetch();
+			const result = (
+				fromCrossJSON(JSON.parse(await response.text()), {}) as {
+					result: MessagingResult<unknown>;
+				}
+			).result;
+			expect(result.ok).toBe(outcome === "success");
+			if (!result.ok) expect(result.error).toBe("forbidden");
 			intercepted();
 			await hold;
 			await route.fulfill({ response });
@@ -606,7 +619,7 @@ for (const outcome of ["success", "error"] as const)
 		await page.getByRole("link", { name: "My space", exact: true }).click();
 		await page.getByRole("button", { name: "Sign out", exact: true }).click();
 		await page
-			.getByLabel("Email", { exact: true })
+			.getByLabel("Email address", { exact: true })
 			.fill(fixture.actors[2]!.email);
 		await page
 			.getByLabel("Password", { exact: true })

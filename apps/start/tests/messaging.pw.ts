@@ -1,6 +1,6 @@
 import { readdir, readFile } from "node:fs/promises";
 import { type APIRequestContext, expect, test } from "@playwright/test";
-import { Client, Query, TablesDB } from "node-appwrite";
+import { Client, type Models, Query, TablesDB } from "node-appwrite";
 import { fromCrossJSON, toJSON } from "seroval";
 import { databaseId, type Fixture } from "../scripts/messaging-fixtures";
 import { endpoint, state } from "../scripts/messaging-local";
@@ -179,7 +179,7 @@ test("participant confidentiality, imported history/list pagination, durable pol
 		}),
 	).rejects.toBeDefined();
 	await deniedWrite(
-		sessionDB(0).createRow({
+		sessionDB(0).createRow<Models.DefaultRow>({
 			databaseId,
 			tableId: "messages",
 			rowId: "sdk-attack",

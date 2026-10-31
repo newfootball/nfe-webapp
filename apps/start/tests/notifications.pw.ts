@@ -795,6 +795,24 @@ test("accepted MESSAGE producer rolls back staging failure and delivers one priv
 	context,
 	request,
 }) => {
+	// Earlier logout intentionally revoked the original B fixture session.
+	// Obtain a current session through the real application sign-in flow.
+	await page.goto("/en/sign-in");
+	await page.locator('input[name="email"]').fill(`${b.id}@example.test`);
+	await page.locator('input[name="password"]').fill(b.password);
+	await page
+		.locator("form")
+		.filter({ has: page.locator('input[name="email"]') })
+		.getByRole("button", { name: "Sign in", exact: true })
+		.click();
+	await expect(page.getByTestId("identity")).toHaveText(b.id);
+	const recipientSecret = (await context.cookies()).find(
+		(cookie) => cookie.name === "nfe-session-dev",
+	)?.value;
+	if (!recipientSecret) throw new Error("Current recipient session missing");
+	secrets.push(recipientSecret);
+	await writeFile(`${state}/runtime-secrets.json`, JSON.stringify(secrets));
+	await chmod(`${state}/runtime-secrets.json`, 0o600);
 	const sendUrl = await rpcURL("sendMessage");
 	const content = "PRIVATE-MESSAGE-CONTENT-NEVER-IN-NOTIFICATION";
 	const input = { toUserId: b.id, content, requestId: crypto.randomUUID() };
@@ -895,22 +913,21 @@ test("accepted MESSAGE producer rolls back staging failure and delivers one priv
 		return result<Reply<NotificationPage>>(response);
 	};
 	expect(await list("")).toEqual({ ok: false, error: "unauthorized" });
+	expect(await list(b.secret)).toEqual({ ok: false, error: "unauthorized" });
 	for (const who of [a, admin])
 		expect(await list(who.secret)).toEqual({ ok: false, error: "forbidden" });
-	const found = await list(b.secret);
+	const found = await list(recipientSecret);
 	if (!found.ok) throw new Error("Recipient list failed");
 	expect(
 		found.value.notifications.find((n) => n.id === event.$id)?.target,
 	).toEqual({ id: a.id, available: true });
-	await context.addCookies([
-		{
-			name: "nfe-session-dev",
-			value: b.secret,
-			url: origin,
-			httpOnly: true,
-			sameSite: "Lax",
-		},
-	]);
+	await expect(
+		new TablesDB(base().setSession(recipientSecret)).getRow({
+			databaseId,
+			tableId: "notifications_v1",
+			rowId: event.$id,
+		}),
+	).resolves.toMatchObject({ recipientId: b.id, type: "MESSAGE" });
 	for (const locale of ["fr", "en"] as const) {
 		await page.goto(`/${locale}/notifications`);
 		const messageItem = page.locator(
@@ -939,7 +956,7 @@ test("accepted MESSAGE producer rolls back staging failure and delivers one priv
 	const read = async () =>
 		result<Reply<unknown>>(
 			await request.post(markUrl, {
-				headers: headers(),
+				headers: headers(recipientSecret),
 				data: JSON.stringify(
 					toJSON({ data: { viewerId: b.id, mode: "one", id: event.$id } }),
 				),
@@ -974,7 +991,7 @@ test("accepted MESSAGE producer rolls back staging failure and delivers one priv
 		rowId: event.$id,
 		data: { targetId: admin.id },
 	});
-	const mismatch = await list(b.secret);
+	const mismatch = await list(recipientSecret);
 	if (!mismatch.ok) throw new Error("Recipient mismatch list failed");
 	expect(
 		mismatch.value.notifications.find((n) => n.id === event.$id)?.target
@@ -987,7 +1004,7 @@ test("accepted MESSAGE producer rolls back staging failure and delivers one priv
 		data: { targetId: a.id },
 	});
 	await db.deleteRow({ databaseId, tableId: "messages", rowId: id });
-	const deleted = await list(b.secret);
+	const deleted = await list(recipientSecret);
 	if (!deleted.ok) throw new Error("Recipient deleted list failed");
 	expect(
 		deleted.value.notifications.find((n) => n.id === event.$id)?.target

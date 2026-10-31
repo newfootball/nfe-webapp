@@ -33,6 +33,13 @@ export function FeedNav({
 			>
 				{feedMessages[locale].explore}
 			</Link>
+			<Link
+				to="/$locale/admin"
+				params={{ locale }}
+				search={{ kind: "reports", q: "", status: "PENDING", cursor: null }}
+			>
+				{locale === "fr" ? "Administration" : "Administration"}
+			</Link>
 			<Link to="/$locale/messages" params={{ locale }}>
 				Messages
 			</Link>

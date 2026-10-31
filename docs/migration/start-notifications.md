@@ -2,7 +2,8 @@
 
 This is a local implementation checkpoint, **not completed acceptance** of #58,
 #19, #32 or the combined #58/#59 acceptance. Accepted #59 core (main a36136c)
-is integrated normally; MESSAGE now stages on its business transaction. The new
+is integrated normally; MESSAGE now stages on its business transaction. Accepted
+moderation main021b2f9 is also integrated without changing its contracts. The new
 combined runtime matrix still requires independent review and an exclusive lease.
 Production, representative import and legacy retirement remain outside this work.
 
@@ -112,10 +113,18 @@ server TZ=UTC; initial date rendering uses deterministic ISO UTC numeric fields 
 deleted targets and historical FOLLOW without target have explicit fallback checks.
 The first real matrix on prior head2dc0549 passed COMMENT/FOLLOW and durability
 but failed two scenarios with ICU date/hydration differences; it is not a full pass.
-The updated matrix, including real MESSAGE rollback, concurrent/repeated send
-deduplication, recipient-only SDK/RPC reads, FR/EN peer link, preserved read receipt
-and mismatched/deleted-message fallback, is **authored but not executed** at this
-checkpoint. Unit parity uses actual Bun and Node subprocesses under UTC/Cairo/New
+On reviewed head513fa8e the real matrix passed4/5 scenarios: all existing
+notification privacy/pagination/read, COMMENT/FOLLOW, crash/recovery, deterministic
+FR/EN hydration, delayed SPA and hidden/deleted fallbacks passed. MESSAGE staging
+rollback, concurrent send dedupe/quota1, durable-only delivery and nonrecipient
+denials passed before recipient listing encountered an old fixture session
+revoked by scenario1 logout (independent Account.get returned401). The test now
+obtains a fresh session through the real application sign-in and also asserts
+that the revoked original session is denied. This corrected matrix, including
+FR/EN MESSAGE peer link, read receipt replay and mismatched/deleted-message
+fallback, is **not rerun yet** at this checkpoint. Original accepted messaging
+regression passed all6 scenarios against513fa8e with new notification setup;
+its evidence records that exact source/build and does not establish the new head. Unit parity uses actual Bun and Node subprocesses under UTC/Cairo/New
 York; the runtime matrix still requires independent review and a fresh lease.
 Both the distinct messaging rows.read/rows.write key and notification writer key
 must be configured; provision accepted `messaging-v1` alongside `notification-v1`.

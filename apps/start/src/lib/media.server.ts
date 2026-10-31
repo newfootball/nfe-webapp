@@ -192,6 +192,12 @@ export function replaceMediaAvatar(v: AssetRequest) {
 		});
 	}, true);
 }
+async function denyRejectedParent(a: Awaited<ReturnType<typeof ownAsset>>) {
+	if (a.kind === "avatar" || !a.postId) return;
+	const parent = await row(mediaDB(), "posts", String(a.postId));
+	if (parent.userId !== a.ownerId || parent.status === "REJECTED")
+		throw new AuthFailure("forbidden");
+}
 async function canRead(a: Awaited<ReturnType<typeof ownAsset>>) {
 	if (!["READY", "ATTACHED"].includes(a.state) || !a.versionId)
 		throw new AuthFailure("forbidden");
@@ -213,6 +219,7 @@ async function canRead(a: Awaited<ReturnType<typeof ownAsset>>) {
 }
 export async function signedMedia(id: string) {
 	const a = await row(mediaDB(), assetTable, id);
+	await denyRejectedParent(a);
 	await canRead(a);
 	const { s3, config } = storage();
 	try {
@@ -227,6 +234,7 @@ export async function signedMedia(id: string) {
 			}),
 			{ expiresIn: config.START_MEDIA_READ_TTL_SECONDS },
 		);
+		await denyRejectedParent(a);
 		return {
 			url,
 			expiresAt: Date.now() + config.START_MEDIA_READ_TTL_SECONDS * 1000,

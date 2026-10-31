@@ -124,7 +124,14 @@ that the revoked original session is denied. This corrected matrix, including
 FR/EN MESSAGE peer link, read receipt replay and mismatched/deleted-message
 fallback, is **not rerun yet** at this checkpoint. Original accepted messaging
 regression passed all6 scenarios against513fa8e with new notification setup;
-its evidence records that exact source/build and does not establish the new head. Unit parity uses actual Bun and Node subprocesses under UTC/Cairo/New
+its evidence records that exact source/build and does not establish the new head.
+The next matrix on reviewed e263b7b again passed4/5: MESSAGE current-recipient
+RPC membership passed, then its SDK check received the encoded HTTP cookie and
+failed. The test now decodes that value exactly once for SDK.setSession only,
+retains the encoded cookie for HTTP, and redacts both forms. Its SDK positive and
+all negative/link/replay assertions remain. This final correction has not been
+rerun at this checkpoint. Original messaging regression again passed6/6 on
+e263b7b; product/business/config remain unchanged by this fixture-only correction. Unit parity uses actual Bun and Node subprocesses under UTC/Cairo/New
 York; the runtime matrix still requires independent review and a fresh lease.
 Both the distinct messaging rows.read/rows.write key and notification writer key
 must be configured; provision accepted `messaging-v1` alongside `notification-v1`.

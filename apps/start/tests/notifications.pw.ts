@@ -810,7 +810,8 @@ test("accepted MESSAGE producer rolls back staging failure and delivers one priv
 		(cookie) => cookie.name === "nfe-session-dev",
 	)?.value;
 	if (!recipientSecret) throw new Error("Current recipient session missing");
-	secrets.push(recipientSecret);
+	const recipientSessionSecret = decodeURIComponent(recipientSecret);
+	secrets.push(recipientSecret, recipientSessionSecret);
 	await writeFile(`${state}/runtime-secrets.json`, JSON.stringify(secrets));
 	await chmod(`${state}/runtime-secrets.json`, 0o600);
 	const sendUrl = await rpcURL("sendMessage");
@@ -922,7 +923,7 @@ test("accepted MESSAGE producer rolls back staging failure and delivers one priv
 		found.value.notifications.find((n) => n.id === event.$id)?.target,
 	).toEqual({ id: a.id, available: true });
 	await expect(
-		new TablesDB(base().setSession(recipientSecret)).getRow({
+		new TablesDB(base().setSession(recipientSessionSecret)).getRow({
 			databaseId,
 			tableId: "notifications_v1",
 			rowId: event.$id,
@@ -1061,7 +1062,7 @@ test("legacy unknown target, FR/EN distinct timezone hydration, delayed SPA A-B-
 		const cookie = (await context.cookies()).find(
 			(x) => x.name === "nfe-session-dev",
 		);
-		if (cookie) secrets.push(cookie.value);
+		if (cookie) secrets.push(cookie.value, decodeURIComponent(cookie.value));
 		await writeFile(`${state}/runtime-secrets.json`, JSON.stringify(secrets));
 		await chmod(`${state}/runtime-secrets.json`, 0o600);
 	}

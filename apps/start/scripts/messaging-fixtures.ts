@@ -24,6 +24,7 @@ export async function fixtures(): Promise<Fixture> {
 	const dir = resolve(import.meta.dir, "../../../tools/appwrite-schema");
 	const { provision } = await import(`${dir}/provision.mts`),
 		{ provisionProfileV2 } = await import(`${dir}/profile-v2.mts`),
+		{ provisionNotificationV1 } = await import(`${dir}/notification-v1.mts`),
 		{ provisionMessaging, indexImportedConversations } = await import(
 			`${dir}/messaging.mts`
 		),
@@ -31,12 +32,14 @@ export async function fixtures(): Promise<Fixture> {
 	const saved = Bun.file(`${state}/fixture.json`);
 	if (await saved.exists()) {
 		await provisionMessaging(db, databaseId);
+		await provisionNotificationV1(db, databaseId);
 		return await saved.json();
 	}
 	await provision(db, databaseId);
 	await provisionProfileV2(db, databaseId);
 	await provisionMessaging(db, databaseId);
 	await provisionMessaging(db, databaseId);
+	await provisionNotificationV1(db, databaseId);
 	const actors: FixtureActor[] = [];
 	for (const id of [
 		"actor-A",

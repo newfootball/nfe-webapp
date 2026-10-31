@@ -32,6 +32,8 @@ import {
 	parseMessageCursor,
 	type SendMessageInput,
 } from "./messaging-input";
+import { messageNotification } from "./notification-contract";
+import { stageNotification } from "./notification-outbox.server";
 import type { Validated } from "./profile-input";
 
 const fields = [
@@ -394,6 +396,10 @@ export function sendPrivateMessage(input: Validated<SendMessageInput>) {
 				if (live?.latestId !== previous?.latestId)
 					throw new Failure("conflict");
 				const response = sameReplay(row, v, viewer.id);
+				await stageNotification(
+					transactionId,
+					messageNotification(response.event),
+				);
 				await write.updateTransaction({ transactionId, commit: true });
 				return response;
 			} catch (e) {

@@ -20,3 +20,6 @@ scripts/.follow-local/
 
 scripts/.interactions-local/
 scripts/.moderation-local/
+
+# Persistent synthetic local runtime; credentials and artifacts stay private.
+.local-runtime/

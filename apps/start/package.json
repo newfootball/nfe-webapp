@@ -34,7 +34,9 @@
 		"media:up": "bun scripts/media-local.ts up",
 		"media:down": "bun scripts/media-local.ts down",
 		"media:proof": "bun scripts/media-proof.ts",
-		"media:recover": "bun scripts/media-recover.ts"
+		"media:recover": "bun scripts/media-recover.ts",
+		"local": "bun scripts/local-runtime.ts",
+		"local:proof": "bun scripts/local-runtime-proof.ts"
 	},
 	"dependencies": {
 		"@radix-ui/react-slot": "1.2.4",

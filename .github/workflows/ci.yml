@@ -76,8 +76,17 @@ jobs:
               run: bun install --frozen-lockfile
             - name: Install Start dependencies
               run: bun install --cwd apps/start --frozen-lockfile
+            - name: Test Start and local runtime guards (no services)
+              run: bun run --cwd apps/start test
+            - name: Lint Start
+              run: bun run --cwd apps/start lint
             - name: Build Start
               run: bun run build:start
+            - name: Package reproducible local release (no service start)
+              run: |
+                bun run local:start release > /tmp/nfe-release-first.txt
+                bun run local:start release > /tmp/nfe-release-second.txt
+                diff /tmp/nfe-release-first.txt /tmp/nfe-release-second.txt
             - name: Typecheck Start
               run: bun run typecheck:start
             - name: Install smoke browser

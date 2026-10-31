@@ -25,6 +25,7 @@ const server = Bun.spawn(["bun", "server.ts"], {
 		START_APPWRITE_SESSION_KEY: c.sessionKey,
 		START_APPWRITE_PROFILE_WRITER_KEY: c.writerKey,
 		START_APPWRITE_MESSAGING_WRITER_KEY: c.messagingWriterKey,
+		START_APPWRITE_NOTIFICATION_WRITER_KEY: c.notificationKey,
 		START_APPWRITE_FEED_READER_KEY: c.readerKey,
 		START_APPWRITE_DATABASE: databaseId,
 		START_AUTH_ALLOW_HTTP_LOOPBACK: "true",
@@ -37,6 +38,7 @@ const server = Bun.spawn(["bun", "server.ts"], {
 const secrets = [
 	c.proofKey,
 	c.messagingWriterKey,
+	c.notificationKey,
 	c.sessionKey,
 	c.writerKey,
 	c.readerKey,

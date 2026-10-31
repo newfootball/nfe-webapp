@@ -19,6 +19,8 @@ scripts/.post-text-local/
 scripts/.follow-local/
 
 scripts/.interactions-local/
+
+scripts/.notifications-local/
 scripts/.moderation-local/
 
 # Persistent synthetic local runtime; credentials and artifacts stay private.

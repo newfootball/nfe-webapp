@@ -56,7 +56,45 @@ const report: Record<string, unknown> = {
 	noProductionClaim: true,
 };
 let baseline: CORSRule[] | undefined,
-	server: ReturnType<typeof Bun.spawn> | undefined;
+	server: ReturnType<typeof Bun.spawn> | undefined,
+	tests: ReturnType<typeof Bun.spawn> | undefined;
+async function progress(step: string, detail: Record<string, unknown> = {}) {
+	const path = `${state}/progress-${step}.json`;
+	await Bun.write(
+		path,
+		JSON.stringify({ step, at: new Date().toISOString(), ...detail }),
+	);
+	await chmod(path, 0o600);
+}
+async function deadline<T>(
+	pending: Promise<T>,
+	milliseconds: number,
+	label: string,
+) {
+	let timer: ReturnType<typeof setTimeout> | undefined;
+	try {
+		return await Promise.race([
+			pending,
+			new Promise<never>((_, reject) => {
+				timer = setTimeout(
+					() => reject(new Error(`${label} deadline exceeded`)),
+					milliseconds,
+				);
+			}),
+		]);
+	} finally {
+		clearTimeout(timer);
+	}
+}
+async function stop(child: ReturnType<typeof Bun.spawn>, label: string) {
+	if (child.exitCode === null) child.kill();
+	try {
+		return await deadline(child.exited, 5000, `${label} SIGTERM`);
+	} catch {
+		if (child.exitCode === null) child.kill("SIGKILL");
+		return deadline(child.exited, 5000, `${label} SIGKILL`);
+	}
+}
 async function save() {
 	await Bun.write(
 		`${state}/proof-summary.json`,
@@ -94,6 +132,8 @@ try {
 		),
 	);
 	baseline = await cors();
+	await Bun.write(`${state}/cors-baseline.json`, JSON.stringify(baseline));
+	await chmod(`${state}/cors-baseline.json`, 0o600);
 	await s3.send(
 		new PutBucketCorsCommand({
 			Bucket: b2.B2_BUCKET_NAME,
@@ -108,6 +148,7 @@ try {
 		"crash",
 		"recovery",
 	]) {
+		await progress(`${phase}-starting`);
 		const log = `${state}/server-${phase}.log`;
 		await Bun.write(log, "");
 		await chmod(log, 0o600);
@@ -153,10 +194,17 @@ try {
 			stdout: Bun.file(log),
 			stderr: Bun.file(log),
 		});
+		await progress(`${phase}-server-spawned`, { pid: server.pid });
 		let ready = false;
 		for (let n = 0; n < 100; n++) {
 			try {
-				if ((await fetch(`${origin}/en/about`)).ok) {
+				if (
+					(
+						await fetch(`${origin}/en/about`, {
+							signal: AbortSignal.timeout(2000),
+						})
+					).ok
+				) {
 					ready = true;
 					break;
 				}
@@ -165,7 +213,18 @@ try {
 			await Bun.sleep(250);
 		}
 		assert(ready, "Proof server readiness");
-		const tests = Bun.spawn(
+		await progress(`${phase}-server-ready`);
+		const stdout = `${state}/stdout-${phase}.log`,
+			stderr = `${state}/stderr-${phase}.log`;
+		for (const path of [stdout, stderr]) {
+			await Bun.write(path, "");
+			await chmod(path, 0o600);
+		}
+		let onExit: (code: number | null) => void = () => {};
+		const observedExit = new Promise<number | null>((resolve) => {
+			onExit = resolve;
+		});
+		tests = Bun.spawn(
 			[
 				"bun",
 				"x",
@@ -178,13 +237,48 @@ try {
 				"--grep",
 				`^.*${phase}:`,
 			],
-			{ cwd: `${import.meta.dir}/..`, env, stdout: "pipe", stderr: "pipe" },
+			{
+				cwd: `${import.meta.dir}/..`,
+				env,
+				stdout: Bun.file(stdout),
+				stderr: Bun.file(stderr),
+				onExit(_child, code) {
+					onExit(code);
+				},
+			},
 		);
-		const [out, err, exit] = await Promise.all([
-			new Response(tests.stdout).text(),
-			new Response(tests.stderr).text(),
-			tests.exited,
+		await progress(`${phase}-tests-spawned`, {
+			pid: tests.pid,
+			stdout,
+			stderr,
+		});
+		// Eight normal cases (including both mounted locales), one in each failure
+		// phase: preserve every 240s test allowance plus two minutes of runner setup.
+		const phaseDeadline = (phase === "normal" ? 8 : 1) * 240000 + 120000;
+		const exit = await deadline(
+			Promise.race([
+				observedExit.then(async (code) => {
+					await progress(`${phase}-onexit`, { code });
+					return code;
+				}),
+				tests.exited.then(async (code) => {
+					await progress(`${phase}-exited-promise`, { code });
+					return code;
+				}),
+			]),
+			phaseDeadline,
+			`${phase} tests`,
+		);
+		await progress(`${phase}-exit-observed`, { exit });
+		tests = undefined;
+		const [out, err] = await Promise.all([
+			Bun.file(stdout).text(),
+			Bun.file(stderr).text(),
 		]);
+		await progress(`${phase}-diagnostics-read`, {
+			stdoutBytes: out.length,
+			stderrBytes: err.length,
+		});
 		let diagnostic = out + err;
 		for (const value of sensitive)
 			diagnostic = diagnostic.replaceAll(value, "[REDACTED]");
@@ -193,8 +287,7 @@ try {
 		process.stdout.write(diagnostic);
 		(report.phases as unknown[]).push({ phase, exit });
 		await save();
-		if (server.exitCode === null) server.kill();
-		const serverExit = await server.exited;
+		const serverExit = await stop(server, `${phase} server`);
 		if (phase === "crash")
 			assert.equal(serverExit, 86, "Worker must terminate after DeleteObject");
 		server = undefined;
@@ -210,9 +303,9 @@ try {
 	report.failure = { name: (e as Error).name, message: (e as Error).message };
 	throw e;
 } finally {
+	if (tests) await stop(tests, "Playwright");
 	if (server) {
-		if (server.exitCode === null) server.kill();
-		await server.exited;
+		await stop(server, "Proof server");
 	}
 	// Teardown owns this entire synthetic project, but every B2 delete is still
 	// restricted to a known allocation key and a freshly enumerated exact version.

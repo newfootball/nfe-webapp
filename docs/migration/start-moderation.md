@@ -51,15 +51,22 @@ bun run typecheck:start
 bun run --cwd apps/start lint
 ```
 
-The first isolated runtime attempt stopped on a test-helper mismatch: Start
-correctly returned HTTP 403 for a cross-origin RPC, while the helper expected
-a serialized HTTP 200 response. The repaired assertion checks HTTP 403 explicitly,
-checks the denial body for secrets, and verifies that no report was created.
-The remaining runtime matrix is **not yet proven**. An exclusive
-backend lease from the coordinator is required before prepare/up/proof. It owns
+The full isolated Appwrite 2.6.2 / Chrome matrix passed on 2026-10-31 at reviewed
+source `52accc9d0efb2c8a418ee038a2b2a061990b369d` (one test, 5.1 seconds).
+[The synthetic evidence](../../apps/start/evidence/moderation-synthetic.json)
+records the built server digest and a scan of 68 client files with zero sensitive
+matches. Earlier attempts exposed test assertion mismatches; the final run
+includes explicit cross-origin HTTP 403/zero writes and uniquely targets the
+original report by its exact post/author pair before rejection.
+
+An exclusive backend lease from the coordinator is required for every
+prepare/up/proof run. The harness owns
 only compose project `nfe-moderation-60`, backend loopback `18160`, test app `3574`
 and ignored mode-600 credential/fixture files in `scripts/.moderation-local`.
 Next `3500`, the existing `3501` service and other projects remain untouched.
+After the passing run, its dedicated containers, volumes, networks, listeners
+and private runtime state were verified absent; the server and signing proxy
+terminated, and Next/PostgreSQL remained running. The lease was released.
 
 After the lease and source review:
 

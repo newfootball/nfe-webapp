@@ -93,8 +93,14 @@ signup/email workflows are outside this synthetic operational recipe.
 ## Diagnostics and proof
 
 `status` returns only HTTP status codes. Liveness proves the app process responds;
-readiness requires Appwrite2.6.2 and all four schema markers through a real server
-read, with bounded timeout. Readiness returns503 on backend/schema/config failure
+readiness requires a fresh strictly validated private supervisor report for all six
+Compose services, Appwrite2.6.2, positive DB/cache/geo health checks through a separate
+`health.read` key, and all four schema markers through real server reads. Network
+checks share a cancellable4s deadline. Worker main-process availability is checked;
+queue-progress or latency guarantees are outside this foundation. The foreground
+supervisor polls only the fixed dedicated Compose namespace while its app runs;
+its report expires after10s, rejects future timestamps and wrong identity, and is
+removed on shutdown. The app never invokes Docker or reads its socket. Readiness returns503 on backend/schema/config failure
 without leaking its cause/credentials. Neither endpoint exposes settings or data.
 For diagnosis check Node/Bun versions, `status`, free ports, Docker disk/memory and
 `docker compose --project-name nfe-local-runtime-64 --file apps/start/.local-runtime/compose.json ps`.
@@ -113,10 +119,14 @@ Alternatively install the pinned Playwright Chromium before acquiring the lease
 and omit `PLAYWRIGHT_CHANNEL`. The proof performs repeat prepare/provision,
 identical release packaging, anonymous SSR, real browser login, private raw SSR,
 public profile read, graceful app restart, backend stop/readiness failure/restart,
-identity/config/session persistence and secret scans. It revokes its browser
-session, stops its own app and backend even on failure, and leaves persistent
+identity/config/session persistence, proof-only container recreation without deleting
+volumes, individual geo/worker outages, stale/missing supervisor reports and secret
+scans. It revokes its browser
+session, independently attempts bounded browser/session/app/supervisor/backend teardown even
+when another cleanup fails, records failed checks/cleanup without secret details,
+and leaves persistent
 volumes/state for the next local run. Sanitized private `proof-<timestamp>.json`
-records checks and retained volumes; no cloud calls, schedules or watchers run.
+records checks and cleanup outcomes; no cloud calls, schedules or watchers run.
 
 This runbook does not establish TLS/proxy behavior, SMTP delivery, B2 signed URL
 or Range behavior, monitoring/SLO ownership, backups/DR, Appwrite upgrade safety,

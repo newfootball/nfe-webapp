@@ -28,12 +28,14 @@ const scopes = {
 		"rows.read",
 		"rows.write",
 	],
+	health: ["health.read"],
 	session: ["sessions.write"],
 	reader: ["rows.read"],
 	writer: ["rows.write"],
 };
 export type Credentials = {
 	project: string;
+	health: string;
 	provision: string;
 	session: string;
 	reader: string;
@@ -108,6 +110,7 @@ export async function bootstrap() {
 			const keys = (await request(`/projects/${projectId}/keys`)).keys ?? [];
 			credentials = {
 				project: projectId,
+				health: "",
 				provision: "",
 				session: "",
 				reader: "",
@@ -118,6 +121,7 @@ export async function bootstrap() {
 				"session",
 				"reader",
 				"writer",
+				"health",
 			] as const) {
 				const keyId = `local-${name}`;
 				const found = keys.find((k) => k.$id === keyId);
@@ -245,6 +249,7 @@ export async function configure(credentials: Credentials) {
 		START_APPWRITE_PROJECT: projectId,
 		START_APPWRITE_DATABASE: databaseId,
 		START_AUTH_ALLOW_HTTP_LOOPBACK: "true",
+		START_LOCAL_HEALTH_KEY: credentials.health,
 		START_APPWRITE_SESSION_KEY: credentials.session,
 		START_APPWRITE_FEED_READER_KEY: credentials.reader,
 		START_APPWRITE_MODERATION_READER_KEY: credentials.reader,

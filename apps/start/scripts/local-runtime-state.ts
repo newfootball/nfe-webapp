@@ -79,6 +79,7 @@ export function makeCompose() {
 		_APP_VECTORSDB: "disabled",
 		_APP_EMBEDDING: "disabled",
 		_APP_GEO_SECRET: crypto.randomUUID(),
+		_APP_GEO_ENDPOINT: "http://appwrite-geo/v1",
 		// No SMTP worker or SMTP configuration: synthetic accounts only, no mail delivery.
 	};
 	const services: Record<string, Record<string, unknown>> = structuredClone(

@@ -31,18 +31,28 @@ import {
 	state,
 } from "./local-runtime-state";
 
-export async function command(args: string[], cwd = appRoot) {
+export async function command(
+	args: string[],
+	cwd = appRoot,
+	options: { timeoutMs?: number; signal?: AbortSignal } = {},
+) {
+	if (options.signal?.aborted) throw new Error("Command cancelled");
 	const child = Bun.spawn(args, {
 		cwd,
 		env: { ...process.env, NODE_ENV: "production" },
 		stdout: "pipe",
 		stderr: "pipe",
 	});
+	const stop = () => child.kill("SIGKILL");
+	const timeout = setTimeout(stop, options.timeoutMs ?? 240_000);
+	options.signal?.addEventListener("abort", stop, { once: true });
 	const [out, , code] = await Promise.all([
 		new Response(child.stdout).text(),
 		new Response(child.stderr).text(),
 		child.exited,
 	]);
+	clearTimeout(timeout);
+	options.signal?.removeEventListener("abort", stop);
 	// Child/API diagnostics can contain secrets; never echo raw stderr or config.
 	if (code)
 		throw new Error(
@@ -50,7 +60,7 @@ export async function command(args: string[], cwd = appRoot) {
 		);
 	return out;
 }
-const composeArgs = [
+export const composeArgs = [
 	"docker",
 	"compose",
 	"--project-name",
@@ -248,22 +258,38 @@ export async function main(action: string | undefined, digest?: string) {
 		const directory = await verifyRelease(digest);
 		await assertFreePort(3564);
 		const env = await runtimeConfig();
-		const server = Bun.spawn([process.execPath, `${directory}/app.js`], {
-			cwd: directory,
-			env: { ...env, PATH: process.env.PATH },
-			stdout: "ignore",
-			stderr: "ignore",
-		});
-		const stop = () => server.kill("SIGTERM");
-		process.on("SIGINT", stop);
-		process.on("SIGTERM", stop);
-		process.stdout.write(
-			`Local runtime at ${origin}; Ctrl-C gracefully stops the app.\n`,
+		const { superviseDependencies } = await import(
+			"./local-runtime-supervisor"
 		);
-		const code = await server.exited;
-		process.off("SIGINT", stop);
-		process.off("SIGTERM", stop);
-		if (code) throw new Error(`Local app exited (${code})`);
+		const supervisor = await superviseDependencies();
+		let server: ReturnType<typeof Bun.spawn> | undefined;
+		let stop: (() => void) | undefined;
+		try {
+			server = Bun.spawn([process.execPath, `${directory}/app.js`], {
+				cwd: directory,
+				env: { ...env, ...supervisor.env, PATH: process.env.PATH },
+				stdout: "ignore",
+				stderr: "ignore",
+			});
+			const owned = server;
+			const { stopOwnedProcess } = await import("./local-runtime-cleanup");
+			stop = () => {
+				void stopOwnedProcess(owned).catch(() => {});
+			};
+			process.once("SIGINT", stop);
+			process.once("SIGTERM", stop);
+			process.stdout.write(
+				`Local runtime at ${origin}; Ctrl-C gracefully stops the app.\n`,
+			);
+			const code = await server.exited;
+			if (code) throw new Error(`Local app exited (${code})`);
+		} finally {
+			if (stop) {
+				process.off("SIGINT", stop);
+				process.off("SIGTERM", stop);
+			}
+			await supervisor.stop();
+		}
 	} else if (action === "status") {
 		const check = async (url: string) => {
 			try {

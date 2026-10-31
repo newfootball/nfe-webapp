@@ -83,10 +83,18 @@ jobs:
             - name: Build Start
               run: bun run build:start
             - name: Package reproducible local release (no service start)
-              run: |
-                bun run local:start release > /tmp/nfe-release-first.txt
-                bun run local:start release > /tmp/nfe-release-second.txt
-                diff /tmp/nfe-release-first.txt /tmp/nfe-release-second.txt
+              id: local_release
+              run: bun run --cwd apps/start local:repro
+            - name: Retain credential-free native Linux diagnostic on mismatch
+              if: failure() && steps.local_release.outcome == 'failure' && hashFiles('apps/start/.local-runtime/repro-diagnostic.json') != ''
+              uses: actions/upload-artifact@v4
+              with:
+                name: local-release-linux-diagnostic
+                include-hidden-files: true
+                retention-days: 3
+                path: |
+                  apps/start/.local-runtime/repro-diagnostic.json
+                  apps/start/.local-runtime/releases/
             - name: Typecheck Start
               run: bun run typecheck:start
             - name: Install smoke browser

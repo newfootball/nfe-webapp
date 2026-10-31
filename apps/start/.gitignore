@@ -22,3 +22,6 @@ scripts/.interactions-local/
 
 scripts/.notifications-local/
 scripts/.moderation-local/
+
+# Persistent synthetic local runtime; credentials and artifacts stay private.
+.local-runtime/

@@ -1,0 +1,134 @@
+{
+	"source": {
+		"commit": "54581f9698f9de23cf4b1432e353b3ee9b0012d5",
+		"sha256": "db8f3fb69b5ff026d3b76dd0f87b13b37cd009a838ae63e48b134292b9f6bea6",
+		"release": "2.6.2"
+	},
+	"services": {
+		"appwrite": {
+			"logging": {
+				"driver": "json-file",
+				"options": {
+					"max-file": "5",
+					"max-size": "10m"
+				}
+			},
+			"image": "appwrite/appwrite:2.6.2",
+			"healthcheck": {
+				"test": [
+					"CMD-SHELL",
+					"test -f /tmp/.appwrite-ready && curl -fsS -o /dev/null -H \"Host: $${_APP_DOMAIN:-localhost}\" http://localhost/v1/health/version"
+				],
+				"interval": "5s",
+				"timeout": "5s",
+				"retries": 12,
+				"start_period": "120s"
+			},
+			"volumes": [
+				"appwrite-uploads:/storage/uploads:rw",
+				"appwrite-imports:/storage/imports:rw",
+				"appwrite-cache:/storage/cache:rw",
+				"appwrite-config:/storage/config:rw",
+				"appwrite-certificates:/storage/certificates:rw",
+				"appwrite-functions:/storage/functions:rw",
+				"appwrite-sites:/storage/sites:rw",
+				"appwrite-builds:/storage/builds:rw"
+			]
+		},
+		"appwrite-worker-databases": {
+			"entrypoint": "worker-databases",
+			"logging": {
+				"driver": "json-file",
+				"options": {
+					"max-file": "5",
+					"max-size": "10m"
+				}
+			},
+			"image": "appwrite/appwrite:2.6.2"
+		},
+		"appwrite-worker-deletes": {
+			"entrypoint": "worker-deletes",
+			"logging": {
+				"driver": "json-file",
+				"options": {
+					"max-file": "5",
+					"max-size": "10m"
+				}
+			},
+			"image": "appwrite/appwrite:2.6.2",
+			"volumes": [
+				"appwrite-uploads:/storage/uploads:rw",
+				"appwrite-cache:/storage/cache:rw",
+				"appwrite-functions:/storage/functions:rw",
+				"appwrite-sites:/storage/sites:rw",
+				"appwrite-builds:/storage/builds:rw",
+				"appwrite-certificates:/storage/certificates:rw",
+				"appwrite-imports:/storage/imports:rw"
+			]
+		},
+		"redis": {
+			"image": "redis:7.4.7-alpine",
+			"logging": {
+				"driver": "json-file",
+				"options": {
+					"max-file": "5",
+					"max-size": "10m"
+				}
+			},
+			"command": [
+				"redis-server",
+				"--maxmemory",
+				"512mb",
+				"--maxmemory-policy",
+				"allkeys-lru",
+				"--maxmemory-samples",
+				"5"
+			],
+			"volumes": ["appwrite-redis:/data:rw"],
+			"healthcheck": {
+				"test": ["CMD", "redis-cli", "ping"],
+				"interval": "5s",
+				"timeout": "5s",
+				"retries": 12
+			}
+		},
+		"postgresql": {
+			"image": "appwrite/postgres:0.1.0",
+			"init": true,
+			"shm_size": "1g",
+			"logging": {
+				"driver": "json-file",
+				"options": {
+					"max-file": "5",
+					"max-size": "10m"
+				}
+			},
+			"volumes": ["appwrite-postgresql:/var/lib/postgresql:rw"],
+			"healthcheck": {
+				"test": ["CMD-SHELL", "pg_isready -U local -d appwrite"],
+				"interval": "5s",
+				"timeout": "5s",
+				"retries": 10,
+				"start_period": "10s"
+			},
+			"command": ["postgres"]
+		},
+		"appwrite-geo": {
+			"logging": {
+				"driver": "json-file",
+				"options": {
+					"max-file": "5",
+					"max-size": "10m"
+				}
+			},
+			"image": "appwrite/geo:0.3.2",
+			"healthcheck": {
+				"test": "php -r \"exit(json_decode(file_get_contents('http://localhost/v1/health'))->status === 'ok' ? 0 : 1);\"",
+				"interval": "10s",
+				"timeout": "5s",
+				"retries": 3,
+				"start_period": "5s"
+			}
+		}
+	}
+}

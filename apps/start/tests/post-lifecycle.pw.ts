@@ -1,4 +1,4 @@
-import { readdir, readFile } from "node:fs/promises";
+import { readdir, readFile, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -176,7 +176,20 @@ async function upload(request: APIRequestContext, kind: "video" | "thumbnail") {
 				bytes.slice(n * asset.partBytes, (n + 1) * asset.partBytes),
 			),
 		});
-		expect(result.ok()).toBe(true);
+		if (!result.ok()) {
+			// Raw provider errors stay in the private proof namespace: never log a
+			// signed URL, object key, credentials, or unfiltered response body.
+			const body = await result.text();
+			const providerCode = body.match(/<Code>([A-Za-z0-9]+)<\/Code>/)?.[1];
+			await writeFile(
+				`${state}/upload-failure-${asset.id}-${n + 1}.json`,
+				JSON.stringify({ status: result.status(), providerCode, body }),
+				{ mode: 0o600 },
+			);
+			throw new Error(
+				`Fixture UploadPart failed: HTTP ${result.status()}, provider ${providerCode ?? "unknown"}; private diagnostic saved`,
+			);
+		}
 	}
 	const ready = value(
 		await call<UploadAsset>(request, "finalizeAsset", { assetId: asset.id }),
@@ -999,7 +1012,15 @@ async function navigateMounted(page: Page, href: string) {
 		).__TSR_ROUTER__;
 		await router.navigate({ href });
 	}, href);
-	await expect(page).toHaveURL(`${origin}${href}`);
+	const expected = new URL(href, origin);
+	// The own-list route validateSearch explicitly serializes its null cursor.
+	// Preserve exact path and all other search assertions for every route.
+	if (
+		/^\/(fr|en)\/post\/my$/.test(expected.pathname) &&
+		!expected.searchParams.has("cursor")
+	)
+		expected.searchParams.set("cursor", "null");
+	await expect(page).toHaveURL(expected.href);
 }
 async function cachedVariants(page: Page) {
 	return page.evaluate(() => {

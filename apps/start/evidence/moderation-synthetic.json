@@ -1,0 +1,28 @@
+{
+	"at": "2026-10-31T11:18:00.780Z",
+	"appwrite": "2.6.2",
+	"source": "synthetic only",
+	"testExit": 0,
+	"databaseId": "moderation-proof",
+	"sensitiveScan": {
+		"files": 68,
+		"matches": 0
+	},
+	"buildSha256": "c75d38931225e7ef0b9094c212c6f1e1dc0eb0aa1e06403dc20ee1927daea01f",
+	"limitations": [
+		"Admin/reporting core #60 only; account lifecycle excluded",
+		"External async signer mocked in test preload; no B2 object or TTL proof",
+		"No full lifecycle56, real import or production acceptance"
+	],
+	"testedSourceSha": "52accc9d0efb2c8a418ee038a2b2a061990b369d",
+	"cleanup": {
+		"containers": 0,
+		"volumes": 0,
+		"networks": 0,
+		"backendListeners": 0,
+		"appListeners": 0,
+		"privateStatePresent": false,
+		"next3500Preserved": true,
+		"postgres3501Preserved": true
+	}
+}

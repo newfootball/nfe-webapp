@@ -41,6 +41,7 @@ import {
 	interactionCursor,
 	parseInteractionCursor,
 } from "./interactions-input";
+import { stageNotification } from "./notification-outbox.server";
 import type { Validated } from "./profile-input";
 
 function retryable(error: unknown) {
@@ -252,7 +253,18 @@ export function changeInteraction(input: Validated<PairInput>) {
 									? [Permission.read(Role.user(viewer.id))]
 									: [],
 						});
-					else
+					if (active && kind === "like")
+						await stageNotification(transactionId, {
+							version: 1,
+							eventId: `LIKE_CREATED:${entityId}`,
+							type: "LIKE",
+							actorId: viewer.id,
+							recipientId: String(post.userId),
+							targetId: id,
+							entityId,
+							occurredAt,
+						});
+					if (!active)
 						await db.deleteRow({
 							databaseId: c.databaseId,
 							tableId,
@@ -334,6 +346,16 @@ export function createComment(input: Validated<CommentInput>) {
 						updatedAt: occurredAt,
 					},
 					permissions: [],
+				});
+				await stageNotification(transactionId, {
+					version: 1,
+					eventId: `COMMENT_CREATED:${entityId}`,
+					type: "COMMENT",
+					actorId: viewer.id,
+					recipientId: String(post.userId),
+					targetId: id,
+					entityId,
+					occurredAt,
 				});
 			});
 			emitted = event("COMMENT_CREATED", viewer.id, post, entityId, occurredAt);

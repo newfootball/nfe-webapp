@@ -3,6 +3,7 @@ export function safeReturnPath(value: unknown, locale: "fr" | "en") {
 		"post/my",
 		"messages",
 		"private",
+		"notifications",
 		"onboarding",
 		"profile",
 		"profile/favorites",

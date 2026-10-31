@@ -16,6 +16,7 @@ export async function bootstrap() {
 			project: string;
 			proofKey: string;
 			messagingWriterKey: string;
+			notificationKey: string;
 			sessionKey: string;
 			writerKey: string;
 			readerKey: string;
@@ -112,6 +113,13 @@ export async function bootstrap() {
 	const config = {
 		project: "nfe-messaging",
 		messagingWriterKey: messagingWriterKey.secret,
+		notificationKey: (
+			await consoleRequest("/projects/nfe-messaging/keys", {
+				keyId: "notification-writer",
+				name: "Durable notification delivery",
+				scopes: ["rows.read", "rows.write"],
+			})
+		).secret,
 		proofKey: proofKey.secret,
 		sessionKey: sessionKey.secret,
 		writerKey: writerKey.secret,

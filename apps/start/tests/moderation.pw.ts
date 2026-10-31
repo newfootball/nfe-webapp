@@ -608,7 +608,13 @@ test("isolated moderation: SSR/RPC guards, spoof, unique reports, thresholds, bo
 	await expect(
 		page.getByRole("heading", { name: "Administration", exact: true }),
 	).toBeVisible();
-	const card = page.locator("article").filter({ hasText: "Synthetic detail" });
+	const card = page.locator("article").filter({
+		has: page.getByText(`${fresh.postId} · ${fresh.userId}`, { exact: true }),
+	});
+	await expect(card).toHaveCount(1);
+	await expect(
+		card.getByText("Synthetic detail", { exact: true }),
+	).toBeVisible();
 	await card
 		.getByRole("button", { name: "Retirer la publication", exact: true })
 		.click();

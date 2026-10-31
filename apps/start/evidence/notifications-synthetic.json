@@ -1,0 +1,56 @@
+{
+	"at": "2026-10-31T11:36:43.321Z",
+	"appwrite": "2.6.2",
+	"source": "synthetic only",
+	"testExit": 0,
+	"durability": {
+		"stageRollback": true,
+		"killedAfterBusinessCommitAndClaim": {
+			"signal": "SIGKILL",
+			"realLeaseExpired": true
+		},
+		"killedAfterStagedCreateBeforeAck": {
+			"signal": "SIGKILL",
+			"transactionRolledBack": true
+		},
+		"priorReadReceiptSurvivedKilledAck": true,
+		"oldAnchorLostToRealReclaim": {
+			"shortenedLeaseFixture": true,
+			"oldDelivered": 0,
+			"newDelivered": 1
+		}
+	},
+	"messageIntegration": {
+		"atomicRollback": true,
+		"concurrentDedupe": true,
+		"stableEventId": true,
+		"recipientOnlySDKRPC": true,
+		"readerLocales": ["fr", "en"],
+		"peerLink": true,
+		"replayPreservesReadAt": true,
+		"mismatchedAndDeletedMessageUnavailable": true
+	},
+	"databaseId": "notifications-proof",
+	"sensitiveScan": {
+		"files": 71,
+		"matches": 0
+	},
+	"buildSha256": "09f4654f2485283be0bed8115093eceadffa41ab7ca3e95cef6404ed61dd80da",
+	"limitations": [
+		"Notification58 synthetic proof only",
+		"MESSAGE integration covers synthetic accepted59 business producer only",
+		"No real import or production acceptance"
+	],
+	"sourceHead": "9dd65647b962a79e61675039abc755d4748b452d",
+	"unchangedBuildSourceHead": "e263b7b58abd8ebc4dd251e48a7593b1462d2e1d",
+	"sourceSha256": {
+		"apps/start/tests/notifications.pw.ts": "315803d616b66d57d5335fe753b08fff58edd8278e26da7220f499e5a3a68f73",
+		"apps/start/src/lib/notification-outbox.server.ts": "7962436f08e764901937b571247051efad9db6c9dd30e0d3c76e615239d03fdc",
+		"apps/start/src/lib/notification.server.ts": "31781d07fb27b6c84ac9bdf1f231e1340767f82f94fb40a7a0a9efcf7ddd6458",
+		"apps/start/src/lib/notification-contract.ts": "8fc7e68cdae6332a111cf13adba4ef8e4dabb005bc26df2310be6a80a2a022f7",
+		"apps/start/src/lib/messaging.server.ts": "9dc3bc31249a091a375741804c3cec8b0605ab8ddc7218730ed42f3521e0c2d4",
+		"apps/start/src/lib/follow.server.ts": "9dc803f6ffb687b2e4b95e5890f4299b24e4b0f09b5f64cf88569bde729dd3f3",
+		"apps/start/src/lib/interactions.server.ts": "cf0c7c40975484b98d73b5fd9086ea00cedec1b742b1e5e2def2261d3199ce3c",
+		"tools/appwrite-schema/notification-v1.mts": "8250f2c4b6aefcac471cfebf49de84e718895c576e88ea0f9a839e888735ff10"
+	}
+}

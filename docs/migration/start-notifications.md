@@ -1,11 +1,13 @@
 # Start private notifications (#58)
 
-This is a local implementation checkpoint, **not completed acceptance** of #58,
-#19, #32 or the combined #58/#59 acceptance. Accepted #59 core (main a36136c)
-is integrated normally; MESSAGE now stages on its business transaction. Accepted
-moderation main021b2f9 is also integrated without changing its contracts. The new
-combined runtime matrix still requires independent review and an exclusive lease.
-Production, representative import and legacy retirement remain outside this work.
+The local synthetic implementation is verified on reviewed source
+`9dd65647b962a79e61675039abc755d4748b452d`: all five notification scenarios pass,
+including atomic MESSAGE production from accepted #59. Its six-scenario messaging
+regression passed on `e263b7b58abd8ebc4dd251e48a7593b1462d2e1d`; independent
+review approved reuse because the final correction changes only notification
+test cookie decoding/redaction, docs and evidence. Production, representative
+source import and legacy retirement remain outside this work. Final review and
+merge of draft PR #92 belong to the coordinator; #19/#32 are referenced, not closed.
 
 ## Data and privacy
 
@@ -111,27 +113,41 @@ The SPA A→B→A test compares the original Query object to its replacement bef
 releasing that response. FR/EN browser timezone America/New_York differs from
 server TZ=UTC; initial date rendering uses deterministic ISO UTC numeric fields to avoid Bun/Node/browser ICU differences. Hidden/deleted actors,
 deleted targets and historical FOLLOW without target have explicit fallback checks.
-The first real matrix on prior head2dc0549 passed COMMENT/FOLLOW and durability
-but failed two scenarios with ICU date/hydration differences; it is not a full pass.
-On reviewed head513fa8e the real matrix passed4/5 scenarios: all existing
-notification privacy/pagination/read, COMMENT/FOLLOW, crash/recovery, deterministic
-FR/EN hydration, delayed SPA and hidden/deleted fallbacks passed. MESSAGE staging
-rollback, concurrent send dedupe/quota1, durable-only delivery and nonrecipient
-denials passed before recipient listing encountered an old fixture session
-revoked by scenario1 logout (independent Account.get returned401). The test now
-obtains a fresh session through the real application sign-in and also asserts
-that the revoked original session is denied. This corrected matrix, including
-FR/EN MESSAGE peer link, read receipt replay and mismatched/deleted-message
-fallback, is **not rerun yet** at this checkpoint. Original accepted messaging
-regression passed all6 scenarios against513fa8e with new notification setup;
-its evidence records that exact source/build and does not establish the new head.
-The next matrix on reviewed e263b7b again passed4/5: MESSAGE current-recipient
-RPC membership passed, then its SDK check received the encoded HTTP cookie and
-failed. The test now decodes that value exactly once for SDK.setSession only,
-retains the encoded cookie for HTTP, and redacts both forms. Its SDK positive and
-all negative/link/replay assertions remain. This final correction has not been
-rerun at this checkpoint. Original messaging regression again passed6/6 on
-e263b7b; product/business/config remain unchanged by this fixture-only correction. Unit parity uses actual Bun and Node subprocesses under UTC/Cairo/New
-York; the runtime matrix still requires independent review and a fresh lease.
+Actual isolated Appwrite 2.6.2 results:
+
+- All five notification scenarios pass on `9dd6564`, including recipient-only
+  anonymous/A/B/admin SDK and RPC checks, strict Origin, pagination, one/all read
+  and badge updates, FR/EN hydration, and delayed SPA A→B→A cancellation.
+- MESSAGE staging failure rolls back quota/message/conversation/outbox; concurrent
+  same-request sends use one message/event/quota unit. Delivery reads durable state,
+  yields one notification and preserves readAt on replay. The recipient follows the
+  FR/EN peer link to the real message; mismatched/deleted messages are unavailable.
+- Real SIGKILL after business commit/claim with actual 60-second lease expiry,
+  create-before-ack rollback, prior read receipt and stale-fence reclaim pass.
+- Original accepted messaging regression passes all six scenarios on `e263b7b`,
+  covering privacy, imported IDs, pagination, races, persistent quota, FR/EN,
+  optimistic rollback and delayed account switches. The reviewed fixture-only
+  correction leaves its source/configuration unchanged.
+
+[Notification evidence](../../apps/start/evidence/notifications-synthetic.json)
+records the executed source SHA, relevant source hashes, build SHA256,
+durability/MESSAGE outcomes and 71 client artifacts with zero sensitive matches.
+[Messaging evidence](../../apps/start/evidence/messaging-runtime.json) retains its
+actual source hashes and build fingerprint. Unit/date parity uses actual Bun and
+Node subprocesses under UTC/Cairo/New York. Static validation passes 106 tests /
+633 assertions, Start and schema typechecks, build/client scan and lint (warnings
+remain). Root/Start/schema frozen installs pass; lockfiles are unchanged.
+
+The real application sign-in provides a current recipient cookie. HTTP retains
+its encoded value, while direct SDK.setSession receives exactly one decoded
+value; both forms are kept in the private redaction list. The revoked original
+fixture session remains explicitly denied. Both Compose projects, including
+stopped containers, volumes, networks, listeners and private state, are removed
+at the end of the proof; no backend or delivery scheduler is left running.
+
 Both the distinct messaging rows.read/rows.write key and notification writer key
 must be configured; provision accepted `messaging-v1` alongside `notification-v1`.
+Typed legacy mapping and fallback satisfy the local migration contracts of #19
+and #32 without parsing names or storing localized text. The legacy Next/Prisma
+driver behavior and representative real-source migration are not changed or
+claimed by this isolated Start lot.

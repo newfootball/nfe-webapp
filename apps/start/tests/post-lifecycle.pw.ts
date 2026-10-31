@@ -1161,11 +1161,14 @@ for (const locale of ["fr", "en"] as const)
 			.click();
 		const video = card.locator("video");
 		await expect
-			.poll(() => video.evaluate((element) => element.readyState), {
-				timeout: 20000,
-			})
+			.poll(
+				() => video.evaluate((element: HTMLVideoElement) => element.readyState),
+				{
+					timeout: 20000,
+				},
+			)
 			.toBeGreaterThanOrEqual(1);
-		await video.evaluate(async (element) => {
+		await video.evaluate(async (element: HTMLVideoElement) => {
 			element.pause();
 			await new Promise<void>((resolve, reject) => {
 				const timer = setTimeout(
@@ -1184,7 +1187,7 @@ for (const locale of ["fr", "en"] as const)
 			});
 		});
 		expect(
-			await video.evaluate((element) => element.currentTime),
+			await video.evaluate((element: HTMLVideoElement) => element.currentTime),
 		).toBeGreaterThanOrEqual(4.5);
 		expect(responses).toContain(206);
 		// Re-prime cache after replacement, then archive through mounted owner controls.

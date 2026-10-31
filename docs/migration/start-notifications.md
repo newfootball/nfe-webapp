@@ -1,9 +1,10 @@
 # Start private notifications (#58)
 
 This is a local implementation checkpoint, **not completed acceptance** of #58,
-#19, #32 or #59. MESSAGE has a typed DTO/rendering contract only: #59 has not
-been accepted and no unreviewed messaging source is imported. Production,
-representative import and legacy retirement remain outside this work.
+#19, #32 or the combined #58/#59 acceptance. Accepted #59 core (main a36136c)
+is integrated normally; MESSAGE now stages on its business transaction. The new
+combined runtime matrix still requires independent review and an exclusive lease.
+Production, representative import and legacy retirement remain outside this work.
 
 ## Data and privacy
 
@@ -18,7 +19,10 @@ A `viewerId` assertion rejects stale account operations, including mark-all.
 No title, comment content, message text, auth credential or localized prose is
 stored in event metadata. Rendering resolves actor names keylessly and checks
 current public post/profile visibility; hidden/deleted targets get an explicit
-unavailable fallback. MESSAGE linking remains disabled pending #59.
+unavailable fallback. MESSAGE linking additionally reads the actual message using
+the current session, requiring the viewer to equal both recipients and the peer
+target to equal the sender. Missing, mismatched or deleted messages stay unavailable;
+there is no privileged message lookup or content in notification DTOs.
 
 Routes: `/fr/notifications`, `/en/notifications`. Pages use recipient-scoped
 business-date/ID cursors (20 items), an unread total across all pages, individual
@@ -31,6 +35,11 @@ Query state; keys also include identity and late mutations check cache ownership
 
 LIKE/COMMENT creation stages an internal event **inside the existing parent
 anchored transaction**. FOLLOW creation stages inside its new edge transaction.
+MESSAGE stages the validated accepted `messageEvent` inside the same transaction
+as its quota, message and conversation update, before commit. Its recipient is the
+business `toUserId`, peer target is the sender and entity is the actual message ID.
+A staging failure rolls all writes back; same-request replay returns the existing
+message without creating another event or consuming quota.
 Imported arbitrary edge IDs, unique pairs and existing event return DTOs remain
 intact. `stageNotification(transactionId,event)` is internal, runtime validates
 its DTO and cannot be called through RPC. FAVORITE/removal/self events do not
@@ -99,9 +108,14 @@ never RPC hooks. A runner-owned origin proxy controls backend staging failure an
 holds a real private read response, leaving the product service worker untouched.
 The SPA A→B→A test compares the original Query object to its replacement before
 releasing that response. FR/EN browser timezone America/New_York differs from
-server TZ=UTC; initial date rendering explicitly uses UTC. Hidden/deleted actors,
+server TZ=UTC; initial date rendering uses deterministic ISO UTC numeric fields to avoid Bun/Node/browser ICU differences. Hidden/deleted actors,
 deleted targets and historical FOLLOW without target have explicit fallback checks.
-These scenarios, the SDK/RPC privacy matrix and pagination/read badge tests are
-**authored but not executed yet** at this source checkpoint. Seven targeted units
-pass, including FR/EN date equality under UTC/Cairo/New York host timezones.
-MESSAGE producer/membership proof requires accepted59 before integration.
+The first real matrix on prior head2dc0549 passed COMMENT/FOLLOW and durability
+but failed two scenarios with ICU date/hydration differences; it is not a full pass.
+The updated matrix, including real MESSAGE rollback, concurrent/repeated send
+deduplication, recipient-only SDK/RPC reads, FR/EN peer link, preserved read receipt
+and mismatched/deleted-message fallback, is **authored but not executed** at this
+checkpoint. Unit parity uses actual Bun and Node subprocesses under UTC/Cairo/New
+York; the runtime matrix still requires independent review and a fresh lease.
+Both the distinct messaging rows.read/rows.write key and notification writer key
+must be configured; provision accepted `messaging-v1` alongside `notification-v1`.

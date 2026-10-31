@@ -30,6 +30,8 @@ export async function fixtures() {
 		`${directory}/notification-v1.mts`
 	);
 	await provisionNotificationV1(db, databaseId);
+	const { provisionMessaging } = await import(`${directory}/messaging.mts`);
+	await provisionMessaging(db, databaseId);
 	const file = `${state}/fixture.json`;
 	if (await Bun.file(file).exists()) {
 		const fixture = (await Bun.file(file).json()) as {

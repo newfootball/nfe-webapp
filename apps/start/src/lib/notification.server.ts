@@ -39,7 +39,11 @@ async function publicRow(tableId: string, id: string) {
 		return null;
 	}
 }
-async function presentation(row: Models.DefaultRow): Promise<Notification> {
+async function presentation(
+	row: Models.DefaultRow,
+	db: TablesDB,
+	viewerId: string,
+): Promise<Notification> {
 	const actor = row.actorId
 		? await publicRow("profiles", String(row.actorId))
 		: null;
@@ -53,8 +57,23 @@ async function presentation(row: Models.DefaultRow): Promise<Notification> {
 			const author = await publicRow("profiles", String(post.userId));
 			available = !!author?.isOnboarded;
 		}
+	} else if (row.targetId && row.type === "MESSAGE" && actor?.isOnboarded) {
+		try {
+			// Session ACL and explicit membership check; never use a privileged message read.
+			const message = await db.getRow({
+				databaseId: databaseId(),
+				tableId: "messages",
+				rowId: String(row.entityId),
+			});
+			available =
+				message.toUserId === viewerId &&
+				message.toUserId === row.recipientId &&
+				message.fromUserId === row.actorId &&
+				message.fromUserId === row.targetId;
+		} catch (e) {
+			if (!absent(e)) throw e;
+		}
 	}
-	// MESSAGE target linking stays disabled until accepted #59 integration proves membership.
 	return {
 		id: row.$id,
 		type: row.type,
@@ -127,7 +146,9 @@ export function readNotifications(input: Validated<NotificationPageInput>) {
 		const last = r.rows[19];
 		return {
 			viewerId: viewer.id,
-			notifications: await Promise.all(r.rows.slice(0, 20).map(presentation)),
+			notifications: await Promise.all(
+				r.rows.slice(0, 20).map((row) => presentation(row, db, viewer.id)),
+			),
 			unread: count.total,
 			nextCursor:
 				r.rows.length > 20 && last

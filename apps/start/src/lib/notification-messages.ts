@@ -55,5 +55,12 @@ export function notificationText(
 }
 
 export function formatNotificationDate(locale: Locale, value: string) {
-	return `${new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short", timeZone: "UTC" }).format(new Date(value))} UTC`;
+	// ISO UTC fields are stable across Bun, Node and browser ICU versions.
+	// toISOString retains the previous RangeError for an invalid timestamp.
+	const utc = new Date(value).toISOString();
+	const date =
+		locale === "fr"
+			? `${utc.slice(8, 10)}/${utc.slice(5, 7)}/${utc.slice(0, 4)}`
+			: utc.slice(0, 10);
+	return `${date} ${utc.slice(11, 16)} UTC`;
 }

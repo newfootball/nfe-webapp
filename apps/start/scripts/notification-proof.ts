@@ -20,6 +20,7 @@ const env = {
 	START_APPWRITE_INTERACTION_WRITER_KEY: c.writerKey,
 	START_APPWRITE_FOLLOW_WRITER_KEY: c.writerKey,
 	START_APPWRITE_NOTIFICATION_WRITER_KEY: c.notificationKey,
+	START_APPWRITE_MESSAGING_WRITER_KEY: c.messagingKey,
 	START_APPWRITE_FEED_READER_KEY: c.readerKey,
 	START_APPWRITE_DATABASE: databaseId,
 	START_AUTH_ALLOW_HTTP_LOOPBACK: "true",
@@ -33,6 +34,7 @@ const secrets = [
 	c.sessionKey,
 	c.readerKey,
 	c.notificationKey,
+	c.messagingKey,
 	...fixture.actors.flatMap((a: { secret: string; password: string }) => [
 		a.secret,
 		a.password,
@@ -115,6 +117,11 @@ try {
 				durability: (await Bun.file(`${state}/durability-result.json`).exists())
 					? await Bun.file(`${state}/durability-result.json`).json()
 					: null,
+				messageIntegration: (await Bun.file(
+					`${state}/message-result.json`,
+				).exists())
+					? await Bun.file(`${state}/message-result.json`).json()
+					: null,
 				databaseId,
 				sensitiveScan: { files: scanned, matches: 0 },
 				buildSha256: new Bun.CryptoHasher("sha256")
@@ -126,7 +133,7 @@ try {
 					.digest("hex"),
 				limitations: [
 					"Notification58 synthetic proof only",
-					"MESSAGE producer pending accepted59 integration",
+					"MESSAGE integration covers synthetic accepted59 business producer only",
 					"No real import or production acceptance",
 				],
 			},

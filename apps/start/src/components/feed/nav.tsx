@@ -33,6 +33,9 @@ export function FeedNav({
 			>
 				{feedMessages[locale].explore}
 			</Link>
+			<Link to="/$locale/messages" params={{ locale }}>
+				Messages
+			</Link>
 			{page === "post" && id ? (
 				<Link to="/$locale/post/$id" params={{ locale: other, id }}>
 					{label}

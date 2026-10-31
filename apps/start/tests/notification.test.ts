@@ -2,15 +2,20 @@ import { afterEach, expect, spyOn, test } from "bun:test";
 import { QueryClient } from "@tanstack/react-query";
 import { type Models, TablesDB } from "node-appwrite";
 import { clearIdentityCache } from "../src/lib/auth-cache";
+import { messageDTO, messageEvent } from "../src/lib/messaging-contract";
 import {
 	legacyNotification,
+	messageNotification,
 	NOTIFICATION_TYPES,
 } from "../src/lib/notification-contract";
 import {
 	validateNotificationMark,
 	validateNotificationPage,
 } from "../src/lib/notification-input";
-import { notificationText } from "../src/lib/notification-messages";
+import {
+	formatNotificationDate,
+	notificationText,
+} from "../src/lib/notification-messages";
 import {
 	deliverClaim,
 	notificationId,
@@ -137,6 +142,52 @@ test("stage uses the business transaction, stable event ID and no client ACL", a
 		create.mockRestore();
 	}
 });
+test("MESSAGE event maps accepted business identity without text and stages in the caller transaction", async () => {
+	environment();
+	const message = messageDTO(
+		{
+			$id: "imported.message-7",
+			fromUserId: "sender",
+			toUserId: "recipient",
+			content: "PRIVATE message text must never enter an event",
+			createdAt: "2026-10-30T00:00:00.000Z",
+			updatedAt: "2026-10-30T00:00:00.000Z",
+			readAt: null,
+		},
+		"sender",
+	);
+	const event = messageNotification(messageEvent(message));
+	expect(event).toEqual({
+		version: 1,
+		type: "MESSAGE",
+		eventId: "message:imported.message-7",
+		actorId: "sender",
+		recipientId: "recipient",
+		targetId: "sender",
+		entityId: "imported.message-7",
+		occurredAt: "2026-10-30T00:00:00.000Z",
+	});
+	const create = spyOn(TablesDB.prototype, "createRow").mockResolvedValue(
+		{} as never,
+	);
+	try {
+		await stageNotification("message-business-tx", event);
+		expect(create).toHaveBeenCalledWith(
+			expect.objectContaining({
+				transactionId: "message-business-tx",
+				rowId: notificationId("message:imported.message-7"),
+				data: expect.objectContaining({
+					recipientId: "recipient",
+					entityId: "imported.message-7",
+					type: "MESSAGE",
+				}),
+			}),
+		);
+		expect(JSON.stringify(create.mock.calls)).not.toContain(message.content);
+	} finally {
+		create.mockRestore();
+	}
+});
 test("delivery replay preserves already-read notification and atomically acknowledges outbox", async () => {
 	environment();
 	const now = new Date().toISOString(),
@@ -247,17 +298,23 @@ test("A→B→A cache switch cancels late A data and replaces mutation ownership
 	expect(client.getQueryCache().find({ queryKey: key })).not.toBe(owner);
 });
 
-test("FR/EN UTC first render is identical under distinct host timezones", () => {
-	for (const locale of ["fr", "en"]) {
-		const script = `import {formatNotificationDate} from ${JSON.stringify(new URL("../src/lib/notification-messages.ts", import.meta.url).pathname)}; process.stdout.write(formatNotificationDate(${JSON.stringify(locale)},"2026-10-30T10:00:00.000Z"));`;
-		const render = (TZ: string) => {
-			const result = Bun.spawnSync(["bun", "-e", script], {
-				env: { ...process.env, TZ },
-			});
-			expect(result.exitCode).toBe(0);
-			return result.stdout.toString();
-		};
-		expect(render("UTC")).toBe(render("America/New_York"));
-		expect(render("Africa/Cairo")).toContain("10:00");
+test("FR/EN UTC first render matches Bun and Node across host timezones", () => {
+	for (const [locale, expected] of [
+		["fr", "30/10/2026 10:00 UTC"],
+		["en", "2026-10-30 10:00 UTC"],
+	] as const) {
+		const script = `import {formatNotificationDate} from ${JSON.stringify(new URL("../src/lib/notification-messages.ts", import.meta.url).href)}; process.stdout.write(formatNotificationDate(${JSON.stringify(locale)},"2026-10-30T10:00:00.000Z"));`;
+		for (const runtime of ["bun", "node"])
+			for (const TZ of ["UTC", "America/New_York", "Africa/Cairo"]) {
+				const result = Bun.spawnSync(
+					[runtime, "--input-type=module", "-e", script],
+					{
+						env: { ...process.env, TZ },
+					},
+				);
+				expect(result.exitCode).toBe(0);
+				expect(result.stdout.toString()).toBe(expected);
+			}
 	}
+	expect(() => formatNotificationDate("fr", "invalid")).toThrow(RangeError);
 });

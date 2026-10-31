@@ -30,6 +30,19 @@ export type NotificationPage = {
 	nextCursor: string | null;
 	unread: number;
 };
+// Use the accepted business event, never RPC return text or a caller-supplied recipient.
+export function messageNotification(event: MessageEvent): NotificationEvent {
+	return {
+		version: event.version,
+		eventId: event.eventId,
+		type: event.type,
+		actorId: event.actorId,
+		recipientId: event.recipientId,
+		targetId: event.actorId,
+		entityId: event.messageId,
+		occurredAt: event.occurredAt,
+	};
+}
 // Migration trusts the stored enum, never a substring or a username inside localized prose.
 // Historical names/text cannot establish identity: actor stays explicitly unknown.
 export function legacyNotification(input: {
@@ -50,3 +63,5 @@ export function legacyNotification(input: {
 		occurredAt: input.createdAt,
 	};
 }
+
+import type { MessageEvent } from "./messaging-contract";

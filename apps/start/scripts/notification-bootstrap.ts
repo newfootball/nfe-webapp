@@ -19,6 +19,7 @@ export async function bootstrap() {
 			writerKey: string;
 			readerKey: string;
 			notificationKey: string;
+			messagingKey: string;
 		};
 	let cookie = "";
 	async function consoleRequest(
@@ -116,6 +117,13 @@ export async function bootstrap() {
 		writerKey: writerKey.secret,
 		readerKey: readerKey.secret,
 		notificationKey: notificationKey.secret,
+		messagingKey: (
+			await consoleRequest("/projects/nfe-notifications/keys", {
+				keyId: "messaging-writer",
+				name: "Validated private messaging mutations",
+				scopes: ["rows.read", "rows.write"],
+			})
+		).secret,
 	};
 	await Bun.write(`${state}/credentials.json`, JSON.stringify(config));
 	await chmod(`${state}/credentials.json`, 0o600);

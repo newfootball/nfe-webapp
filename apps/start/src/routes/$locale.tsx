@@ -62,6 +62,9 @@ function Layout() {
 					{authMessages[locale].private}
 				</Link>
 				<NotificationBell locale={locale} />
+				<Link to="/$locale/messages" params={{ locale }}>
+					Messages
+				</Link>
 				<ThemeToggle label={t.theme} />
 			</header>
 			<main className="py-16">

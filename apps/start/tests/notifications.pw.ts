@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { chmod, open, readFile, writeFile } from "node:fs/promises";
+import { chmod, open, readdir, readFile, writeFile } from "node:fs/promises";
 import { setTimeout as sleep } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 import { type APIResponse, expect, test } from "@playwright/test";
@@ -45,6 +45,7 @@ const secrets = [
 	process.env.NFE_NOTIFICATION_PROXY_TOKEN ?? "proxy-token-not-set",
 	c.proofKey,
 	c.notificationKey,
+	c.messagingKey,
 	c.writerKey,
 	c.readerKey,
 	c.sessionKey,
@@ -770,6 +771,241 @@ test("real staging rollback, process death, transactional create/ack rollback an
 		newDelivered: 1,
 	};
 	await writeFile(`${state}/durability-result.json`, JSON.stringify(proof));
+});
+
+// Discover actual built RPC IDs; no test endpoint or product bypass.
+async function rpcURL(name: string) {
+	const directory = fileURLToPath(
+		new URL("../dist/server/assets/", import.meta.url),
+	);
+	for (const file of await readdir(directory)) {
+		const source = await readFile(`${directory}/${file}`, "utf8");
+		const start = source.indexOf(`var ${name} = createServerFn(`);
+		const match =
+			start < 0
+				? null
+				: source.slice(start).match(/createSsrRpc\("([a-f0-9]+)"/);
+		if (match?.[1]) return `${origin}/_serverFn/${match[1]}`;
+	}
+	throw new Error(`Missing built RPC ${name}`);
+}
+
+test("accepted MESSAGE producer rolls back staging failure and delivers one private localized peer link", async ({
+	page,
+	context,
+	request,
+}) => {
+	const sendUrl = await rpcURL("sendMessage");
+	const content = "PRIVATE-MESSAGE-CONTENT-NEVER-IN-NOTIFICATION";
+	const input = { toUserId: b.id, content, requestId: crypto.randomUUID() };
+	const send = async () =>
+		result<Reply<{ message: { id: string }; event: { eventId: string } }>>(
+			await request.post(sendUrl, {
+				headers: headers(a.secret),
+				data: JSON.stringify(toJSON({ data: input })),
+			}),
+		);
+	const before = await Promise.all(
+		[
+			"messages",
+			"message_limits",
+			"message_conversations",
+			"notification_outbox_v1",
+		].map(rows),
+	);
+	await control({ failStage: true });
+	try {
+		expect(await send()).toEqual({ ok: false, error: "unavailable" });
+		const after = await Promise.all(
+			[
+				"messages",
+				"message_limits",
+				"message_conversations",
+				"notification_outbox_v1",
+			].map(rows),
+		);
+		expect(after.map((r) => r.rows)).toEqual(before.map((r) => r.rows));
+	} finally {
+		await control();
+	}
+	const replies = await Promise.all([send(), send()]);
+	for (const reply of replies) expect(reply.ok).toBe(true);
+	const sent = replies[0];
+	if (!sent?.ok) throw new Error("MESSAGE send failed");
+	const id = sent.value.message.id;
+	for (const reply of replies)
+		if (reply.ok) expect(reply.value.message.id).toBe(id);
+	expect(
+		(await rows("messages")).rows.filter((r) => r.$id === id),
+	).toHaveLength(1);
+	expect(
+		(await rows("message_limits")).rows
+			.filter((r) => r.senderId === a.id)
+			.map((r) => r.count),
+	).toEqual([1]);
+	let events = (await rows("notification_outbox_v1")).rows.filter(
+		(r) => r.type === "MESSAGE",
+	);
+	expect(events).toHaveLength(1);
+	const event = events[0];
+	if (!event) throw new Error("MESSAGE durable event missing");
+	expect(event).toMatchObject({
+		eventId: `message:${id}`,
+		actorId: a.id,
+		recipientId: b.id,
+		targetId: a.id,
+		entityId: id,
+		status: "PENDING",
+	});
+	expect(JSON.stringify(event)).not.toContain(content);
+	expect(
+		(await rows("notifications_v1")).rows.filter((r) => r.type === "MESSAGE"),
+	).toHaveLength(0);
+	// Delivery starts only from durable provider state after the business RPC completed.
+	await Promise.all([consumeNotifications(), consumeNotifications()]);
+	const delivered = (await rows("notifications_v1")).rows.filter(
+		(r) => r.type === "MESSAGE",
+	);
+	expect(delivered).toHaveLength(1);
+	expect(delivered[0]?.$id).toBe(event.$id);
+	for (const who of [null, a, admin]) {
+		const sdk = new TablesDB(who ? base().setSession(who.secret) : base());
+		await expect(
+			sdk.getRow({ databaseId, tableId: "notifications_v1", rowId: event.$id }),
+		).rejects.toBeDefined();
+		expect(
+			(
+				await sdk.listRows({
+					databaseId,
+					tableId: "notifications_v1",
+					queries: [Query.equal("type", "MESSAGE")],
+				})
+			).total,
+		).toBe(0);
+	}
+	const listUrl = await rpcURL("getNotifications");
+	const list = async (secret: string, viewerId = b.id) => {
+		const url = new URL(listUrl);
+		url.searchParams.set(
+			"payload",
+			JSON.stringify(toJSON({ data: { viewerId, cursor: null } })),
+		);
+		const response = await request.get(url.href, { headers: headers(secret) });
+		expect(await response.text()).not.toContain(content);
+		return result<Reply<NotificationPage>>(response);
+	};
+	expect(await list("")).toEqual({ ok: false, error: "unauthorized" });
+	for (const who of [a, admin])
+		expect(await list(who.secret)).toEqual({ ok: false, error: "forbidden" });
+	const found = await list(b.secret);
+	if (!found.ok) throw new Error("Recipient list failed");
+	expect(
+		found.value.notifications.find((n) => n.id === event.$id)?.target,
+	).toEqual({ id: a.id, available: true });
+	await context.addCookies([
+		{
+			name: "nfe-session-dev",
+			value: b.secret,
+			url: origin,
+			httpOnly: true,
+			sameSite: "Lax",
+		},
+	]);
+	for (const locale of ["fr", "en"] as const) {
+		await page.goto(`/${locale}/notifications`);
+		const messageItem = page.locator(
+			'[data-testid="notification-item"][data-type="MESSAGE"]',
+		);
+		await expect(messageItem).toHaveCount(1);
+		await expect(messageItem).toContainText(
+			locale === "fr"
+				? "Public notifications-a vous a envoyé un message"
+				: "Public notifications-a sent you a message",
+		);
+		await expect(messageItem.getByRole("link")).toHaveAttribute(
+			"href",
+			`/${locale}/messages/${a.id}`,
+		);
+		await expect(messageItem).not.toContainText(content);
+	}
+	await page
+		.locator('[data-testid="notification-item"][data-type="MESSAGE"]')
+		.getByRole("link")
+		.click();
+	await expect(page.locator(`[data-message-id="${id}"]`)).toContainText(
+		content,
+	);
+	const markUrl = await rpcURL("setNotificationsRead");
+	const read = async () =>
+		result<Reply<unknown>>(
+			await request.post(markUrl, {
+				headers: headers(),
+				data: JSON.stringify(
+					toJSON({ data: { viewerId: b.id, mode: "one", id: event.$id } }),
+				),
+			}),
+		);
+	expect(await read()).toMatchObject({ ok: true });
+	const receipt = await db.getRow({
+		databaseId,
+		tableId: "notifications_v1",
+		rowId: event.$id,
+	});
+	expect(receipt.readAt).not.toBeNull();
+	expect((await send()).ok).toBe(true);
+	await consumeNotifications();
+	events = (await rows("notification_outbox_v1")).rows.filter(
+		(r) => r.type === "MESSAGE",
+	);
+	expect(events).toHaveLength(1);
+	expect(
+		(
+			await db.getRow({
+				databaseId,
+				tableId: "notifications_v1",
+				rowId: event.$id,
+			})
+		).readAt,
+	).toBe(receipt.readAt);
+	// A readable notification cannot manufacture a link to another sender's message.
+	await db.updateRow({
+		databaseId,
+		tableId: "notifications_v1",
+		rowId: event.$id,
+		data: { targetId: admin.id },
+	});
+	const mismatch = await list(b.secret);
+	if (!mismatch.ok) throw new Error("Recipient mismatch list failed");
+	expect(
+		mismatch.value.notifications.find((n) => n.id === event.$id)?.target
+			.available,
+	).toBe(false);
+	await db.updateRow({
+		databaseId,
+		tableId: "notifications_v1",
+		rowId: event.$id,
+		data: { targetId: a.id },
+	});
+	await db.deleteRow({ databaseId, tableId: "messages", rowId: id });
+	const deleted = await list(b.secret);
+	if (!deleted.ok) throw new Error("Recipient deleted list failed");
+	expect(
+		deleted.value.notifications.find((n) => n.id === event.$id)?.target
+			.available,
+	).toBe(false);
+	await writeFile(
+		`${state}/message-result.json`,
+		JSON.stringify({
+			atomicRollback: true,
+			concurrentDedupe: true,
+			stableEventId: true,
+			recipientOnlySDKRPC: true,
+			readerLocales: ["fr", "en"],
+			peerLink: true,
+			replayPreservesReadAt: true,
+			mismatchedAndDeletedMessageUnavailable: true,
+		}),
+	);
 });
 
 test("legacy unknown target, FR/EN distinct timezone hydration, delayed SPA A-B-A and hidden/deleted fallback", async ({

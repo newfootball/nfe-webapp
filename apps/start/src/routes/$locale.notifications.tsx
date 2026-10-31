@@ -95,6 +95,13 @@ function Page() {
 						</time>
 						{!item.target.available || !item.target.id ? (
 							<p>{t.unavailable}</p>
+						) : item.type === "MESSAGE" ? (
+							<Link
+								to="/$locale/messages/$id"
+								params={{ locale, id: item.target.id }}
+							>
+								{locale === "fr" ? "Voir le message" : "View message"}
+							</Link>
 						) : item.type === "FOLLOW" ? (
 							<Link
 								to="/$locale/user/$id"

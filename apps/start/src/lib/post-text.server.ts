@@ -74,7 +74,7 @@ function writer() {
 		throw new AuthFailure("unavailable");
 	return new TablesDB(client(c).setKey(key));
 }
-function revision(row: Models.DefaultRow) {
+export function postRevision(row: Models.DefaultRow) {
 	// Backend revision plus business snapshot: opaque token, never an authority claim.
 	return createHash("sha256")
 		.update(JSON.stringify(fields.map((f) => row[f])))
@@ -144,7 +144,7 @@ export function readOwnPosts(input: Validated<OwnPostsInput>) {
 			throw new AuthFailure("forbidden");
 		const posts = result.rows
 				.slice(0, v.limit)
-				.map((r) => ownPostDTO(r, revision(r))),
+				.map((r) => ownPostDTO(r, postRevision(r))),
 			last = posts.at(-1);
 		return {
 			ownerId: viewer.id,
@@ -161,7 +161,7 @@ export function readOwnPost(input: Validated<{ id: string }>) {
 		const { viewer, db } = await self();
 		if (!input.valid) throw new AuthFailure("invalid");
 		const row = await own(db, input.data.id, viewer.id);
-		return ownPostDTO(row, revision(row));
+		return ownPostDTO(row, postRevision(row));
 	});
 }
 export function editPostText(input: Validated<EditPostTextInput>) {
@@ -171,7 +171,8 @@ export function editPostText(input: Validated<EditPostTextInput>) {
 		if (!input.valid) throw new AuthFailure("invalid");
 		const v = input.data,
 			before = await own(db, v.id, viewer.id);
-		if (revision(before) !== v.expectedRevision) throw new Failure("conflict");
+		if (postRevision(before) !== v.expectedRevision)
+			throw new Failure("conflict");
 		const write = writer(),
 			tx = await write.createTransaction({ ttl: 60 });
 		try {
@@ -193,9 +194,10 @@ export function editPostText(input: Validated<EditPostTextInput>) {
 				},
 			});
 			const live = await own(db, v.id, viewer.id);
-			if (revision(live) !== v.expectedRevision) throw new Failure("conflict");
+			if (postRevision(live) !== v.expectedRevision)
+				throw new Failure("conflict");
 			// Validate the response before committing; never replace ACLs/media/business dates.
-			const value = ownPostDTO(changed, revision(changed));
+			const value = ownPostDTO(changed, postRevision(changed));
 			await write.updateTransaction({ transactionId: tx.$id, commit: true });
 			return value;
 		} catch (e) {

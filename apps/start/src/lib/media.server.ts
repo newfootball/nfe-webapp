@@ -234,6 +234,11 @@ export async function signedMedia(id: string) {
 			}),
 			{ expiresIn: config.START_MEDIA_READ_TTL_SECONDS },
 		);
+		// Recheck after signing so a concurrent detachment cannot return a fresh capability.
+		const live = await row(mediaDB(), assetTable, id);
+		if (live.$updatedAt !== a.$updatedAt || live.versionId !== a.versionId)
+			throw new AuthFailure("forbidden");
+		await canRead(live);
 		await denyRejectedParent(a);
 		return {
 			url,

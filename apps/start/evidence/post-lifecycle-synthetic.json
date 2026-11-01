@@ -1,0 +1,41 @@
+{
+	"status": "passed",
+	"source": "synthetic only",
+	"appwrite": "2.6.2",
+	"project": "nfe-lifecycle-56",
+	"base": "accepted55 + social57",
+	"retention": "immediate exact known synthetic versions only; legacy retained fail-closed",
+	"phases": [
+		{
+			"phase": "normal",
+			"exit": 0
+		},
+		{
+			"phase": "replacement-failure",
+			"exit": 0
+		},
+		{
+			"phase": "withdrawal-failure",
+			"exit": 0
+		},
+		{
+			"phase": "version-failure",
+			"exit": 0
+		},
+		{
+			"phase": "crash",
+			"exit": 0
+		},
+		{
+			"phase": "recovery",
+			"exit": 0
+		}
+	],
+	"noProductionClaim": true,
+	"cleanup": {
+		"knownKeys": 22,
+		"extraVersions": 2,
+		"complete": true
+	},
+	"corsRestored": true
+}

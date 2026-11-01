@@ -1,4 +1,6 @@
 import { readdir, readFile, writeFile } from "node:fs/promises";
+import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { type APIRequestContext, expect, test } from "@playwright/test";
 import { fromCrossJSON, toJSON } from "seroval";
 import { state } from "../scripts/moderation-local";
@@ -6,6 +8,7 @@ import { state } from "../scripts/moderation-local";
 // This file is run only by the isolated account proof runner, against its own fixtures.
 if (process.env.NFE_ACCOUNT_DELETION_SYNTHETIC !== "1")
 	throw new Error("Dedicated account deletion proof required");
+const testDirectory = dirname(fileURLToPath(import.meta.url));
 const origin = "http://127.0.0.1:3574";
 const fixture = JSON.parse(await readFile(`${state}/fixture.json`, "utf8")) as {
 	actors: { id: string; secret: string; password: string }[];
@@ -13,10 +16,10 @@ const fixture = JSON.parse(await readFile(`${state}/fixture.json`, "utf8")) as {
 const [a, b, admin] = fixture.actors;
 if (!a || !b || !admin) throw new Error("A/B/admin fixtures missing");
 const ids = new Map<string, string>();
-for (const file of await readdir(`${import.meta.dir}/../dist/server/assets`)) {
+for (const file of await readdir(`${testDirectory}/../dist/server/assets`)) {
 	if (!file.endsWith(".js")) continue;
 	const code = await readFile(
-		`${import.meta.dir}/../dist/server/assets/${file}`,
+		`${testDirectory}/../dist/server/assets/${file}`,
 		"utf8",
 	);
 	for (const name of [

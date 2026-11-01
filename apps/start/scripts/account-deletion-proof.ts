@@ -20,6 +20,17 @@ import { endpoint, state } from "./moderation-local";
 async function main() {
 	assert.equal(process.env.NFE_ACCOUNT_DELETION_SYNTHETIC, "1");
 	assert.equal(endpoint, "http://127.0.0.1:18160/v1");
+	const node = Bun.spawn(["node", "--version"], {
+		stdout: "pipe",
+		stderr: "ignore",
+		timeout: 3000,
+	});
+	assert.equal(await node.exited, 0);
+	assert.match(
+		(await new Response(node.stdout).text()).trim(),
+		/^v24\./,
+		"Node24 required for the browser runner",
+	);
 	assert(await Bun.file(`${state}/compose.json`).exists());
 	const { c, fixture } = await fixtures();
 	const keys = c as typeof c & {
@@ -508,7 +519,6 @@ async function main() {
 				[
 					"bun",
 					"x",
-					"--bun",
 					"--no-install",
 					"playwright",
 					"test",
@@ -524,12 +534,21 @@ async function main() {
 					stderr: Bun.file(out),
 				},
 			);
-			const exit = await Promise.race([
-				tests.exited,
-				Bun.sleep(1_200_000).then(() => {
-					throw new Error("Proof deadline exceeded");
-				}),
-			]);
+			let timer: ReturnType<typeof setTimeout> | undefined;
+			let exit: number;
+			try {
+				exit = await Promise.race([
+					tests.exited,
+					new Promise<never>((_, reject) => {
+						timer = setTimeout(
+							() => reject(new Error("Proof deadline exceeded")),
+							1_200_000,
+						);
+					}),
+				]);
+			} finally {
+				clearTimeout(timer);
+			}
 			tests = undefined;
 			assert.equal(
 				exit,

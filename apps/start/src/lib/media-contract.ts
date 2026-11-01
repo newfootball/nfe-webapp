@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { FeedIdSchema } from "./feed-input";
 
-export const AssetIdSchema = z.string().uuid();
+export const AssetIdSchema = FeedIdSchema;
+export const RequestIdSchema = z.string().uuid();
 export const AssetKindSchema = z.enum(["video", "thumbnail", "avatar"]);
 export const AssetStateSchema = z.enum([
 	"ALLOCATED",
@@ -14,7 +15,7 @@ export const AssetStateSchema = z.enum([
 ]);
 export const AllocateAssetSchema = z.strictObject({
 	// Stable across retries. A different file must use a new requestId.
-	requestId: AssetIdSchema,
+	requestId: RequestIdSchema,
 	kind: AssetKindSchema,
 	byteSize: z
 		.number()
@@ -33,7 +34,7 @@ export const PostMediaRequestSchema = z.strictObject({
 	kind: z.enum(["video", "thumbnail"]),
 });
 export const PublishPostSchema = z.strictObject({
-	requestId: AssetIdSchema,
+	requestId: RequestIdSchema,
 	title: z.string().trim().min(1).max(200),
 	description: z.string().trim().max(10_000),
 	videoId: AssetIdSchema,
@@ -75,7 +76,7 @@ export const mediaPath = (assetId: string) =>
 export function canonicalImage(value: string | null) {
 	return value === "/logo.svg" ||
 		(value !== null &&
-			/^\/media\/[a-f0-9-]{36}$/.test(value) &&
+			value.startsWith("/media/") &&
 			AssetIdSchema.safeParse(value.slice(7)).success)
 		? value
 		: null;

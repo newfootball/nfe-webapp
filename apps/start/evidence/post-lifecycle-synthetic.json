@@ -1,5 +1,5 @@
 {
-	"status": "failed",
+	"status": "passed",
 	"source": "synthetic only",
 	"appwrite": "2.6.2",
 	"project": "nfe-lifecycle-56",
@@ -8,16 +8,32 @@
 	"phases": [
 		{
 			"phase": "normal",
-			"exit": 1
+			"exit": 0
+		},
+		{
+			"phase": "replacement-failure",
+			"exit": 0
+		},
+		{
+			"phase": "withdrawal-failure",
+			"exit": 0
+		},
+		{
+			"phase": "version-failure",
+			"exit": 0
+		},
+		{
+			"phase": "crash",
+			"exit": 0
+		},
+		{
+			"phase": "recovery",
+			"exit": 0
 		}
 	],
 	"noProductionClaim": true,
-	"failure": {
-		"name": "AssertionError",
-		"message": "Lifecycle phase normal\n\n1 !== 0\n"
-	},
 	"cleanup": {
-		"knownKeys": 6,
+		"knownKeys": 22,
 		"extraVersions": 2,
 		"complete": true
 	},

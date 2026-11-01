@@ -67,6 +67,10 @@ export async function fixtureSetup() {
 	const { provisionLifecycleV1 } = await import(`${schema}/lifecycle-v1.mts`);
 	await provisionLifecycleV1(db, databaseId);
 	await provisionLifecycleV1(db, databaseId);
+	const { provisionNotificationV1 } = await import(
+		`${schema}/notification-v1.mts`
+	);
+	await provisionNotificationV1(db, databaseId);
 	const actors = [],
 		users = new Users(
 			new Client()

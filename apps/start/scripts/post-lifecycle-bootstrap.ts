@@ -22,6 +22,7 @@ export async function bootstrap() {
 			lifecycleWriterKey: string;
 			postWriterKey: string;
 			interactionWriterKey: string;
+			notificationWriterKey: string;
 			readerKey: string;
 		};
 	let cookie = "";
@@ -126,10 +127,12 @@ export async function bootstrap() {
 	const lifecycleWriterKey = await keyFor("lifecycle-writer");
 	const postWriterKey = await keyFor("post-text-writer");
 	const interactionWriterKey = await keyFor("interaction-writer");
+	const notificationWriterKey = await keyFor("notification-writer");
 	const config = {
 		lifecycleWriterKey,
 		postWriterKey,
 		interactionWriterKey,
+		notificationWriterKey,
 		mediaWriterKey: mediaWriter.secret,
 		mediaReaderKey: mediaReader.secret,
 		project: "nfe-lifecycle-56",

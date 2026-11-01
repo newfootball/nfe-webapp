@@ -168,6 +168,7 @@ try {
 			START_APPWRITE_FEED_READER_KEY: c.readerKey,
 			START_APPWRITE_POST_TEXT_WRITER_KEY: c.postWriterKey,
 			START_APPWRITE_INTERACTION_WRITER_KEY: c.interactionWriterKey,
+			START_APPWRITE_NOTIFICATION_WRITER_KEY: c.notificationWriterKey,
 			START_APPWRITE_MEDIA_WRITER_KEY: c.mediaWriterKey,
 			START_APPWRITE_MEDIA_READER_KEY: c.mediaReaderKey,
 			START_APPWRITE_LIFECYCLE_WRITER_KEY: c.lifecycleWriterKey,
@@ -393,7 +394,7 @@ try {
 	await mkdir(`${import.meta.dir}/../evidence`, { recursive: true });
 	await Bun.write(
 		`${import.meta.dir}/../evidence/post-lifecycle-synthetic.json`,
-		JSON.stringify(report, null, 2) + "\n",
+		JSON.stringify(report, null, "\t") + "\n",
 	);
 }
 

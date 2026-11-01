@@ -1,6 +1,6 @@
 import { afterEach, expect, spyOn, test } from "bun:test";
 import { QueryClient } from "@tanstack/react-query";
-import { type Models, TablesDB } from "node-appwrite";
+import { AppwriteException, type Models, TablesDB } from "node-appwrite";
 import { clearIdentityCache } from "../src/lib/auth-cache";
 import { messageDTO, messageEvent } from "../src/lib/messaging-contract";
 import {
@@ -36,6 +36,7 @@ function environment() {
 		START_APPWRITE_SESSION_KEY: "synthetic-session-only",
 		START_APPWRITE_DATABASE: "notification-proof",
 		START_APPWRITE_NOTIFICATION_WRITER_KEY: "synthetic-writer-only",
+		START_APPWRITE_ACCOUNT_LIFECYCLE_WRITER_KEY: "synthetic-account-only",
 	});
 }
 test("strict recipient boundary rejects forged roles and actor metadata", () => {
@@ -205,7 +206,10 @@ test("delivery replay preserves already-read notification and atomically acknowl
 		async (args) =>
 			(typeof args !== "string" && args.tableId === "notification_outbox_v1"
 				? row
-				: { ...row, readAt: "2026-10-29T00:00:00.000Z" }) as never,
+				: typeof args !== "string" &&
+						args.tableId === "account_lifecycle_anchors"
+					? { $updatedAt: now, state: "ACTIVE" }
+					: { ...row, readAt: "2026-10-29T00:00:00.000Z" }) as never,
 	);
 	const create = spyOn(TablesDB.prototype, "createRow").mockImplementation(
 		async () => {
@@ -227,8 +231,8 @@ test("delivery replay preserves already-read notification and atomically acknowl
 	);
 	try {
 		await deliverClaim(row);
-		expect(writes).toHaveLength(2);
-		expect(writes[1]).toMatchObject({
+		expect(writes).toHaveLength(3);
+		expect(writes[2]).toMatchObject({
 			tableId: "notification_outbox_v1",
 			transactionId: "delivery-tx",
 			data: { status: "DELIVERED" },
@@ -265,7 +269,7 @@ test("stale outbox claim cannot acknowledge or deliver", async () => {
 		row as never,
 	);
 	try {
-		await expect(deliverClaim(row)).rejects.toThrow("fence changed");
+		await expect(deliverClaim(row)).rejects.toMatchObject({ code: 409 });
 		expect(end).toHaveBeenCalledWith({ transactionId: "tx", rollback: true });
 	} finally {
 		for (const s of [get, begin, end, update]) s.mockRestore();
@@ -317,4 +321,194 @@ test("FR/EN UTC first render matches Bun and Node across host timezones", () => 
 			}
 	}
 	expect(() => formatNotificationDate("fr", "invalid")).toThrow(RangeError);
+});
+
+test("delivery cannot recreate a notification for a deleting participant", async () => {
+	environment();
+	const row = {
+		$id: "notification-id",
+		$updatedAt: "1",
+		eventId: "message:m",
+		claim: "claim",
+		leaseUntil: new Date(Date.now() + 60000).toISOString(),
+		status: "PENDING",
+		actorId: "alice",
+		recipientId: "bob",
+	} as unknown as Models.DefaultRow;
+	const get = spyOn(TablesDB.prototype, "getRow").mockImplementation(
+		async (args) => {
+			if (
+				typeof args !== "string" &&
+				args.tableId === "account_lifecycle_anchors"
+			)
+				return {
+					state: args.rowId === "bob" ? "PREPARING" : "ACTIVE",
+					$updatedAt: "1",
+				} as never;
+			return row as never;
+		},
+	);
+	const create = spyOn(TablesDB.prototype, "createRow").mockResolvedValue(
+		{} as never,
+	);
+	const update = spyOn(TablesDB.prototype, "updateRow").mockResolvedValue(
+		row as never,
+	);
+	const begin = spyOn(
+		TablesDB.prototype,
+		"createTransaction",
+	).mockResolvedValue({ $id: "tx" } as never);
+	const end = spyOn(TablesDB.prototype, "updateTransaction").mockResolvedValue(
+		{} as never,
+	);
+	try {
+		await expect(deliverClaim(row)).rejects.toThrow();
+		expect(create).not.toHaveBeenCalled();
+		expect(end).toHaveBeenCalledWith({ transactionId: "tx", rollback: true });
+	} finally {
+		for (const s of [get, create, update, begin, end]) s.mockRestore();
+	}
+});
+
+test("transient account contention retries the whole notification transaction", async () => {
+	const { notificationTransaction } = await import(
+		"../src/lib/notification-outbox.server"
+	);
+	let attempts = 0;
+	const db = {
+		createTransaction: async () => ({ $id: `tx${++attempts}` }),
+		updateTransaction: async () => ({}),
+	} as unknown as TablesDB;
+	const result = await notificationTransaction(db, async (tx) => {
+		if (tx === "tx1")
+			throw new AppwriteException("contention", 409, "account_anchor_conflict");
+		return tx;
+	});
+	expect(result).toBe("tx2");
+	expect(attempts).toBe(2);
+});
+
+test("repeated exhausted contention and failed release never consume delivery attempts", async () => {
+	environment();
+	const { consumeNotifications } = await import(
+		"../src/lib/notification-outbox.server"
+	);
+	let outbox: Record<string, unknown> = {
+		$id: "n",
+		$updatedAt: "1",
+		eventId: "message:m",
+		type: "MESSAGE",
+		actorId: "a",
+		recipientId: "b",
+		targetId: "a",
+		entityId: "m",
+		source: "business",
+		occurredAt: new Date().toISOString(),
+		status: "PENDING",
+		attempts: 0,
+		nextAttemptAt: new Date(0).toISOString(),
+		claim: null,
+		leaseUntil: null,
+	};
+	let notification: Record<string, unknown> | null = null;
+	let seq = 0,
+		failRelease = true,
+		collisions = 0;
+	const staged = new Map<
+		string,
+		Array<{ table: string; data: Record<string, unknown> }>
+	>();
+	const list = spyOn(TablesDB.prototype, "listRows").mockImplementation(
+		async () => ({ rows: [outbox], total: 1 }) as never,
+	);
+	const get = spyOn(TablesDB.prototype, "getRow").mockImplementation(
+		async (args) => {
+			if (typeof args === "string") throw new Error("unexpected");
+			if (args.tableId === "account_lifecycle_anchors")
+				return { state: "ACTIVE", $updatedAt: "1" } as never;
+			if (args.tableId === "notification_outbox_v1")
+				return { ...outbox } as never;
+			if (notification) return notification as never;
+			throw new AppwriteException("missing", 404, "row_not_found");
+		},
+	);
+	const begin = spyOn(
+		TablesDB.prototype,
+		"createTransaction",
+	).mockImplementation(async () => {
+		const id = `t${++seq}`;
+		staged.set(id, []);
+		return { $id: id } as never;
+	});
+	const update = spyOn(TablesDB.prototype, "updateRow").mockImplementation(
+		async (args) => {
+			if (typeof args === "string") throw new Error("unexpected");
+			staged.get(String(args.transactionId))?.push({
+				table: args.tableId,
+				data: args.data as Record<string, unknown>,
+			});
+			return {} as never;
+		},
+	);
+	const create = spyOn(TablesDB.prototype, "createRow").mockImplementation(
+		async (args) => {
+			if (typeof args === "string") throw new Error("unexpected");
+			staged.get(String(args.transactionId))?.push({
+				table: args.tableId,
+				data: args.data as Record<string, unknown>,
+			});
+			return {} as never;
+		},
+	);
+	const end = spyOn(TablesDB.prototype, "updateTransaction").mockImplementation(
+		async (args) => {
+			if (typeof args === "string") throw new Error("unexpected");
+			const writes = staged.get(args.transactionId) ?? [];
+			if (
+				args.commit &&
+				failRelease &&
+				writes.some(
+					(w) => w.table === "notification_outbox_v1" && w.data.claim === null,
+				)
+			)
+				throw new AppwriteException("release collision", 409, "conflict");
+			if (args.commit)
+				for (const w of writes) {
+					if (w.table === "notification_outbox_v1")
+						outbox = { ...outbox, ...w.data, $updatedAt: String(++seq) };
+					if (w.table === "notifications_v1") notification = w.data;
+				}
+			staged.delete(args.transactionId);
+			return {} as never;
+		},
+	);
+	try {
+		for (let round = 0; round < 7; round++) {
+			collisions = 0;
+			await consumeNotifications(1, {
+				afterFence: async () => {
+					collisions++;
+					throw new AppwriteException(
+						"contention",
+						409,
+						"account_anchor_conflict",
+					);
+				},
+			});
+			expect(collisions).toBe(4);
+			expect(outbox).toMatchObject({ status: "PENDING", attempts: 0 });
+			// First release collides; simulate expiry before another worker takes over.
+			outbox.leaseUntil = new Date(0).toISOString();
+			failRelease = false;
+		}
+		await consumeNotifications(1);
+		expect(outbox).toMatchObject({ status: "DELIVERED", attempts: 0 });
+		expect(notification).toMatchObject({
+			eventId: "message:m",
+			recipientId: "b",
+		});
+	} finally {
+		for (const spy of [list, get, begin, update, create, end])
+			spy.mockRestore();
+	}
 });

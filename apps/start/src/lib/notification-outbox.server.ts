@@ -9,6 +9,7 @@ import {
 	TablesDB,
 } from "node-appwrite";
 import { z } from "zod";
+import { fenceAccounts } from "./account-lifecycle-anchor.server";
 import { AuthFailure, client, configuration } from "./auth-context.server";
 import type { NotificationEvent } from "./notification-contract";
 import { NOTIFICATION_TYPES } from "./notification-contract";
@@ -25,6 +26,11 @@ const EventSchema = z.strictObject({
 	occurredAt: z.iso.datetime({ precision: 3 }),
 });
 export const OUTBOX_ATTEMPTS = 5;
+class NotificationContention extends AppwriteException {
+	constructor() {
+		super("Notification contention", 409, "notification_contention");
+	}
+}
 // Internal operator/test-runner callbacks only; no RPC or environment switch.
 export type NotificationDeliveryHooks = {
 	afterClaim?: (row: Models.DefaultRow) => Promise<void>;
@@ -94,17 +100,21 @@ export async function notificationTransaction<T>(
 	db: TablesDB,
 	run: (transactionId: string) => Promise<T>,
 ) {
-	const tx = await db.createTransaction({ ttl: 60 });
-	try {
-		const result = await run(tx.$id);
-		await db.updateTransaction({ transactionId: tx.$id, commit: true });
-		return result;
-	} catch (e) {
+	for (let attempt = 0; attempt < 4; attempt++) {
+		const tx = await db.createTransaction({ ttl: 60 });
 		try {
-			await db.updateTransaction({ transactionId: tx.$id, rollback: true });
-		} catch {}
-		throw e;
+			const result = await run(tx.$id);
+			await db.updateTransaction({ transactionId: tx.$id, commit: true });
+			return result;
+		} catch (e) {
+			try {
+				await db.updateTransaction({ transactionId: tx.$id, rollback: true });
+			} catch {}
+			if (!(e instanceof AppwriteException && e.code === 409)) throw e;
+			if (attempt === 3) throw new NotificationContention();
+		}
 	}
+	throw new AuthFailure("unavailable");
 }
 const isMissing = (e: unknown) =>
 	e instanceof AppwriteException && e.code === 404;
@@ -140,7 +150,7 @@ async function fenced<T>(
 		});
 		const current = await c.db.getRow(ref);
 		if (current.$updatedAt !== row.$updatedAt || current.claim !== row.claim)
-			throw new Error("Outbox fence changed");
+			throw new NotificationContention();
 		await afterFence?.(row, tx);
 		return run(tx);
 	});
@@ -155,7 +165,7 @@ async function claim(row: Models.DefaultRow) {
 		return null;
 	const c = notificationConnection(),
 		token = randomUUID(),
-		attempts = Number(row.attempts) + 1;
+		attempts = Number(row.attempts);
 	await fenced(row, (tx) =>
 		c.db.updateRow({
 			databaseId: c.databaseId,
@@ -166,11 +176,11 @@ async function claim(row: Models.DefaultRow) {
 				claim: token,
 				attempts,
 				leaseUntil: new Date(now + 60000).toISOString(),
-				status: attempts > OUTBOX_ATTEMPTS ? "FAILED" : "PENDING",
+				status: attempts >= OUTBOX_ATTEMPTS ? "FAILED" : "PENDING",
 			},
 		}),
 	);
-	if (attempts > OUTBOX_ATTEMPTS) return null;
+	if (attempts >= OUTBOX_ATTEMPTS) return null;
 	const claimed = await c.db.getRow({
 		databaseId: c.databaseId,
 		tableId: "notification_outbox_v1",
@@ -189,10 +199,14 @@ export async function deliverClaim(
 			rowId: row.$id,
 		};
 	if (!row.claim || Date.parse(String(row.leaseUntil)) <= Date.now())
-		throw new Error("Expired outbox claim");
+		throw new NotificationContention();
 	await fenced(
 		row,
 		async (transactionId) => {
+			await fenceAccounts(transactionId, [
+				String(row.recipientId),
+				...(row.actorId ? [String(row.actorId)] : []),
+			]);
 			const existing = await optionalRow(c.db, ref);
 			if (
 				existing &&
@@ -219,7 +233,7 @@ export async function deliverClaim(
 				});
 			await hooks.beforeAck?.(row, transactionId);
 			if (Date.parse(String(row.leaseUntil)) <= Date.now())
-				throw new Error("Expired outbox claim");
+				throw new NotificationContention();
 			await c.db.updateRow({
 				databaseId: c.databaseId,
 				tableId: "notification_outbox_v1",
@@ -270,10 +284,12 @@ export async function consumeNotifications(
 			await hooks.afterClaim?.(owned);
 			await deliverClaim(owned, hooks);
 			delivered++;
-		} catch {
-			failed++;
+		} catch (error) {
+			const contention = error instanceof NotificationContention;
+			if (!contention) failed++;
 			if (owned) {
 				const claimed = owned;
+				const attempts = Number(claimed.attempts) + (contention ? 0 : 1);
 				try {
 					await fenced(owned, (tx) =>
 						c.db.updateRow({
@@ -282,12 +298,10 @@ export async function consumeNotifications(
 							rowId: claimed.$id,
 							transactionId: tx,
 							data: {
-								status:
-									Number(claimed.attempts) >= OUTBOX_ATTEMPTS
-										? "FAILED"
-										: "PENDING",
+								status: attempts >= OUTBOX_ATTEMPTS ? "FAILED" : "PENDING",
+								attempts,
 								nextAttemptAt: new Date(
-									Date.now() + 1000 * 2 ** Number(claimed.attempts),
+									Date.now() + (contention ? 0 : 1000 * 2 ** attempts),
 								).toISOString(),
 								claim: null,
 								leaseUntil: null,

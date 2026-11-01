@@ -8,6 +8,7 @@ import {
 	Role,
 	TablesDB,
 } from "node-appwrite";
+import { fenceAccounts } from "./account-lifecycle-anchor.server";
 import {
 	AuthFailure,
 	boundary,
@@ -118,6 +119,14 @@ function concurrentReplay(error: unknown, following: boolean) {
 		error instanceof AppwriteException && error.code === (following ? 409 : 404)
 	);
 }
+export async function verifyFollowReplay(
+	error: unknown,
+	following: boolean,
+	readPair: () => Promise<unknown>,
+) {
+	if (!concurrentReplay(error, following)) throw error;
+	if (!!(await readPair()) !== following) throw error;
+}
 export function changeFollow(input: Validated<FollowInput>) {
 	return boundary(async (): Promise<FollowChange> => {
 		mutation();
@@ -135,6 +144,7 @@ export function changeFollow(input: Validated<FollowInput>) {
 			if (following && !before) {
 				const db = writer();
 				await notificationTransaction(db, async (transactionId) => {
+					await fenceAccounts(transactionId, [viewer.id, id]);
 					await db.createRow({
 						databaseId,
 						tableId: "follows",
@@ -160,10 +170,15 @@ export function changeFollow(input: Validated<FollowInput>) {
 					});
 				});
 			} else if (!following && before) {
-				await writer().deleteRow({
-					databaseId,
-					tableId: "follows",
-					rowId: edgeId,
+				const db = writer();
+				await notificationTransaction(db, async (transactionId) => {
+					await fenceAccounts(transactionId, [viewer.id, id]);
+					await db.deleteRow({
+						databaseId,
+						tableId: "follows",
+						rowId: edgeId,
+						transactionId,
+					});
 				});
 			} else return { state: await state(id, viewer.id), event: null };
 			event = {
@@ -177,7 +192,7 @@ export function changeFollow(input: Validated<FollowInput>) {
 		} catch (e) {
 			// Unique pair covers imported edges with arbitrary IDs as well as concurrent
 			// creates. A missing delete was already applied by a concurrent request.
-			if (!concurrentReplay(e, following)) throw e;
+			await verifyFollowReplay(e, following, () => pair(viewer.id, id));
 		}
 		return { state: await state(id, viewer.id), event };
 	});

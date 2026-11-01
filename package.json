@@ -21,7 +21,8 @@
 		"dev:start": "bun run --cwd apps/start dev",
 		"build:start": "bun run --cwd apps/start build",
 		"typecheck:start": "bun run --cwd apps/start typecheck",
-		"smoke:start": "bun run --cwd apps/start smoke"
+		"smoke:start": "bun run --cwd apps/start smoke",
+		"local:start": "bun run --cwd apps/start local"
 	},
 	"packageManager": "bun@1.3.3",
 	"dependencies": {

@@ -139,13 +139,30 @@ test("foreground app exit tears down its consumer and supervisor polling", async
 	await Bun.write(`${root}/server.ts`, "await Bun.sleep(100);process.exit(0);");
 	await Bun.write(
 		`${root}/scripts/local-runtime-consumer.ts`,
-		`await Bun.write(${JSON.stringify(consumerPid)},JSON.stringify(process.pid));setInterval(()=>{},1000);`,
+		`await Bun.write(${JSON.stringify(consumerPid)},JSON.stringify({pid:process.pid,accountKey:process.env.START_APPWRITE_ACCOUNT_LIFECYCLE_WRITER_KEY,unrelated:process.env.START_GOOGLE_SECRET}));setInterval(()=>{},1000);`,
 	);
 	const original = process.env.PATH;
 	process.env.PATH = `${root}:${dirname(process.execPath)}:${original ?? ""}`;
 	let runtime: Awaited<ReturnType<typeof launchRuntime>> | undefined;
 	try {
-		runtime = await launchRuntime(root, {}, undefined, { stateDirectory });
+		runtime = await launchRuntime(
+			root,
+			{
+				START_APPWRITE_ACCOUNT_LIFECYCLE_WRITER_KEY: "synthetic-account-key",
+				START_GOOGLE_SECRET: "synthetic-unrelated-secret",
+			},
+			undefined,
+			{ stateDirectory },
+		);
+		for (
+			let attempt = 0;
+			attempt < 100 && !(await Bun.file(consumerPid).exists());
+			attempt++
+		)
+			await Bun.sleep(10);
+		const child = await Bun.file(consumerPid).json();
+		expect(child.accountKey).toBe("synthetic-account-key");
+		expect(child.unrelated).toBeUndefined();
 		expect(await runtime.wait()).toBe(0);
 		const result = await runtime.stop();
 		expect(result.every((item) => item.ok)).toBe(true);

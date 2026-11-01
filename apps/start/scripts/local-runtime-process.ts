@@ -77,6 +77,8 @@ export async function launchRuntime(
 				"START_APPWRITE_SESSION_KEY",
 				"START_AUTH_ALLOW_HTTP_LOOPBACK",
 				"START_APPWRITE_NOTIFICATION_WRITER_KEY",
+				"START_APPWRITE_ACCOUNT_LIFECYCLE_WRITER_KEY",
+				"START_ACCOUNT_DELETION_SYNTHETIC_PROJECT",
 			].map((key) => [key, config[key]]),
 		);
 		consumer = Bun.spawn(

@@ -30,3 +30,11 @@ bun scripts/moderation-local.ts down
 The proof uses its own Appwrite namespace on loopback ports 18160/3574 and exact pre-recorded B2 development keys. Credentials, fixture identities and raw diagnostics belong only in the private ignored .moderation-local directory. Preserve the manifest and diagnostics before down if a check fails. Do not reuse this recipe for production.
 
 The test source covers a real confirmation click, two-key transactional exclusion, both-direction messages and social relations, public/session withdrawal, exact version and multipart cleanup, foreign data retention, and recovery after process crashes and real lease expiry. Execution results must be recorded separately; source and passing unit checks do not prove these service scenarios.
+
+## Verified synthetic result
+
+The source checkpoint a9c4ab7 passed all nine scenarios across the four phases on actual Appwrite 2.6.2 and B2. The final journal reached DONE after both process crashes and actual lease expiry. An independent SDK listing confirmed zero versions and multipart uploads for all seven manifested fixture keys after cleanup. See apps/start/evidence/account-deletion-synthetic.json. This is local synthetic evidence, not production or representative-data acceptance.
+
+Playwright runs through Bunx using Node 24. A standalone cookie-clear reproduction failed inside Playwright under Bun and passed under Node 24; the browser recipe now checks the runtime and retains the same functional assertions.
+
+The persistent local runtime also passed its 16 checks with the new foreground consumer, including reproducible packaging, browser login, dependency outages, process restart and container recreation. Its original eight credential fields and 22 configuration fields were preserved; only the dedicated account credential and its two configuration entries were added. A separate owned-row probe confirmed Appwrite’s actual conflict type is transaction_conflict.

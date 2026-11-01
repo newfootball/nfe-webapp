@@ -1,3 +1,4 @@
+export class DeadlineExceeded extends Error {}
 export type CleanupAction = {
 	name: string;
 	timeoutMs: number;
@@ -53,7 +54,10 @@ export async function withDeadline<T>(
 		return await Promise.race([
 			work,
 			new Promise<never>((_, reject) => {
-				timeout = setTimeout(() => reject(new Error("deadline")), milliseconds);
+				timeout = setTimeout(
+					() => reject(new DeadlineExceeded("deadline")),
+					milliseconds,
+				);
 			}),
 		]);
 	} finally {

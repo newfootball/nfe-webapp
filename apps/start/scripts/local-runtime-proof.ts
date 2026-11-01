@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { chmod, rm } from "node:fs/promises";
-import { chromium } from "@playwright/test";
-import { Account, Client, TablesDB, Users } from "node-appwrite";
+import { Account, Client, Query, TablesDB, Users } from "node-appwrite";
 import {
 	command,
 	composeArgs,
@@ -11,12 +10,12 @@ import {
 	verifyRelease,
 } from "./local-runtime";
 import type { Credentials } from "./local-runtime-bootstrap";
+import { revokeCreatedSessions } from "./local-runtime-browser-sessions";
+import { cleanupAll } from "./local-runtime-cleanup";
+import { ownedCommand } from "./local-runtime-command";
+import { foregroundCancellation, launchRuntime } from "./local-runtime-process";
 import {
-	cleanupAll,
-	stopOwnedProcess,
-	withDeadline,
-} from "./local-runtime-cleanup";
-import {
+	appRoot,
 	createPrivate,
 	databaseId,
 	endpoint,
@@ -28,7 +27,6 @@ import {
 	readPrivate,
 	state,
 } from "./local-runtime-state";
-import { superviseDependencies } from "./local-runtime-supervisor";
 
 async function proof() {
 	assert.equal(
@@ -37,12 +35,26 @@ async function proof() {
 		"Explicit exclusive backend lease required",
 	);
 	let server: ReturnType<typeof Bun.spawn> | undefined;
-	let browser: Awaited<ReturnType<typeof chromium.launch>> | undefined;
 	let secret: string | undefined;
-	let browserServer:
-		| Awaited<ReturnType<typeof chromium.launchServer>>
+	let revokeBrowserSessions:
+		| ((signal: AbortSignal) => Promise<void>)
 		| undefined;
-	let supervisor: Awaited<ReturnType<typeof superviseDependencies>> | undefined;
+	const browserSession = `${state}/browser-session-${crypto.randomUUID()}.json`;
+	async function readBrowserSession() {
+		if (!(await Bun.file(browserSession).exists())) return;
+		const value = await readPrivate<{ cookie: string; secret: string }>(
+			browserSession,
+		);
+		assert.ok(value.cookie && value.secret);
+		secret = value.secret;
+		protectedValues.push(value.cookie, value.secret);
+		return value;
+	}
+	let supervisor:
+		| Awaited<ReturnType<typeof launchRuntime>>["supervisor"]
+		| undefined;
+	let runtime: Awaited<ReturnType<typeof launchRuntime>> | undefined;
+	const foreground = foregroundCancellation();
 	let artifactDigest: string | undefined;
 	let succeeded = false;
 	let phase = "prepare";
@@ -50,21 +62,21 @@ async function proof() {
 	const checks: string[] = [];
 	async function record(name: string, run: () => Promise<void>) {
 		phase = name;
+		if (foreground.signal.aborted) throw new Error("Proof cancelled");
 		await run();
 		checks.push(name);
 	}
 	async function stopApp() {
-		try {
-			if (server) {
-				const exit = await stopOwnedProcess(server);
-				assert.equal(exit, 0, "App did not gracefully exit");
-				server = undefined;
-			}
-		} finally {
-			if (supervisor) {
-				await supervisor.stop();
-				supervisor = undefined;
-			}
+		if (runtime) {
+			const results = await runtime.stop();
+			assert.ok(
+				results.every((result) => result.ok),
+				"Owned foreground cleanup failed",
+			);
+			assert.equal(runtime.app.exitCode, 0, "App did not gracefully exit");
+			runtime = undefined;
+			server = undefined;
+			supervisor = undefined;
 		}
 	}
 	const request = (path: string, cookie?: string) =>
@@ -75,17 +87,16 @@ async function proof() {
 		});
 	async function startApp(digest: string) {
 		const directory = await verifyRelease(digest);
-		supervisor = await superviseDependencies();
 		const log = `${state}/proof-server.log`;
 		await Bun.write(log, "");
 		await chmod(log, 0o600);
-		server = Bun.spawn([process.execPath, `${directory}/app.js`], {
-			cwd: directory,
-			env: { ...(await runtimeConfig()), ...supervisor.env },
-			stdout: Bun.file(log),
-			stderr: Bun.file(log),
+		runtime = await launchRuntime(directory, await runtimeConfig(), log, {
+			signal: foreground.signal,
 		});
+		server = runtime.app;
+		supervisor = runtime.supervisor;
 		for (let attempt = 0; attempt < 80; attempt++) {
+			if (foreground.signal.aborted) throw new Error("Proof startup cancelled");
 			try {
 				if ((await request("/_local/ready")).status === 200) return;
 			} catch {}
@@ -96,18 +107,29 @@ async function proof() {
 		throw new Error("Artifact readiness timed out");
 	}
 	try {
-		await main("prepare");
+		await record(
+			"Node24 browser runtime is verified before backend startup",
+			async () => {
+				const version = await ownedCommand(["node", "--version"], appRoot, {
+					timeoutMs: 3000,
+					signal: foreground.signal,
+					env: { PATH: process.env.PATH },
+				});
+				assert.match(version.trim(), /^v24\.\d+\.\d+$/);
+			},
+		);
+		await main("prepare", undefined, foreground.signal);
 		const composeBefore = hash(await Bun.file(`${state}/compose.json`).text());
-		await main("prepare");
+		await main("prepare", undefined, foreground.signal);
 		assert.equal(
 			hash(await Bun.file(`${state}/compose.json`).text()),
 			composeBefore,
 		);
 		checks.push("repeat prepare preserves private compose bytes");
 		phase = "backend up";
-		await main("up");
+		await main("up", undefined, foreground.signal);
 		phase = "provision";
-		await main("provision");
+		await main("provision", undefined, foreground.signal);
 		const credentials = await readPrivate<Credentials>(
 			`${state}/credentials.json`,
 		);
@@ -119,6 +141,7 @@ async function proof() {
 		protectedValues.push(
 			credentials.provision,
 			credentials.health,
+			credentials.notification,
 			credentials.session,
 			credentials.reader,
 			credentials.writer,
@@ -166,11 +189,38 @@ async function proof() {
 		await record(
 			"repeat provision preserves identities, rows, dates and configuration",
 			async () => {
-				await main("provision");
+				await main("provision", undefined, foreground.signal);
 				assert.deepEqual(await snapshot(), before);
 				assert.deepEqual(await fingerprints(), configBefore);
 			},
 		);
+		Object.assign(process.env, await runtimeConfig());
+		const { notificationId, notificationTransaction, stageLegacyNotification } =
+			await import("../src/lib/notification-outbox.server");
+		const deliveryEvent = "legacy:local-runtime-smoke-v1",
+			deliveryId = notificationId(deliveryEvent);
+		try {
+			await db.getRow({
+				databaseId,
+				tableId: "notification_outbox_v1",
+				rowId: deliveryId,
+			});
+		} catch (error) {
+			if ((error as { code?: number }).code !== 404) throw error;
+			await notificationTransaction(db, (tx) =>
+				stageLegacyNotification(tx, {
+					version: 1,
+					eventId: deliveryEvent,
+					type: "FOLLOW",
+					actorId: null,
+					recipientId: fixture.id,
+					targetId: null,
+					entityId: fixture.id,
+					occurredAt: "2026-10-31T00:00:00.000Z",
+				}),
+			);
+		}
+
 		const first = await release(),
 			second = await release();
 		artifactDigest = first.digest;
@@ -183,33 +233,97 @@ async function proof() {
 			assert.equal(response.status, 200);
 			assert.ok((await response.text()).includes("<html"));
 		});
-		browserServer = await chromium.launchServer({
-			channel: process.env.PLAYWRIGHT_CHANNEL || undefined,
-		});
-		browser = await chromium.connect(browserServer.wsEndpoint());
-		const context = await browser.newContext();
-		const page = await context.newPage();
-		await page.goto(`${origin}/fr/private`);
-		assert.ok(page.url().includes("/fr/sign-in"));
-		await page.getByLabel("Adresse e-mail").fill(fixture.email);
-		await page.getByLabel("Mot de passe").fill(fixture.password);
-		await page.getByRole("button", { name: "Connexion", exact: true }).click();
-		await page.getByTestId("identity").waitFor();
-		assert.equal(await page.getByTestId("identity").innerText(), fixture.id);
-		const cookie = (await context.cookies()).find(
-			(c) => c.name === "nfe-session-dev",
+		await record(
+			"foreground consumer delivers one durable synthetic event",
+			async () => {
+				let delivered = false;
+				for (let i = 0; i < 60; i++) {
+					try {
+						await db.getRow({
+							databaseId,
+							tableId: "notifications_v1",
+							rowId: deliveryId,
+						});
+						delivered = true;
+						break;
+					} catch (error) {
+						if ((error as { code?: number }).code !== 404) throw error;
+					}
+					await Bun.sleep(250);
+				}
+				assert.ok(delivered);
+				assert.equal(
+					(
+						await db.getRow({
+							databaseId,
+							tableId: "notification_outbox_v1",
+							rowId: deliveryId,
+						})
+					).status,
+					"DELIVERED",
+				);
+			},
 		);
-		assert.ok(cookie?.httpOnly && cookie.sameSite === "Lax");
-		secret = cookie.value;
-		const cookieHeader = `nfe-session-dev=${secret}`;
+
+		const baselineSessions = await users.listSessions({ userId: fixture.id });
+		assert.equal(baselineSessions.sessions.length, baselineSessions.total);
+		revokeBrowserSessions = async (signal) => {
+			const path = `${endpoint}/users/${encodeURIComponent(fixture.id)}/sessions`;
+			const headers = {
+				"X-Appwrite-Project": projectId,
+				"X-Appwrite-Key": credentials.provision,
+			};
+			await revokeCreatedSessions(
+				baselineSessions.sessions.map((session) => session.$id),
+				async () => {
+					const response = await fetch(path, { headers, signal });
+					assert.ok(response.ok);
+					return (await response.json()) as {
+						total: number;
+						sessions: { $id: string }[];
+					};
+				},
+				async (id) => {
+					const response = await fetch(`${path}/${encodeURIComponent(id)}`, {
+						method: "DELETE",
+						headers,
+						signal,
+					});
+					assert.ok(response.ok || response.status === 404);
+				},
+			);
+		};
+		phase = "bounded Node24 browser login";
+		await ownedCommand(
+			[
+				"node",
+				`${appRoot}/scripts/local-runtime-browser.mjs`,
+				`${state}/fixture.json`,
+				browserSession,
+			],
+			appRoot,
+			{
+				timeoutMs: 60_000,
+				signal: foreground.signal,
+				env: {
+					PATH: process.env.PATH,
+					HOME: process.env.HOME,
+					PLAYWRIGHT_CHANNEL: process.env.PLAYWRIGHT_CHANNEL,
+				},
+			},
+		);
+		const browserIdentity = await readBrowserSession();
+		assert.ok(browserIdentity);
+		const cookieHeader = `nfe-session-dev=${browserIdentity.cookie}`;
 		protectedValues.push(
 			credentials.provision,
 			credentials.health,
+			credentials.notification,
 			credentials.session,
 			credentials.reader,
 			credentials.writer,
 			fixture.password,
-			secret,
+			browserIdentity.secret,
 		);
 		await record(
 			"browser login and direct private SSR with real Appwrite session",
@@ -225,10 +339,6 @@ async function proof() {
 				assert.ok((await profile.text()).includes("Synthetic local player"));
 			},
 		);
-		await browser.close();
-		browser = undefined;
-		await browserServer.close();
-		browserServer = undefined;
 		await record(
 			"graceful app stop and same-artifact restart retain login",
 			async () => {
@@ -238,6 +348,16 @@ async function proof() {
 					(await (await request("/fr/private", cookieHeader)).text()).includes(
 						fixture.id,
 					),
+				);
+				assert.equal(
+					(
+						await db.listRows({
+							databaseId,
+							tableId: "notifications_v1",
+							queries: [Query.equal("eventId", deliveryEvent)],
+						})
+					).total,
+					1,
 				);
 			},
 		);
@@ -303,7 +423,7 @@ async function proof() {
 		await record(
 			"backend restart preserves persistent identity, profile, config and session",
 			async () => {
-				await main("up");
+				await main("up", undefined, foreground.signal);
 				assert.equal((await request("/_local/ready")).status, 200);
 				assert.equal(
 					(await users.get({ userId: fixture.id })).$createdAt,
@@ -357,7 +477,7 @@ async function proof() {
 				const volumesBefore = await inspectVolumes();
 				await command([...composeArgs, "down", "--timeout", "30"]);
 				assert.equal((await request("/_local/ready")).status, 503);
-				await main("up");
+				await main("up", undefined, foreground.signal);
 				const idsAfter = (await command([...composeArgs, "ps", "--all", "-q"]))
 					.trim()
 					.split("\n")
@@ -407,7 +527,7 @@ async function proof() {
 			new Client()
 				.setEndpoint(endpoint)
 				.setProject(projectId)
-				.setSession(secret),
+				.setSession(browserIdentity.secret),
 		).deleteSession({ sessionId: "current" });
 		secret = undefined;
 		succeeded = true;
@@ -416,20 +536,10 @@ async function proof() {
 	} finally {
 		const cleanup = await cleanupAll([
 			{
-				name: "browser",
-				timeoutMs: 8000,
-				run: async () => {
-					try {
-						if (browser) await withDeadline(browser.close(), 3000);
-					} finally {
-						if (browserServer) await browserServer.kill();
-					}
-				},
-			},
-			{
 				name: "session",
 				timeoutMs: 5000,
 				run: async (signal) => {
+					if (!secret) await readBrowserSession();
 					if (secret) {
 						const response = await fetch(
 							`${endpoint}/account/sessions/current`,
@@ -448,18 +558,21 @@ async function proof() {
 				},
 			},
 			{
-				name: "app",
-				timeoutMs: 18000,
-				run: async () => {
-					if (server) await stopOwnedProcess(server);
+				name: "browser-created sessions",
+				timeoutMs: 5000,
+				run: async (signal) => {
+					await revokeBrowserSessions?.(signal);
 				},
 			},
 			{
-				name: "supervisor",
-				timeoutMs: 6000,
+				name: "foreground",
+				timeoutMs: 45_000,
 				run: async () => {
-					if (supervisor) await supervisor.stop();
-					await rm(`${state}/dependencies.json`, { force: true });
+					if (runtime) {
+						const result = await runtime.stop();
+						if (result.some((item) => !item.ok))
+							throw new Error("Foreground cleanup failed");
+					}
 				},
 			},
 			{
@@ -472,6 +585,13 @@ async function proof() {
 							undefined,
 							{ timeoutMs: 40_000, signal },
 						);
+				},
+			},
+			{
+				name: "browser handoff",
+				timeoutMs: 1000,
+				run: async () => {
+					await rm(browserSession, { force: true });
 				},
 			},
 		]);
@@ -500,6 +620,7 @@ async function proof() {
 		};
 		await createPrivate(`${state}/proof-${Date.now()}.json`, result);
 		succeeded = result.succeeded;
+		foreground.dispose();
 	}
 	if (!succeeded) throw new Error("Proof or owned cleanup failed");
 	process.stdout.write(

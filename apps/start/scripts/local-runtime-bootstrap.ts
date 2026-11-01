@@ -29,6 +29,7 @@ const scopes = {
 		"rows.write",
 	],
 	health: ["health.read"],
+	notification: ["rows.read", "rows.write"],
 	session: ["sessions.write"],
 	reader: ["rows.read"],
 	writer: ["rows.write"],
@@ -36,12 +37,45 @@ const scopes = {
 export type Credentials = {
 	project: string;
 	health: string;
+	notification: string;
 	provision: string;
 	session: string;
 	reader: string;
 	writer: string;
 };
 const configPath = `${state}/runtime.json`;
+export async function ensureConsoleSession(
+	request: (path: string, body?: object) => Promise<unknown>,
+	account: { id: string; email: string; password: string },
+) {
+	const login = { email: account.email, password: account.password };
+	try {
+		await request("/account/sessions/email", login);
+		return;
+	} catch (error) {
+		if (![401, 404].includes((error as { code?: number }).code ?? 0))
+			throw error;
+	}
+	await request("/account", {
+		userId: account.id,
+		...login,
+		name: "Synthetic local console",
+	});
+	await request("/account/sessions/email", login);
+}
+export async function ensureConsoleResource(
+	request: (path: string, body?: object) => Promise<unknown>,
+	path: string,
+	id: string,
+	body: object,
+) {
+	try {
+		return await request(`${path}/${id}`);
+	} catch (error) {
+		if ((error as { code?: number }).code !== 404) throw error;
+	}
+	return await request(path, body);
+}
 export async function bootstrap() {
 	const consoleAccount = await loadOrCreate(`${state}/console.json`, () => ({
 		id: "local-console",
@@ -78,26 +112,13 @@ export async function bootstrap() {
 			keys?: { $id: string; secret: string; scopes: string[] }[];
 		};
 	}
-	async function ensure(path: string, body: object) {
-		try {
-			return await request(path, body);
-		} catch (error) {
-			if ((error as { code?: number }).code !== 409) throw error;
-		}
-	}
-	await ensure("/account", {
-		userId: consoleAccount.id,
-		email: consoleAccount.email,
-		password: consoleAccount.password,
-		name: "Synthetic local console",
-	});
-	await request("/account/sessions/email", {
-		email: consoleAccount.email,
-		password: consoleAccount.password,
-	});
+	await ensureConsoleSession(request, consoleAccount);
 	try {
-		await ensure("/teams", { teamId: "local-team", name: "Synthetic local" });
-		await ensure("/projects", {
+		await ensureConsoleResource(request, "/teams", "local-team", {
+			teamId: "local-team",
+			name: "Synthetic local",
+		});
+		await ensureConsoleResource(request, "/projects", projectId, {
 			projectId,
 			name: "NFE synthetic local",
 			teamId: "local-team",
@@ -111,6 +132,7 @@ export async function bootstrap() {
 			credentials = {
 				project: projectId,
 				health: "",
+				notification: "",
 				provision: "",
 				session: "",
 				reader: "",
@@ -122,6 +144,7 @@ export async function bootstrap() {
 				"reader",
 				"writer",
 				"health",
+				"notification",
 			] as const) {
 				const keyId = `local-${name}`;
 				const found = keys.find((k) => k.$id === keyId);
@@ -180,6 +203,10 @@ export async function provisionLocal(credentials: Credentials) {
 	await provisionProfileV2(db, databaseId);
 	await provisionMediaV3(db, databaseId);
 	await provisionMessaging(db, databaseId);
+	const { provisionNotificationV1 } = await import(
+		`${directory}/notification-v1.mts`
+	);
+	await provisionNotificationV1(db, databaseId);
 	const fixture = await loadOrCreate(`${state}/fixture.json`, () => ({
 		id: "local-player",
 		email: "local-player@example.test",
@@ -250,6 +277,7 @@ export async function configure(credentials: Credentials) {
 		START_APPWRITE_DATABASE: databaseId,
 		START_AUTH_ALLOW_HTTP_LOOPBACK: "true",
 		START_LOCAL_HEALTH_KEY: credentials.health,
+		START_APPWRITE_NOTIFICATION_WRITER_KEY: credentials.notification,
 		START_APPWRITE_SESSION_KEY: credentials.session,
 		START_APPWRITE_FEED_READER_KEY: credentials.reader,
 		START_APPWRITE_MODERATION_READER_KEY: credentials.reader,

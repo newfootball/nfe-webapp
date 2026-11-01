@@ -8,7 +8,11 @@ The full synthetic social graph belongs to #63.
 
 ## Install and build without starting services
 
-Use Node24, Bun1.3.14 and Docker Compose v2. From the repository root:
+Use Node24, Bun1.3.14 and Docker Compose v2. The browser proof launches `node`
+from Bun using `PATH`; a shell alias alone does not select its version. Confirm
+`bun -e 'console.log(Bun.spawnSync(["node", "--version"]).stdout.toString())'`
+reports v24 before starting services. The proof also checks this executable before
+backend startup. From the repository root:
 
 ```sh
 bun install --frozen-lockfile
@@ -22,10 +26,18 @@ bun run local:start release         # prints a SHA256 release digest
 bun run local:start release         # same inputs => same digest
 ```
 
-`release` packages the built SSR handler, Bun dependencies and static client
-files into a self-contained content-addressed directory under
+`release` copies the exact Vite SSR/client output, the native Bun TypeScript
+runner and internal notification consumer, their server-only source dependency
+closure, and the frozen installed Start dependency tree into a self-contained
+content-addressed directory under
 `apps/start/.local-runtime/releases/<digest>`. It does not need Docker or service
-credentials. The manifest hashes every payload file; `start <digest>` verifies
+credentials. Internal package links are safely dereferenced, external links are rejected, and
+all runtime package resolution must stay inside the artifact. This deliberately
+avoids a second graph bundle: native Linux CI showed Bun1.3.14 moving otherwise
+identical modules between output positions. No bytes are normalized or omitted
+from the full payload hashes. The artifact is larger (about257MiB on the local
+host) and bound to its recorded OS/CPU architecture and Bun1.3.14.
+The manifest hashes every payload file; `start <digest>` verifies
 both manifest identity and payload before execution. Serve the same directory
 again to roll back locally; keep previous directories. This is a reproducible
 local release, not a promoted image or a preproduction proxy deployment.
@@ -47,6 +59,14 @@ bun run local:start provision       # safe replay, preserves rows and credential
 bun run local:start start <digest>  # foreground; Ctrl-C drains requests
 ```
 
+If Docker reports exhausted automatic address pools, inspect existing Docker subnets
+and host routes, then choose an unused private `10.x.y.0/24` range for the **first**
+prepare: `NFE_LOCAL_RUNTIME_SUBNET=10.245.164.0/24 bun run local:start prepare`.
+The example is not a reservation: verify it is free on your host. The chosen
+subnet is persisted and survives container recreation; later commands need no
+environment override. Supplying a different subnet for existing state is refused.
+Do not prune unrelated Docker networks to free space.
+
 In another terminal:
 
 ```sh
@@ -60,7 +80,7 @@ bun run local:start stop
 
 `stop` stops only the dedicated backend containers; it **never** deletes volumes,
 config, keys or fixture IDs. Ctrl-C/SIGTERM drains the app (10s deadline). Docker
-uses the namespace `nfe-local-runtime-64`, no fixed subnet, and publishes only
+uses the namespace `nfe-local-runtime-64`, Docker automatic subnet allocation by default, and publishes only
 Appwrite on127.0.0.1:18464; Start listens only on127.0.0.1:3564. Redis/Postgres and
 workers are private to that Compose network. Containers do not auto-restart.
 No automatic destructive reset or cleanup command is supplied.
@@ -83,8 +103,17 @@ and rejects baseline digest drift. No destructive reconciliation runs.
 
 Generated `runtime.json` is read by the local command and injected only at runtime.
 It contains the local origin/endpoint/project/database, loopback HTTP opt-in,
+a separate `health.read` key, a distinct `rows.read`/`rows.write` notification key,
 `sessions.write` key, `rows.read` key and `rows.write` key mapped to merged module
-roles. The broader provisioning key stays in `credentials.json` and is never
+roles. The internal consumer receives only its notification key and the configuration
+needed by the accepted notification connection. It runs one bounded delivery
+at a time, uses the accepted Appwrite outbox leases/retries, and reports sanitized
+counters and failed/permanent delivery state in a private fresh process-bound
+heartbeat. It has no public HTTP/RPC hook. The foreground parent owns its PID;
+app failure, Ctrl-C or SIGTERM stop/reap the consumer and supervisor, with bounded
+force-stop fallback. Loss of the foreground parent/app also stops the consumer.
+No consumer, poller or scheduler is installed outside that foreground lifetime.
+The broader provisioning key stays in `credentials.json` and is never
 passed to the app. No `VITE_*`, Google, OAuth broker, SMTP or B2 credentials are
 configured. Media access and unconfigured integrations remain unavailable;
 there are no media fixtures and no B2 requests in this foundation. Arbitrary
@@ -95,12 +124,15 @@ signup/email workflows are outside this synthetic operational recipe.
 `status` returns only HTTP status codes. Liveness proves the app process responds;
 readiness requires a fresh strictly validated private supervisor report for all six
 Compose services, Appwrite2.6.2, positive DB/cache/geo health checks through a separate
-`health.read` key, and all four schema markers through real server reads. Network
+`health.read` key, and all five schema markers through real server reads. Network
 checks share a cancellable4s deadline. Worker main-process availability is checked;
 queue-progress or latency guarantees are outside this foundation. The foreground
 supervisor polls only the fixed dedicated Compose namespace while its app runs;
 its report expires after10s, rejects future timestamps and wrong identity, and is
-removed on shutdown. The app never invokes Docker or reads its socket. Readiness returns503 on backend/schema/config failure
+removed on shutdown. The app never invokes Docker or reads its socket. CLI probes run in an owned
+detached process group, with bounded group TERM/KILL, pipe cancellation and
+reaping; only that spawned group is targeted, never the Docker daemon or user
+process group. Cancellation handlers are registered before startup inspection. Readiness returns503 on backend/schema/config failure
 without leaking its cause/credentials. Neither endpoint exposes settings or data.
 For diagnosis check Node/Bun versions, `status`, free ports, Docker disk/memory and
 `docker compose --project-name nfe-local-runtime-64 --file apps/start/.local-runtime/compose.json ps`.
@@ -115,13 +147,18 @@ After receiving the coordinator's **explicit exclusive backend lease**, run:
 NFE_LOCAL_RUNTIME_LEASE=64 PLAYWRIGHT_CHANNEL=chrome bun run --cwd apps/start local:proof
 ```
 
+The browser check uses a separate Node24 process with explicit action/navigation
+timeouts and a 60s owned process-group deadline. Session handoff files remain
+private and are removed after revocation; the app itself still runs on Bun.
+
 Alternatively install the pinned Playwright Chromium before acquiring the lease
 and omit `PLAYWRIGHT_CHANNEL`. The proof performs repeat prepare/provision,
 identical release packaging, anonymous SSR, real browser login, private raw SSR,
 public profile read, graceful app restart, backend stop/readiness failure/restart,
 identity/config/session persistence, proof-only container recreation without deleting
 volumes, individual geo/worker outages, stale/missing supervisor reports and secret
-scans. It revokes its browser
+scans. One deterministic synthetic notification is delivered by the foreground
+consumer and remains unique after app restart. It revokes its browser
 session, independently attempts bounded browser/session/app/supervisor/backend teardown even
 when another cleanup fails, records failed checks/cleanup without secret details,
 and leaves persistent

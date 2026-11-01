@@ -1,7 +1,9 @@
 import { rename, rm } from "node:fs/promises";
-import { command, composeArgs } from "./local-runtime";
+import { ownedCommand } from "./local-runtime-command";
 import { requiredServices } from "./local-runtime-dependencies";
 import {
+	appRoot,
+	composeArgs,
 	createPrivate,
 	endpoint,
 	origin,
@@ -9,17 +11,26 @@ import {
 	state,
 } from "./local-runtime-state";
 
-export async function superviseDependencies() {
+export async function superviseDependencies(
+	signal?: AbortSignal,
+	directory = state,
+) {
 	const controller = new AbortController();
 	const nonce = crypto.randomUUID();
-	const file = `${state}/dependencies.json`;
-	let stopped = false;
+	const file = `${directory}/dependencies.json`;
+	let stopped = signal?.aborted ?? false;
+	const abort = () => {
+		stopped = true;
+		controller.abort();
+	};
+	signal?.addEventListener("abort", abort, { once: true });
+	if (signal?.aborted) abort();
 	async function inspect() {
-		const temporary = `${state}/dependencies-${nonce}.json`;
+		const temporary = `${directory}/dependencies-${nonce}.json`;
 		try {
-			const output = await command(
+			const output = await ownedCommand(
 				[...composeArgs, "ps", "--all", "--format", "json"],
-				undefined,
+				appRoot,
 				{ timeoutMs: 4000, signal: controller.signal },
 			);
 			const parsed = output.trim().startsWith("[")
@@ -63,7 +74,7 @@ export async function superviseDependencies() {
 			await rm(temporary, { force: true });
 		}
 	}
-	await inspect();
+	if (!stopped) await inspect();
 	const loop = (async () => {
 		while (!stopped) {
 			try {
@@ -76,12 +87,12 @@ export async function superviseDependencies() {
 	})();
 	return {
 		env: {
-			START_LOCAL_SUPERVISOR_DIRECTORY: state,
+			START_LOCAL_SUPERVISOR_DIRECTORY: directory,
 			START_LOCAL_SUPERVISOR_NONCE: nonce,
 		},
 		async stop() {
-			stopped = true;
-			controller.abort();
+			abort();
+			signal?.removeEventListener("abort", abort);
 			await loop;
 			await rm(file, { force: true });
 		},

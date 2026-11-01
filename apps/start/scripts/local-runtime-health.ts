@@ -1,3 +1,4 @@
+import { readConsumerReport } from "./local-runtime-consumer-contract";
 import { readDependencyReport } from "./local-runtime-dependencies";
 
 export async function localHealth(
@@ -23,14 +24,18 @@ export async function localHealth(
 			process.env.START_APPWRITE_ENDPOINT !== "http://127.0.0.1:18464/v1" ||
 			process.env.START_APPWRITE_PROJECT !== "nfe-local" ||
 			process.env.START_APPWRITE_DATABASE !== "nfe-local" ||
-			!(await readDependencyReport())
+			!(await readDependencyReport()) ||
+			!(await readConsumerReport())
 		)
 			return respond(503);
 		async function read(path: string, key: string | undefined) {
-			if (!key) throw new Error("Readiness key missing");
+			if (!key && path !== "/health/version")
+				throw new Error("Readiness key missing");
 			const response = await fetch(`http://127.0.0.1:18464/v1${path}`, {
 				signal: controller.signal,
-				headers: { "X-Appwrite-Project": "nfe-local", "X-Appwrite-Key": key },
+				headers: key
+					? { "X-Appwrite-Project": "nfe-local", "X-Appwrite-Key": key }
+					: {},
 			});
 			if (!response.ok) throw new Error("Dependency unavailable");
 			return (await response.json()) as {
@@ -43,7 +48,7 @@ export async function localHealth(
 		}
 		const healthKey = process.env.START_LOCAL_HEALTH_KEY;
 		const [version, ...dependencies] = await Promise.all([
-			read("/health/version", healthKey),
+			read("/health/version", undefined),
 			...["/health/db", "/health/cache", "/health/geo"].map((path) =>
 				read(path, healthKey),
 			),
@@ -62,12 +67,17 @@ export async function localHealth(
 		)
 			return respond(503);
 		await Promise.all(
-			["v1", "v2-club-profile", "v3-media-allocations", "messaging-v1"].map(
-				(rowId) =>
-					read(
-						`/tablesdb/nfe-local/tables/schema_versions/rows/${rowId}`,
-						process.env.START_APPWRITE_FEED_READER_KEY,
-					),
+			[
+				"v1",
+				"v2-club-profile",
+				"v3-media-allocations",
+				"messaging-v1",
+				"notification-v1",
+			].map((rowId) =>
+				read(
+					`/tablesdb/nfe-local/tables/schema_versions/rows/${rowId}`,
+					process.env.START_APPWRITE_FEED_READER_KEY,
+				),
 			),
 		);
 		return respond(200);

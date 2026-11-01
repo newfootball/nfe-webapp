@@ -11,6 +11,107 @@ import {
 	readPrivate,
 } from "../scripts/local-runtime-state";
 
+test("console bootstrap reuses an existing account and registers only after missing authentication", async () => {
+	const { ensureConsoleSession } = await import(
+		"../scripts/local-runtime-bootstrap"
+	);
+	const account = {
+		id: "synthetic",
+		email: "synthetic@example.test",
+		password: "synthetic-only",
+	};
+	const existing: string[] = [];
+	await ensureConsoleSession(async (path) => {
+		existing.push(path);
+	}, account);
+	expect(existing).toEqual(["/account/sessions/email"]);
+	const fresh: string[] = [];
+	await ensureConsoleSession(async (path) => {
+		fresh.push(path);
+		if (fresh.length === 1)
+			throw Object.assign(new Error("missing"), { code: 401 });
+	}, account);
+	expect(fresh).toEqual([
+		"/account/sessions/email",
+		"/account",
+		"/account/sessions/email",
+	]);
+	const unavailable: string[] = [];
+	await expect(
+		ensureConsoleSession(async (path) => {
+			unavailable.push(path);
+			throw Object.assign(new Error("unavailable"), { code: 503 });
+		}, account),
+	).rejects.toThrow("unavailable");
+	expect(unavailable).toEqual(["/account/sessions/email"]);
+});
+
+test("console resources read fixed IDs before creation and propagate permission failures", async () => {
+	const { ensureConsoleResource } = await import(
+		"../scripts/local-runtime-bootstrap"
+	);
+	const existing: string[] = [];
+	await ensureConsoleResource(
+		async (path) => {
+			existing.push(path);
+		},
+		"/teams",
+		"local-team",
+		{ teamId: "local-team" },
+	);
+	expect(existing).toEqual(["/teams/local-team"]);
+	const fresh: string[] = [];
+	await ensureConsoleResource(
+		async (path) => {
+			fresh.push(path);
+			if (fresh.length === 1)
+				throw Object.assign(new Error("missing"), { code: 404 });
+		},
+		"/projects",
+		"nfe-local",
+		{ projectId: "nfe-local" },
+	);
+	expect(fresh).toEqual(["/projects/nfe-local", "/projects"]);
+	const forbidden: string[] = [];
+	await expect(
+		ensureConsoleResource(
+			async (path) => {
+				forbidden.push(path);
+				throw Object.assign(new Error("forbidden"), { code: 403 });
+			},
+			"/teams",
+			"local-team",
+			{},
+		),
+	).rejects.toThrow("forbidden");
+	expect(forbidden).toEqual(["/teams/local-team"]);
+});
+
+test("forced browser cleanup revokes new sessions without a handoff and preserves existing sessions", async () => {
+	const { revokeCreatedSessions } = await import(
+		"../scripts/local-runtime-browser-sessions"
+	);
+	let sessions = [{ $id: "existing" }, { $id: "browser-created-before-kill" }];
+	const removed: string[] = [];
+	await revokeCreatedSessions(
+		["existing"],
+		async () => ({ total: sessions.length, sessions }),
+		async (id) => {
+			removed.push(id);
+			sessions = sessions.filter((session) => session.$id !== id);
+		},
+	);
+	expect(removed).toEqual(["browser-created-before-kill"]);
+	expect(sessions).toEqual([{ $id: "existing" }]);
+	await expect(
+		revokeCreatedSessions(
+			[],
+			async () => ({ total: 2, sessions: [] }),
+			async () => {},
+		),
+	).rejects.toThrow("Incomplete session enumeration");
+});
+
 const directories: string[] = [];
 async function temporary() {
 	const directory = await mkdtemp(resolve(tmpdir(), "nfe-local-unit-"));
@@ -59,6 +160,21 @@ test("persistent compose exposes only isolated Appwrite loopback; no host binds 
 	}
 	expect(Object.keys(compose.volumes)).toContain("appwrite-postgresql");
 	expect(JSON.stringify(compose)).not.toContain("SMTP_HOST");
+});
+test("explicit private subnet is persisted without changing the default or accepting unsafe ranges", () => {
+	expect(makeCompose("10.245.164.0/24").networks).toEqual({
+		local: { ipam: { config: [{ subnet: "10.245.164.0/24" }] } },
+	});
+	for (const subnet of [
+		"",
+		"8.8.8.0/24",
+		"10.256.0.0/24",
+		"10.1.2.1/24",
+		"10.1.2.0/8",
+		"10.1.2.0/24\n",
+	])
+		expect(() => makeCompose(subnet)).toThrow();
+	expect(makeCompose().networks).toEqual({ local: {} });
 });
 test("release identity is stable across enumeration order and detects modified content", async () => {
 	const directory = await temporary();
@@ -189,6 +305,18 @@ test("readiness uses bounded server-only DB/cache/geo checks and fails closed", 
 			healthy: true,
 		})),
 	});
+	await createPrivate(`${directory}/consumer.json`, {
+		format: 1,
+		project: "nfe-local-runtime-64",
+		endpoint: "http://127.0.0.1:18464/v1",
+		origin: "http://127.0.0.1:3564",
+		nonce,
+		parentPid: process.ppid,
+		appPid: process.pid,
+		checkedAt: Date.now(),
+		state: "ready",
+		counters: { examined: 0, delivered: 0, failed: 0, permanentFailures: 0 },
+	});
 	const env = { ...process.env };
 	Object.assign(process.env, {
 		START_LOCAL_RUNTIME: "1",
@@ -212,7 +340,14 @@ test("readiness uses bounded server-only DB/cache/geo checks and fails closed", 
 			expect(options?.signal).toBeInstanceOf(AbortSignal);
 			if (path === failedPath)
 				return Response.json({ private: "not published" }, { status: 503 });
-			if (path.endsWith("/version")) return Response.json({ version: "2.6.2" });
+			const headers = new Headers(options?.headers);
+			if (path.endsWith("/version")) {
+				expect(headers.has("X-Appwrite-Key")).toBe(false);
+				return Response.json({ version: "2.6.2" });
+			}
+			expect(headers.get("X-Appwrite-Key")).toBe(
+				path.includes("/health/") ? "synthetic-health" : "synthetic-reader",
+			);
 			if (path.endsWith("/geo")) return Response.json({ status: "pass" });
 			if (path.endsWith("/db") || path.endsWith("/cache"))
 				return Response.json({ total: 1, statuses: [{ status: "pass" }] });
@@ -224,6 +359,7 @@ test("readiness uses bounded server-only DB/cache/geo checks and fails closed", 
 	try {
 		expect((await localHealth("/_local/ready", false))?.status).toBe(200);
 		for (const path of [
+			"/v1/health/version",
 			"/v1/health/db",
 			"/v1/health/cache",
 			"/v1/health/geo",
@@ -238,4 +374,43 @@ test("readiness uses bounded server-only DB/cache/geo checks and fails closed", 
 		fetch.mockRestore();
 		process.env = env;
 	}
+});
+
+test("consumer heartbeat binds owned process, nonce, freshness and permanent failure state", async () => {
+	const { consumerReady } = await import(
+		"../scripts/local-runtime-consumer-contract"
+	);
+	const nonce = crypto.randomUUID();
+	const report = {
+		format: 1,
+		project: "nfe-local-runtime-64",
+		endpoint: "http://127.0.0.1:18464/v1",
+		origin: "http://127.0.0.1:3564",
+		nonce,
+		parentPid: 123,
+		appPid: 456,
+		checkedAt: 100_000,
+		state: "ready",
+		counters: { examined: 1, delivered: 1, failed: 0, permanentFailures: 0 },
+	};
+	expect(consumerReady(report, nonce, 456, 123, 100_000)).toBe(true);
+	expect(consumerReady(report, nonce, 456, 123, 110_001)).toBe(false);
+	expect(consumerReady(report, nonce, 456, 123, 99_999)).toBe(false);
+	expect(consumerReady(report, nonce, 457, 123, 100_000)).toBe(false);
+	expect(consumerReady(report, crypto.randomUUID(), 456, 123, 100_000)).toBe(
+		false,
+	);
+	for (const state of ["failed", "stopped"])
+		expect(consumerReady({ ...report, state }, nonce, 456, 123, 100_000)).toBe(
+			false,
+		);
+	expect(
+		consumerReady(
+			{ ...report, counters: { ...report.counters, permanentFailures: 1 } },
+			nonce,
+			456,
+			123,
+			100_000,
+		),
+	).toBe(false);
 });

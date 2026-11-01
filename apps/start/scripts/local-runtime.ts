@@ -1,23 +1,17 @@
 import assert from "node:assert/strict";
-import {
-	chmod,
-	cp,
-	lstat,
-	mkdir,
-	mkdtemp,
-	readdir,
-	rename,
-	rm,
-} from "node:fs/promises";
+import { chmod, lstat, mkdtemp, readdir, rename, rm } from "node:fs/promises";
 import { createConnection } from "node:net";
 import { resolve } from "node:path";
+import { copyRuntimePayload } from "./local-runtime-artifact";
 import {
 	bootstrap,
 	configure,
 	provisionLocal,
 } from "./local-runtime-bootstrap";
+import { ownedCommand } from "./local-runtime-command";
 import {
 	appRoot,
+	composeArgs,
 	createPrivate,
 	endpoint,
 	fileManifest,
@@ -28,6 +22,7 @@ import {
 	privateDirectory,
 	project,
 	readPrivate,
+	runtimeNetwork,
 	state,
 } from "./local-runtime-state";
 
@@ -36,38 +31,11 @@ export async function command(
 	cwd = appRoot,
 	options: { timeoutMs?: number; signal?: AbortSignal } = {},
 ) {
-	if (options.signal?.aborted) throw new Error("Command cancelled");
-	const child = Bun.spawn(args, {
-		cwd,
-		env: { ...process.env, NODE_ENV: "production" },
-		stdout: "pipe",
-		stderr: "pipe",
-	});
-	const stop = () => child.kill("SIGKILL");
-	const timeout = setTimeout(stop, options.timeoutMs ?? 240_000);
-	options.signal?.addEventListener("abort", stop, { once: true });
-	const [out, , code] = await Promise.all([
-		new Response(child.stdout).text(),
-		new Response(child.stderr).text(),
-		child.exited,
-	]);
-	clearTimeout(timeout);
-	options.signal?.removeEventListener("abort", stop);
-	// Child/API diagnostics can contain secrets; never echo raw stderr or config.
-	if (code)
-		throw new Error(
-			`${args.slice(0, 2).join(" ")} failed (exit${code}); private diagnostics require local inspection`,
-		);
-	return out;
+	return await ownedCommand(args, cwd, options);
 }
-export const composeArgs = [
-	"docker",
-	"compose",
-	"--project-name",
-	project,
-	"--file",
-	`${state}/compose.json`,
-];
+
+export { composeArgs } from "./local-runtime-state";
+
 export async function assertFreePort(port: number) {
 	await new Promise<void>((resolvePromise, reject) => {
 		const socket = createConnection({ host: "127.0.0.1", port });
@@ -86,10 +54,18 @@ export async function assertFreePort(port: number) {
 	});
 }
 async function prepare() {
+	const subnet = process.env.NFE_LOCAL_RUNTIME_SUBNET;
+	const network = runtimeNetwork(subnet);
 	const file = `${state}/compose.json`;
 	if (await Bun.file(file).exists()) {
 		const saved = await readPrivate<ReturnType<typeof makeCompose>>(file);
 		assert.equal(saved.name, project);
+		if (subnet !== undefined)
+			assert.deepEqual(
+				saved.networks.local,
+				network,
+				"Saved subnet differs; refusing configuration overwrite",
+			);
 		assert.deepEqual(saved.services.appwrite?.ports, ["127.0.0.1:18464:80"]);
 		return;
 	}
@@ -119,7 +95,7 @@ async function prepare() {
 		info.NCPU >= 2 && info.MemTotal >= 8 * 1024 ** 3,
 		"Docker needs >=2CPU and >=8GiB",
 	);
-	await loadOrCreate(file, makeCompose);
+	await loadOrCreate(file, () => makeCompose(subnet));
 }
 export async function checkBackend() {
 	const response = await fetch(`${endpoint}/health/version`, {
@@ -147,22 +123,16 @@ export async function release() {
 	await privateDirectory(releases);
 	const directory = await mkdtemp(`${releases}/building-`);
 	try {
-		const result = await Bun.build({
-			entrypoints: [`${appRoot}/server.ts`],
-			target: "bun",
-			outdir: directory,
-			naming: "app.js",
-			sourcemap: "none",
-			minify: false,
-		});
-		if (!result.success) throw new Error("Local artifact bundling failed");
-		await mkdir(`${directory}/dist`, { mode: 0o700 });
-		await cp(`${appRoot}/dist/client`, `${directory}/dist/client`, {
-			recursive: true,
-			errorOnExist: true,
-		});
+		await copyRuntimePayload(directory);
 		const files = await fileManifest(directory);
-		const manifest = { format: 1, bun: "1.3.14", node: "24", files };
+		const manifest = {
+			format: 2,
+			bun: "1.3.14",
+			node: "24",
+			platform: process.platform,
+			arch: process.arch,
+			files,
+		};
 		const digest = hash(JSON.stringify(manifest));
 		await createPrivate(`${directory}/manifest.json`, manifest);
 		await restrictTree(directory);
@@ -186,6 +156,8 @@ export async function verifyRelease(digest: string) {
 	const directory = `${state}/releases/${digest}`;
 	const manifest = await readPrivate<{
 		format: number;
+		platform: string;
+		arch: string;
 		bun: string;
 		node: string;
 		files: Record<string, string>;
@@ -196,6 +168,12 @@ export async function verifyRelease(digest: string) {
 		"Artifact identity differs",
 	);
 	assert.equal(manifest.bun, Bun.version, "Artifact runtime differs");
+	assert.equal(
+		manifest.platform,
+		process.platform,
+		"Artifact platform differs",
+	);
+	assert.equal(manifest.arch, process.arch, "Artifact architecture differs");
 	const actual = Object.fromEntries(
 		Object.entries(await fileManifest(directory)).filter(
 			([path]) => path !== "manifest.json",
@@ -223,26 +201,36 @@ export async function runtimeConfig() {
 	);
 	return env;
 }
-export async function main(action: string | undefined, digest?: string) {
+export async function main(
+	action: string | undefined,
+	digest?: string,
+	signal?: AbortSignal,
+) {
 	assert.equal(Bun.version, "1.3.14", "Use Bun1.3.14");
 	await privateDirectory(state);
 	if (action === "prepare") await prepare();
 	else if (action === "up") {
 		await readPrivate(`${state}/compose.json`);
-		await command([
-			...composeArgs,
-			"up",
-			"-d",
-			"--wait",
-			"--wait-timeout",
-			"180",
-			"--pull",
-			"never",
-		]);
+		await command(
+			[
+				...composeArgs,
+				"up",
+				"-d",
+				"--wait",
+				"--wait-timeout",
+				"180",
+				"--pull",
+				"never",
+			],
+			undefined,
+			{ signal },
+		);
 		await checkBackend();
 	} else if (action === "stop") {
 		await readPrivate(`${state}/compose.json`);
-		await command([...composeArgs, "stop", "--timeout", "30"]);
+		await command([...composeArgs, "stop", "--timeout", "30"], undefined, {
+			signal,
+		});
 	} else if (action === "provision") {
 		await checkBackend();
 		await readPrivate(`${state}/compose.json`);
@@ -258,37 +246,17 @@ export async function main(action: string | undefined, digest?: string) {
 		const directory = await verifyRelease(digest);
 		await assertFreePort(3564);
 		const env = await runtimeConfig();
-		const { superviseDependencies } = await import(
-			"./local-runtime-supervisor"
-		);
-		const supervisor = await superviseDependencies();
-		let server: ReturnType<typeof Bun.spawn> | undefined;
-		let stop: (() => void) | undefined;
+		const { launchRuntime } = await import("./local-runtime-process");
+		const runtime = await launchRuntime(directory, env, undefined, { signal });
 		try {
-			server = Bun.spawn([process.execPath, `${directory}/app.js`], {
-				cwd: directory,
-				env: { ...env, ...supervisor.env, PATH: process.env.PATH },
-				stdout: "ignore",
-				stderr: "ignore",
-			});
-			const owned = server;
-			const { stopOwnedProcess } = await import("./local-runtime-cleanup");
-			stop = () => {
-				void stopOwnedProcess(owned).catch(() => {});
-			};
-			process.once("SIGINT", stop);
-			process.once("SIGTERM", stop);
 			process.stdout.write(
-				`Local runtime at ${origin}; Ctrl-C gracefully stops the app.\n`,
+				`Local runtime at ${origin}; Ctrl-C gracefully stops app and consumer.\n`,
 			);
-			const code = await server.exited;
+			const code = await runtime.wait();
 			if (code) throw new Error(`Local app exited (${code})`);
 		} finally {
-			if (stop) {
-				process.off("SIGINT", stop);
-				process.off("SIGTERM", stop);
-			}
-			await supervisor.stop();
+			const cleanup = await runtime.stop();
+			if (cleanup.some((result) => !result.ok)) process.exitCode = 1;
 		}
 	} else if (action === "status") {
 		const check = async (url: string) => {
@@ -311,12 +279,16 @@ export async function main(action: string | undefined, digest?: string) {
 	);
 }
 if (import.meta.main) {
+	const { foregroundCancellation } = await import("./local-runtime-process");
+	const foreground = foregroundCancellation();
 	try {
-		await main(Bun.argv[2], Bun.argv[3]);
+		await main(Bun.argv[2], Bun.argv[3], foreground.signal);
 	} catch {
 		process.stderr.write(
 			"Local runtime command failed; see runbook diagnostics (no secrets printed).\n",
 		);
 		process.exitCode = 1;
+	} finally {
+		foreground.dispose();
 	}
 }

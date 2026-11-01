@@ -1,10 +1,20 @@
 import { lstat, mkdir, open, readdir } from "node:fs/promises";
+import { isIP } from "node:net";
 import { resolve } from "node:path";
 import template from "../local-runtime/compose.template.json";
 
 export const appRoot = resolve(import.meta.dir, "..");
 export const state = resolve(appRoot, ".local-runtime");
 export const project = "nfe-local-runtime-64";
+export const composeArgs = [
+	"docker",
+	"compose",
+	"--project-name",
+	project,
+	"--file",
+	`${state}/compose.json`,
+];
+
 export const endpoint = "http://127.0.0.1:18464/v1";
 export const origin = "http://127.0.0.1:3564";
 export const databaseId = "nfe-local";
@@ -52,7 +62,17 @@ export async function loadOrCreate<T>(
 	return value;
 }
 
-export function makeCompose() {
+export function runtimeNetwork(subnet?: string) {
+	if (subnet === undefined) return {};
+	if (
+		!/^10\.\d{1,3}\.\d{1,3}\.0\/24$/.test(subnet) ||
+		isIP(subnet.slice(0, -3)) !== 4
+	)
+		throw new Error("Local subnet must be a private 10.x.y.0/24 network");
+	return { ipam: { config: [{ subnet }] } };
+}
+
+export function makeCompose(subnet?: string) {
 	const env = {
 		_APP_ENV: "production",
 		_APP_EDITION: "self-hosted",
@@ -111,7 +131,7 @@ export function makeCompose() {
 	return {
 		name: project,
 		services,
-		networks: { local: {} },
+		networks: { local: runtimeNetwork(subnet) },
 		volumes: Object.fromEntries([...volumes].map((v) => [v, {}])),
 	};
 }

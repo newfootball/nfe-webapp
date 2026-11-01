@@ -635,7 +635,7 @@ async function proof() {
 				"production",
 				"real import",
 				"full graph63",
-				"active56 branches",
+				"whole-issue post lifecycle acceptance (separate proof)",
 			],
 		};
 		await createPrivate(`${state}/proof-${Date.now()}.json`, result);

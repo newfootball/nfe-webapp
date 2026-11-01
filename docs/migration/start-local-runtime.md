@@ -98,8 +98,8 @@ The fixed synthetic project/database are `nfe-local`. The sole seeded actor is
 `local-player` (`local-player@example.test`), with a generated password in the
 private `fixture.json`; inspect that file only locally when manual login is
 needed. No password is printed. Existing profiles and their edits survive replays.
-Schema provisioning reuses the accepted v1/profile-v2/media-v3/messaging exports
-and lifecycle-v1 exports and rejects baseline digest drift. No destructive reconciliation runs.
+Schema provisioning reuses the accepted v1/profile-v2/media-v3/messaging,
+notification-v1 and lifecycle-v1 exports and rejects baseline digest drift. No destructive reconciliation runs.
 An older persistent fixture is upgraded only by adding its distinct lifecycle key
 and corresponding runtime field atomically; every existing value must match.
 Unknown drift or replacement of an existing field is refused.
@@ -174,3 +174,17 @@ or Range behavior, monitoring/SLO ownership, backups/DR, Appwrite upgrade safety
 a preproduction promotion or whole-issue acceptance for #64/#46. Those gates
 require their own authorization and evidence; never mark either issue closed
 from this local foundation.
+
+## Executed local acceptance (2026-11-01)
+
+[The sanitized proof](../../apps/start/evidence/local-runtime-synthetic.json)
+records 16 successful checks from reviewed source `8134d67`, using Node24.22.1,
+Bun1.3.14 and actual Appwrite2.6.2. This includes browser login, direct private
+SSR, durable notification delivery, app restart with the same session, individual
+geo/worker failures, expired supervisor reports, backend restart and full
+container recreation with the original volumes, configuration and identity.
+All five cleanup stages passed; owned app/backend processes stopped and persistent
+volumes remained. The additive lifecycle upgrade preserved all seven prior
+credential fields and all 21 prior runtime fields. 127 unit tests, build/client
+scan (73 files), typechecks and lint passed. Native CI and the remaining global
+migration gates are assessed separately on the delivered commit.

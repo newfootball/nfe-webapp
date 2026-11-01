@@ -73,6 +73,7 @@ export async function localHealth(
 				"v3-media-allocations",
 				"messaging-v1",
 				"notification-v1",
+				"v1-post-lifecycle",
 			].map((rowId) =>
 				read(
 					`/tablesdb/nfe-local/tables/schema_versions/rows/${rowId}`,

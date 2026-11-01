@@ -6,6 +6,7 @@ import {
 	createPrivate,
 	databaseId,
 	endpoint,
+	extendPrivate,
 	loadOrCreate,
 	origin,
 	projectId,
@@ -30,6 +31,7 @@ const scopes = {
 	],
 	health: ["health.read"],
 	notification: ["rows.read", "rows.write"],
+	lifecycle: ["rows.read", "rows.write"],
 	session: ["sessions.write"],
 	reader: ["rows.read"],
 	writer: ["rows.write"],
@@ -38,6 +40,7 @@ export type Credentials = {
 	project: string;
 	health: string;
 	notification: string;
+	lifecycle: string;
 	provision: string;
 	session: string;
 	reader: string;
@@ -124,15 +127,47 @@ export async function bootstrap() {
 			teamId: "local-team",
 		});
 		const saved = `${state}/credentials.json`;
+		const keys = (await request(`/projects/${projectId}/keys`)).keys ?? [];
+		async function keyFor(name: keyof typeof scopes, createMissing = true) {
+			const keyId = `local-${name}`;
+			const found = keys.find((key) => key.$id === keyId);
+			if (!found && !createMissing)
+				throw new Error("Existing local key missing; refusing replacement");
+			if (found)
+				assert.deepEqual(
+					[...found.scopes].sort(),
+					[...scopes[name]].sort(),
+					"Local key scope drift",
+				);
+			const key =
+				found ??
+				(await request(`/projects/${projectId}/keys`, {
+					keyId,
+					name: `Local ${name}`,
+					scopes: scopes[name],
+				}));
+			assert.ok(
+				key.secret,
+				"Existing local key unavailable; do not reset credentials",
+			);
+			return key.secret;
+		}
 		let credentials: Credentials;
-		if (await Bun.file(saved).exists())
+		if (await Bun.file(saved).exists()) {
 			credentials = await readPrivate<Credentials>(saved);
-		else {
-			const keys = (await request(`/projects/${projectId}/keys`)).keys ?? [];
+			if (!credentials.lifecycle) {
+				const lifecycle = await keyFor("lifecycle");
+				await extendPrivate(saved, credentials, { lifecycle });
+				credentials = { ...credentials, lifecycle };
+			} else if (credentials.lifecycle !== (await keyFor("lifecycle", false))) {
+				throw new Error("Saved lifecycle key differs; refusing replacement");
+			}
+		} else {
 			credentials = {
 				project: projectId,
 				health: "",
 				notification: "",
+				lifecycle: "",
 				provision: "",
 				session: "",
 				reader: "",
@@ -145,28 +180,9 @@ export async function bootstrap() {
 				"writer",
 				"health",
 				"notification",
-			] as const) {
-				const keyId = `local-${name}`;
-				const found = keys.find((k) => k.$id === keyId);
-				if (found)
-					assert.deepEqual(
-						[...found.scopes].sort(),
-						[...scopes[name]].sort(),
-						"Local key scope drift",
-					);
-				const key =
-					found ??
-					(await request(`/projects/${projectId}/keys`, {
-						keyId,
-						name: `Local ${name}`,
-						scopes: scopes[name],
-					}));
-				assert.ok(
-					key.secret,
-					"Existing local key unavailable; do not reset credentials",
-				);
-				credentials[name] = key.secret;
-			}
+				"lifecycle",
+			] as const)
+				credentials[name] = await keyFor(name);
 			await createPrivate(saved, credentials);
 		}
 		assert.equal(credentials.project, projectId);
@@ -207,6 +223,10 @@ export async function provisionLocal(credentials: Credentials) {
 		`${directory}/notification-v1.mts`
 	);
 	await provisionNotificationV1(db, databaseId);
+	const { provisionLifecycleV1 } = await import(
+		`${directory}/lifecycle-v1.mts`
+	);
+	await provisionLifecycleV1(db, databaseId);
 	const fixture = await loadOrCreate(`${state}/fixture.json`, () => ({
 		id: "local-player",
 		email: "local-player@example.test",
@@ -278,6 +298,7 @@ export async function configure(credentials: Credentials) {
 		START_AUTH_ALLOW_HTTP_LOOPBACK: "true",
 		START_LOCAL_HEALTH_KEY: credentials.health,
 		START_APPWRITE_NOTIFICATION_WRITER_KEY: credentials.notification,
+		START_APPWRITE_LIFECYCLE_WRITER_KEY: credentials.lifecycle,
 		START_APPWRITE_SESSION_KEY: credentials.session,
 		START_APPWRITE_FEED_READER_KEY: credentials.reader,
 		START_APPWRITE_MODERATION_READER_KEY: credentials.reader,
@@ -293,12 +314,23 @@ export async function configure(credentials: Credentials) {
 		"MEDIA",
 	])
 		config[`START_APPWRITE_${name}_WRITER_KEY`] = credentials.writer;
-	if (await Bun.file(configPath).exists())
-		assert.deepEqual(
-			await readPrivate(configPath),
-			config,
-			"Existing runtime configuration differs; refusing overwrite",
-		);
-	else await createPrivate(configPath, config);
+	if (await Bun.file(configPath).exists()) {
+		const previous = await readPrivate<Record<string, string>>(configPath);
+		const addition = {
+			START_APPWRITE_LIFECYCLE_WRITER_KEY: credentials.lifecycle,
+		};
+		const expected = { ...config };
+		if (!Object.hasOwn(previous, "START_APPWRITE_LIFECYCLE_WRITER_KEY"))
+			Reflect.deleteProperty(expected, "START_APPWRITE_LIFECYCLE_WRITER_KEY");
+		if (
+			Object.keys(previous).length !== Object.keys(expected).length ||
+			Object.entries(expected).some(([key, value]) => previous[key] !== value)
+		)
+			throw new Error(
+				"Existing runtime configuration differs; refusing overwrite",
+			);
+		if (!Object.hasOwn(previous, "START_APPWRITE_LIFECYCLE_WRITER_KEY"))
+			await extendPrivate(configPath, previous, addition);
+	} else await createPrivate(configPath, config);
 	return config;
 }

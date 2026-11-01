@@ -1,4 +1,4 @@
-import { lstat, mkdir, open, readdir } from "node:fs/promises";
+import { lstat, mkdir, open, readdir, rename, rm } from "node:fs/promises";
 import { isIP } from "node:net";
 import { resolve } from "node:path";
 import template from "../local-runtime/compose.template.json";
@@ -46,6 +46,30 @@ export async function createPrivate(path: string, value: unknown) {
 		await file.sync();
 	} finally {
 		await file.close();
+	}
+}
+// Only explicitly approved new fields may be added; no existing value is replaced.
+export async function extendPrivate(
+	path: string,
+	before: Record<string, string>,
+	additions: Record<string, string>,
+) {
+	for (const key of Object.keys(additions))
+		if (Object.hasOwn(before, key))
+			throw new Error("Private upgrade cannot replace an existing field");
+	const unchanged = async () => {
+		const current = await readPrivate<Record<string, string>>(path);
+		if (hash(JSON.stringify(current)) !== hash(JSON.stringify(before)))
+			throw new Error("Private state changed during approved upgrade");
+	};
+	await unchanged();
+	const temporary = `${path}.upgrade-${crypto.randomUUID()}`;
+	try {
+		await createPrivate(temporary, { ...before, ...additions });
+		await unchanged();
+		await rename(temporary, path);
+	} finally {
+		await rm(temporary, { force: true });
 	}
 }
 export async function loadOrCreate<T>(

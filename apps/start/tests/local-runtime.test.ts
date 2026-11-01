@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import {
 	createPrivate,
+	extendPrivate,
 	fileManifest,
 	loadOrCreate,
 	makeCompose,
@@ -135,6 +136,29 @@ test("repeat prepare preserves bytes and credentials instead of generating repla
 	await expect(createPrivate(file, { replaced: true })).rejects.toThrow();
 	expect(await readFile(file)).toEqual(before);
 });
+test("approved private upgrades add fields atomically while preserving existing secrets and reject drift", async () => {
+	const directory = await temporary(),
+		path = `${directory}/credentials.json`;
+	const before = {
+		session: "synthetic-existing-session",
+		writer: "synthetic-existing-writer",
+	};
+	await createPrivate(path, before);
+	await extendPrivate(path, before, { lifecycle: "synthetic-new-lifecycle" });
+	expect(await readPrivate<Record<string, string>>(path)).toEqual({
+		...before,
+		lifecycle: "synthetic-new-lifecycle",
+	});
+	const bytes = await readFile(path);
+	await expect(extendPrivate(path, before, { extra: "stale" })).rejects.toThrow(
+		"changed",
+	);
+	await expect(
+		extendPrivate(path, before, { session: "replacement" }),
+	).rejects.toThrow("replace");
+	expect(await readFile(path)).toEqual(bytes);
+});
+
 test("private state refuses symlinks and permissive existing files/directories", async () => {
 	const directory = await temporary(),
 		path = `${directory}/secret.json`;
@@ -363,6 +387,7 @@ test("readiness uses bounded server-only DB/cache/geo checks and fails closed", 
 			"/v1/health/db",
 			"/v1/health/cache",
 			"/v1/health/geo",
+			"/v1/tablesdb/nfe-local/tables/schema_versions/rows/v1-post-lifecycle",
 		]) {
 			failedPath = path;
 			const response = await localHealth("/_local/ready", false);

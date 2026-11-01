@@ -99,11 +99,15 @@ The fixed synthetic project/database are `nfe-local`. The sole seeded actor is
 private `fixture.json`; inspect that file only locally when manual login is
 needed. No password is printed. Existing profiles and their edits survive replays.
 Schema provisioning reuses the accepted v1/profile-v2/media-v3/messaging exports
-and rejects baseline digest drift. No destructive reconciliation runs.
+and lifecycle-v1 exports and rejects baseline digest drift. No destructive reconciliation runs.
+An older persistent fixture is upgraded only by adding its distinct lifecycle key
+and corresponding runtime field atomically; every existing value must match.
+Unknown drift or replacement of an existing field is refused.
 
 Generated `runtime.json` is read by the local command and injected only at runtime.
 It contains the local origin/endpoint/project/database, loopback HTTP opt-in,
-a separate `health.read` key, a distinct `rows.read`/`rows.write` notification key,
+a separate `health.read` key, distinct `rows.read`/`rows.write` notification and
+lifecycle keys,
 `sessions.write` key, `rows.read` key and `rows.write` key mapped to merged module
 roles. The internal consumer receives only its notification key and the configuration
 needed by the accepted notification connection. It runs one bounded delivery
@@ -124,7 +128,7 @@ signup/email workflows are outside this synthetic operational recipe.
 `status` returns only HTTP status codes. Liveness proves the app process responds;
 readiness requires a fresh strictly validated private supervisor report for all six
 Compose services, Appwrite2.6.2, positive DB/cache/geo health checks through a separate
-`health.read` key, and all five schema markers through real server reads. Network
+`health.read` key, and all six schema markers through real server reads. Network
 checks share a cancellable4s deadline. Worker main-process availability is checked;
 queue-progress or latency guarantees are outside this foundation. The foreground
 supervisor polls only the fixed dedicated Compose namespace while its app runs;

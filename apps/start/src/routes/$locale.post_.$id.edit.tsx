@@ -1,4 +1,5 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { PostLifecyclePanel } from "../components/posts/post-lifecycle-panel";
 import { PostTextForm } from "../components/posts/post-text-form";
 import { getOwnPost } from "../lib/post-text";
 import { postTextMessages } from "../lib/post-text-messages";
@@ -48,11 +49,18 @@ function Page() {
 				</Link>
 			</nav>
 			{result.ok ? (
-				<PostTextForm
-					key={`${result.value.userId}:${result.value.id}`}
-					post={result.value}
-					locale={locale}
-				/>
+				<>
+					<PostLifecyclePanel
+						key={`lifecycle:${result.value.userId}:${result.value.id}`}
+						post={result.value}
+						locale={locale}
+					/>
+					<PostTextForm
+						key={`${result.value.userId}:${result.value.id}`}
+						post={result.value}
+						locale={locale}
+					/>
+				</>
 			) : (
 				<p role="alert">{t.errors[result.error]}</p>
 			)}

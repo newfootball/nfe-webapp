@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { FeedIdSchema } from "./feed-input";
-import { AssetIdSchema } from "./media-contract";
+import { AssetIdSchema, RequestIdSchema } from "./media-contract";
 import { validate } from "./profile-input";
 
 const base = {
@@ -13,16 +13,16 @@ export const PostTransitionSchema = z.strictObject({
 });
 export const ReplacePostMediaSchema = z.strictObject({
 	...base,
-	requestId: AssetIdSchema,
+	requestId: RequestIdSchema,
 	videoId: AssetIdSchema,
 	thumbnailId: AssetIdSchema,
 });
 export const DeletePostSchema = z.strictObject({
 	...base,
-	requestId: AssetIdSchema,
+	requestId: RequestIdSchema,
 });
 export const ResumePostLifecycleSchema = z.strictObject({
-	operationId: AssetIdSchema,
+	operationId: RequestIdSchema,
 });
 export const validateTransition = (v: unknown) =>
 	validate(PostTransitionSchema, v);

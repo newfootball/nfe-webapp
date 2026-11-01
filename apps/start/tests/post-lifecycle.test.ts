@@ -6,6 +6,7 @@ import {
 	PurgeInventorySchema,
 	permitsTransition,
 	ReplacePostMediaSchema,
+	ResumePostLifecycleSchema,
 } from "../src/lib/post-lifecycle-contract";
 import {
 	clearPostLifecycleCache,
@@ -14,6 +15,32 @@ import {
 
 const base = { id: "legacy.post-56", expectedRevision: "a".repeat(64) };
 const requestId = "f8a22f7d-564e-4be3-bf77-6354c8579fb4";
+const legacyId = "cllegacy1234567890abcdef";
+
+test("lifecycle accepts persisted legacy asset IDs but requires UUID operation IDs", () => {
+	expect(
+		ReplacePostMediaSchema.safeParse({
+			...base,
+			requestId,
+			videoId: legacyId,
+			thumbnailId: legacyId,
+		}).success,
+	).toBe(true);
+	expect(
+		ReplacePostMediaSchema.safeParse({
+			...base,
+			requestId: legacyId,
+			videoId: requestId,
+			thumbnailId: requestId,
+		}).success,
+	).toBe(false);
+	expect(
+		DeletePostSchema.safeParse({ ...base, requestId: legacyId }).success,
+	).toBe(false);
+	expect(
+		ResumePostLifecycleSchema.safeParse({ operationId: legacyId }).success,
+	).toBe(false);
+});
 
 test("owner publication never approves moderated or archived posts", () => {
 	for (const from of [
@@ -68,6 +95,12 @@ test("purge inventory requires concrete versioned objects and stays bounded", ()
 		],
 	};
 	expect(PurgeInventorySchema.parse([asset])[0]?.versions).toHaveLength(3);
+	expect(
+		PurgeInventorySchema.safeParse([{ ...asset, id: legacyId }]).success,
+	).toBe(true);
+	expect(
+		PurgeInventorySchema.safeParse([{ ...asset, id: "../foreign" }]).success,
+	).toBe(false);
 	for (const invalid of [
 		{ ...asset, versionId: "" },
 		{ ...asset, sha256: "unknown" },

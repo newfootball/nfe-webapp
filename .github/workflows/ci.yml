@@ -76,8 +76,25 @@ jobs:
               run: bun install --frozen-lockfile
             - name: Install Start dependencies
               run: bun install --cwd apps/start --frozen-lockfile
+            - name: Test Start and local runtime guards (no services)
+              run: bun run --cwd apps/start test
+            - name: Lint Start
+              run: bun run --cwd apps/start lint
             - name: Build Start
               run: bun run build:start
+            - name: Package reproducible local release (no service start)
+              id: local_release
+              run: bun run --cwd apps/start local:repro
+            - name: Retain credential-free native Linux diagnostic on mismatch
+              if: failure() && steps.local_release.outcome == 'failure' && hashFiles('apps/start/.local-runtime/repro-diagnostic.json') != ''
+              uses: actions/upload-artifact@v4
+              with:
+                name: local-release-linux-diagnostic
+                include-hidden-files: true
+                retention-days: 3
+                path: |
+                  apps/start/.local-runtime/repro-diagnostic.json
+                  apps/start/.local-runtime/releases/
             - name: Typecheck Start
               run: bun run typecheck:start
             - name: Install smoke browser

@@ -1,0 +1,63 @@
+{
+	"source": "synthetic persistent local only",
+	"verifiedAt": "2026-11-01",
+	"sourceCheckpoint": "8134d670028dae4e2d4b91e86f67ccfa713a88d9",
+	"appwrite": "2.6.2",
+	"bun": "1.3.14",
+	"node": "24.22.1",
+	"artifact": "f09a921ac80b72181f63f238d24d62ed6e5d40d637279f4dae0ed436bfb9ef7b",
+	"succeeded": true,
+	"checks": [
+		"Node24 browser runtime is verified before backend startup",
+		"repeat prepare preserves private compose bytes",
+		"repeat provision preserves identities, rows, dates and configuration",
+		"two release packages have identical content digest",
+		"health and SSR use the immutable artifact",
+		"foreground consumer delivers one durable synthetic event",
+		"browser login and direct private SSR with real Appwrite session",
+		"graceful app stop and same-artifact restart retain login",
+		"missing appwrite-geo fails readiness and recovers",
+		"missing appwrite-worker-databases fails readiness and recovers",
+		"missing appwrite-worker-deletes fails readiness and recovers",
+		"missing/stale supervisor report fails readiness",
+		"backend shutdown makes readiness fail while liveness remains healthy",
+		"backend restart preserves persistent identity, profile, config and session",
+		"container recreation preserves volumes, identity, profile, configuration and session",
+		"artifact, client and app diagnostics contain no runtime credential values"
+	],
+	"cleanup": [
+		{
+			"name": "session",
+			"ok": true
+		},
+		{
+			"name": "browser-created sessions",
+			"ok": true
+		},
+		{
+			"name": "foreground",
+			"ok": true
+		},
+		{
+			"name": "backend",
+			"ok": true
+		},
+		{
+			"name": "browser handoff",
+			"ok": true
+		}
+	],
+	"additiveUpgrade": {
+		"preservedCredentialFields": 7,
+		"preservedRuntimeFields": 21,
+		"addedFields": ["lifecycle", "START_APPWRITE_LIFECYCLE_WRITER_KEY"]
+	},
+	"excluded": [
+		"production",
+		"real-source import",
+		"B2 access",
+		"SMTP/Google activation",
+		"full synthetic business graph",
+		"whole-issue post lifecycle acceptance (separate proof)"
+	]
+}

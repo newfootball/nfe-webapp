@@ -3,6 +3,7 @@ import {
 	AllocateAssetSchema,
 	AssetRequestSchema,
 	canonicalImage,
+	mediaPath,
 	PostMediaRequestSchema,
 	PublishPostSchema,
 } from "../src/lib/media-contract";
@@ -83,7 +84,55 @@ test("operation generations survive expired worker, recovery and replacement int
 });
 
 const id = "12345678-1234-4234-8234-123456789abc";
+const legacyId = "cllegacy1234567890abcdef";
 describe("untrusted media inputs", () => {
+	test("accepts opaque persisted IDs without accepting paths or command IDs", () => {
+		for (const assetId of [id, legacyId]) {
+			expect(AssetRequestSchema.safeParse({ assetId }).success).toBe(true);
+			expect(mediaPath(assetId)).toBe(`/media/${assetId}`);
+			expect(canonicalImage(`/media/${assetId}`)).toBe(`/media/${assetId}`);
+			expect(
+				PublishPostSchema.safeParse({
+					requestId: id,
+					videoId: assetId,
+					thumbnailId: assetId,
+					title: "test",
+					description: "",
+				}).success,
+			).toBe(true);
+		}
+		for (const assetId of [
+			"../foreign",
+			"a/b",
+			"a%2Fb",
+			"a?b",
+			"a#b",
+			"https://evil.test/a",
+			"a".repeat(37),
+		]) {
+			expect(AssetRequestSchema.safeParse({ assetId }).success).toBe(false);
+			expect(() => mediaPath(assetId)).toThrow();
+			expect(canonicalImage(`/media/${assetId}`)).toBeNull();
+		}
+		expect(
+			AllocateAssetSchema.safeParse({
+				requestId: legacyId,
+				kind: "video",
+				byteSize: 12,
+				sha256: "a".repeat(64),
+				mimetype: "video/mp4",
+			}).success,
+		).toBe(false);
+		expect(
+			PublishPostSchema.safeParse({
+				requestId: legacyId,
+				videoId: id,
+				thumbnailId: id,
+				title: "test",
+				description: "",
+			}).success,
+		).toBe(false);
+	});
 	test("preserves delivered legacy post IDs containing internal dots", () => {
 		expect(
 			PostMediaRequestSchema.safeParse({

@@ -68,3 +68,10 @@ public/signup proof passes. See
 Use `START_SMOKE_PORT=3562 PLAYWRIGHT_CHANNEL=chrome bun run smoke:start` from
 root when the default port 3501 is already occupied; the existing default stays
 unchanged. Production indexing is deliberately disabled throughout the shell.
+
+## Persistent synthetic local runtime (#64/#46)
+
+Use the explicit `bun run local:start` commands from the root for the isolated
+Appwrite18464/Start3564 runtime. See the [persistent local runtime runbook](../../docs/migration/start-local-runtime.md)
+for frozen installs, immutable release packaging, health/readiness, graceful stop
+and persistence proof. Existing default commands and ports remain unchanged.

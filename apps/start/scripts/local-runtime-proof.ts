@@ -85,6 +85,22 @@ async function proof() {
 			headers: cookie ? { Cookie: cookie } : {},
 			redirect: "manual",
 		});
+	async function awaitReadiness() {
+		const signal = AbortSignal.any([
+			foreground.signal,
+			AbortSignal.timeout(10_000),
+		]);
+		while (!signal.aborted) {
+			try {
+				if ((await fetch(`${origin}/_local/ready`, { signal })).status === 200)
+					return;
+			} catch {
+				// The backend and its supervisor converge independently after restart.
+			}
+			if (!signal.aborted) await Bun.sleep(250);
+		}
+		throw new Error("Restart readiness did not recover within its bound");
+	}
 	async function startApp(digest: string) {
 		const directory = await verifyRelease(digest);
 		const log = `${state}/proof-server.log`;
@@ -424,6 +440,7 @@ async function proof() {
 			"backend restart preserves persistent identity, profile, config and session",
 			async () => {
 				await main("up", undefined, foreground.signal);
+				await awaitReadiness();
 				assert.equal((await request("/_local/ready")).status, 200);
 				assert.equal(
 					(await users.get({ userId: fixture.id })).$createdAt,
@@ -478,6 +495,7 @@ async function proof() {
 				await command([...composeArgs, "down", "--timeout", "30"]);
 				assert.equal((await request("/_local/ready")).status, 503);
 				await main("up", undefined, foreground.signal);
+				await awaitReadiness();
 				const idsAfter = (await command([...composeArgs, "ps", "--all", "-q"]))
 					.trim()
 					.split("\n")

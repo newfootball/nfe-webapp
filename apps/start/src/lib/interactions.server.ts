@@ -10,6 +10,7 @@ import {
 	Role,
 	TablesDB,
 } from "node-appwrite";
+import { fenceAccounts } from "./account-lifecycle-anchor.server";
 import {
 	AuthFailure,
 	boundary,
@@ -175,12 +176,19 @@ export function readInteractionState(input: Validated<{ id: string }>) {
 // slug, text or ACL is modified. Concurrent archive/delete/edit conflicts fail closed.
 async function atomic<T>(
 	post: Models.DefaultRow,
+	actorId: string,
 	run: (db: TablesDB, transactionId: string) => Promise<T>,
+	additionalIds: readonly string[] = [],
 ) {
 	const c = connection(),
 		db = c.writer(),
 		tx = await db.createTransaction({ ttl: 60 });
 	try {
+		await fenceAccounts(tx.$id, [
+			actorId,
+			String(post.userId),
+			...additionalIds,
+		]);
 		await db.updateRow({
 			databaseId: c.databaseId,
 			tableId: "posts",
@@ -235,7 +243,7 @@ export function changeInteraction(input: Validated<PairInput>) {
 		let emitted: InteractionEvent | null = null;
 		if (active !== !!before) {
 			try {
-				await atomic(post, async (db, transactionId) => {
+				await atomic(post, viewer.id, async (db, transactionId) => {
 					if (active)
 						await db.createRow({
 							databaseId: c.databaseId,
@@ -332,7 +340,7 @@ export function createComment(input: Validated<CommentInput>) {
 		const occurredAt = new Date().toISOString();
 		let emitted: InteractionEvent | null = null;
 		try {
-			await atomic(post, async (db, transactionId) => {
+			await atomic(post, viewer.id, async (db, transactionId) => {
 				await db.createRow({
 					databaseId: c.databaseId,
 					tableId: "comments",
@@ -384,6 +392,31 @@ export function createComment(input: Validated<CommentInput>) {
 		return { state: await snapshot(id, viewer.id), event: emitted };
 	});
 }
+export async function deleteCommentAnchored(
+	post: Models.DefaultRow,
+	actorId: string,
+	comment: Models.DefaultRow,
+	run: (
+		post: Models.DefaultRow,
+		actorId: string,
+		authorId: string,
+		remove: (db: TablesDB, tx: string) => Promise<void>,
+	) => Promise<void>,
+) {
+	await run(
+		post,
+		actorId,
+		String(comment.userId),
+		async (db, transactionId) => {
+			await db.deleteRow({
+				databaseId: connection().databaseId,
+				tableId: "comments",
+				rowId: comment.$id,
+				transactionId,
+			});
+		},
+	);
+}
 export function removeComment(input: Validated<DeleteInput>) {
 	return retryBoundary(async (): Promise<InteractionChange> => {
 		mutation();
@@ -412,14 +445,13 @@ export function removeComment(input: Validated<DeleteInput>) {
 			throw new AuthFailure("forbidden");
 		let emitted: InteractionEvent | null = null;
 		try {
-			await atomic(post, async (db, transactionId) => {
-				await db.deleteRow({
-					databaseId: c.databaseId,
-					tableId: "comments",
-					rowId: commentId,
-					transactionId,
-				});
-			});
+			await deleteCommentAnchored(
+				post,
+				viewer.id,
+				comment,
+				(parent, actor, author, remove) =>
+					atomic(parent, actor, remove, [author]),
+			);
 			emitted = event(
 				"COMMENT_REMOVED",
 				viewer.id,

@@ -2,6 +2,7 @@
 import { open, rename, rm } from "node:fs/promises";
 import { isAbsolute, join } from "node:path";
 import { Query } from "node-appwrite";
+import { consumeAccountDeletions } from "../src/lib/account-deletion.server";
 import {
 	consumeNotifications,
 	notificationConnection,
@@ -73,6 +74,7 @@ const ownership = setInterval(() => {
 try {
 	while (!stopping) {
 		try {
+			await withDeadline(consumeAccountDeletions(1), 20000);
 			const result = await withDeadline(consumeNotifications(1), 8000);
 			counters.examined += result.examined;
 			counters.delivered += result.delivered;

@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { Client, Query, TablesDB, TablesDBIndexType } from "node-appwrite";
+import { accountLifecycleIndexes } from "./account-lifecycle-v1-contract.mts";
 import { bootstrap } from "./bootstrap.mts";
 import { endpoint } from "./local.mts";
 import { type Column, schemaDigest, schemaVersion, tables } from "./schema.mts";
@@ -123,7 +124,10 @@ export async function provision(db: TablesDB, databaseId: string) {
 		assert.ok(indexes.total <= 100);
 		for (const index of indexes.indexes)
 			assert.ok(
-				table.indexes.some((i) => i.key === index.key),
+				table.indexes.some((i) => i.key === index.key) ||
+					(accountLifecycleIndexes[tableId] ?? []).some(
+						(i) => i.key === index.key,
+					),
 				`Unexpected index: ${index.key}`,
 			);
 		for (const index of table.indexes) {

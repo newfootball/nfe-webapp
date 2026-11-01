@@ -6,6 +6,7 @@ import {
 	setResponseHeader,
 } from "@tanstack/react-start/server";
 import { Account, AppwriteException, Client } from "node-appwrite";
+import { requireActiveAccount } from "./account-lifecycle-anchor.server";
 import { isTrustedMutation, sessionCookiePolicy } from "./auth-policy";
 
 export type AuthError =
@@ -81,6 +82,7 @@ export async function identity() {
 	try {
 		const user = await account.get();
 		if (!user.status) throw new AuthFailure("unauthorized");
+		await requireActiveAccount(user.$id);
 		const session = await account.getSession({ sessionId: "current" });
 		if (Date.parse(session.expire) <= Date.now())
 			throw new AuthFailure("unauthorized");

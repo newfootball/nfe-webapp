@@ -1,3 +1,4 @@
+import { fenceAccounts } from "./account-lifecycle-anchor.server";
 import "@tanstack/react-start/server-only";
 import {
 	AppwriteException,
@@ -92,6 +93,7 @@ export function transitionPost(input: Validated<PostTransition>) {
 		if (!permitsTransition(before.status, v.target))
 			throw new AuthFailure("forbidden");
 		return lifecycleTransaction(db, async (tx) => {
+			await fenceAccounts(tx, [owner]);
 			await unlocked(db, v.id, tx);
 			const p = await db.updateRow({
 				...ref("posts", v.id, tx),
@@ -178,6 +180,7 @@ async function start(
 	)
 		throw new AuthFailure("invalid");
 	return lifecycleTransaction(db, async (tx) => {
+		await fenceAccounts(tx, [owner]);
 		await unlocked(db, v.id, tx);
 		// Same parent write anchor as57; status and ACL commit together for deletion.
 		await db.updateRow({

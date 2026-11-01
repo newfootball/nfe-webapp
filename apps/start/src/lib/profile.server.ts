@@ -1,3 +1,7 @@
+import {
+	fenceAccounts,
+	isAccountActive,
+} from "./account-lifecycle-anchor.server";
 import "@tanstack/react-start/server-only";
 import { AppwriteException, Permission, Role, TablesDB } from "node-appwrite";
 import {
@@ -115,6 +119,7 @@ export function initializeProfile(input: Validated<Record<string, never>>) {
 		const write = writer();
 		try {
 			await transaction(write, async (transactionId) => {
+				await fenceAccounts(transactionId, [viewer.id]);
 				const ref = { databaseId: database(), rowId: viewer.id, transactionId };
 				if (!p)
 					await write.createRow({
@@ -202,6 +207,7 @@ async function writePair(
 ) {
 	const db = writer();
 	await transaction(db, async (transactionId) => {
+		await fenceAccounts(transactionId, [id]);
 		const ref = { databaseId: database(), rowId: id, transactionId };
 		await db.updateRow({
 			...ref,
@@ -272,7 +278,7 @@ export function readPublicProfile(input: Validated<{ id: string }>) {
 				return null;
 			throw error;
 		}
-		if (!p?.isOnboarded) return null;
+		if (!p?.isOnboarded || !(await isAccountActive(input.data.id))) return null;
 		return publicProfile(p);
 	});
 }

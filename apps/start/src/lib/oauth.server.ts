@@ -1,3 +1,4 @@
+import { requireActiveAccount } from "./account-lifecycle-anchor.server";
 import "@tanstack/react-start/server-only";
 import {
 	deleteCookie,
@@ -126,6 +127,12 @@ export async function completeGoogle(url: URL) {
 			revoke: () =>
 				users.deleteSession({ userId: expectedId, sessionId: issued.$id }),
 		});
+		try {
+			await requireActiveAccount(expectedId);
+		} catch (error) {
+			await users.deleteSession({ userId: expectedId, sessionId: issued.$id });
+			throw error;
+		}
 		try {
 			if (session)
 				await new Account(client(config).setSession(session)).deleteSession({

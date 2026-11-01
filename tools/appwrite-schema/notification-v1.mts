@@ -1,6 +1,7 @@
 // Additive version; existing applied schema digests are unchanged.
 import assert from "node:assert/strict";
 import { Query, type TablesDB, TablesDBIndexType } from "node-appwrite";
+import { accountLifecycleIndexes } from "./account-lifecycle-v1-contract.mts";
 import {
 	notificationV1Digest as schemaDigest,
 	notificationV1Version as schemaVersion,
@@ -153,7 +154,10 @@ export async function provisionNotificationV1(
 		assert.ok(indexes.total <= 100);
 		for (const index of indexes.indexes)
 			assert.ok(
-				table.indexes.some((i) => i.key === index.key),
+				table.indexes.some((i) => i.key === index.key) ||
+					(accountLifecycleIndexes[tableId] ?? []).some(
+						(i) => i.key === index.key,
+					),
 				`Unexpected index: ${index.key}`,
 			);
 		for (const index of table.indexes) {

@@ -8,6 +8,7 @@ import {
 	Role,
 	TablesDB,
 } from "node-appwrite";
+import { fenceAccounts } from "./account-lifecycle-anchor.server";
 import {
 	AuthFailure,
 	client,
@@ -332,6 +333,7 @@ export function sendPrivateMessage(input: Validated<SendMessageInput>) {
 			const tx = await write.createTransaction({ ttl: 60 }),
 				transactionId = tx.$id;
 			try {
+				await fenceAccounts(transactionId, [viewer.id, v.toUserId]);
 				const quotaData = {
 					senderId: viewer.id,
 					window,
@@ -437,6 +439,10 @@ export function markMessagesRead(input: Validated<{ ids: string[] }>) {
 		const tx = await write.createTransaction({ ttl: 60 }),
 			transactionId = tx.$id;
 		try {
+			await fenceAccounts(transactionId, [
+				viewer.id,
+				...rows.map((row) => String(row.fromUserId)),
+			]);
 			for (const row of rows)
 				if (!row.readAt)
 					await write.updateRow({

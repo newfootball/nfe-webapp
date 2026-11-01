@@ -1,5 +1,6 @@
 import "@tanstack/react-start/server-only";
 import { Query } from "node-appwrite";
+import { isAccountActive } from "./account-lifecycle-anchor.server";
 import {
 	DIRECTORY_CITIES,
 	DIRECTORY_POSITIONS,
@@ -67,6 +68,16 @@ export async function sitemapResponse(request: Request) {
 			});
 			for (const row of rows.rows) eligible.add(row.$id);
 		}
+		const ids = [
+			...new Set([...profiles.rows.map((row) => row.$id), ...eligible]),
+		];
+		const active = new Set(
+			(
+				await Promise.all(
+					ids.map(async (id) => ((await isAccountActive(id)) ? id : null)),
+				)
+			).filter((id): id is string => id !== null),
+		);
 		const paths = [
 			"/",
 			"/about-us",
@@ -77,9 +88,14 @@ export async function sitemapResponse(request: Request) {
 			...DIRECTORY_TYPES.map((v) => `/${v}`),
 			...DIRECTORY_POSITIONS.map((v) => `/players/${v}`),
 			...DIRECTORY_CITIES.map((v) => `/players/city/${v}`),
-			...profiles.rows.map((row) => `/user/${encodeURIComponent(row.$id)}`),
+			...profiles.rows
+				.filter((row) => active.has(row.$id))
+				.map((row) => `/user/${encodeURIComponent(row.$id)}`),
 			...posts.rows
-				.filter((row) => eligible.has(String(row.userId)))
+				.filter(
+					(row) =>
+						eligible.has(String(row.userId)) && active.has(String(row.userId)),
+				)
 				.map((row) => `/post/${encodeURIComponent(row.$id)}`),
 		];
 		return new Response(

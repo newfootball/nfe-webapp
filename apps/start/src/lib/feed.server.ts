@@ -1,3 +1,4 @@
+import { isAccountActive } from "./account-lifecycle-anchor.server";
 import "@tanstack/react-start/server-only";
 import {
 	getCookie,
@@ -218,6 +219,11 @@ async function assemble(
 	rows: Models.DefaultRow[],
 ): Promise<PublicPost[]> {
 	if (!rows.length) return [];
+	const active = await Promise.all(
+		rows.map((row) => isAccountActive(String(row.userId))),
+	);
+	rows = rows.filter((_row, i) => active[i]);
+	if (!rows.length) return [];
 	if (rows.some((r) => r.status !== "PUBLISHED"))
 		throw new Error("Hidden parent");
 	const ids = rows.map((r) => r.$id),
@@ -243,6 +249,12 @@ async function assemble(
 		Query.limit(ids.length),
 	]);
 	const byId = new Map(visible.map((r) => [r.$id, r]));
+	await Promise.all(
+		rows.map(async (r) => {
+			if (!(await isAccountActive(String(r.userId))))
+				throw new Error("Author withdrawn");
+		}),
+	);
 	return rows.map((r) => {
 		const current = byId.get(r.$id),
 			author = byAuthor.get(String(r.userId));
@@ -367,7 +379,11 @@ async function users(c: Connection, q: string): Promise<ExploreUser[]> {
 				),
 			);
 		if (viewer) query.push(Query.notEqual("$id", viewer.viewer.id));
-		const candidates = await list(c, c.publicDB, "profiles", query);
+		const allCandidates = await list(c, c.publicDB, "profiles", query);
+		const active = await Promise.all(
+			allCandidates.map((r) => isAccountActive(r.$id)),
+		);
+		const candidates = allCandidates.filter((_r, i) => active[i]);
 		let followed = new Set<string>();
 		if (viewer && candidates.length) {
 			const edges = await list(

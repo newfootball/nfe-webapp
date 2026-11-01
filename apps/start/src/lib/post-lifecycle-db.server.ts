@@ -1,3 +1,4 @@
+import { fenceAccounts } from "./account-lifecycle-anchor.server";
 import "@tanstack/react-start/server-only";
 import { AppwriteException, type Models, Query, TablesDB } from "node-appwrite";
 import { AuthFailure, client, configuration } from "./auth-context.server";
@@ -101,6 +102,7 @@ export async function claimLifecycleOperation(
 	token: string,
 ) {
 	return lifecycleTransaction(db, async (tx) => {
+		await fenceAccounts(tx, [owner]);
 		// Anchor first, then read live. A takeover before the anchor is seen by
 		// the read; a takeover after it conflicts at commit (accepted Appwrite contract).
 		await db.updateRow({
@@ -138,7 +140,8 @@ export async function fencedLifecycleCheckpoint(
 				updatedAt: new Date().toISOString(),
 			},
 		});
-		await assertLifecycleLease(db, operationId, token);
+		const current = await assertLifecycleLease(db, operationId, token);
+		await fenceAccounts(tx, [String(current.ownerId)]);
 		if (run) await run(tx);
 		return staged;
 	});

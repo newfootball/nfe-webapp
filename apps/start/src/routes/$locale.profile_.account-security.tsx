@@ -1,4 +1,5 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { AccountDeletionForm } from "../components/account-deletion-form";
 import { profileMessages } from "../lib/profile-messages";
 import { getVerification } from "../lib/recovery";
 import { recoveryMessages } from "../lib/recovery-messages";
@@ -61,6 +62,7 @@ function Page() {
 					{access.forgot}
 				</Link>
 			</nav>
+			<AccountDeletionForm locale={locale} />
 		</section>
 	);
 }

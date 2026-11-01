@@ -1,3 +1,4 @@
+import { fenceAccounts } from "./account-lifecycle-anchor.server";
 import "@tanstack/react-start/server-only";
 import { createHash } from "node:crypto";
 import { AppwriteException, type Models, Query, TablesDB } from "node-appwrite";
@@ -176,6 +177,7 @@ export function editPostText(input: Validated<EditPostTextInput>) {
 		const write = writer(),
 			tx = await write.createTransaction({ ttl: 60 });
 		try {
+			await fenceAccounts(tx.$id, [viewer.id]);
 			// Stage BEFORE the second live read. The staged write anchors Appwrite's
 			// conflict detection; checking only before staging leaves a lost-update gap.
 			const changed = await write.updateRow({

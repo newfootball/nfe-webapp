@@ -1,3 +1,4 @@
+import { isAccountActive } from "./account-lifecycle-anchor.server";
 import "@tanstack/react-start/server-only";
 import { Query } from "node-appwrite";
 import type { DirectoryInput } from "./directory-input";
@@ -42,8 +43,14 @@ export async function readDirectory(input: DirectoryInput) {
 		queries,
 		total: false,
 	});
+	const active = await Promise.all(
+		result.rows.slice(0, 20).map((row) => isAccountActive(row.$id)),
+	);
 	return {
-		users: result.rows.slice(0, 20).map(authorDTO),
+		users: result.rows
+			.slice(0, 20)
+			.filter((_row, index) => active[index])
+			.map(authorDTO),
 		hasNext: result.rows.length > 20,
 	};
 }

@@ -66,10 +66,18 @@ async function references(db: TablesDB, i: AccountAssetInventory) {
 				found.rows[0]?.provider !== "B2"
 			)
 				throw forbidden();
-		} else if (
-			found.rows.some((r) => r.$id !== i.id || r.ownerId !== i.ownerId)
-		)
-			throw forbidden();
+		} else {
+			for (const media of found.rows) {
+				if (media.$id !== i.id || media.ownerId !== i.ownerId || !media.postId)
+					throw forbidden();
+				const post = await db.getRow({
+					databaseId: databaseId(),
+					tableId: "posts",
+					rowId: String(media.postId),
+				});
+				if (post.userId !== i.ownerId) throw forbidden();
+			}
+		}
 	}
 	const profiles = await db.listRows({
 		databaseId: databaseId(),

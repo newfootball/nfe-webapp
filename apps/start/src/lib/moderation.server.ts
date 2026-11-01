@@ -1,3 +1,4 @@
+import { fenceAccounts } from "./account-lifecycle-anchor.server";
 import "@tanstack/react-start/server-only";
 import {
 	AppwriteException,
@@ -120,6 +121,7 @@ export function createReport(input: Validated<ReportInput>) {
 		});
 		if (existing.rows.length) return { created: false };
 		await atomic(async (db, databaseId, tx) => {
+			await fenceAccounts(tx, [viewer.id, String(p.userId)]);
 			await anchor(db, databaseId, tx, p);
 			const count = await c.db.listRows({
 				databaseId,
@@ -299,7 +301,7 @@ export function listAdmin(input: Validated<AdminPageInput>) {
 export function decideReport(input: Validated<DecisionInput>) {
 	return boundary(async () => {
 		mutation();
-		await admin();
+		const adminViewer = await admin();
 		if (!input.valid) throw new AuthFailure("invalid");
 		const { signalId, postId, operation, postVersion, signalVersion } =
 			input.data;
@@ -313,6 +315,11 @@ export function decideReport(input: Validated<DecisionInput>) {
 		)
 			throw new AuthFailure("forbidden");
 		await atomic(async (db, databaseId, transactionId) => {
+			await fenceAccounts(transactionId, [
+				adminViewer.id,
+				String(p.userId),
+				String(s.userId),
+			]);
 			await anchor(db, databaseId, transactionId, p);
 			await db.updateRow({
 				databaseId,

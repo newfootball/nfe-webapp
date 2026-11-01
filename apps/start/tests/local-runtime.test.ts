@@ -388,6 +388,7 @@ test("readiness uses bounded server-only DB/cache/geo checks and fails closed", 
 			"/v1/health/cache",
 			"/v1/health/geo",
 			"/v1/tablesdb/nfe-local/tables/schema_versions/rows/v1-post-lifecycle",
+			"/v1/tablesdb/nfe-local/tables/schema_versions/rows/account-lifecycle-v1",
 		]) {
 			failedPath = path;
 			const response = await localHealth("/_local/ready", false);

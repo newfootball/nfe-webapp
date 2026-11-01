@@ -32,6 +32,7 @@ const scopes = {
 	health: ["health.read"],
 	notification: ["rows.read", "rows.write"],
 	lifecycle: ["rows.read", "rows.write"],
+	account: ["rows.read", "rows.write", "users.read", "users.write"],
 	session: ["sessions.write"],
 	reader: ["rows.read"],
 	writer: ["rows.write"],
@@ -41,6 +42,7 @@ export type Credentials = {
 	health: string;
 	notification: string;
 	lifecycle: string;
+	account: string;
 	provision: string;
 	session: string;
 	reader: string;
@@ -162,12 +164,20 @@ export async function bootstrap() {
 			} else if (credentials.lifecycle !== (await keyFor("lifecycle", false))) {
 				throw new Error("Saved lifecycle key differs; refusing replacement");
 			}
+			if (!credentials.account) {
+				const account = await keyFor("account");
+				await extendPrivate(saved, credentials, { account });
+				credentials = { ...credentials, account };
+			} else if (credentials.account !== (await keyFor("account", false))) {
+				throw new Error("Saved account key differs; refusing replacement");
+			}
 		} else {
 			credentials = {
 				project: projectId,
 				health: "",
 				notification: "",
 				lifecycle: "",
+				account: "",
 				provision: "",
 				session: "",
 				reader: "",
@@ -181,6 +191,7 @@ export async function bootstrap() {
 				"health",
 				"notification",
 				"lifecycle",
+				"account",
 			] as const)
 				credentials[name] = await keyFor(name);
 			await createPrivate(saved, credentials);
@@ -227,6 +238,10 @@ export async function provisionLocal(credentials: Credentials) {
 		`${directory}/lifecycle-v1.mts`
 	);
 	await provisionLifecycleV1(db, databaseId);
+	const { provisionAccountLifecycleV1 } = await import(
+		`${directory}/account-lifecycle-v1.mts`
+	);
+	await provisionAccountLifecycleV1(db, databaseId);
 	const fixture = await loadOrCreate(`${state}/fixture.json`, () => ({
 		id: "local-player",
 		email: "local-player@example.test",
@@ -299,6 +314,8 @@ export async function configure(credentials: Credentials) {
 		START_LOCAL_HEALTH_KEY: credentials.health,
 		START_APPWRITE_NOTIFICATION_WRITER_KEY: credentials.notification,
 		START_APPWRITE_LIFECYCLE_WRITER_KEY: credentials.lifecycle,
+		START_APPWRITE_ACCOUNT_LIFECYCLE_WRITER_KEY: credentials.account,
+		START_ACCOUNT_DELETION_SYNTHETIC_PROJECT: projectId,
 		START_APPWRITE_SESSION_KEY: credentials.session,
 		START_APPWRITE_FEED_READER_KEY: credentials.reader,
 		START_APPWRITE_MODERATION_READER_KEY: credentials.reader,
@@ -316,12 +333,19 @@ export async function configure(credentials: Credentials) {
 		config[`START_APPWRITE_${name}_WRITER_KEY`] = credentials.writer;
 	if (await Bun.file(configPath).exists()) {
 		const previous = await readPrivate<Record<string, string>>(configPath);
-		const addition = {
-			START_APPWRITE_LIFECYCLE_WRITER_KEY: credentials.lifecycle,
-		};
+		const allowedAdditions = [
+			"START_APPWRITE_LIFECYCLE_WRITER_KEY",
+			"START_APPWRITE_ACCOUNT_LIFECYCLE_WRITER_KEY",
+			"START_ACCOUNT_DELETION_SYNTHETIC_PROJECT",
+		] as const;
+		const addition: Record<string, string> = {};
 		const expected = { ...config };
-		if (!Object.hasOwn(previous, "START_APPWRITE_LIFECYCLE_WRITER_KEY"))
-			Reflect.deleteProperty(expected, "START_APPWRITE_LIFECYCLE_WRITER_KEY");
+		for (const key of allowedAdditions) {
+			if (!Object.hasOwn(previous, key)) {
+				Reflect.deleteProperty(expected, key);
+				addition[key] = config[key] as string;
+			}
+		}
 		if (
 			Object.keys(previous).length !== Object.keys(expected).length ||
 			Object.entries(expected).some(([key, value]) => previous[key] !== value)
@@ -329,7 +353,7 @@ export async function configure(credentials: Credentials) {
 			throw new Error(
 				"Existing runtime configuration differs; refusing overwrite",
 			);
-		if (!Object.hasOwn(previous, "START_APPWRITE_LIFECYCLE_WRITER_KEY"))
+		if (Object.keys(addition).length)
 			await extendPrivate(configPath, previous, addition);
 	} else await createPrivate(configPath, config);
 	return config;

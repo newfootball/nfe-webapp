@@ -1,3 +1,7 @@
+import {
+	fenceAccounts,
+	requireActiveAccount,
+} from "./account-lifecycle-anchor.server";
 import "@tanstack/react-start/server-only";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -74,6 +78,7 @@ export function publishMedia(v: PublishPost) {
 	return boundary(async () => {
 		const { ownerId } = await mediaSelf();
 		return transaction(async (db, tx) => {
+			await fenceAccounts(tx, [ownerId]);
 			const ref = { databaseId: databaseId(), transactionId: tx };
 			const p = await row(db, "profiles", ownerId, tx);
 			if (!p.isOnboarded) throw new AuthFailure("forbidden");
@@ -169,6 +174,7 @@ export function replaceMediaAvatar(v: AssetRequest) {
 	return boundary(async () => {
 		const { ownerId } = await mediaSelf();
 		return transaction(async (db, tx) => {
+			await fenceAccounts(tx, [ownerId]);
 			const p = await row(db, "profiles", ownerId, tx),
 				a = await row(db, assetTable, v.assetId, tx);
 			assertOwner(a, ownerId);
@@ -199,6 +205,7 @@ async function denyRejectedParent(a: Awaited<ReturnType<typeof ownAsset>>) {
 		throw new AuthFailure("forbidden");
 }
 async function canRead(a: Awaited<ReturnType<typeof ownAsset>>) {
+	await requireActiveAccount(String(a.ownerId));
 	if (!["READY", "ATTACHED"].includes(a.state) || !a.versionId)
 		throw new AuthFailure("forbidden");
 	const publicDB = new TablesDB(client(configuration()));

@@ -15,7 +15,7 @@ import type { Validated } from "./profile-input";
 
 const anchors = "account_lifecycle_anchors";
 const operations = "account_lifecycle_operations";
-function connection() {
+export function accountLifecycleConnection() {
 	const config = configuration();
 	const databaseId = process.env.START_APPWRITE_DATABASE;
 	const key = process.env.START_APPWRITE_ACCOUNT_LIFECYCLE_WRITER_KEY;
@@ -51,6 +51,14 @@ async function optional(
 		throw e;
 	}
 }
+export async function isAccountActive(userId: string) {
+	const { db, databaseId } = accountLifecycleConnection();
+	const row = await optional(db, databaseId, anchors, userId);
+	return !row || row.state === "ACTIVE";
+}
+export async function requireActiveAccount(userId: string) {
+	if (!(await isAccountActive(userId))) throw new AuthFailure("forbidden");
+}
 async function anchor(
 	db: TablesDB,
 	databaseId: string,
@@ -70,6 +78,16 @@ async function anchor(
 		if (error instanceof AppwriteException && error.code === 409) {
 			const live = await optional(db, databaseId, anchors, userId);
 			if (live && live.state !== "ACTIVE") throw new AuthFailure("forbidden");
+			if (
+				!before &&
+				live?.state === "ACTIVE" &&
+				error.type === "row_already_exists"
+			)
+				throw new AppwriteException(
+					"Account anchor contention",
+					409,
+					"account_anchor_conflict",
+				);
 		}
 		throw error;
 	}
@@ -99,7 +117,7 @@ export async function fenceAccounts(
 	transactionId: string,
 	ids: readonly string[],
 ) {
-	const { db, databaseId } = connection();
+	const { db, databaseId } = accountLifecycleConnection();
 	return fenceAccountsWith(db, databaseId, transactionId, ids);
 }
 
@@ -111,7 +129,7 @@ export async function beginAccountDeletion(
 		checkOrigin: mutation,
 		getIdentity: async () => (await identity()).viewer.id,
 		start: async (ownerId, operationId) => {
-			const { db, databaseId } = connection();
+			const { db, databaseId } = accountLifecycleConnection();
 			return beginAccountDeletionWith(db, databaseId, ownerId, operationId);
 		},
 	});

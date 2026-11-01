@@ -74,6 +74,7 @@ export async function localHealth(
 				"messaging-v1",
 				"notification-v1",
 				"v1-post-lifecycle",
+				"account-lifecycle-v1",
 			].map((rowId) =>
 				read(
 					`/tablesdb/nfe-local/tables/schema_versions/rows/${rowId}`,

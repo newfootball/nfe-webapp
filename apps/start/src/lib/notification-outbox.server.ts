@@ -110,7 +110,16 @@ export async function notificationTransaction<T>(
 			try {
 				await db.updateTransaction({ transactionId: tx.$id, rollback: true });
 			} catch {}
-			if (!(e instanceof AppwriteException && e.code === 409)) throw e;
+			if (
+				!(
+					e instanceof AppwriteException &&
+					e.code === 409 &&
+					(e.type === "transaction_conflict" ||
+						e.type === "account_anchor_conflict" ||
+						e.type === "notification_contention")
+				)
+			)
+				throw e;
 			if (attempt === 3) throw new NotificationContention();
 		}
 	}
@@ -165,7 +174,7 @@ async function claim(row: Models.DefaultRow) {
 		return null;
 	const c = notificationConnection(),
 		token = randomUUID(),
-		attempts = Number(row.attempts);
+		attempts = Number(row.attempts) + (row.claim ? 1 : 0);
 	await fenced(row, (tx) =>
 		c.db.updateRow({
 			databaseId: c.databaseId,
@@ -173,9 +182,12 @@ async function claim(row: Models.DefaultRow) {
 			rowId: row.$id,
 			transactionId: tx,
 			data: {
-				claim: token,
+				claim: attempts >= OUTBOX_ATTEMPTS ? null : token,
 				attempts,
-				leaseUntil: new Date(now + 60000).toISOString(),
+				leaseUntil:
+					attempts >= OUTBOX_ATTEMPTS
+						? null
+						: new Date(now + 60000).toISOString(),
 				status: attempts >= OUTBOX_ATTEMPTS ? "FAILED" : "PENDING",
 			},
 		}),
@@ -328,6 +340,10 @@ export async function recoverNotification(outboxId: string, reason: string) {
 	if (row.status !== "FAILED")
 		throw new Error("Only failed events may be recovered");
 	await fenced(row, async (transactionId) => {
+		await fenceAccounts(transactionId, [
+			String(row.recipientId),
+			...(row.actorId ? [String(row.actorId)] : []),
+		]);
 		await c.db.createRow({
 			databaseId: c.databaseId,
 			tableId: "notification_recovery_v1",

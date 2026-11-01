@@ -21,6 +21,7 @@ let versions: { Key: string; VersionId: string }[];
 let markers: { Key: string; VersionId: string }[];
 let uploads: { Key: string; UploadId: string }[];
 let foreign = false;
+let foreignPost = false;
 let truncated = false;
 let calls: string[];
 const key = asset.objectKey as string;
@@ -92,7 +93,12 @@ const db = {
 				rows: foreign ? [asset, { ...asset, $id: "foreign" }] : [asset],
 			};
 		if (tableId === "profiles") return { rows: [] };
+		if (tableId === "media" && foreignPost)
+			return { rows: [{ $id: id, ownerId, postId: "other-post" }] };
 		return { rows: [] };
+	},
+	async getRow() {
+		return { userId: "other-owner" };
 	},
 } as unknown as TablesDB;
 beforeEach(() => {
@@ -103,6 +109,7 @@ beforeEach(() => {
 	markers = [{ Key: key, VersionId: "m1" }];
 	uploads = [{ Key: key, UploadId: "u1" }];
 	foreign = false;
+	foreignPost = false;
 	truncated = false;
 	calls = [];
 });
@@ -151,4 +158,13 @@ test("accepts an Appwrite-safe legacy asset ID", async () => {
 	} as unknown as TablesDB;
 	const inventory = await inventoryAccountAsset(legacyDb, legacy, ownerId);
 	expect(inventory.id).toBe(legacy.$id);
+});
+
+test("refuses media referenced by another owner's post before deleting objects", async () => {
+	const inventory = await inventoryAccountAsset(db, asset, ownerId);
+	foreignPost = true;
+	await expect(
+		purgeAccountAsset(db, inventory, async () => {}),
+	).rejects.toThrow();
+	expect(calls).not.toContain("DeleteObjectCommand");
 });

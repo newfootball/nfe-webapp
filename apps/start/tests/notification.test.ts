@@ -388,7 +388,7 @@ test("transient account contention retries the whole notification transaction", 
 	expect(attempts).toBe(2);
 });
 
-test("repeated exhausted contention and failed release never consume delivery attempts", async () => {
+test("contention release preserves attempts, while failed release and worker crashes are bounded", async () => {
 	environment();
 	const { consumeNotifications } = await import(
 		"../src/lib/notification-outbox.server"
@@ -468,7 +468,10 @@ test("repeated exhausted contention and failed release never consume delivery at
 				args.commit &&
 				failRelease &&
 				writes.some(
-					(w) => w.table === "notification_outbox_v1" && w.data.claim === null,
+					(w) =>
+						w.table === "notification_outbox_v1" &&
+						w.data.claim === null &&
+						w.data.status !== "FAILED",
 				)
 			)
 				throw new AppwriteException("release collision", 409, "conflict");
@@ -496,19 +499,109 @@ test("repeated exhausted contention and failed release never consume delivery at
 				},
 			});
 			expect(collisions).toBe(4);
-			expect(outbox).toMatchObject({ status: "PENDING", attempts: 0 });
+			expect(outbox).toMatchObject({
+				status: "PENDING",
+				attempts: round === 0 ? 0 : 1,
+			});
 			// First release collides; simulate expiry before another worker takes over.
 			outbox.leaseUntil = new Date(0).toISOString();
 			failRelease = false;
 		}
 		await consumeNotifications(1);
-		expect(outbox).toMatchObject({ status: "DELIVERED", attempts: 0 });
+		expect(outbox).toMatchObject({ status: "DELIVERED", attempts: 1 });
 		expect(notification).toMatchObject({
 			eventId: "message:m",
 			recipientId: "b",
 		});
+		outbox = {
+			...outbox,
+			status: "PENDING",
+			attempts: 0,
+			claim: null,
+			leaseUntil: null,
+			nextAttemptAt: new Date(0).toISOString(),
+		};
+		failRelease = true;
+		for (let round = 0; round < 6; round++) {
+			await consumeNotifications(1, {
+				afterClaim: async () => {
+					throw new Error("worker interruption");
+				},
+			});
+			outbox.leaseUntil = new Date(0).toISOString();
+		}
+		expect(outbox).toMatchObject({ status: "FAILED", attempts: 5 });
 	} finally {
 		for (const spy of [list, get, begin, update, create, end])
 			spy.mockRestore();
+	}
+});
+
+test("permanent 409 is not classified as transient anchor contention", async () => {
+	const { notificationTransaction } = await import(
+		"../src/lib/notification-outbox.server"
+	);
+	let calls = 0;
+	const db = {
+		createTransaction: async () => ({ $id: "tx" }),
+		updateTransaction: async () => ({}),
+	} as unknown as TablesDB;
+	const error = new AppwriteException(
+		"unique conflict",
+		409,
+		"row_already_exists",
+	);
+	await expect(
+		notificationTransaction(db, async () => {
+			calls++;
+			throw error;
+		}),
+	).rejects.toBe(error);
+	expect(calls).toBe(1);
+});
+
+test("recovery cannot recreate a journal row for a withdrawing recipient", async () => {
+	environment();
+	const { recoverNotification } = await import(
+		"../src/lib/notification-outbox.server"
+	);
+	const row = {
+		$id: "n",
+		$updatedAt: "1",
+		status: "FAILED",
+		claim: null,
+		actorId: null,
+		recipientId: "bob",
+		attempts: 5,
+	};
+	const get = spyOn(TablesDB.prototype, "getRow").mockImplementation(
+		async (args) => {
+			if (
+				typeof args !== "string" &&
+				args.tableId === "account_lifecycle_anchors"
+			)
+				return { state: "PREPARING", $updatedAt: "1" } as never;
+			return row as never;
+		},
+	);
+	const begin = spyOn(
+		TablesDB.prototype,
+		"createTransaction",
+	).mockResolvedValue({ $id: "tx" } as never);
+	const update = spyOn(TablesDB.prototype, "updateRow").mockResolvedValue(
+		row as never,
+	);
+	const end = spyOn(TablesDB.prototype, "updateTransaction").mockResolvedValue(
+		{} as never,
+	);
+	const create = spyOn(TablesDB.prototype, "createRow").mockResolvedValue(
+		{} as never,
+	);
+	try {
+		await expect(recoverNotification("n", "retry")).rejects.toThrow();
+		expect(create).not.toHaveBeenCalled();
+		expect(end).toHaveBeenCalledWith({ transactionId: "tx", rollback: true });
+	} finally {
+		for (const spy of [get, begin, update, end, create]) spy.mockRestore();
 	}
 });

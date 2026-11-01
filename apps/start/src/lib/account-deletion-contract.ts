@@ -1,15 +1,15 @@
 import { z } from "zod";
-import { AssetIdSchema } from "./media-contract";
+import { RequestIdSchema } from "./media-contract";
 import { validate } from "./profile-input";
 
 // The account ID is always derived from the authenticated session. In particular,
 // a browser cannot select another account, object key, or lifecycle phase.
 export const StartAccountDeletionSchema = z.strictObject({
-	requestId: AssetIdSchema,
+	requestId: RequestIdSchema,
 	confirmation: z.literal("DELETE_ALL_SENT_RECEIVED"),
 });
 export const ResumeAccountDeletionSchema = z.strictObject({
-	operationId: AssetIdSchema,
+	operationId: RequestIdSchema,
 });
 export const validateStartAccountDeletion = (value: unknown) =>
 	validate(StartAccountDeletionSchema, value);

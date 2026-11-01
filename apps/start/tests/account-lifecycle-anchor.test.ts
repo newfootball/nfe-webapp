@@ -239,3 +239,30 @@ test("follow conflict is a replay only when the desired edge exists", async () =
 		verifyFollowReplay(missing, false, async () => null),
 	).resolves.toBeUndefined();
 });
+
+test("first-anchor unique collision is retryable only for a confirmed ACTIVE row", async () => {
+	for (const [state, type] of [
+		["ACTIVE", "row_already_exists"],
+		["PREPARING", "row_already_exists"],
+		["ACTIVE", "other_conflict"],
+	] as const) {
+		const store = new Store();
+		store.createRow = async () => {
+			store.seed("account_lifecycle_anchors", "alice", { state });
+			throw new AppwriteException("collision", 409, type);
+		};
+		const tx = await store.createTransaction();
+		try {
+			await fenceAccountsWith(store.db(), "db", tx.$id, ["alice"]);
+			throw new Error("expected failure");
+		} catch (error) {
+			if (state === "PREPARING") expect(error).toBeInstanceOf(AuthFailure);
+			else
+				expect(error).toMatchObject({
+					code: 409,
+					type:
+						type === "row_already_exists" ? "account_anchor_conflict" : type,
+				});
+		}
+	}
+});

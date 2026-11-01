@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "../../../../components/ui/button";
+import { AccountDeletionRecovery } from "../components/account-deletion-form";
 import {
 	getAdminPage,
 	getModerationDashboard,
@@ -132,6 +133,7 @@ function Page() {
 					))}
 				</nav>
 			)}
+			<AccountDeletionRecovery locale={locale} />
 			{decision.isError && (
 				<p role="alert">
 					{t.error}

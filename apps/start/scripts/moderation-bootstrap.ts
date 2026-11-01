@@ -18,6 +18,9 @@ export async function bootstrap() {
 			sessionKey: string;
 			writerKey: string;
 			readerKey: string;
+			accountKey: string;
+			notificationKey: string;
+			lifecycleKey: string;
 		};
 	let cookie = "";
 	async function consoleRequest(
@@ -100,12 +103,35 @@ export async function bootstrap() {
 		name: "Profile row mutations only",
 		scopes: ["rows.write"],
 	});
+	const createKey = (keyId: string, scopes: string[]) =>
+		consoleRequest("/projects/nfe-moderation/keys", {
+			keyId,
+			name: `Synthetic ${keyId}`,
+			scopes,
+		});
+	const accountKey = await createKey("account-writer", [
+		"rows.read",
+		"rows.write",
+		"users.read",
+		"users.write",
+	]);
+	const notificationKey = await createKey("notification-writer", [
+		"rows.read",
+		"rows.write",
+	]);
+	const lifecycleKey = await createKey("lifecycle-writer", [
+		"rows.read",
+		"rows.write",
+	]);
 	const config = {
 		project: "nfe-moderation",
 		proofKey: proofKey.secret,
 		sessionKey: sessionKey.secret,
 		writerKey: writerKey.secret,
 		readerKey: readerKey.secret,
+		accountKey: accountKey.secret,
+		notificationKey: notificationKey.secret,
+		lifecycleKey: lifecycleKey.secret,
 	};
 	await Bun.write(`${state}/credentials.json`, JSON.stringify(config));
 	await chmod(`${state}/credentials.json`, 0o600);

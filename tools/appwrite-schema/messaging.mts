@@ -9,6 +9,7 @@ import {
 	type TablesDB,
 	TablesDBIndexType,
 } from "node-appwrite";
+import { accountLifecycleIndexes } from "./account-lifecycle-v1-contract.mts";
 import { codeOf, waitFor } from "./provision.mts";
 import { schemaDigest, schemaVersion } from "./schema.mts";
 export const messagingVersion = "messaging-v1";
@@ -117,7 +118,10 @@ export async function provisionMessaging(db: TablesDB, databaseId: string) {
 		});
 		for (const index of indexes.indexes)
 			assert.ok(
-				definition.indexes.some((i) => i.key === index.key),
+				definition.indexes.some((i) => i.key === index.key) ||
+					(accountLifecycleIndexes[tableId] ?? []).some(
+						(i) => i.key === index.key,
+					),
 				"Unexpected messaging index",
 			);
 		for (const index of definition.indexes) {

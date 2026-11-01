@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { Query, type TablesDB, TablesDBIndexType } from "node-appwrite";
 import {
 	accountLifecycleDigest,
+	accountLifecycleIndexes,
 	accountLifecycleTables,
 	accountLifecycleVersion,
 } from "./account-lifecycle-v1-contract.mts";
@@ -91,6 +92,23 @@ export async function provisionAccountLifecycleV1(
 			const a = await db.getIndex(index);
 			assert.equal(a.type, i.type);
 			assert.deepEqual(a.columns, i.columns);
+		}
+	}
+	for (const [tableId, indexes] of Object.entries(accountLifecycleIndexes)) {
+		for (const item of indexes) {
+			const ref = { databaseId, tableId, key: item.key };
+			if (!(await optional(() => db.getIndex(ref)))) {
+				assert(!applied, "Applied account index missing");
+				await db.createIndex({
+					...ref,
+					columns: item.columns,
+					type: TablesDBIndexType.Key,
+				});
+			}
+			await waitFor(async () => (await db.getIndex(ref)).status);
+			const actual = await db.getIndex(ref);
+			assert.equal(actual.type, "key");
+			assert.deepEqual(actual.columns, item.columns);
 		}
 	}
 	if (!applied)

@@ -1,3 +1,7 @@
+import {
+	fenceAccounts,
+	requireActiveAccount,
+} from "./account-lifecycle-anchor.server";
 import "@tanstack/react-start/server-only";
 import {
 	AbortMultipartUploadCommand,
@@ -84,6 +88,7 @@ async function initialize(a: Models.DefaultRow, ownerId: string) {
 				MaxUploads: 10,
 			}),
 		);
+		await requireActiveAccount(ownerId);
 		if (previous.IsTruncated) throw new AuthFailure("invalid");
 		const found = (previous.Uploads ?? []).filter((u) => u.Key === a.objectKey);
 		if (found.length > 1) throw new AuthFailure("invalid");
@@ -98,6 +103,7 @@ async function initialize(a: Models.DefaultRow, ownerId: string) {
 					}),
 				)
 			).UploadId;
+		await requireActiveAccount(ownerId);
 		if (!uploadId) throw new AuthFailure("unavailable");
 		return await fencedPatch(a.$id, ownerId, "INITIALIZING", token, {
 			metadataJson: null,
@@ -143,24 +149,28 @@ export async function allocate(input: AllocateAsset) {
 		if (active.rows.length >= 20) throw new AuthFailure("forbidden");
 		const now = new Date().toISOString();
 		try {
-			a = await db.createRow<Models.DefaultRow>({
-				databaseId: databaseId(),
-				tableId: assetTable,
-				rowId: v.requestId,
-				permissions: privateACL(ownerId),
-				data: {
-					ownerId,
-					kind: v.kind,
-					state: "ALLOCATED",
-					provider: "B2",
-					bucket: config.B2_BUCKET_NAME,
-					objectKey: `${config.START_MEDIA_PREFIX}${crypto.randomUUID()}/${v.requestId}`,
-					byteSize: v.byteSize,
-					sha256: v.sha256,
-					mimetype: v.mimetype,
-					createdAt: now,
-					updatedAt: now,
-				},
+			a = await transaction(async (_db, tx) => {
+				await fenceAccounts(tx, [ownerId]);
+				return db.createRow<Models.DefaultRow>({
+					databaseId: databaseId(),
+					tableId: assetTable,
+					rowId: v.requestId,
+					permissions: privateACL(ownerId),
+					transactionId: tx,
+					data: {
+						ownerId,
+						kind: v.kind,
+						state: "ALLOCATED",
+						provider: "B2",
+						bucket: config.B2_BUCKET_NAME,
+						objectKey: `${config.START_MEDIA_PREFIX}${crypto.randomUUID()}/${v.requestId}`,
+						byteSize: v.byteSize,
+						sha256: v.sha256,
+						mimetype: v.mimetype,
+						createdAt: now,
+						updatedAt: now,
+					},
+				});
 			});
 		} catch (e) {
 			if (!(e instanceof AppwriteException && e.code === 409)) throw e;
@@ -195,18 +205,18 @@ export async function signPart(input: PartRequest) {
 	expectedPartBytes(a.byteSize, input.partNumber);
 	const { s3 } = storage();
 	try {
-		return {
-			url: await getSignedUrl(
-				s3,
-				new UploadPartCommand({
-					...objectRef(a),
-					UploadId: a.uploadId,
-					PartNumber: input.partNumber,
-					ContentLength: expectedPartBytes(a.byteSize, input.partNumber),
-				}),
-				{ expiresIn: 120, signableHeaders: new Set(["content-length"]) },
-			),
-		};
+		const url = await getSignedUrl(
+			s3,
+			new UploadPartCommand({
+				...objectRef(a),
+				UploadId: a.uploadId,
+				PartNumber: input.partNumber,
+				ContentLength: expectedPartBytes(a.byteSize, input.partNumber),
+			}),
+			{ expiresIn: 120, signableHeaders: new Set(["content-length"]) },
+		);
+		await requireActiveAccount(ownerId);
+		return { url };
 	} finally {
 		s3.destroy();
 	}
@@ -231,6 +241,7 @@ export async function finalize(input: AssetRequest) {
 					MaxKeys: 10,
 				}),
 			);
+			await requireActiveAccount(ownerId);
 			const existing = (versions.Versions ?? []).filter(
 				(v) => v.Key === a.objectKey,
 			);
@@ -247,6 +258,7 @@ export async function finalize(input: AssetRequest) {
 					})),
 					true,
 				);
+				await requireActiveAccount(ownerId);
 				const completed = await s3.send(
 					new CompleteMultipartUploadCommand({
 						...objectRef(a),
@@ -259,6 +271,7 @@ export async function finalize(input: AssetRequest) {
 						},
 					}),
 				);
+				await requireActiveAccount(ownerId);
 				versionId = completed.VersionId;
 			}
 			if (!versionId) throw new AuthFailure("invalid");

@@ -1,3 +1,4 @@
+import { requireActiveAccount } from "./account-lifecycle-anchor.server";
 import "@tanstack/react-start/server-only";
 import {
 	deleteCookie,
@@ -60,6 +61,15 @@ export function authenticate(
 		}
 		if (!session.secret || Date.parse(session.expire) <= Date.now())
 			throw new AuthFailure("unavailable");
+		const issuedAccount = new Account(
+			client(config).setSession(session.secret),
+		);
+		try {
+			await requireActiveAccount((await issuedAccount.get()).$id);
+		} catch (error) {
+			await issuedAccount.deleteSession({ sessionId: "current" });
+			throw error;
+		}
 		// Revoke the previous browser session when switching identity.
 		const previous = getCookie(config.cookie.name);
 		if (previous) {

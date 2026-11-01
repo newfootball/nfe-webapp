@@ -1,3 +1,4 @@
+import { fenceAccounts } from "./account-lifecycle-anchor.server";
 import "@tanstack/react-start/server-only";
 import {
 	AppwriteException,
@@ -130,6 +131,7 @@ export async function claim(
 	allowed: string[],
 ) {
 	return transaction(async (db, tx) => {
+		await fenceAccounts(tx, [ownerId]);
 		const a = await row(db, assetTable, id, tx);
 		assertOwner(a, ownerId);
 		if (
@@ -159,6 +161,7 @@ export async function fencedPatch(
 	data: Record<string, unknown>,
 ) {
 	return transaction(async (db, tx) => {
+		await fenceAccounts(tx, [ownerId]);
 		const a = await row(db, assetTable, id, tx);
 		assertOwner(a, ownerId);
 		if (

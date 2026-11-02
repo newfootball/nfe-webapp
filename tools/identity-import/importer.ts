@@ -12,7 +12,7 @@ export type TargetUser = {
 export interface Target {
 	get(id: string): Promise<TargetUser | null>;
 	byEmail(email: string): Promise<TargetUser[]>;
-	create(user: SourceUser, password: string): Promise<void>;
+	create(user: SourceUser, password: string | null): Promise<void>;
 	mark(id: string, marker: string): Promise<void>;
 	verify(id: string, value: boolean): Promise<void>;
 	admin(id: string): Promise<void>;
@@ -28,7 +28,12 @@ export type Report = {
 const compatible = (hash: string | null | undefined): hash is string =>
 	typeof hash === "string" &&
 	/^\$2[aby]\$(0[4-9]|1[0-6])\$[./A-Za-z0-9]{53}$/.test(hash);
-export function plan(users: SourceUser[], admins: string[]) {
+export function plan(
+	users: SourceUser[],
+	admins: string[],
+	preservePasswordless = false,
+	normalizeEmails = false,
+) {
 	const ids = new Map<string, number>();
 	const emails = new Map<string, number>();
 	for (const user of users) {
@@ -54,8 +59,10 @@ export function plan(users: SourceUser[], admins: string[]) {
 			(user.email && (emails.get(user.email.toLowerCase()) ?? 0) > 1)
 		)
 			reasons.push("source_collision");
-		if (user.email && user.email !== user.email.toLowerCase())
-			reasons.push("email_case_preservation_unsupported");
+		if (user.email && user.email !== user.email.toLowerCase()) {
+			if (normalizeEmails) warnings.push("private_email_normalized");
+			else reasons.push("email_case_preservation_unsupported");
+		}
 		const credentials = user.accounts.filter(
 			(a) => a.providerId === "credential",
 		);
@@ -65,7 +72,10 @@ export function plan(users: SourceUser[], admins: string[]) {
 			(credential && credential.accountId !== user.id)
 		)
 			reasons.push("ambiguous_credential");
-		if (!compatible(credential?.password))
+		if (
+			!compatible(credential?.password) &&
+			(credential || !preservePasswordless)
+		)
 			reasons.push(
 				credential ? "incompatible_credential" : "no_active_credential",
 			);
@@ -76,7 +86,11 @@ export function plan(users: SourceUser[], admins: string[]) {
 					: "legacy_password_not_authoritative",
 			);
 		if (user.accounts.some((a) => a.providerId === "google"))
-			warnings.push("google_subject_relink_required");
+			warnings.push(
+				preservePasswordless
+					? "google_registry_required"
+					: "google_subject_relink_required",
+			);
 		if (
 			user.accounts.some(
 				(a) => !["google", "credential"].includes(a.providerId),
@@ -97,6 +111,8 @@ export async function runImport(options: {
 	checkpointPath?: string;
 	apply: boolean;
 	afterOwned?: () => Promise<void>;
+	preservePasswordless?: boolean;
+	normalizeEmails?: boolean;
 }) {
 	const { users, admins, checkpoint: cp, target, apply } = options;
 	if (
@@ -107,6 +123,8 @@ export async function runImport(options: {
 		users,
 		admins,
 		target: options.targetBinding,
+		...(options.preservePasswordless ? { preservePasswordless: true } : {}),
+		...(options.normalizeEmails ? { normalizeEmails: true } : {}),
 	});
 	if (cp.binding && cp.binding !== binding)
 		throw new Error("checkpoint_binding_changed");
@@ -129,13 +147,22 @@ export async function runImport(options: {
 			await atomicPrivate(options.checkpointPath, cp);
 	};
 	await save();
-	for (const item of plan(users, admins)) {
-		const { user, password, reasons, warnings } = item;
+	for (const item of plan(
+		users,
+		admins,
+		options.preservePasswordless,
+		options.normalizeEmails,
+	)) {
+		const { password, reasons, warnings } = item;
+		const user =
+			options.normalizeEmails && item.user.email
+				? { ...item.user, email: item.user.email.toLowerCase() }
+				: item.user;
 		const ref = digest(cp.key, user.id);
 		const marker = digest(cp.key, { binding, id: user.id });
 		const exception = [...reasons, ...warnings];
 		if (exception.length) report.exceptions.push({ ref, reasons: exception });
-		if (reasons.length || !password) {
+		if (reasons.length) {
 			count("deferred");
 			continue;
 		}
@@ -155,7 +182,7 @@ export async function runImport(options: {
 				existing &&
 				(existing.marker !== marker ||
 					existing.email !== user.email ||
-					existing.password !== password ||
+					existing.password !== (password ?? "") ||
 					(user.role !== "ADMIN" && existing.labels.includes("admin")))
 			) {
 				count("target_collision");
@@ -177,7 +204,7 @@ export async function runImport(options: {
 			if (!existing) {
 				cp.entries[ref] = "intent";
 				await save();
-				await target.create(user, password);
+				await target.create(user, password ?? null);
 				// A crash before this marker fails closed on replay; never adopt by email/ID alone.
 				await target.mark(user.id, marker);
 				cp.entries[ref] = "owned";
@@ -189,7 +216,7 @@ export async function runImport(options: {
 				!existing ||
 				existing.marker !== marker ||
 				existing.email !== user.email ||
-				existing.password !== password
+				existing.password !== (password ?? "")
 			)
 				throw new Error("ownership_lost");
 			if (

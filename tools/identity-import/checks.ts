@@ -40,12 +40,12 @@ class FakeTarget implements Target {
 			(u) => u.email.toLowerCase() === email.toLowerCase(),
 		);
 	}
-	async create(u: SourceUser, password: string) {
+	async create(u: SourceUser, password: string | null) {
 		this.writes++;
 		this.users.set(u.id, {
 			id: u.id,
 			email: u.email!,
-			password,
+			password: password ?? "",
 			verified: false,
 			labels: [],
 		});
@@ -136,6 +136,81 @@ describe("mapping", () => {
 		const u = { ...user(), role: "ADMIN" as const };
 		expect(plan([u], [])[0]!.reasons).toContain("admin_approval_required");
 		expect(plan([u], [u.id])[0]!.reasons).toEqual([]);
+	});
+});
+describe("passwordless preservation", () => {
+	test("is opt-in and never accepts a malformed active credential", () => {
+		const passwordless = { ...user(), accounts: [] };
+		expect(plan([passwordless], [])[0]!.reasons).toContain(
+			"no_active_credential",
+		);
+		expect(plan([passwordless], [], true)[0]!.reasons).toEqual([]);
+		const invalid = {
+			...user(),
+			accounts: [
+				{ providerId: "credential", accountId: user().id, password: null },
+			],
+		};
+		expect(plan([invalid], [], true)[0]!.reasons).toContain(
+			"incompatible_credential",
+		);
+	});
+	test("creates without a password, preserves ownership on replay and detects changed passwords", async () => {
+		const u = { ...user(), accounts: [] };
+		const args = { ...(await setup([u])), preservePasswordless: true };
+		expect((await runImport(args)).counts.imported).toBe(1);
+		expect((await args.target.get(u.id))!.password).toBe("");
+		expect(
+			(
+				await runImport({
+					...args,
+					checkpoint: await load(args.checkpointPath),
+				})
+			).counts.unchanged,
+		).toBe(1);
+		args.target.users.get(u.id)!.password = "changed";
+		expect(
+			(
+				await runImport({
+					...args,
+					checkpoint: await load(args.checkpointPath),
+				})
+			).counts.target_collision,
+		).toBe(1);
+	});
+});
+describe("email canonicalization", () => {
+	test("opt-in creates the canonical email and binds the mode to the checkpoint", async () => {
+		const u = { ...user(), email: "Mixed@example.test" };
+		const args = { ...(await setup([u])), normalizeEmails: true };
+		const result = await runImport(args);
+		expect(result.counts.imported).toBe(1);
+		expect(result.exceptions[0]?.reasons).toContain("private_email_normalized");
+		expect((await args.target.get(u.id))?.email).toBe("mixed@example.test");
+		expect(
+			(
+				await runImport({
+					...args,
+					checkpoint: await load(args.checkpointPath),
+				})
+			).counts.unchanged,
+		).toBe(1);
+		await expect(
+			runImport({
+				...args,
+				normalizeEmails: false,
+				checkpoint: await load(args.checkpointPath),
+			}),
+		).rejects.toThrow("checkpoint_binding_changed");
+	});
+	test("case-insensitive source collisions still defer", () => {
+		const a = { ...user("a"), email: "Mixed@example.test" };
+		const b = { ...user("b"), email: "mixed@example.test" };
+		expect(
+			plan([a, b], [], true, true).every((item) =>
+				item.reasons.includes("source_collision"),
+			),
+		).toBe(true);
 	});
 });
 describe("protected source and checkpoint", () => {
@@ -315,6 +390,19 @@ describe("import boundary", () => {
 		expect(out).not.toContain(user().email!);
 	});
 	test("only dedicated synthetic loopback targets accepted", () => {
+		expect(() =>
+			targetConfig("http://127.0.0.1:19550/v1", "nfe-import-63-test"),
+		).toThrow();
+		expect(
+			targetConfig("http://127.0.0.1:19550/v1", "nfe-import-63-test", {
+				isolatedBusinessImport: true,
+			}),
+		).toContain("nfe-import-63-test");
+		expect(() =>
+			targetConfig("https://example.test/v1", "nfe-import-63-test", {
+				isolatedBusinessImport: true,
+			}),
+		).toThrow();
 		for (const endpoint of [
 			"https://production.example/v1",
 			"http://localhost:19550/v1",

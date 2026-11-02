@@ -1,0 +1,22 @@
+{
+	"version": 1,
+	"result": "passed",
+	"source": "synthetic",
+	"users": 3,
+	"media": 8,
+	"rows": 31,
+	"interruptedMultipart": true,
+	"repeatUploadNoExtraVersions": true,
+	"exactReadbackVerified": true,
+	"acl": true,
+	"rebuild": true,
+	"archivePurge": "not_tested",
+	"appwrite": "2.6.2",
+	"storageCleanup": "verified",
+	"limits": [
+		"Synthetic SDK proof, no representative import or production switch",
+		"Google subject registry lookup only; no actual provider login",
+		"Frozen rows rebuilt; full identity/media freeze CLI remains gated",
+		"Application archive purge not exercised"
+	]
+}

@@ -2,7 +2,12 @@ import { Client, type Models, Query, Users } from "node-appwrite";
 import type { Target, TargetUser } from "./importer";
 import type { SourceUser } from "./source";
 
-export function targetConfig(endpoint: string, project: string) {
+export type TargetOptions = { isolatedBusinessImport?: boolean };
+export function targetConfig(
+	endpoint: string,
+	project: string,
+	options: TargetOptions = {},
+) {
 	const url = new URL(endpoint);
 	// Real/representative imports deliberately gated pending #47/#49.
 	if (
@@ -14,15 +19,22 @@ export function targetConfig(endpoint: string, project: string) {
 		url.username ||
 		url.password ||
 		!url.port ||
-		!/^nfe-identity-[a-z0-9-]+$/.test(project)
+		!(options.isolatedBusinessImport
+			? /^nfe-import-63-[a-z0-9-]+$/.test(project)
+			: /^nfe-identity-[a-z0-9-]+$/.test(project))
 	)
 		throw new Error("synthetic_loopback_target_required");
 	return `${url.href}|${project}`;
 }
 export class AppwriteTarget implements Target {
 	readonly users: Users;
-	constructor(endpoint: string, project: string, key: string) {
-		targetConfig(endpoint, project);
+	constructor(
+		endpoint: string,
+		project: string,
+		key: string,
+		options: TargetOptions = {},
+	) {
+		targetConfig(endpoint, project, options);
 		this.users = new Users(
 			new Client().setEndpoint(endpoint).setProject(project).setKey(key),
 		);
@@ -54,7 +66,11 @@ export class AppwriteTarget implements Target {
 			})
 		).users.map((user) => this.map(user));
 	}
-	async create(user: SourceUser, password: string) {
+	async create(user: SourceUser, password: string | null) {
+		if (password === null) {
+			await this.users.create({ userId: user.id, email: user.email as string });
+			return;
+		}
 		await this.users.createBcryptUser({
 			userId: user.id,
 			email: user.email as string,

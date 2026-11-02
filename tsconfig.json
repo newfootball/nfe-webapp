@@ -39,6 +39,7 @@
 		"apps/start",
 		"tools/migration-probe",
 		"tools/identity-import",
+		"tools/business-import",
 		"tools/appwrite-schema"
 	]
 }

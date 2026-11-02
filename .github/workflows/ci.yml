@@ -122,6 +122,30 @@ jobs:
             - name: B2 runtime remains opt-in (not_run)
               run: bun run probe:b2
 
+    business-import:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with:
+                node-version: 24
+            - uses: oven-sh/setup-bun@v2
+              with:
+                bun-version: 1.3.14
+            - name: Install shared and isolated importer dependencies
+              run: |
+                bun install --frozen-lockfile
+                bun install --cwd tools/identity-import --frozen-lockfile --ignore-scripts
+                bun install --cwd tools/appwrite-schema --frozen-lockfile --ignore-scripts
+                bun install --cwd tools/business-import --frozen-lockfile --ignore-scripts
+            - name: Verify business importer without services or credentials
+              working-directory: tools/business-import
+              run: |
+                bun run typecheck
+                bun run lint
+                bun run test
+                bun run build
+
     identity-import:
         runs-on: ubuntu-latest
         defaults:

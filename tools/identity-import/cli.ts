@@ -19,6 +19,9 @@ export async function main(args: string[]) {
 			report: { type: "string" },
 			"admin-policy": { type: "string" },
 			"online-check": { type: "boolean" },
+			"preserve-passwordless": { type: "boolean" },
+			"normalize-emails": { type: "boolean" },
+			"isolated-business-import": { type: "boolean" },
 		},
 	});
 	if (
@@ -61,7 +64,12 @@ export async function main(args: string[]) {
 	const endpoint = process.env.NFE_IDENTITY_ENDPOINT ?? "";
 	const project = process.env.NFE_IDENTITY_PROJECT ?? "";
 	const online = values.apply || values["online-check"];
-	const binding = online ? targetConfig(endpoint, project) : "offline";
+	const targetOptions = {
+		isolatedBusinessImport: !!values["isolated-business-import"],
+	};
+	const binding = online
+		? targetConfig(endpoint, project, targetOptions)
+		: "offline";
 	if (online && !process.env.NFE_IDENTITY_KEY)
 		throw new Error("target_key_required");
 	const target = online
@@ -69,6 +77,7 @@ export async function main(args: string[]) {
 				endpoint,
 				project,
 				process.env.NFE_IDENTITY_KEY as string,
+				targetOptions,
 			)
 		: undefined;
 	const run = async () => {
@@ -83,6 +92,8 @@ export async function main(args: string[]) {
 			checkpoint,
 			checkpointPath: values.checkpoint,
 			apply: !!values.apply,
+			preservePasswordless: !!values["preserve-passwordless"],
+			normalizeEmails: !!values["normalize-emails"],
 		});
 		await atomicPrivate(values.report as string, report);
 		process.stdout.write(

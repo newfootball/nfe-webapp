@@ -1,0 +1,54 @@
+{
+	"version": 1,
+	"kind": "protected-local-source-development-import",
+	"developmentPolicy": {
+		"missingFilesAccepted": true,
+		"sourceUnchanged": true,
+		"strictDefaultUnchanged": true
+	},
+	"sourceCounts": {
+		"User": 22,
+		"Post": 157,
+		"Media": 314,
+		"Follow": 87,
+		"Like": 354,
+		"Favorite": 40,
+		"Comment": 236,
+		"Message": 69,
+		"Notification": 227,
+		"PostSignal": 11
+	},
+	"targetCounts": {
+		"User": 22,
+		"Post": 157,
+		"Media": 146,
+		"Follow": 87,
+		"Like": 354,
+		"Favorite": 40,
+		"Comment": 236,
+		"Message": 69,
+		"Notification": 227,
+		"PostSignal": 11
+	},
+	"objectsCopied": 332,
+	"omittedMedia": 168,
+	"fallbackAvatars": 2,
+	"reconciledRows": 1922,
+	"rowIntegrityAfterTestCleanup": "passed",
+	"browserReadFR_EN": "passed",
+	"applicationArchivePurge": {
+		"result": "passed",
+		"durablePhase": "DONE",
+		"exactKeysEmptyBeforeFixtureCleanup": 4,
+		"browserExit": 0,
+		"independentReview": "no_blockers"
+	},
+	"backend": "stopped-with-volumes-retained",
+	"overallMigrationComplete": false,
+	"importedDatasetIntegrityAfterPurge": {
+		"rows": 1922,
+		"b2Versions": 332,
+		"deleteMarkers": 0,
+		"multipart": 0
+	}
+}

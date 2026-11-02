@@ -35,6 +35,7 @@ import {
 	postRows,
 	ref,
 } from "./post-lifecycle-db.server";
+import { eligiblePostAsset } from "./post-lifecycle-policy.server";
 import {
 	deleteExactVersion,
 	inventoryAsset,
@@ -155,7 +156,7 @@ async function start(
 	if (
 		assets.length > 10 ||
 		media.length > 10 ||
-		assets.some((a) => a.ownerId !== owner || a.state !== "ATTACHED") ||
+		assets.some((a) => a.ownerId !== owner || !eligiblePostAsset(a, assets)) ||
 		media.some(
 			(m) =>
 				!assets.some(
@@ -170,7 +171,9 @@ async function start(
 	)
 		throw new AuthFailure("forbidden");
 	// Inventories are prepared while attached assets are immutable, then verified in the transaction.
-	const inventory = await Promise.all(assets.map(inventoryAsset));
+	const inventory = await Promise.all(
+		assets.map((asset) => inventoryAsset(asset, assets)),
+	);
 	const newIds =
 		kind === "REPLACE" && "videoId" in v ? [v.videoId, v.thumbnailId] : [];
 	if (
@@ -206,7 +209,7 @@ async function start(
 			const current = await db.getRow(ref(assetTable, a.$id, tx));
 			if (
 				current.$updatedAt !== a.$updatedAt ||
-				current.state !== "ATTACHED" ||
+				current.state !== a.state ||
 				current.postId !== v.id
 			)
 				throw new Conflict();

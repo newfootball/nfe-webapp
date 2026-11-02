@@ -12,6 +12,7 @@ import { assetTable, databaseId } from "./media-db.server";
 import { storage, storageConfig } from "./media-storage.server";
 import { objectRef } from "./media-upload.server";
 import { type PurgeAsset, PurgeAssetSchema } from "./post-lifecycle-contract";
+import { eligiblePostAsset } from "./post-lifecycle-policy.server";
 
 // Local synthetic permission is explicit and separate from normal upload/read configuration.
 // A production retention policy and imported legacy reconciliation are deliberately absent.
@@ -31,11 +32,12 @@ export function assertSyntheticPurge() {
 }
 export async function inventoryAsset(
 	a: Models.DefaultRow,
+	assets: Models.DefaultRow[],
 ): Promise<PurgeAsset> {
 	assertSyntheticPurge();
 	if (
 		a.provider !== "B2" ||
-		a.state !== "ATTACHED" ||
+		!eligiblePostAsset(a, assets) ||
 		!a.versionId ||
 		!a.sha256
 	)

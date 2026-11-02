@@ -1,0 +1,15 @@
+{
+	"mcpServers": {
+		"appwrite": {
+			"type": "http",
+			"url": "https://mcp.appwrite.io"
+		},
+		"education": {
+			"type": "http",
+			"url": "https://coolify.msadawaheri.fr/mcp",
+			"headers": {
+				"Authorization": "Bearer ${COOLIFY_MSADAWAHERI_TOKEN}"
+			}
+		}
+	}
+}

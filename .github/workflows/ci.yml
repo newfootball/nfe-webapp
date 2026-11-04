@@ -138,6 +138,7 @@ jobs:
                 bun install --cwd tools/identity-import --frozen-lockfile --ignore-scripts
                 bun install --cwd tools/appwrite-schema --frozen-lockfile --ignore-scripts
                 bun install --cwd tools/business-import --frozen-lockfile --ignore-scripts
+                bun install --cwd apps/start --frozen-lockfile --ignore-scripts
             - name: Verify business importer without services or credentials
               working-directory: tools/business-import
               run: |

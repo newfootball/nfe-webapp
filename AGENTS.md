@@ -23,7 +23,8 @@ Use Bun only. Do not switch to npm, yarn, or pnpm.
 
 ```bash
 bun install
-bun run dev                 # Next dev server, package script defaults to port 3500
+bun run dev                 # Start dev server (apps/start, port 3501); default since #65
+bun run dev:next            # Next dev server, package script defaults to port 3500
 docker compose up -d --wait # PostgreSQL
 bunx prisma generate
 bunx prisma migrate dev
@@ -39,7 +40,7 @@ bun run test                # Bun unit tests; Playwright files use *.pw.ts
 Useful Make targets:
 
 ```bash
-make dev          # starts Docker, installs deps; NEXT_PORT defaults to 3000
+make dev          # starts Docker, installs deps, runs Next (dev:next); NEXT_PORT defaults to 3000
 make build
 make lint         # mutates files: biome check --write + prisma format
 make check        # make lint + make build

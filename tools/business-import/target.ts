@@ -1,4 +1,5 @@
 import { Client, type Models, Query, TablesDB } from "node-appwrite";
+import { isolatedBusinessProject } from "../identity-import/target";
 import type { ProjectionRow } from "./projection";
 
 export function targetBinding(
@@ -16,7 +17,7 @@ export function targetBinding(
 		url.hash ||
 		url.username ||
 		url.password ||
-		!/^nfe-import-63-[a-z0-9-]+$/.test(project) ||
+		!isolatedBusinessProject(url, project) ||
 		!database
 	)
 		throw new Error("isolated_loopback_target_required");

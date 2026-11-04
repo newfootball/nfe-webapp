@@ -67,3 +67,16 @@ false. Do not treat `updatedAt` alone as a complete catch-up.
 
 The synthetic proof fixture requires `ffmpeg`, `ffprobe`, and `cwebp` on PATH;
 `cwebp` encodes WebP when the local FFmpeg lacks that encoder.
+
+## Local cutover rehearsal (#65)
+
+`bun run rehearsal` (`rehearsal.ts`) replays the whole cutover on the persistent
+local runtime (#94, project `nfe-local` on `127.0.0.1:18464`) with synthetic data:
+cold volume backup, write freeze, identity/media/row import plus replay,
+reconciliation, Start smoke on `127.0.0.1:3564` (HTTP matrix and Playwright FR/EN,
+desktop and Pixel 7), direct ACL matrix, B2 failure cases, then a full rollback.
+Rows go to a fresh `nfe-local-rehearsal` database; the allowlist accepts that
+project only on that loopback port. The run needs the B2 development keys in
+`.env.local` (mode 600) and Chrome. Sanitized evidence lives in
+`evidence/local-rehearsal.json`; the procedure and go/no-go checklist are in
+[docs/migration/local-rehearsal.md](../../docs/migration/local-rehearsal.md).

@@ -18,12 +18,14 @@ docker compose up -d --wait
 bunx prisma generate
 bunx prisma migrate dev
 bun run prisma:seed
-bun run dev
+bun run dev:next
 ```
 
-`bun run dev` uses the package script port `3500`. When using `make dev`, the
-effective port comes from `NEXT_PORT` in `.env`/`.env.local`, falling back to
-the Makefile default.
+`bun run dev` now starts the TanStack Start app (`apps/start`, port `3501`);
+see [docs/migration/local-rehearsal.md](docs/migration/local-rehearsal.md).
+`bun run dev:next` uses the package script port `3500`. When using `make dev`,
+the effective port comes from `NEXT_PORT` in `.env`/`.env.local`, falling back
+to the Makefile default.
 
 ## Environment
 
@@ -46,7 +48,8 @@ Validation is defined in `src/lib/env.ts`.
 ## Development Commands
 
 ```bash
-bun run dev          # Next dev server
+bun run dev          # Start dev server (apps/start, port 3501)
+bun run dev:next     # Next dev server (port 3500)
 bun run build        # production build
 bun run start        # run built app
 bun run lint         # non-mutating Biome check

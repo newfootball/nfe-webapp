@@ -31,8 +31,8 @@ install: ## Install dependencies
 	@test -f .env.local || cp .env .env.local
 	$(PACKAGE_MANAGER) install
 
-dev: docker-up install ## Run the development server
-	$(PACKAGE_MANAGER) dev -p $(NEXT_PORT)
+dev: docker-up install ## Run the Next development server (Start: bun run dev)
+	$(PACKAGE_MANAGER) run dev:next -p $(NEXT_PORT)
 
 build: install ## Build the application
 	$(PACKAGE_MANAGER) run build

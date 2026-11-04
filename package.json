@@ -4,7 +4,8 @@
 	"private": true,
 	"type": "module",
 	"scripts": {
-		"dev": "next dev --port 3500",
+		"dev": "bun run --cwd apps/start dev",
+		"dev:next": "next dev --port 3500",
 		"build": "next build",
 		"start": "next start",
 		"lint": "biome check .",

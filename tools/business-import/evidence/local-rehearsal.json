@@ -1,0 +1,431 @@
+{
+	"version": 1,
+	"kind": "local-cutover-rehearsal",
+	"issue": 65,
+	"source": "synthetic",
+	"result": "passed",
+	"runtime": {
+		"composeProject": "nfe-local-runtime-64",
+		"appwrite": "2.6.2",
+		"bun": "1.3.14",
+		"project": "nfe-local",
+		"liveDatabase": "nfe-local",
+		"rehearsalDatabase": "nfe-local-rehearsal",
+		"releaseDigest": "0b4f2debcfb7e314774f9b6c1af06fb9cffaa479205355d9e78c92583c942988",
+		"mediaPrefixShape": "nfe-import-63/<uuid>/",
+		"startEndpoint": "http://127.0.0.1:3564",
+		"appwriteEndpoint": "http://127.0.0.1:18464/v1"
+	},
+	"startedAt": "2026-11-04T11:58:12.943Z",
+	"finishedAt": "2026-11-04T12:00:50.988Z",
+	"sequence": [
+		"preflight",
+		"backup (compose stop + cold volume archives)",
+		"write freeze (backend stopped, then up without app)",
+		"import identity + media + rows",
+		"replay identity + media + rows (idempotence)",
+		"reconcile",
+		"smoke (Start on rehearsal database, HTTP + Playwright)",
+		"acl matrix",
+		"b2 failure cases",
+		"rollback (storage cleanup, cold volume restore, live verification)"
+	],
+	"phasesMs": {
+		"preflight": 11023,
+		"backup.stop_backend": 2119,
+		"backup.archive_volumes": 2581,
+		"backup.restart_backend": 6000,
+		"import.schema": 62290,
+		"import.identity": 156,
+		"import.identity_replay": 23,
+		"import.media_interrupted": 9360,
+		"import.media": 19869,
+		"import.media_replay": 6019,
+		"import.rows": 489,
+		"import.rows_replay": 226,
+		"reconcile": 55,
+		"smoke.start_app": 599,
+		"smoke.http": 110,
+		"smoke.playwright": 7838,
+		"acl": 129,
+		"b2.cases": 3688,
+		"rollback.stop_app": 606,
+		"rollback.storage": 7029,
+		"rollback.stop_backend": 2361,
+		"rollback.restore_volumes": 2308,
+		"rollback.restart_backend": 5913,
+		"rollback.verify": 69,
+		"rollback.restart_app_live": 1249
+	},
+	"freezeWindowMs": 112872,
+	"rtoMs": 22188,
+	"backup": {
+		"volumes": 10,
+		"bytes": {
+			"nfe-local-runtime-64_appwrite-builds": 96,
+			"nfe-local-runtime-64_appwrite-cache": 96,
+			"nfe-local-runtime-64_appwrite-certificates": 96,
+			"nfe-local-runtime-64_appwrite-config": 96,
+			"nfe-local-runtime-64_appwrite-functions": 96,
+			"nfe-local-runtime-64_appwrite-imports": 96,
+			"nfe-local-runtime-64_appwrite-postgresql": 11255534,
+			"nfe-local-runtime-64_appwrite-redis": 106831,
+			"nfe-local-runtime-64_appwrite-sites": 96,
+			"nfe-local-runtime-64_appwrite-uploads": 96
+		}
+	},
+	"counts": {
+		"users": 3,
+		"assets": 8,
+		"rows": 33,
+		"tables": 15
+	},
+	"checks": [
+		{
+			"name": "preflight.storage_prefix_empty",
+			"ok": true,
+			"detail": {
+				"versions": 0,
+				"deleteMarkers": 0,
+				"uploads": 0
+			}
+		},
+		{
+			"name": "identity.imported",
+			"ok": true,
+			"detail": {
+				"counts": {
+					"imported": 3
+				}
+			}
+		},
+		{
+			"name": "identity.replay_idempotent",
+			"ok": true,
+			"detail": {
+				"counts": {
+					"unchanged": 3
+				}
+			}
+		},
+		{
+			"name": "identity.passwordless_preserved",
+			"ok": true
+		},
+		{
+			"name": "b2.interrupted_upload_left_pending_multipart",
+			"ok": true,
+			"detail": {
+				"versions": 3,
+				"deleteMarkers": 0,
+				"uploads": 1
+			}
+		},
+		{
+			"name": "media.replay_without_extra_versions",
+			"ok": true,
+			"detail": {
+				"assets": 8,
+				"versions": 8,
+				"deleteMarkers": 0,
+				"uploads": 0
+			}
+		},
+		{
+			"name": "rows.created_then_resumed",
+			"ok": true,
+			"detail": {
+				"rows": 33,
+				"created": 33,
+				"resumed": 33
+			}
+		},
+		{
+			"name": "reconcile.rows_match_projection",
+			"ok": true,
+			"detail": {
+				"tables": {
+					"comments": {
+						"expected": 1,
+						"actual": 1
+					},
+					"favorites": {
+						"expected": 1,
+						"actual": 1
+					},
+					"follows": {
+						"expected": 1,
+						"actual": 1
+					},
+					"likes": {
+						"expected": 1,
+						"actual": 1
+					},
+					"media": {
+						"expected": 4,
+						"actual": 4
+					},
+					"media_assets": {
+						"expected": 8,
+						"actual": 8
+					},
+					"message_conversations": {
+						"expected": 2,
+						"actual": 2
+					},
+					"messages": {
+						"expected": 3,
+						"actual": 3
+					},
+					"notifications": {
+						"expected": 0,
+						"actual": 0
+					},
+					"notifications_v1": {
+						"expected": 1,
+						"actual": 1
+					},
+					"post_private": {
+						"expected": 2,
+						"actual": 2
+					},
+					"posts": {
+						"expected": 2,
+						"actual": 2
+					},
+					"private_profiles": {
+						"expected": 3,
+						"actual": 3
+					},
+					"profiles": {
+						"expected": 3,
+						"actual": 3
+					},
+					"signals": {
+						"expected": 1,
+						"actual": 1
+					}
+				}
+			}
+		},
+		{
+			"name": "reconcile.identities_present",
+			"ok": true,
+			"detail": [true, true, true]
+		},
+		{
+			"name": "reconcile.live_database_untouched",
+			"ok": true,
+			"detail": {
+				"liveProfiles": 1
+			}
+		},
+		{
+			"name": "smoke.readiness_probe_pinned_to_live_database",
+			"ok": true,
+			"detail": {
+				"ready": 503,
+				"consumerAlive": false,
+				"note": "/_local/ready and the notification consumer accept only START_APPWRITE_DATABASE=nfe-local"
+			}
+		},
+		{
+			"name": "smoke.http_public_pages",
+			"ok": true,
+			"detail": {
+				"/fr/feed": 200,
+				"/en/feed": 200,
+				"/fr/user/rehearsal-a": 200,
+				"/en/user/rehearsal-b": 200,
+				"/fr/post/rehearsal-post-a": 200,
+				"/en/post/rehearsal-post-a": 200,
+				"/fr/post/rehearsal-post-b": 404
+			}
+		},
+		{
+			"name": "smoke.playwright_fr_en_desktop_mobile",
+			"ok": true,
+			"detail": {
+				"passed": 2,
+				"failed": 0,
+				"projects": ["desktop-chrome", "mobile-pixel-7"]
+			}
+		},
+		{
+			"name": "acl.posts",
+			"ok": true
+		},
+		{
+			"name": "acl.private_profile_owner_only",
+			"ok": true
+		},
+		{
+			"name": "acl.messages_participants_only_no_admin_bypass",
+			"ok": true
+		},
+		{
+			"name": "acl.legacy_notification_recipient_only",
+			"ok": true
+		},
+		{
+			"name": "acl.legacy_notification_shape",
+			"ok": true,
+			"detail": {
+				"eventId": "legacy:rehearsal-n",
+				"type": "LIKE"
+			}
+		},
+		{
+			"name": "acl.signals_not_public",
+			"ok": true
+		},
+		{
+			"name": "acl.media_asset_cross_access_denied",
+			"ok": true
+		},
+		{
+			"name": "acl.matrix",
+			"ok": true,
+			"detail": {
+				"published": {
+					"anonymous": true,
+					"admin": true,
+					"owner": true,
+					"other": true
+				},
+				"draft": {
+					"anonymous": false,
+					"admin": true,
+					"owner": true,
+					"other": false
+				},
+				"owner_private_profile": {
+					"anonymous": false,
+					"admin": true,
+					"owner": true,
+					"other": false
+				},
+				"message_admin_owner": {
+					"anonymous": false,
+					"admin": true,
+					"owner": true,
+					"other": false
+				},
+				"message_owner_other": {
+					"anonymous": false,
+					"admin": false,
+					"owner": true,
+					"other": true
+				},
+				"legacy_notification": {
+					"anonymous": false,
+					"admin": false,
+					"owner": true,
+					"other": false
+				},
+				"signal": {
+					"anonymous": false,
+					"admin": true,
+					"owner": false,
+					"other": false
+				},
+				"owner_media_asset": {
+					"anonymous": false,
+					"admin": false,
+					"owner": true,
+					"other": false
+				}
+			}
+		},
+		{
+			"name": "acl.direct_message_row_write_denied",
+			"ok": true
+		},
+		{
+			"name": "messaging.input_bounds",
+			"ok": true
+		},
+		{
+			"name": "b2.missing_object",
+			"ok": true
+		},
+		{
+			"name": "b2.expired_url_rejected",
+			"ok": true,
+			"detail": "status 401"
+		},
+		{
+			"name": "b2.valid_url_readable",
+			"ok": true
+		},
+		{
+			"name": "b2.cross_access_signature_scope",
+			"ok": true,
+			"detail": "status 403"
+		},
+		{
+			"name": "b2.foreign_prefix_denied",
+			"ok": true
+		},
+		{
+			"name": "b2.unpublish_then_read_denied",
+			"ok": true,
+			"detail": "status 404"
+		},
+		{
+			"name": "b2.app_without_storage_reports_unavailable",
+			"ok": true,
+			"detail": "Start runs without B2 keys; Playwright asserted the unavailable path"
+		}
+	],
+	"b2": {
+		"missingObject": "NoSuchKey",
+		"expiredUrl": 401,
+		"crossAccess": 403,
+		"foreignPrefix": 403,
+		"unpublish": 404
+	},
+	"rollback": {
+		"storage": {
+			"versions": 0,
+			"deleteMarkers": 0,
+			"uploads": 0
+		},
+		"fixtureIdentical": true,
+		"liveHttp": {
+			"/fr": 200,
+			"/fr/user/local-player": 200
+		},
+		"rtoMs": 22188,
+		"ok": true
+	},
+	"playwright": {
+		"config": "apps/start/playwright.rehearsal.config.ts",
+		"spec": "apps/start/tests/rehearsal.pw.ts",
+		"projects": ["desktop-chrome", "mobile-pixel-7"],
+		"locales": ["fr", "en"],
+		"passed": 2,
+		"failed": 0
+	},
+	"suitesNotRun": [
+		{
+			"suite": "apps/start/tests/*.pw.ts (auth, profile, feed, media, messaging, notifications, moderation, deletion, oauth, business-import)",
+			"reason": "each spec owns its disposable stack (auth:up, feed:up, media:up, ...) on its own ports and seeds its own fixtures; they cannot target the persistent runtime without product-level changes to their harnesses (outside #65 glue scope)"
+		},
+		{
+			"suite": "apps/start local:proof / local:repro",
+			"reason": "already executed for #64/#94 against the live nfe-local database; the rehearsal reuses their runtime scripts and verifies the live app again after rollback"
+		},
+		{
+			"suite": "Google OAuth, email delivery, B2-backed playback in Start",
+			"reason": "forbidden by #65 (no OAuth activation, no real emails); Start runs without B2 keys so playback shows the unavailable path, asserted FR/EN"
+		}
+	],
+	"limits": [
+		"/_local/ready and the notification consumer only accept START_APPWRITE_DATABASE=nfe-local; on the rehearsal database readiness stays 503 and the consumer exits, so serving was proven by /_local/health plus real page renders (observation smoke.readiness_probe_pinned_to_live_database)",
+		"Rows are imported into database nfe-local-rehearsal inside project nfe-local; identities are project-level and are removed by the cold volume rollback, which was verified",
+		"Synthetic data only (3 users, 2 posts, 4 media, 33 rows); real-source volumes, catch-up and deletions are not exercised",
+		"B2 presigned expiry answers 401 UnauthorizedAccess (not AWS 403); the check accepts both",
+		"Docker network drift on the persistent stack had to be repaired once with compose up --force-recreate before the first run"
+	]
+}

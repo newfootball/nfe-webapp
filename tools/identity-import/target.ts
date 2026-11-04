@@ -3,6 +3,16 @@ import type { Target, TargetUser } from "./importer";
 import type { SourceUser } from "./source";
 
 export type TargetOptions = { isolatedBusinessImport?: boolean };
+// The persistent synthetic local runtime (#64) is the only business target
+// outside the disposable nfe-import-63 stacks: fixed loopback port and project.
+export const localRehearsalTarget = { port: "18464", project: "nfe-local" };
+export function isolatedBusinessProject(url: URL, project: string) {
+	return (
+		/^nfe-import-63-[a-z0-9-]+$/.test(project) ||
+		(project === localRehearsalTarget.project &&
+			url.port === localRehearsalTarget.port)
+	);
+}
 export function targetConfig(
 	endpoint: string,
 	project: string,
@@ -20,7 +30,7 @@ export function targetConfig(
 		url.password ||
 		!url.port ||
 		!(options.isolatedBusinessImport
-			? /^nfe-import-63-[a-z0-9-]+$/.test(project)
+			? isolatedBusinessProject(url, project)
 			: /^nfe-identity-[a-z0-9-]+$/.test(project))
 	)
 		throw new Error("synthetic_loopback_target_required");

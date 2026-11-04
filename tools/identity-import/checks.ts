@@ -416,4 +416,22 @@ describe("import boundary", () => {
 			targetConfig("http://127.0.0.1:19550/v1", "nfe-identity-50"),
 		).toContain("nfe-identity-50");
 	});
+	test("persistent local runtime accepted only on its own loopback port", () => {
+		const options = { isolatedBusinessImport: true };
+		expect(
+			targetConfig("http://127.0.0.1:18464/v1", "nfe-local", options),
+		).toContain("nfe-local");
+		expect(() =>
+			targetConfig("http://127.0.0.1:19550/v1", "nfe-local", options),
+		).toThrow();
+		expect(() =>
+			targetConfig("http://127.0.0.1:18464/v1", "nfe-local-other", options),
+		).toThrow();
+		expect(() =>
+			targetConfig("http://127.0.0.1:18464/v1", "nfe-local"),
+		).toThrow();
+		expect(() =>
+			targetConfig("http://localhost:18464/v1", "nfe-local", options),
+		).toThrow();
+	});
 });

@@ -3,7 +3,8 @@
 This bounded foundation runs the **merged** Start modules with the already
 accepted Appwrite **2.6.2** backend. It is local only: no production activation,
 source import, B2 access, email delivery, Google activation or final parity claim.
-Next's default command/port3500 and the existing Start port3501 stay unchanged.
+Next's default command/port3500 and the existing Start port3501 stay unchanged
+(#65 later made `bun run dev` start Start; Next remains on `bun run dev:next`).
 The full synthetic social graph belongs to #63.
 
 ## Install and build without starting services

@@ -24,6 +24,8 @@ Alternatively install the browser from `apps/start` with `bunx playwright instal
 For an existing local Chrome installation, `PLAYWRIGHT_CHANNEL=chrome bun run smoke:start`
 uses that browser instead; CI installs Playwright Chromium explicitly.
 Run the built shell using `bun run --cwd apps/start start` (loopback only, port 3501).
+The production image, its runtime contract and the Coolify settings are described in
+[start-production.md](../../docs/migration/start-production.md) (`bun run image:build`, `bun run image:smoke`).
 Next stays at `bun run dev` (3500), `bun run typecheck` and `bun run build`.
 Each application has its own manifest, lockfile and TypeScript boundary. Root
 installation is also required because Start reuses the existing shadcn Button and

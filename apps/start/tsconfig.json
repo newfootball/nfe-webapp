@@ -24,6 +24,7 @@
 		"playwright.config.ts",
 		"tests",
 		"scripts",
+		"server",
 		"server.ts"
 	],
 	"exclude": ["dist", "node_modules"]

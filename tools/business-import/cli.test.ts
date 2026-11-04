@@ -1,6 +1,8 @@
 import { expect, test } from "bun:test";
 import type { SourceUser } from "../identity-import/source";
 import {
+	applyRefusal,
+	assertStorageBinding,
 	mayApply,
 	parseArgs,
 	redactReport,
@@ -89,11 +91,67 @@ test("quarantine, offline and deferred identities block apply", () => {
 	expect(mayApply(true, false, 0, 0)).toBe(true);
 });
 test("accepted loss requires a matching manifest and complete derived media", () => {
-	expect(mayApply(true, false, 1, 0, true, false)).toBe(false);
-	expect(mayApply(true, false, 1, 0, false, true)).toBe(false);
-	expect(mayApply(true, false, 1, 0, true, true)).toBe(true);
-	expect(mayApply(true, true, 1, 0, true, true)).toBe(false);
-	expect(mayApply(true, false, 0, 0, false, true)).toBe(false);
+	const ok = { ok: true, stale: 0 };
+	expect(applyRefusal(true, false, 1, 0, ok, false)).toBe("derived_incomplete");
+	expect(applyRefusal(true, false, 1, 0, { ok: false, stale: 0 }, true)).toBe(
+		"unaccepted_loss",
+	);
+	expect(applyRefusal(true, false, 0, 0, { ok: false, stale: 1 }, true)).toBe(
+		"stale_manifest",
+	);
+	expect(applyRefusal(true, false, 1, 0, ok, true)).toBeNull();
+	expect(applyRefusal(true, true, 1, 0, ok, true)).toBe("offline");
+	expect(applyRefusal(false, false, 0, 0)).toBe("dry_run");
+	expect(applyRefusal(true, false, 0, 2)).toBe("deferred_identities");
+	expect(mayApply(true, false, 1, 0, ok, true)).toBe(true);
+});
+test("a refused apply never exits 0", () => {
+	const ok = {
+		media: { quarantined: 0, pending: 0 },
+		identity: { deferred: 0 },
+	};
+	expect(
+		reportExitCode({
+			...ok,
+			mode: "apply",
+			applied: false,
+			acceptedLoss: { ok: false },
+		}),
+	).toBe(2);
+	expect(
+		reportExitCode({
+			...ok,
+			mode: "apply",
+			applied: false,
+			media: { quarantined: 1, pending: 0 },
+			acceptedLoss: { ok: true },
+		}),
+	).toBe(2);
+	expect(
+		reportExitCode({
+			...ok,
+			mode: "apply",
+			applied: true,
+			acceptedLoss: { ok: true },
+		}),
+	).toBe(0);
+	expect(reportExitCode({ ...ok, mode: "dry-run", applied: false })).toBe(0);
+});
+test("a production apply refuses the development storage binding", () => {
+	const dev = { bucket: "nfe-webapp-dev", prefix: "nfe-import-63/run/" };
+	const prod = { bucket: "nfe-webapp-prod", prefix: "nfe-media/" };
+	expect(() => assertStorageBinding(dev, true, true)).toThrow(
+		"production_storage_binding_required",
+	);
+	expect(() =>
+		assertStorageBinding({ ...prod, bucket: "nfe-webapp-dev" }, true, true),
+	).toThrow("production_storage_binding_required");
+	expect(() =>
+		assertStorageBinding({ ...prod, prefix: "nfe-import-63/x/" }, true, true),
+	).toThrow("production_storage_binding_required");
+	expect(() => assertStorageBinding(prod, true, true)).not.toThrow();
+	expect(() => assertStorageBinding(dev, true, false)).not.toThrow();
+	expect(() => assertStorageBinding(dev, false, true)).not.toThrow();
 });
 test("reports pending or blocked imports with exit code 2", () => {
 	const ok = {

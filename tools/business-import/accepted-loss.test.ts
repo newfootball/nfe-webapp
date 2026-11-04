@@ -140,7 +140,11 @@ test("stale entries, partial coverage and another snapshot block acceptance", ()
 	).toThrow("unknown_quarantined_asset");
 });
 test("manifest rejects duplicates, unknown fields and empty references", () => {
-	const base = candidateManifest(digest, plan, quarantine);
+	const candidate = candidateManifest(digest, plan, quarantine);
+	expect(() => parseManifest(candidate)).toThrow(
+		"invalid_accepted_loss_manifest",
+	);
+	const base = { ...candidate, reference: "DEC-2026-11-04" };
 	expect(() => parseManifest(base)).not.toThrow();
 	expect(() => parseManifest({ ...base, reference: "" })).toThrow(
 		"invalid_accepted_loss_manifest",

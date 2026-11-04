@@ -38,9 +38,11 @@ export type AcceptedLoss = {
 };
 export const sourceDigest = (text: string) =>
 	createHash("sha256").update(text).digest("hex");
+export const PLACEHOLDER_REFERENCE = "REPLACE_WITH_DECISION_REFERENCE";
 export function parseManifest(input: unknown): AcceptedLossManifest {
 	const parsed = manifestSchema.safeParse(input);
-	if (!parsed.success) throw new Error("invalid_accepted_loss_manifest");
+	if (!parsed.success || parsed.data.reference === PLACEHOLDER_REFERENCE)
+		throw new Error("invalid_accepted_loss_manifest");
 	const pairs = parsed.data.entries.map((e) =>
 		JSON.stringify([e.source, e.sourceId]),
 	);
@@ -78,7 +80,7 @@ export function candidateManifest(
 	return {
 		version: 1,
 		sourceDigest: digest,
-		reference: "REPLACE_WITH_DECISION_REFERENCE",
+		reference: PLACEHOLDER_REFERENCE,
 		entries: [...pairs.values()].map((pair) => ({
 			source: pair.source,
 			sourceId: pair.sourceId,

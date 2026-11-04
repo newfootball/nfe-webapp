@@ -194,21 +194,49 @@ export function validateInputs(
 // Quarantined media only pass when the accepted-loss manifest covers each pair
 // exactly and the derived media set is complete; a stale manifest blocks even
 // when nothing is quarantined any more.
-export function mayApply(
+export type ApplyRefusal =
+	| "dry_run"
+	| "offline"
+	| "deferred_identities"
+	| "stale_manifest"
+	| "unaccepted_loss"
+	| "derived_incomplete";
+export function applyRefusal(
 	apply: boolean,
 	offline: boolean,
 	quarantined: number,
 	deferred: number,
-	lossAccepted = quarantined === 0,
+	loss: { ok: boolean; stale: number } = { ok: quarantined === 0, stale: 0 },
 	derivedComplete = quarantined === 0,
+): ApplyRefusal | null {
+	if (!apply) return "dry_run";
+	if (offline) return "offline";
+	if (deferred) return "deferred_identities";
+	if (loss.stale) return "stale_manifest";
+	if (!loss.ok) return "unaccepted_loss";
+	if (quarantined && !derivedComplete) return "derived_incomplete";
+	return null;
+}
+export const mayApply = (...args: Parameters<typeof applyRefusal>) =>
+	applyRefusal(...args) === null;
+// The development bucket and prefix never back a production target; the
+// production storage binding belongs to #66.
+export const DEVELOPMENT_STORAGE = {
+	bucket: "nfe-webapp-dev",
+	prefix: "nfe-import-63/",
+};
+export function assertStorageBinding(
+	media: { bucket: string; prefix: string },
+	production: boolean,
+	apply: boolean,
 ) {
-	return (
+	if (
+		production &&
 		apply &&
-		!offline &&
-		deferred === 0 &&
-		lossAccepted &&
-		(quarantined === 0 || derivedComplete)
-	);
+		(media.bucket === DEVELOPMENT_STORAGE.bucket ||
+			media.prefix.startsWith(DEVELOPMENT_STORAGE.prefix))
+	)
+		throw new Error("production_storage_binding_required");
 }
 async function privateDirectory(directory: string) {
 	if (!isAbsolute(directory)) throw new Error("private_directory_required");
@@ -238,6 +266,7 @@ export async function execute(args: Args) {
 	const resolved = resolveTarget(config, args.productionTarget);
 	if (config.media.bucket !== config.b2.B2_BUCKET_NAME)
 		throw new Error("storage_bucket_mismatch");
+	assertStorageBinding(config.media, resolved.production, args.apply);
 	const [sourceText, users, admins, manifest] = await Promise.all([
 		readPrivateText(args.source),
 		readIdentities(args.identity, true),
@@ -280,9 +309,19 @@ export async function execute(args: Args) {
 		await atomicPrivate(join(directory, "omissions.json"), omission.omissions);
 		await atomicPrivate(join(directory, "provenance.json"), source);
 	}
+	const refused = applyRefusal(
+		args.apply,
+		args.offline,
+		prepared.quarantine.length,
+		identity.deferred,
+		loss,
+		omission?.complete ?? false,
+	);
 	const report = {
 		version: 2,
 		mode: args.apply ? "apply" : "dry-run",
+		applied: false,
+		refused,
 		target: resolved.production ? "production" : "isolated",
 		rebuild: args.rebuild,
 		frozen: args.frozen,
@@ -304,17 +343,7 @@ export async function execute(args: Args) {
 		complete: false,
 	};
 	await atomicPrivate(join(directory, "report.json"), report);
-	if (
-		!mayApply(
-			args.apply,
-			args.offline,
-			prepared.quarantine.length,
-			identity.deferred,
-			loss.ok,
-			omission?.complete ?? false,
-		)
-	)
-		return report;
+	if (refused !== null) return report;
 	// Provisional versions exist only in memory to validate the projection before writes.
 	const provisional = activePrepared.map((file) => ({
 		assetId: file.assetId,
@@ -466,6 +495,7 @@ export async function execute(args: Args) {
 		});
 		const finalReport = {
 			...report,
+			applied: true,
 			rows,
 			media: { ...report.media, removed: uploaded.removed },
 			identityCatchUp,
@@ -480,13 +510,16 @@ export async function execute(args: Args) {
 	}
 }
 export function reportExitCode(report: {
+	mode?: string;
+	applied?: boolean;
 	media: { quarantined: number; pending: number };
 	identity: { deferred: number };
 	acceptedLoss?: { ok: boolean };
 	isolatedRowImportComplete?: boolean;
 	reconciliation?: { unexplained: number };
 }): number {
-	return (report.media.quarantined && !report.acceptedLoss?.ok) ||
+	return (report.mode === "apply" && !report.applied) ||
+		(report.media.quarantined && !report.acceptedLoss?.ok) ||
 		report.media.pending ||
 		report.identity.deferred ||
 		report.isolatedRowImportComplete === false ||

@@ -61,8 +61,9 @@ test data), the decision is recorded in a private accepted-loss manifest bound
 to the exact source file. Each dry run with quarantine writes
 `quarantine.json` (mode 600) into the private directory: a candidate manifest
 listing every quarantined media or avatar pair with its asset IDs and reasons.
-Copy it, replace `reference` with the decision reference, keep it outside the
-checkout and pass it with `--accepted-loss /private/accepted-loss.json`.
+Copy it, replace `reference` with the decision reference (the placeholder is
+rejected), keep it outside the checkout and pass it with
+`--accepted-loss /private/accepted-loss.json`.
 
 The manifest only applies when its `sourceDigest` equals the SHA-256 of the
 business snapshot file and when every entry matches a currently quarantined
@@ -93,7 +94,10 @@ snapshot after a first import. It only touches what the importer owns:
   multipart uploads are aborted, then missing objects are uploaded;
 - identities: owned users absent from the new identity snapshot are deleted,
   the remaining ones are re-marked for the new binding, foreign users still fail
-  the preflight.
+  the preflight. The catch-up does not cover an email change of an existing
+  user between snapshots: the owned user no longer matches its source email
+  and the preflight fails closed (`foreign_target_identity`). Such a change
+  needs a manual decision before the frozen run.
 
 The run is resumable and idempotent: a replay creates, deletes and uploads
 nothing. `updatedAt` is never used as a change signal; every row is compared by
@@ -114,8 +118,11 @@ effective read rights recomputed per row type, deterministic functional samples
 Every difference is categorized: `accepted_loss` (manifest),
 `intended_transformation` (entity splits, derived conversations, hashed
 notification IDs, identities owned by the identity import) or `unexplained`.
-Any unexplained difference yields exit status 2. Standard output carries counts
-only; identifiers and samples stay in the private file.
+Any unexplained difference yields exit status 2, as does an `--apply` run that
+was refused (`applied: false`, `refused` names the reason: `offline`,
+`deferred_identities`, `stale_manifest`, `unaccepted_loss`,
+`derived_incomplete`). Standard output carries counts only; identifiers and
+samples stay in the private file.
 
 `complete` is true only when the rows import, the reconciliation and
 `--freeze-confirmed` all hold, i.e. the final catch-up ran on a frozen source
@@ -136,8 +143,9 @@ refused (`explicit_production_target_required`). The same ownership preflights
 apply: foreign rows, identities or objects fail closed.
 
 Storage is still bound to the development bucket and scoped `nfe-import-63/`
-prefix; the production bucket, DNS, Coolify and the cutover execution itself
-belong to #66. The private Google registry still has incomplete coverage.
+prefix; a production apply with that bucket or prefix is refused
+(`production_storage_binding_required`). The production bucket, DNS, Coolify
+and the cutover execution itself belong to #66. The private Google registry still has incomplete coverage.
 
 The synthetic proof fixture requires `ffmpeg`, `ffprobe`, and `cwebp` on PATH;
 `cwebp` encodes WebP when the local FFmpeg lacks that encoder.

@@ -8,13 +8,9 @@
 	"files": {
 		"includes": [
 			"**",
-			"!**/.next",
 			"!**/node_modules",
 			"!**/build",
 			"!**/dist",
-			"!**/.vercel",
-			"!**/prisma/generated/**/*",
-			"!**/src/generated/**/*",
 			"!**/.tanstack",
 			"!**/routeTree.gen.ts",
 			"!**/test-results",

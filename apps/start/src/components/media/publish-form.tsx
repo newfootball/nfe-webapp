@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Button } from "../../../../../components/ui/button";
 import { publishPost } from "../../lib/media";
 import { PublishPostSchema } from "../../lib/media-contract";
 import { mediaError, mediaMessages } from "../../lib/media-messages";
@@ -12,6 +11,7 @@ import {
 } from "../../lib/media-thumbnails";
 import { unwrapMedia } from "../../lib/media-upload";
 import type { Locale } from "../../lib/messages";
+import { Button } from "../ui/button";
 import { TransferStatus } from "./transfer-status";
 import { useIdentityGuard, useObjectUrl, useTransfer } from "./use-transfer";
 

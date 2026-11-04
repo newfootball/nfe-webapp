@@ -4,7 +4,7 @@ import {
 	useQueryClient,
 } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { Button } from "../../../../components/ui/button";
+import { Button } from "../components/ui/button";
 import { getSession } from "../lib/auth";
 import { notificationOptions, setNotificationsRead } from "../lib/notification";
 import type { NotificationMarkInput } from "../lib/notification-input";

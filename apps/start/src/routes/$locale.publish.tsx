@@ -4,8 +4,8 @@ import {
 	useRouter,
 	useRouterState,
 } from "@tanstack/react-router";
-import { Button } from "../../../../components/ui/button";
 import { PublishForm } from "../components/media/publish-form";
+import { Button } from "../components/ui/button";
 import { getSession } from "../lib/auth";
 import { mediaMessages } from "../lib/media-messages";
 export const Route = createFileRoute("/$locale/publish")({

@@ -1,8 +1,7 @@
-# Start Migration Shell
+# Start App
 
-This is an independent TanStack Start foundation, not the production Next app
-or proof of backend/auth/storage parity. Read [README.md](README.md) before
-changing the shell. Keep its manifest, lockfile and TypeScript boundary separate.
+This is the NFE application (TanStack Start). Read [README.md](README.md) before
+changing it. Keep its manifest, lockfile and TypeScript boundary separate.
 
 ## Commands
 
@@ -11,15 +10,15 @@ From the repository root (Bun 1.3.14 and Node 24):
 ```sh
 bun install --frozen-lockfile
 bun install --cwd apps/start --frozen-lockfile
-bun run dev:start                 # port 3501, strict; Next uses 3500
-bun run build:start               # builds and scans client output
-bun run typecheck:start           # build first to generate route types
-bun run smoke:start               # built Bun server; stop dev on 3501 first
+bun run dev                       # port 3501, strict
+bun run build                     # builds and scans client output
+bun run typecheck                 # build first to generate route types
+bun run smoke                     # built Bun server; stop dev on 3501 first
 ```
 
 Smoke tests need Playwright Chromium installed from this directory with
 `bunx playwright install chromium`, or use
-`PLAYWRIGHT_CHANNEL=chrome bun run smoke:start` from the root for local Chrome.
+`PLAYWRIGHT_CHANNEL=chrome bun run smoke` from the root for local Chrome.
 `bun run --cwd apps/start start` serves the built shell on loopback only.
 
 ## Boundaries
@@ -35,14 +34,14 @@ Smoke tests need Playwright Chromium installed from this directory with
   every protected server function/route independently of UI guards; keep
   credentials and private data behind the server boundary.
 - Server functions bridge loaders to `.server.ts` modules. Import protection
-  must remain enabled; do not import root Next/auth/Prisma server modules.
+  must remain enabled.
 - Only intentionally public values belong in `VITE_*`. Use `src/lib/env-public.ts`
   and `src/lib/env.server.ts`; this app loads only its own environment directory.
 - Locale routes use `/fr` and `/en`, with `/` redirecting to `/fr`; unknown locales
-  return 404. Keep both languages in `src/lib/messages.ts` aligned. This shell
-  does not use root next-intl configuration.
-- Reuse existing shadcn Button, `cn`, root CSS tokens and public assets. Preserve
-  React deduplication and avoid importing Next-specific UI into the shell.
+  return 404. Keep both languages in `src/lib/messages.ts` and
+  `src/messages/{fr,en}.json` aligned.
+- Reuse the shadcn Button (`src/components/ui`), `cn` (`src/lib/utils.ts`), CSS
+  tokens (`src/globals.css`) and `public/` assets. Preserve React deduplication.
 - Do not hand-edit `src/routeTree.gen.ts`. Keep browser tests named `*.pw.ts` so
   root `bun test` does not collect Playwright tests.
 - Before changing query/SSR state, read

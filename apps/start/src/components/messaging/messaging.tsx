@@ -6,7 +6,6 @@ import {
 } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Button } from "../../../../../components/ui/button";
 import type { Locale } from "../../lib/messages";
 import {
 	conversationsOptions,
@@ -18,6 +17,7 @@ import {
 } from "../../lib/messaging";
 import type { MessagePage, MessagingError } from "../../lib/messaging-contract";
 import { messagingMessages } from "../../lib/messaging-messages";
+import { Button } from "../ui/button";
 
 function errorText(error: unknown, locale: Locale) {
 	const key = error instanceof Error ? error.message : String(error);

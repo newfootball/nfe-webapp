@@ -1,7 +1,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { Button } from "../../../../components/ui/button";
 import { PostCard } from "../components/feed/posts";
+import { Button } from "../components/ui/button";
 import { getSession } from "../lib/auth";
 import { favoritesOptions } from "../lib/interactions";
 import { interactionMessages } from "../lib/interactions-messages";

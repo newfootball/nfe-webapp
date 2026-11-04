@@ -2,7 +2,6 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
-import { Button } from "../../../../components/ui/button";
 import { FeedNav } from "../components/feed/nav";
 import {
 	FeedPending,
@@ -10,6 +9,7 @@ import {
 	FeedRoutePending,
 	PostCard,
 } from "../components/feed/posts";
+import { Button } from "../components/ui/button";
 import { exploreOptions } from "../lib/feed";
 import { SearchTextSchema } from "../lib/feed-input";
 import { feedMessages } from "../lib/feed-messages";

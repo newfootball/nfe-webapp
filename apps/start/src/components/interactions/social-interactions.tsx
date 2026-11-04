@@ -7,7 +7,6 @@ import {
 } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import { Button } from "../../../../../components/ui/button";
 import {
 	addComment,
 	commentsOptions,
@@ -22,6 +21,7 @@ import {
 } from "../../lib/interactions-contract";
 import { interactionMessages } from "../../lib/interactions-messages";
 import type { Locale } from "../../lib/messages";
+import { Button } from "../ui/button";
 
 type Change =
 	| { kind: "like" | "favorite"; active: boolean }

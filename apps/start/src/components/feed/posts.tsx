@@ -1,6 +1,5 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
-import { Button } from "../../../../../components/ui/button";
 import { feedOptions } from "../../lib/feed";
 import type { PublicPost } from "../../lib/feed-contract";
 import { feedMessages } from "../../lib/feed-messages";
@@ -8,6 +7,7 @@ import { mediaMessages } from "../../lib/media-messages";
 import type { Locale } from "../../lib/messages";
 import { SocialInteractions } from "../interactions/social-interactions";
 import { MediaPlayer } from "../media/media-player";
+import { Button } from "../ui/button";
 export function PostCard({
 	post,
 	locale,

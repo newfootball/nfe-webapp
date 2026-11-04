@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { Button } from "../../../../../components/ui/button";
 import { readPostMedia } from "../../lib/media";
 import { postMediaPath } from "../../lib/media-contract";
 import { mediaMessages } from "../../lib/media-messages";
 import { unwrapMedia } from "../../lib/media-upload";
 import type { Locale } from "../../lib/messages";
+import { Button } from "../ui/button";
 
 class ExpiredMediaCapability extends Error {}
 

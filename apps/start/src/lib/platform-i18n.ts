@@ -1,6 +1,6 @@
 import { IntlMessageFormat } from "intl-messageformat";
-import en from "../../../../messages/en.json";
-import fr from "../../../../messages/fr.json";
+import en from "../messages/en.json";
+import fr from "../messages/fr.json";
 import type { Locale } from "./messages";
 
 const dictionaries = { fr, en };

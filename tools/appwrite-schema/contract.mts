@@ -4,7 +4,7 @@ import { mapping, publicProfile } from "./mapping.mts";
 import { enums, tables } from "./schema.mts";
 
 const prisma = await Bun.file(
-	new URL("../../prisma/schema.prisma", import.meta.url),
+	new URL("./legacy/schema.prisma", import.meta.url),
 ).text();
 for (const model of prisma.matchAll(/model (\w+) \{([\s\S]*?)\n\}/g)) {
 	const [, name, body] = model;

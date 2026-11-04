@@ -1,14 +1,11 @@
 ---
 paths:
-  - "src/hooks/**"
-  - "components/**"
-  - "app/**"
   - "apps/start/src/**"
 ---
 
 # TanStack Query
 
-Scope: src/hooks/**, components/**, app/**, apps/start/src/**
+Scope: apps/start/src/**
 
 - Follow the installed major version's API. In v5, use the single object form with a stable array `queryKey` and a `queryFn` that returns or throws.
 - Make query keys describe every input that changes the result. Keep key construction close to the feature or centralize it consistently.
@@ -20,9 +17,6 @@ Scope: src/hooks/**, components/**, app/**, apps/start/src/**
 
 ## Existing state boundaries
 
-- Root feed pagination lives in `src/hooks/use-posts.ts` and bridges into
-  `src/store/posts.store.ts` for optimistic UI. Preserve that behavior when
-  updating queries; do not expand Zustand into a second general server cache.
 - Start creates its QueryClient inside `getRouter()` per router/SSR request in
   `apps/start/src/router.tsx` and integrates SSR hydration. Never move it into
   module-global state that can leak one reader's cached data to another.

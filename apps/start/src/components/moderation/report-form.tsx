@@ -1,10 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import { Button } from "../../../../../components/ui/button";
 import type { Locale } from "../../lib/messages";
 import { reportPost } from "../../lib/moderation";
 import { type ReportInput, SIGNAL_REASONS } from "../../lib/moderation-input";
 import { moderationMessages } from "../../lib/moderation-messages";
+import { Button } from "../ui/button";
 export function ReportForm({
 	postId,
 	locale,

@@ -23,6 +23,22 @@ contract.message_conversations = Object.fromEntries(
 	),
 );
 export const BUSINESS_TABLES = Object.keys(contract).sort();
+const uniqueIndexes: Record<string, string[][]> = {};
+for (const [name, table] of [
+	...Object.entries(base),
+	...Object.entries(mediaV3Tables),
+	...Object.entries(notificationV1Tables),
+	...Object.entries(messagingDefinition),
+] as [
+	string,
+	{ indexes: readonly { columns: readonly string[]; type?: string }[] },
+][])
+	if (contract[name])
+		uniqueIndexes[name] = table.indexes
+			.filter((index) => index.type === "unique")
+			.map((index) => [...index.columns]);
+export const UNIQUE_INDEXES: Readonly<Record<string, string[][]>> =
+	uniqueIndexes;
 export function normalizeRow(row: ProjectionRow): ProjectionRow {
 	const columns = contract[row.table];
 	if (

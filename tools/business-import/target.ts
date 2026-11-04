@@ -1,13 +1,23 @@
 import { Client, type Models, Query, TablesDB } from "node-appwrite";
-import { isolatedBusinessProject } from "../identity-import/target";
+import {
+	isolatedBusinessProject,
+	isProductionEndpoint,
+} from "../identity-import/target";
 import type { ProjectionRow } from "./projection";
 
+export type BindingOptions = { production?: boolean };
 export function targetBinding(
 	endpoint: string,
 	project: string,
 	database: string,
+	options: BindingOptions = {},
 ) {
 	const url = new URL(endpoint);
+	if (options.production) {
+		if (!isProductionEndpoint(url, project) || !database)
+			throw new Error("explicit_production_target_required");
+		return JSON.stringify([url.href, project, database, "production"]);
+	}
 	if (
 		url.protocol !== "http:" ||
 		url.hostname !== "127.0.0.1" ||
@@ -36,8 +46,9 @@ export class AppwriteTarget implements Target {
 		project: string,
 		key: string,
 		private database: string,
+		options: BindingOptions = {},
 	) {
-		targetBinding(endpoint, project, database);
+		targetBinding(endpoint, project, database, options);
 		this.db = new TablesDB(
 			new Client().setEndpoint(endpoint).setProject(project).setKey(key),
 		);

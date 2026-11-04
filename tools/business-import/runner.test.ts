@@ -10,6 +10,8 @@ import type { Target } from "./target";
 class Fake implements Target {
 	rows = new Map<string, ProjectionRow>();
 	failAfterCreate = false;
+	failDelete = false;
+	deletes = 0;
 	key(table: string, id: string) {
 		return `${table}:${id}`;
 	}
@@ -21,6 +23,8 @@ class Fake implements Target {
 		if (this.failAfterCreate) throw new Error("crash");
 	}
 	async delete(table: string, id: string) {
+		if (this.failDelete) throw new Error("crash");
+		this.deletes++;
 		this.rows.delete(this.key(table, id));
 	}
 	async list(table: string) {
@@ -101,6 +105,98 @@ test("frozen rebuild removes owned deletions and preserves foreign rows", async 
 		).rejects.toThrow("foreign_target_row");
 		expect(await target.get("messages", "one")).not.toBeNull();
 		expect(await target.get("messages", "foreign")).not.toBeNull();
+	}));
+const two: ProjectionRow = { ...row, id: "two", data: { ...row.data } };
+const changed: ProjectionRow = {
+	...row,
+	data: { ...row.data, content: "edited" },
+};
+test("frozen rebuild applies updates and deletions only to owned rows, idempotently", async () =>
+	fixture(async (target, options) => {
+		await runImport({ ...options, rows: [row, two] });
+		await expect(
+			runImport({ ...options, rows: [changed], snapshot: "snapshot-b" }),
+		).rejects.toThrow("checkpoint_binding_mismatch");
+		const rebuilt = await runImport({
+			...options,
+			rows: [changed],
+			snapshot: "snapshot-b",
+			rebuild: true,
+			frozen: true,
+		});
+		expect(rebuilt).toMatchObject({
+			created: 1,
+			resumed: 0,
+			deleted: 1,
+			replaced: 1,
+			rebuild: true,
+			ok: true,
+		});
+		expect((await target.get("messages", "one"))?.data.content).toBe("edited");
+		expect(await target.get("messages", "two")).toBeNull();
+		const again = await runImport({
+			...options,
+			rows: [changed],
+			snapshot: "snapshot-b",
+			rebuild: true,
+			frozen: true,
+		});
+		expect(again).toMatchObject({
+			created: 0,
+			resumed: 1,
+			deleted: 0,
+			replaced: 0,
+			ok: true,
+		});
+		expect(target.deletes).toBe(2);
+		expect(
+			(await runImport({ ...options, rows: [changed], snapshot: "snapshot-b" }))
+				.resumed,
+		).toBe(1);
+	}));
+test("frozen rebuild never deletes a row whose content diverged from the importer's write", async () =>
+	fixture(async (target, options) => {
+		await runImport(options);
+		const stored = await target.get("messages", "one");
+		if (!stored) throw new Error("missing");
+		stored.data.content = "edited on target";
+		await expect(
+			runImport({
+				...options,
+				rows: [],
+				snapshot: "snapshot-b",
+				rebuild: true,
+				frozen: true,
+			}),
+		).rejects.toThrow("owned_row_changed");
+		expect(await target.get("messages", "one")).not.toBeNull();
+	}));
+test("interrupted rebuild deletion resumes only under rebuild and fails closed otherwise", async () =>
+	fixture(async (target, options) => {
+		await runImport({ ...options, rows: [row, two] });
+		target.failDelete = true;
+		const next = {
+			...options,
+			rows: [row],
+			snapshot: "snapshot-b",
+			rebuild: true,
+			frozen: true,
+		};
+		await expect(runImport(next)).rejects.toThrow("crash");
+		target.failDelete = false;
+		await expect(runImport(options)).rejects.toThrow("rebuild_in_progress");
+		await expect(
+			runImport({ ...options, rows: [row], snapshot: "snapshot-b" }),
+		).rejects.toThrow("checkpoint_binding_mismatch");
+		expect(await runImport(next)).toMatchObject({
+			deleted: 1,
+			resumed: 1,
+			ok: true,
+		});
+		expect(await target.get("messages", "two")).toBeNull();
+		expect(
+			(await runImport({ ...options, rows: [row], snapshot: "snapshot-b" })).ok,
+		).toBe(true);
 	}));
 
 test("normalizes optional nulls and server datetime offsets on resume", async () =>

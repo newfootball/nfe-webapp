@@ -2,7 +2,7 @@ import type { PreparedAsset, QuarantinedAsset } from "./download";
 import type { MediaPlan } from "./media-plan";
 import type { BusinessSource } from "./source";
 
-export function deriveDevelopmentImport(
+export function omitUnavailableMedia(
 	source: BusinessSource,
 	plan: MediaPlan,
 	result: {

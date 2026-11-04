@@ -77,7 +77,9 @@ Total ~2 min 40 s. Le freeze est dominé par le provisionnement de schéma
   `127.0.0.1:18464` uniquement (tests unitaires ajoutés) ; les autres cibles
   restent refusées.
 - Données synthétiques (3 utilisateurs, 2 posts, 4 médias, 33 lignes) : volumes
-  réels, rattrapage figé et suppressions ne sont pas exercés ici.
+  réels non exercés ici. Le rattrapage figé avec suppressions (`--rebuild
+  --freeze-confirmed`) et le rapport de réconciliation par entité sont couverts
+  par les tests unitaires de `tools/business-import`, pas par ce run.
 - Une dérive réseau Docker du stack persistant a dû être réparée une fois avec
   `compose up --force-recreate` avant le premier run (volumes conservés).
 
@@ -97,7 +99,8 @@ Total ~2 min 40 s. Le freeze est dominé par le provisionnement de schéma
 ## Reste à faire pour une préprod réelle (hors #65 LOCAL)
 
 - Source réelle en lecture seule, volumes réels, mesure du freeze et du RTO à
-  l'échelle, rattrapage figé et suppressions (#63 gates).
+  l'échelle ; rejouer le rattrapage figé (`--rebuild --freeze-confirmed`) et la
+  réconciliation (#63) sur cette source.
 - Sondes de readiness et consommateur pointés sur la base migrée, pas sur
   `nfe-local`.
 - Exécution des suites Playwright existantes contre l'environnement cible, Google

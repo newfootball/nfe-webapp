@@ -16,6 +16,7 @@ export interface Target {
 	mark(id: string, marker: string): Promise<void>;
 	verify(id: string, value: boolean): Promise<void>;
 	admin(id: string): Promise<void>;
+	delete(id: string): Promise<void>;
 }
 export type Report = {
 	version: 1;

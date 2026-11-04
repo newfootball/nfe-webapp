@@ -164,6 +164,77 @@ function binding(plan: MediaPlan, prepared: PreparedAsset[]) {
 	);
 }
 
+// Every version under an owned key must prove ownership and byte identity
+// before its exact VersionId is deleted; pending multipart uploads are aborted.
+async function removeOwnedObject(
+	client: S3Client,
+	item: z.infer<typeof entrySchema>,
+	cp: UploadCheckpoint,
+	bucket: string,
+) {
+	const versions = await client.send(
+		new ListObjectVersionsCommand({
+			Bucket: bucket,
+			Prefix: item.objectKey,
+			MaxKeys: 100,
+		}),
+	);
+	if (
+		versions.IsTruncated ||
+		versions.DeleteMarkers?.some((v) => v.Key === item.objectKey)
+	)
+		throw new Error("cleanup_inventory_requires_recovery");
+	for (const version of versions.Versions ?? []) {
+		if (version.Key !== item.objectKey) continue;
+		if (!version.VersionId) throw new Error("cleanup_version_missing");
+		await verifyObject(client, item, cp, bucket, version.VersionId);
+		await client.send(
+			new DeleteObjectCommand({
+				Bucket: bucket,
+				Key: item.objectKey,
+				VersionId: version.VersionId,
+			}),
+		);
+	}
+	if (item.uploadId && !item.receipt) {
+		try {
+			await client.send(
+				new AbortMultipartUploadCommand({
+					Bucket: bucket,
+					Key: item.objectKey,
+					UploadId: item.uploadId,
+				}),
+			);
+		} catch (error) {
+			if ((error as { name?: string }).name !== "NoSuchUpload") throw error;
+		}
+	}
+	const pending = await client.send(
+		new ListMultipartUploadsCommand({
+			Bucket: bucket,
+			Prefix: item.objectKey,
+			MaxUploads: 100,
+		}),
+	);
+	if (
+		pending.IsTruncated ||
+		pending.Uploads?.some((u) => u.Key === item.objectKey)
+	)
+		throw new Error("unknown_multipart_requires_recovery");
+}
+const retired = (
+	item: z.infer<typeof entrySchema>,
+	prepared: PreparedAsset[],
+) => {
+	const file = prepared.find((asset) => asset.assetId === item.assetId);
+	return (
+		!file ||
+		file.sha256 !== item.sha256 ||
+		file.byteSize !== item.byteSize ||
+		file.mimetype !== item.mimetype
+	);
+};
+
 // Read-only check across the whole declared storage destination. The caller
 // invokes this before creating identities or writing any business rows.
 export async function assertStorageOwned(options: {
@@ -171,6 +242,7 @@ export async function assertStorageOwned(options: {
 	prepared: PreparedAsset[];
 	client: S3Client;
 	checkpointPath: string;
+	rebuild?: boolean;
 }) {
 	const { plan, prepared, client, checkpointPath } = options;
 	const expectedBinding = binding(plan, prepared);
@@ -182,7 +254,7 @@ export async function assertStorageOwned(options: {
 		} catch (error) {
 			if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
 		}
-		if (cp && cp.binding !== expectedBinding)
+		if (cp && cp.binding !== expectedBinding && !options.rebuild)
 			throw new Error("upload_binding_changed");
 		const keys = new Map(
 			plan.assets.map((asset) => [
@@ -190,6 +262,12 @@ export async function assertStorageOwned(options: {
 				asset.id,
 			]),
 		);
+		for (const item of Object.values(cp?.entries ?? {}))
+			if (
+				options.rebuild &&
+				item.objectKey.startsWith(`${plan.prefix}business-import/`)
+			)
+				keys.set(item.objectKey, item.assetId);
 		const [versions, uploads] = await Promise.all([
 			client.send(
 				new ListObjectVersionsCommand({
@@ -226,7 +304,11 @@ export async function assertStorageOwned(options: {
 				throw new Error("unknown_multipart_requires_recovery");
 		}
 		for (const item of Object.values(cp?.entries ?? {})) {
-			if (!keys.has(item.objectKey)) throw new Error("upload_entry_changed");
+			if (
+				!keys.has(item.objectKey) ||
+				item.objectKey !== `${plan.prefix}business-import/${item.assetId}`
+			)
+				throw new Error("upload_entry_changed");
 			if (
 				item.receipt &&
 				!versions.Versions?.some(
@@ -245,6 +327,7 @@ export async function uploadMedia(options: {
 	client: S3Client;
 	checkpointPath: string;
 	afterPart?: () => Promise<void>;
+	rebuild?: boolean;
 }) {
 	const { plan, prepared, client, checkpointPath } = options;
 	const expectedBinding = binding(plan, prepared);
@@ -262,9 +345,23 @@ export async function uploadMedia(options: {
 				entries: {},
 			};
 		}
-		if (cp.binding !== expectedBinding)
-			throw new Error("upload_binding_changed");
 		const save = () => atomicPrivate(checkpointPath, cp);
+		let removed = 0;
+		if (cp.binding !== expectedBinding) {
+			if (!options.rebuild) throw new Error("upload_binding_changed");
+			// Frozen catch-up: owned objects whose asset left the plan or whose
+			// bytes changed are removed before the binding moves to the new plan.
+			for (const item of Object.values(cp.entries)) {
+				if (item.objectKey !== `${plan.prefix}business-import/${item.assetId}`)
+					throw new Error("upload_entry_changed");
+				if (!retired(item, prepared)) continue;
+				await removeOwnedObject(client, item, cp, plan.bucket);
+				delete cp.entries[item.assetId];
+				removed++;
+				await save();
+			}
+			cp.binding = expectedBinding;
+		}
 		await save();
 		const receipts: UploadedObject[] = [];
 		for (const file of prepared) {
@@ -471,7 +568,7 @@ export async function uploadMedia(options: {
 				await handle.close();
 			}
 		}
-		return receipts;
+		return Object.assign(receipts, { removed });
 	});
 }
 
@@ -492,58 +589,7 @@ export async function cleanupUploadedMedia(
 			if (!item) continue;
 			if (item.objectKey !== `${plan.prefix}business-import/${asset.id}`)
 				throw new Error("cleanup_key_changed");
-			// Include completions whose response/checkpoint write was lost, and SDK
-			// retries that created another owned version. Every version must prove
-			// ownership and byte identity before its exact VersionId can be deleted.
-			const versions = await client.send(
-				new ListObjectVersionsCommand({
-					Bucket: plan.bucket,
-					Prefix: item.objectKey,
-					MaxKeys: 100,
-				}),
-			);
-			if (
-				versions.IsTruncated ||
-				versions.DeleteMarkers?.some((v) => v.Key === item.objectKey)
-			)
-				throw new Error("cleanup_inventory_requires_recovery");
-			for (const version of versions.Versions ?? []) {
-				if (version.Key !== item.objectKey) continue;
-				if (!version.VersionId) throw new Error("cleanup_version_missing");
-				await verifyObject(client, item, cp, plan.bucket, version.VersionId);
-				await client.send(
-					new DeleteObjectCommand({
-						Bucket: plan.bucket,
-						Key: item.objectKey,
-						VersionId: version.VersionId,
-					}),
-				);
-			}
-			if (item.uploadId && !item.receipt) {
-				try {
-					await client.send(
-						new AbortMultipartUploadCommand({
-							Bucket: plan.bucket,
-							Key: item.objectKey,
-							UploadId: item.uploadId,
-						}),
-					);
-				} catch (error) {
-					if ((error as { name?: string }).name !== "NoSuchUpload") throw error;
-				}
-			}
-			const pending = await client.send(
-				new ListMultipartUploadsCommand({
-					Bucket: plan.bucket,
-					Prefix: item.objectKey,
-					MaxUploads: 100,
-				}),
-			);
-			if (
-				pending.IsTruncated ||
-				pending.Uploads?.some((u) => u.Key === item.objectKey)
-			)
-				throw new Error("unknown_multipart_requires_recovery");
+			await removeOwnedObject(client, item, cp, plan.bucket);
 		}
 	});
 }

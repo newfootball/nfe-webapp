@@ -23,7 +23,7 @@ export const snapshotSchema = z.strictObject({
 	),
 });
 export type SourceUser = z.infer<typeof snapshotSchema>["users"][number];
-export async function readPrivate(path: string): Promise<unknown> {
+export async function readPrivateText(path: string): Promise<string> {
 	const file = await open(path, constants.O_RDONLY | constants.O_NOFOLLOW);
 	try {
 		const stat = await file.stat();
@@ -34,10 +34,13 @@ export async function readPrivate(path: string): Promise<unknown> {
 			stat.size > 64 * 1024 * 1024
 		)
 			throw new Error("unsafe_private_file");
-		return JSON.parse(await file.readFile("utf8"));
+		return await file.readFile("utf8");
 	} finally {
 		await file.close();
 	}
+}
+export async function readPrivate(path: string): Promise<unknown> {
+	return JSON.parse(await readPrivateText(path));
 }
 export async function readSource(path: string, authorized: boolean) {
 	if (!authorized) throw new Error("source_authorization_required");

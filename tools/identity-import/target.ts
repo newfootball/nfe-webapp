@@ -1,8 +1,12 @@
+import { isIP } from "node:net";
 import { Client, type Models, Query, Users } from "node-appwrite";
 import type { Target, TargetUser } from "./importer";
 import type { SourceUser } from "./source";
 
-export type TargetOptions = { isolatedBusinessImport?: boolean };
+export type TargetOptions = {
+	isolatedBusinessImport?: boolean;
+	production?: boolean;
+};
 // The persistent synthetic local runtime (#64) is the only business target
 // outside the disposable nfe-import-63 stacks: fixed loopback port and project.
 export const localRehearsalTarget = { port: "18464", project: "nfe-local" };
@@ -13,12 +17,40 @@ export function isolatedBusinessProject(url: URL, project: string) {
 			url.port === localRehearsalTarget.port)
 	);
 }
+// A production endpoint is a named public HTTPS host serving exactly /v1.
+// Loopback, raw IPs, local names, ports, credentials and query parts are
+// rejected so a misconfigured endpoint cannot pass as the real project.
+export function isProductionEndpoint(url: URL, project: string) {
+	const host = url.hostname.toLowerCase();
+	return (
+		url.protocol === "https:" &&
+		url.pathname === "/v1" &&
+		!url.port &&
+		!url.search &&
+		!url.hash &&
+		!url.username &&
+		!url.password &&
+		/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+$/.test(
+			host,
+		) &&
+		!isIP(host) &&
+		host !== "localhost" &&
+		!host.endsWith(".localhost") &&
+		!host.endsWith(".local") &&
+		/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,35}$/.test(project)
+	);
+}
 export function targetConfig(
 	endpoint: string,
 	project: string,
 	options: TargetOptions = {},
 ) {
 	const url = new URL(endpoint);
+	if (options.production) {
+		if (!isProductionEndpoint(url, project))
+			throw new Error("explicit_production_target_required");
+		return `${url.href}|${project}|production`;
+	}
 	// Real/representative imports deliberately gated pending #47/#49.
 	if (
 		url.protocol !== "http:" ||
@@ -105,5 +137,8 @@ export class AppwriteTarget implements Target {
 			userId: id,
 			labels: [...new Set([...current.labels, "admin"])],
 		});
+	}
+	async delete(id: string) {
+		await this.users.delete({ userId: id });
 	}
 }

@@ -3,12 +3,7 @@ import { lstat, realpath } from "node:fs/promises";
 import { isAbsolute, join, relative } from "node:path";
 import { Query } from "node-appwrite";
 import { z } from "zod";
-import {
-	atomicPrivate,
-	digest,
-	load,
-	withLock,
-} from "../identity-import/checkpoint";
+import { atomicPrivate, load, withLock } from "../identity-import/checkpoint";
 import {
 	plan as identityPlan,
 	runImport as importIdentities,
@@ -18,19 +13,33 @@ import {
 	readAdminPolicy,
 	readSource as readIdentities,
 	readPrivate,
+	readPrivateText,
 	type SourceUser,
 } from "../identity-import/source";
 import {
 	AppwriteTarget as IdentityTarget,
 	targetConfig,
 } from "../identity-import/target";
+import {
+	type AcceptedLoss,
+	candidateManifest,
+	evaluateAcceptedLoss,
+	parseManifest,
+	sourceDigest,
+} from "./accepted-loss";
 import { BUSINESS_TABLES, normalizeRow } from "./contract";
-import { deriveDevelopmentImport } from "./development";
 import { prepareMedia } from "./download";
+import { preflightIdentities, rebaseIdentities } from "./identities";
 import { createMediaPlan } from "./media-plan";
-import { projectBusiness } from "./projection";
+import { omitUnavailableMedia } from "./omission";
+import { type ProjectionRow, projectBusiness } from "./projection";
+import {
+	type Reconciliation,
+	reconcile,
+	redactReconciliation,
+} from "./reconcile";
 import { assertOwnedTarget, runImport as importRows } from "./runner";
-import { type BusinessSource, readSource } from "./source";
+import { type BusinessSource, projectSource } from "./source";
 import { AppwriteTarget, targetBinding } from "./target";
 import { assertStorageOwned, importStorage, uploadMedia } from "./upload";
 
@@ -39,6 +48,13 @@ const configSchema = z.strictObject({
 	project: z.string(),
 	database: z.string(),
 	key: z.string().min(1),
+	production: z
+		.strictObject({
+			endpoint: z.string(),
+			project: z.string(),
+			database: z.string(),
+		})
+		.optional(),
 	media: z.strictObject({
 		allowedHosts: z.array(z.string()),
 		bucket: z.string(),
@@ -52,6 +68,7 @@ const configSchema = z.strictObject({
 		B2_APPLICATION_KEY: z.string(),
 	}),
 });
+type Config = z.infer<typeof configSchema>;
 const TABLES = BUSINESS_TABLES;
 type Args = {
 	source: string;
@@ -59,22 +76,24 @@ type Args = {
 	adminPolicy: string;
 	config: string;
 	directory: string;
+	acceptedLoss: string | null;
 	apply: boolean;
 	offline: boolean;
 	rebuild: boolean;
 	frozen: boolean;
-	allowMissingMediaInDevelopment: boolean;
+	productionTarget: boolean;
 };
 export function parseArgs(args: string[]): Args {
 	const fields: Record<string, string> = {},
 		flags = new Set<string>();
-	const valueArgs = new Set([
+	const required = [
 			"--source",
 			"--identity",
 			"--admin-policy",
 			"--config",
 			"--directory",
-		]),
+		],
+		valueArgs = new Set([...required, "--accepted-loss"]),
 		switches = new Set([
 			"--source-authorized",
 			"--dry-run",
@@ -82,7 +101,7 @@ export function parseArgs(args: string[]): Args {
 			"--offline",
 			"--freeze-confirmed",
 			"--rebuild",
-			"--allow-missing-media-in-development",
+			"--production-target",
 		]);
 	for (let i = 0; i < args.length; i++) {
 		const arg = args[i];
@@ -97,7 +116,7 @@ export function parseArgs(args: string[]): Args {
 	}
 	if (
 		!flags.has("--source-authorized") ||
-		[...valueArgs].some((k) => !fields[k]) ||
+		required.some((k) => !fields[k]) ||
 		(flags.has("--apply") &&
 			(flags.has("--dry-run") || flags.has("--offline"))) ||
 		(flags.has("--rebuild") &&
@@ -111,14 +130,34 @@ export function parseArgs(args: string[]): Args {
 		adminPolicy: fields["--admin-policy"] as string,
 		config: fields["--config"] as string,
 		directory: fields["--directory"] as string,
+		acceptedLoss: fields["--accepted-loss"] ?? null,
 		apply: flags.has("--apply"),
 		offline: flags.has("--offline"),
 		rebuild: flags.has("--rebuild"),
 		frozen: flags.has("--freeze-confirmed"),
-		allowMissingMediaInDevelopment: flags.has(
-			"--allow-missing-media-in-development",
-		),
+		productionTarget: flags.has("--production-target"),
 	};
+}
+// The production target is only accepted when the flag and the configuration
+// name the same endpoint, project and database; either one alone is rejected.
+export function resolveTarget(config: Config, productionTarget: boolean) {
+	const production = config.production ?? null;
+	if (productionTarget !== (production !== null))
+		throw new Error("production_target_mismatch");
+	if (
+		production &&
+		(production.endpoint !== config.endpoint ||
+			production.project !== config.project ||
+			production.database !== config.database)
+	)
+		throw new Error("production_target_mismatch");
+	const binding = { production: productionTarget };
+	const identity = productionTarget
+		? { production: true }
+		: { isolatedBusinessImport: true };
+	targetBinding(config.endpoint, config.project, config.database, binding);
+	targetConfig(config.endpoint, config.project, identity);
+	return { binding, identity, production: productionTarget };
 }
 export function validateInputs(
 	source: BusinessSource,
@@ -152,20 +191,52 @@ export function validateInputs(
 		deferred: planned.filter((item) => item.reasons.length > 0).length,
 	};
 }
-export function mayApply(
+// Quarantined media only pass when the accepted-loss manifest covers each pair
+// exactly and the derived media set is complete; a stale manifest blocks even
+// when nothing is quarantined any more.
+export type ApplyRefusal =
+	| "dry_run"
+	| "offline"
+	| "deferred_identities"
+	| "stale_manifest"
+	| "unaccepted_loss"
+	| "derived_incomplete";
+export function applyRefusal(
 	apply: boolean,
 	offline: boolean,
 	quarantined: number,
 	deferred: number,
-	allowMissing = false,
-	derivedComplete = false,
+	loss: { ok: boolean; stale: number } = { ok: quarantined === 0, stale: 0 },
+	derivedComplete = quarantined === 0,
+): ApplyRefusal | null {
+	if (!apply) return "dry_run";
+	if (offline) return "offline";
+	if (deferred) return "deferred_identities";
+	if (loss.stale) return "stale_manifest";
+	if (!loss.ok) return "unaccepted_loss";
+	if (quarantined && !derivedComplete) return "derived_incomplete";
+	return null;
+}
+export const mayApply = (...args: Parameters<typeof applyRefusal>) =>
+	applyRefusal(...args) === null;
+// The development bucket and prefix never back a production target; the
+// production storage binding belongs to #66.
+export const DEVELOPMENT_STORAGE = {
+	bucket: "nfe-webapp-dev",
+	prefix: "nfe-import-63/",
+};
+export function assertStorageBinding(
+	media: { bucket: string; prefix: string },
+	production: boolean,
+	apply: boolean,
 ) {
-	return (
+	if (
+		production &&
 		apply &&
-		!offline &&
-		(quarantined === 0 || (allowMissing && derivedComplete)) &&
-		deferred === 0
-	);
+		(media.bucket === DEVELOPMENT_STORAGE.bucket ||
+			media.prefix.startsWith(DEVELOPMENT_STORAGE.prefix))
+	)
+		throw new Error("production_storage_binding_required");
 }
 async function privateDirectory(directory: string) {
 	if (!isAbsolute(directory)) throw new Error("private_directory_required");
@@ -181,79 +252,31 @@ async function privateDirectory(directory: string) {
 		throw new Error("private_directory_required");
 	return path;
 }
-export async function preflightIdentities(
-	target: IdentityTarget,
-	users: SourceUser[],
-	admins: string[],
-	path: string,
-	binding: string,
-) {
-	const cp = await load(path);
-	const expectedBinding = digest(cp.key, {
-		users,
-		admins,
-		target: binding,
-		preservePasswordless: true,
-		normalizeEmails: true,
-	});
-	if (cp.binding && cp.binding !== expectedBinding)
-		throw new Error("identity_checkpoint_binding_mismatch");
-	let offset = 0;
-	for (;;) {
-		const page = await target.users.list<{ nfeIdentityImport?: string }>({
-			queries: [Query.limit(100), Query.offset(offset)],
-		});
-		for (const user of page.users) {
-			const source = users.find((u) => u.id === user.$id),
-				ref = digest(cp.key, user.$id);
-			const marker = digest(cp.key, { binding: expectedBinding, id: user.$id });
-			if (
-				!source ||
-				!["owned", "done"].includes(cp.entries[ref] ?? "") ||
-				user.prefs.nfeIdentityImport !== marker ||
-				user.email !== source.email?.toLowerCase()
-			)
-				throw new Error("foreign_target_identity");
-		}
-		offset += page.users.length;
-		if (!page.users.length || offset >= page.total) break;
-	}
-	// The importer performs the same password, role and checkpoint checks that
-	// apply will enforce, without creating users or persisting this checkpoint.
-	const report = await importIdentities({
-		users,
-		admins,
-		target,
-		targetBinding: binding,
-		checkpoint: cp,
-		apply: false,
-		preservePasswordless: true,
-		normalizeEmails: true,
-	});
-	if (
-		report.counts.failed ||
-		report.counts.target_collision ||
-		report.counts.deferred ||
-		(report.counts.eligible ?? 0) + (report.counts.already_owned ?? 0) !==
-			users.length
-	)
-		throw new Error("identity_preflight_incomplete");
-}
+const summarizeLoss = (loss: AcceptedLoss) => ({
+	manifest: loss.manifest,
+	snapshotMatch: loss.snapshotMatch,
+	accepted: loss.accepted,
+	unaccepted: loss.unaccepted,
+	stale: loss.stale,
+	ok: loss.ok,
+});
 export async function execute(args: Args) {
-	if (args.rebuild) throw new Error("rebuild_pending_full_freeze_proof");
 	const directory = await privateDirectory(args.directory);
 	const config = configSchema.parse(await readPrivate(args.config));
-	targetBinding(config.endpoint, config.project, config.database);
-	targetConfig(config.endpoint, config.project, {
-		isolatedBusinessImport: true,
-	});
+	const resolved = resolveTarget(config, args.productionTarget);
 	if (config.media.bucket !== config.b2.B2_BUCKET_NAME)
 		throw new Error("storage_bucket_mismatch");
-	const [{ source, report: counts }, users, admins] = await Promise.all([
-		readSource(args.source, true),
+	assertStorageBinding(config.media, resolved.production, args.apply);
+	const [sourceText, users, admins, manifest] = await Promise.all([
+		readPrivateText(args.source),
 		readIdentities(args.identity, true),
 		readAdminPolicy(args.adminPolicy),
+		args.acceptedLoss
+			? readPrivate(args.acceptedLoss).then(parseManifest)
+			: null,
 	]);
+	const digest = sourceDigest(sourceText);
+	const { source, report: counts } = projectSource(JSON.parse(sourceText));
 	const identity = validateInputs(source, users, admins);
 	const media = createMediaPlan(source, config.media);
 	const prepared = args.offline
@@ -262,35 +285,53 @@ export async function execute(args: Args) {
 				directory: join(directory, "media-cache"),
 				allowedHosts: config.media.allowedHosts,
 			});
-	const development =
-		!args.offline && args.allowMissingMediaInDevelopment
-			? deriveDevelopmentImport(source, media, prepared)
-			: null;
-	const activeSource = development?.source ?? source;
-	const activePlan = development?.plan ?? media;
-	const activePrepared = development?.prepared ?? prepared.prepared;
-	const acceptedMissing = Boolean(
-		development?.complete && prepared.quarantine.length,
+	const loss = evaluateAcceptedLoss(
+		manifest,
+		digest,
+		media,
+		prepared.quarantine,
 	);
+	const omission = args.offline
+		? null
+		: omitUnavailableMedia(source, media, prepared);
+	const activeSource = omission?.source ?? source;
+	const activePlan = omission?.plan ?? media;
+	const activePrepared = omission?.prepared ?? prepared.prepared;
 	const targetCounts = Object.fromEntries(
 		Object.entries(activeSource).map(([name, rows]) => [name, rows.length]),
 	);
-	if (development) {
+	if (prepared.quarantine.length)
 		await atomicPrivate(
-			join(directory, "omissions.json"),
-			development.omissions,
+			join(directory, "quarantine.json"),
+			candidateManifest(digest, media, prepared.quarantine),
 		);
+	if (omission?.omissions.length) {
+		await atomicPrivate(join(directory, "omissions.json"), omission.omissions);
 		await atomicPrivate(join(directory, "provenance.json"), source);
 	}
+	const refused = applyRefusal(
+		args.apply,
+		args.offline,
+		prepared.quarantine.length,
+		identity.deferred,
+		loss,
+		omission?.complete ?? false,
+	);
 	const report = {
-		version: 1,
+		version: 2,
 		mode: args.apply ? "apply" : "dry-run",
+		applied: false,
+		refused,
+		target: resolved.production ? "production" : "isolated",
+		rebuild: args.rebuild,
+		frozen: args.frozen,
 		source: counts,
+		sourceDigest: digest,
 		identity,
-		target: targetCounts,
-		omissions: development?.omissions.length ?? 0,
-		acceptedMissing,
-		devImportComplete: false,
+		active: targetCounts,
+		omissions: omission?.omissions.length ?? 0,
+		acceptedLoss: summarizeLoss(loss),
+		quarantine: loss.entries,
 		media: {
 			total: media.assets.length,
 			ready: prepared.prepared.length,
@@ -302,17 +343,7 @@ export async function execute(args: Args) {
 		complete: false,
 	};
 	await atomicPrivate(join(directory, "report.json"), report);
-	if (
-		!mayApply(
-			args.apply,
-			args.offline,
-			prepared.quarantine.length,
-			identity.deferred,
-			args.allowMissingMediaInDevelopment,
-			development?.complete ?? false,
-		)
-	)
-		return report;
+	if (refused !== null) return report;
 	// Provisional versions exist only in memory to validate the projection before writes.
 	const provisional = activePrepared.map((file) => ({
 		assetId: file.assetId,
@@ -334,8 +365,8 @@ export async function execute(args: Args) {
 				source,
 				users,
 				admins,
-				allowMissingMediaInDevelopment: args.allowMissingMediaInDevelopment,
-				omissions: development?.omissions ?? [],
+				acceptedLoss: loss.digest,
+				omissions: omission?.omissions ?? [],
 			}),
 		)
 		.digest("hex");
@@ -353,6 +384,7 @@ export async function execute(args: Args) {
 		config.project,
 		config.key,
 		config.database,
+		resolved.binding,
 	);
 	await assertOwnedTarget({
 		target,
@@ -361,23 +393,28 @@ export async function execute(args: Args) {
 		project: config.project,
 		database: config.database,
 		snapshot,
+		rebuild: args.rebuild,
+		binding: resolved.binding,
 	});
 	const identityPath = join(directory, "identity-checkpoint.json");
 	const identityTarget = new IdentityTarget(
 		config.endpoint,
 		config.project,
 		config.key,
-		{ isolatedBusinessImport: true },
+		resolved.identity,
 	);
-	const identityBinding = targetConfig(config.endpoint, config.project, {
-		isolatedBusinessImport: true,
-	});
-	await preflightIdentities(
+	const identityBinding = targetConfig(
+		config.endpoint,
+		config.project,
+		resolved.identity,
+	);
+	const preflight = await preflightIdentities(
 		identityTarget,
 		users,
 		admins,
 		identityPath,
 		identityBinding,
+		args.rebuild,
 	);
 	const client = importStorage(config.b2);
 	const uploadPath = join(directory, "upload-checkpoint.json");
@@ -387,7 +424,17 @@ export async function execute(args: Args) {
 			prepared: activePrepared,
 			client,
 			checkpointPath: uploadPath,
+			rebuild: args.rebuild,
 		});
+		const identityCatchUp = preflight.rebase
+			? await rebaseIdentities({
+					target: identityTarget,
+					users,
+					admins,
+					path: identityPath,
+					binding: identityBinding,
+				})
+			: { remarked: 0, deleted: 0 };
 		const result = await withLock(identityPath, async () =>
 			importIdentities({
 				users,
@@ -413,6 +460,7 @@ export async function execute(args: Args) {
 			prepared: activePrepared,
 			client,
 			checkpointPath: uploadPath,
+			rebuild: args.rebuild,
 		});
 		const projection = projectBusiness(activeSource, {
 			config: config.media,
@@ -428,13 +476,32 @@ export async function execute(args: Args) {
 			database: config.database,
 			checkpointPath: rowCheckpoint,
 			target,
+			frozen: args.frozen,
+			rebuild: args.rebuild,
+			binding: resolved.binding,
+		});
+		const listed: Record<string, ProjectionRow[]> = {};
+		for (const table of TABLES) listed[table] = await target.list(table);
+		const identities = await identityTarget.users.list({
+			queries: [Query.limit(1)],
+		});
+		const reconciliation = reconcile({
+			source,
+			active: activeSource,
+			rows: projection.rows,
+			target: listed,
+			loss,
+			identities: { source: users.length, target: identities.total },
 		});
 		const finalReport = {
 			...report,
+			applied: true,
 			rows,
+			media: { ...report.media, removed: uploaded.removed },
+			identityCatchUp,
 			isolatedRowImportComplete: rows.ok,
-			devImportComplete: args.allowMissingMediaInDevelopment && rows.ok,
-			complete: false,
+			reconciliation,
+			complete: rows.ok && reconciliation.ok && args.frozen,
 		};
 		await atomicPrivate(join(directory, "report.json"), finalReport);
 		return finalReport;
@@ -443,22 +510,41 @@ export async function execute(args: Args) {
 	}
 }
 export function reportExitCode(report: {
+	mode?: string;
+	applied?: boolean;
 	media: { quarantined: number; pending: number };
 	identity: { deferred: number };
-	acceptedMissing?: boolean;
+	acceptedLoss?: { ok: boolean };
 	isolatedRowImportComplete?: boolean;
+	reconciliation?: { unexplained: number };
 }): number {
-	return (report.media.quarantined && !report.acceptedMissing) ||
+	return (report.mode === "apply" && !report.applied) ||
+		(report.media.quarantined && !report.acceptedLoss?.ok) ||
 		report.media.pending ||
 		report.identity.deferred ||
-		report.isolatedRowImportComplete === false
+		report.isolatedRowImportComplete === false ||
+		(report.reconciliation?.unexplained ?? 0) > 0
 		? 2
 		: 0;
+}
+// Standard output carries counts only; identifiers stay in the private report.
+export function redactReport<T extends Record<string, unknown>>(
+	report: T,
+): Omit<T, "quarantine" | "reconciliation"> & {
+	reconciliation?: ReturnType<typeof redactReconciliation>;
+} {
+	const { quarantine: _quarantine, reconciliation, ...rest } = report;
+	return reconciliation
+		? {
+				...rest,
+				reconciliation: redactReconciliation(reconciliation as Reconciliation),
+			}
+		: rest;
 }
 if (import.meta.main) {
 	try {
 		const result = await execute(parseArgs(Bun.argv.slice(2)));
-		process.stdout.write(`${JSON.stringify(result)}\n`);
+		process.stdout.write(`${JSON.stringify(redactReport(result))}\n`);
 		process.exitCode = reportExitCode(result);
 	} catch {
 		process.stderr.write("business_import_failed\n");

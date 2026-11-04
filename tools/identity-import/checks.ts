@@ -64,6 +64,10 @@ class FakeTarget implements Target {
 		this.writes++;
 		this.users.get(id)!.labels = ["admin"];
 	}
+	async delete(id: string) {
+		this.writes++;
+		this.users.delete(id);
+	}
 }
 async function setup(users = [user()], admins: string[] = []) {
 	const path = join(await directory(), "checkpoint.json");
@@ -415,6 +419,41 @@ describe("import boundary", () => {
 		expect(
 			targetConfig("http://127.0.0.1:19550/v1", "nfe-identity-50"),
 		).toContain("nfe-identity-50");
+	});
+	test("production target requires explicit opt-in and a named https host", () => {
+		expect(() =>
+			targetConfig("https://appwrite.example.com/v1", "nfe-production"),
+		).toThrow("synthetic_loopback_target_required");
+		expect(
+			targetConfig("https://appwrite.example.com/v1", "nfe-production", {
+				production: true,
+			}),
+		).toBe("https://appwrite.example.com/v1|nfe-production|production");
+		for (const [endpoint, project] of [
+			["http://appwrite.example.com/v1", "nfe-production"],
+			["https://appwrite.example.com:8443/v1", "nfe-production"],
+			["https://appwrite.example.com/v2", "nfe-production"],
+			["https://appwrite.example.com/v1?x=1", "nfe-production"],
+			["https://appwrite.example.com/v1#x", "nfe-production"],
+			["https://user:pw@appwrite.example.com/v1", "nfe-production"],
+			["https://127.0.0.1/v1", "nfe-production"],
+			["https://[::1]/v1", "nfe-production"],
+			["https://localhost/v1", "nfe-production"],
+			["https://api.localhost/v1", "nfe-production"],
+			["https://appwrite.local/v1", "nfe-production"],
+			["https://appwrite/v1", "nfe-production"],
+			["https://appwrite.example.com/v1", ""],
+			["https://appwrite.example.com/v1", "bad/project"],
+		] as const)
+			expect(() =>
+				targetConfig(endpoint, project, { production: true }),
+			).toThrow("explicit_production_target_required");
+		expect(() =>
+			targetConfig("http://127.0.0.1:18464/v1", "nfe-local", {
+				production: true,
+				isolatedBusinessImport: true,
+			}),
+		).toThrow("explicit_production_target_required");
 	});
 	test("persistent local runtime accepted only on its own loopback port", () => {
 		const options = { isolatedBusinessImport: true };

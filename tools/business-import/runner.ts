@@ -4,13 +4,13 @@ import { atomicPrivate, digest, withLock } from "../identity-import/checkpoint";
 import { readPrivate } from "../identity-import/source";
 import { BUSINESS_TABLES, normalizeRow } from "./contract";
 import type { ProjectionRow } from "./projection";
-import { type Target, targetBinding } from "./target";
+import { type BindingOptions, type Target, targetBinding } from "./target";
 
 const entry = z.strictObject({
 	table: z.string(),
 	id: z.string(),
 	hash: z.string(),
-	state: z.enum(["intent", "owned", "done"]),
+	state: z.enum(["intent", "owned", "done", "retire"]),
 });
 const checkpointSchema = z.strictObject({
 	version: z.literal(1),
@@ -54,10 +54,14 @@ async function load(
 		throw error;
 	}
 }
+// A "retire" entry is a frozen-rebuild deletion in progress: the row may still
+// exist (then it must be byte-identical to what the importer wrote) or be gone.
+// Any other owned row must exist unchanged; anything else fails closed.
 async function verifyOwnedTarget(
 	target: Target,
 	cp: Checkpoint,
 	ref: (value: unknown) => string,
+	rebuild = false,
 ) {
 	const seen = new Set<string>();
 	for (const table of cp.tables)
@@ -72,9 +76,12 @@ async function verifyOwnedTarget(
 			if (ref(normalizeRow(row)) !== item.hash)
 				throw new Error("owned_row_changed");
 		}
-	for (const [key, item] of Object.entries(cp.entries))
-		if (item.state !== "intent" && !seen.has(key))
+	for (const [key, item] of Object.entries(cp.entries)) {
+		if (item.state === "retire" && !rebuild)
+			throw new Error("rebuild_in_progress");
+		if (!["intent", "retire"].includes(item.state) && !seen.has(key))
 			throw new Error("owned_row_missing");
+	}
 }
 export async function assertOwnedTarget(options: {
 	target: Target;
@@ -83,11 +90,14 @@ export async function assertOwnedTarget(options: {
 	project: string;
 	database: string;
 	snapshot: string;
+	rebuild?: boolean;
+	binding?: BindingOptions;
 }) {
 	const binding = targetBinding(
 		options.endpoint,
 		options.project,
 		options.database,
+		options.binding,
 	);
 	return withLock(options.checkpointPath, async () => {
 		const cp = await load(
@@ -98,12 +108,15 @@ export async function assertOwnedTarget(options: {
 		);
 		if (
 			cp.binding !== binding ||
-			cp.snapshot !== options.snapshot ||
+			(!options.rebuild && cp.snapshot !== options.snapshot) ||
 			JSON.stringify(cp.tables) !== JSON.stringify(BUSINESS_TABLES)
 		)
 			throw new Error("checkpoint_binding_mismatch");
-		await verifyOwnedTarget(options.target, cp, (value) =>
-			digest(cp.key, canonical(value)),
+		await verifyOwnedTarget(
+			options.target,
+			cp,
+			(value) => digest(cp.key, canonical(value)),
+			options.rebuild,
 		);
 	});
 }
@@ -120,12 +133,14 @@ export async function runImport(options: {
 	delayMs?: number;
 	frozen?: boolean;
 	rebuild?: boolean;
+	binding?: BindingOptions;
 }) {
 	const { rows, target, checkpointPath } = options;
 	const binding = targetBinding(
 		options.endpoint,
 		options.project,
 		options.database,
+		options.binding,
 	);
 	const batchSize = options.batchSize ?? 100,
 		delayMs = options.delayMs ?? 0;
@@ -164,16 +179,33 @@ export async function runImport(options: {
 			if (expected.has(key)) throw new Error("duplicate_projection_row");
 			expected.set(key, row);
 		}
-		await verifyOwnedTarget(target, cp, ref);
+		await verifyOwnedTarget(target, cp, ref, options.rebuild);
+		let deleted = 0,
+			replaced = 0;
 		if (options.rebuild) {
+			// Frozen catch-up: owned rows absent from the new projection are
+			// removed, owned rows whose content changed are retired and recreated
+			// below. Each step is persisted so an interrupted pass resumes safely.
 			for (const [key, item] of Object.entries(cp.entries)) {
 				if (item.state === "intent")
 					throw new Error("uncertain_create_requires_manual_recovery");
+				const wanted = expected.get(key);
+				if (
+					item.state !== "retire" &&
+					wanted &&
+					ref(normalizeRow(wanted)) === item.hash
+				)
+					continue;
+				if (item.state !== "retire") {
+					item.state = "retire";
+					await persist();
+				}
 				const current = await target.get(item.table, item.id);
 				if (current && ref(normalizeRow(current)) !== item.hash)
 					throw new Error("owned_row_changed");
 				if (current) await target.delete(item.table, item.id);
 				delete cp.entries[key];
+				wanted ? replaced++ : deleted++;
 				await persist();
 			}
 			cp.snapshot = options.snapshot;
@@ -253,6 +285,9 @@ export async function runImport(options: {
 		return {
 			created,
 			resumed,
+			deleted,
+			replaced,
+			rebuild: Boolean(options.rebuild),
 			tables: report,
 			ok: Object.values(report).every(
 				(r) => !r.missing.length && !r.foreign.length && !r.changed.length,

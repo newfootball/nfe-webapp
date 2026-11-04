@@ -4,290 +4,194 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { S3Client } from "@aws-sdk/client-s3";
+import type { PreparedAsset } from "./download";
 import type { MediaPlan } from "./media-plan";
-import {
-	assertStorageOwned,
-	cleanupUploadedMedia,
-	uploadMedia,
-} from "./upload";
+import { assertStorageOwned, uploadMedia } from "./upload";
 
 type Stored = {
 	key: string;
 	version: string;
-	bytes: Buffer;
+	body: Buffer;
 	type: string;
 	metadata: Record<string, string>;
 };
-class Store {
+class FakeS3 {
 	objects: Stored[] = [];
-	uploads = new Map<
-		string,
-		{
-			key: string;
-			parts: Map<number, Buffer>;
-			type: string;
-			metadata: Record<string, string>;
-		}
-	>();
-	lostPutReceipt = false;
-	async send(command: {
-		constructor: { name: string };
-		input: Record<string, unknown>;
-	}): Promise<unknown> {
-		const i = command.input,
-			key = String(i.Key ?? "");
-		const notFound = () => {
-			throw { $metadata: { httpStatusCode: 404 } };
-		};
+	deletes: string[] = [];
+	private next = 0;
+	async send(command: { constructor: { name: string }; input: never }) {
+		const input = command.input as Record<
+			string,
+			string | Buffer | Record<string, string>
+		>;
+		const key = input.Key as string;
 		switch (command.constructor.name) {
 			case "GetBucketAclCommand":
 				return {
-					Owner: { ID: "owner" },
+					Owner: { ID: "me" },
 					Grants: [
 						{
 							Permission: "FULL_CONTROL",
-							Grantee: { Type: "CanonicalUser", ID: "owner" },
+							Grantee: { Type: "CanonicalUser", ID: "me" },
 						},
 					],
 				};
-			case "HeadObjectCommand": {
-				const o = this.objects.findLast(
-					(o) => o.key === key && (!i.VersionId || o.version === i.VersionId),
-				);
-				if (!o) return notFound();
+			case "ListObjectVersionsCommand": {
+				const prefix = input.Prefix as string;
 				return {
-					VersionId: o.version,
-					ContentLength: o.bytes.length,
-					ContentType: o.type,
-					Metadata: o.metadata,
+					IsTruncated: false,
+					DeleteMarkers: [],
+					Versions: this.objects
+						.filter((o) => o.key.startsWith(prefix))
+						.map((o) => ({ Key: o.key, VersionId: o.version })),
+				};
+			}
+			case "ListMultipartUploadsCommand":
+				return { IsTruncated: false, Uploads: [] };
+			case "HeadObjectCommand": {
+				const found = this.objects.find(
+					(o) =>
+						o.key === key &&
+						(!input.VersionId || o.version === input.VersionId),
+				);
+				if (!found) throw { $metadata: { httpStatusCode: 404 } };
+				return {
+					VersionId: found.version,
+					ContentLength: found.body.byteLength,
+					ContentType: found.type,
+					Metadata: found.metadata,
 				};
 			}
 			case "GetObjectCommand": {
-				const o = this.objects.find(
-					(o) => o.key === key && o.version === i.VersionId,
+				const found = this.objects.find(
+					(o) => o.key === key && o.version === input.VersionId,
 				);
-				if (!o) return notFound();
+				if (!found) throw new Error("missing");
 				return {
 					Body: (async function* () {
-						yield o.bytes;
+						yield new Uint8Array(found.body);
 					})(),
 				};
 			}
-			case "ListObjectVersionsCommand":
-				return {
-					Versions: this.objects
-						.filter((o) => o.key.startsWith(String(i.Prefix)))
-						.map((o) => ({ Key: o.key, VersionId: o.version })),
-				};
-			case "ListMultipartUploadsCommand":
-				return {
-					Uploads: [...this.uploads]
-						.filter(([, u]) => u.key.startsWith(String(i.Prefix)))
-						.map(([id, u]) => ({ Key: u.key, UploadId: id })),
-				};
 			case "PutObjectCommand": {
-				const version = crypto.randomUUID();
+				const version = `v${++this.next}`;
 				this.objects.push({
 					key,
 					version,
-					bytes: Buffer.from(i.Body as Uint8Array),
-					type: String(i.ContentType),
-					metadata: i.Metadata as Record<string, string>,
+					body: Buffer.from(input.Body as Buffer),
+					type: input.ContentType as string,
+					metadata: input.Metadata as Record<string, string>,
 				});
-				if (this.lostPutReceipt) {
-					this.lostPutReceipt = false;
-					throw new Error("transport_lost");
-				}
-				return { VersionId: version };
-			}
-			case "CreateMultipartUploadCommand": {
-				const id = crypto.randomUUID();
-				this.uploads.set(id, {
-					key,
-					parts: new Map(),
-					type: String(i.ContentType),
-					metadata: i.Metadata as Record<string, string>,
-				});
-				return { UploadId: id };
-			}
-			case "UploadPartCommand": {
-				const u = this.uploads.get(String(i.UploadId));
-				if (!u) throw new Error("unknown_upload");
-				u.parts.set(Number(i.PartNumber), Buffer.from(i.Body as Uint8Array));
-				return { ETag: `part-${i.PartNumber}` };
-			}
-			case "CompleteMultipartUploadCommand": {
-				const u = this.uploads.get(String(i.UploadId));
-				if (!u) throw new Error("unknown_upload");
-				const version = crypto.randomUUID();
-				this.objects.push({
-					key,
-					version,
-					bytes: Buffer.concat(
-						[...u.parts].sort(([a], [b]) => a - b).map(([, v]) => v),
-					),
-					type: u.type,
-					metadata: u.metadata,
-				});
-				this.uploads.delete(String(i.UploadId));
 				return { VersionId: version };
 			}
 			case "DeleteObjectCommand":
+				this.deletes.push(`${key}@${input.VersionId}`);
 				this.objects = this.objects.filter(
-					(o) => o.key !== key || o.version !== i.VersionId,
+					(o) => !(o.key === key && o.version === input.VersionId),
 				);
 				return {};
-			case "AbortMultipartUploadCommand":
-				this.uploads.delete(String(i.UploadId));
-				return {};
 			default:
-				throw new Error("unexpected_command");
+				throw new Error(`unexpected ${command.constructor.name}`);
 		}
 	}
 }
-async function fixture(size: number) {
-	const directory = await mkdtemp(join(tmpdir(), "nfe-upload-"));
-	const bytes = Buffer.alloc(size, 42),
-		path = join(directory, "media");
-	await writeFile(path, bytes, { mode: 0o600 });
-	const plan: MediaPlan = {
-		bucket: "nfe-webapp-dev",
-		prefix: `nfe-import-63/${crypto.randomUUID()}/`,
-		assets: [
-			{
-				id: "asset",
-				ownerId: "owner",
-				postId: null,
-				kind: "video",
-				role: "delivery",
-				mimetype: "video/mp4",
-				fetchUrl: "https://example.test/fixture",
-				provenance: {
-					source: "media",
-					id: "asset",
-					type: "mainVideo",
-					url: "https://example.test/fixture",
-					mimetype: "video/mp4",
-				},
-				createdAt: "2026-01-01T00:00:00Z",
-				updatedAt: "2026-01-01T00:00:00Z",
-			},
-		],
-	};
-	const store = new Store();
-	return {
-		directory,
-		store,
-		options: {
-			plan,
-			prepared: [
-				{
-					assetId: "asset",
-					path,
-					byteSize: size,
-					sha256: createHash("sha256").update(bytes).digest("hex"),
-					mimetype: "video/mp4",
-				},
-			],
-			client: store as unknown as S3Client,
-			checkpointPath: join(directory, "checkpoint.json"),
-		},
-	};
+const prefix = "nfe-import-63/0a4a62b0-9c2c-4f9e-8f8c-4b9b0b6b7f1a/";
+const plan = (ids: string[]): MediaPlan => ({
+	bucket: "nfe-webapp-dev",
+	prefix,
+	assets: ids.map((id) => ({ id })) as MediaPlan["assets"],
+});
+async function prepared(
+	dir: string,
+	files: Record<string, string>,
+): Promise<PreparedAsset[]> {
+	const out: PreparedAsset[] = [];
+	for (const [assetId, content] of Object.entries(files)) {
+		const path = join(dir, assetId);
+		await writeFile(path, content, { mode: 0o600 });
+		out.push({
+			assetId,
+			path,
+			byteSize: Buffer.byteLength(content),
+			sha256: createHash("sha256").update(content).digest("hex"),
+			mimetype: "image/webp",
+		});
+	}
+	return out;
 }
-test("multipart resumes from durable part receipts, verifies bytes and removes exact versions", async () => {
-	const f = await fixture(6 * 1024 * 1024);
+test("frozen rebuild removes retired objects, replaces changed bytes and keeps the rest", async () => {
+	const dir = await mkdtemp(join(tmpdir(), "business-upload-"));
+	const client = new FakeS3() as unknown as S3Client;
+	const s3 = client as unknown as FakeS3;
+	const checkpointPath = join(dir, "upload-checkpoint.json");
 	try {
+		const first = {
+			plan: plan(["keep", "change", "gone"]),
+			prepared: await prepared(dir, { keep: "k", change: "c1", gone: "g" }),
+			client,
+			checkpointPath,
+		};
+		const uploaded = await uploadMedia(first);
+		expect(uploaded.map((u) => u.assetId)).toEqual(["keep", "change", "gone"]);
+		const next = {
+			plan: plan(["keep", "change", "new"]),
+			prepared: await prepared(dir, { keep: "k", change: "c2", new: "n" }),
+			client,
+			checkpointPath,
+		};
+		await expect(assertStorageOwned(next)).rejects.toThrow(
+			"upload_binding_changed",
+		);
+		await expect(uploadMedia(next)).rejects.toThrow("upload_binding_changed");
+		await assertStorageOwned({ ...next, rebuild: true });
+		const rebuilt = await uploadMedia({ ...next, rebuild: true });
+		expect(rebuilt.removed).toBe(2);
+		expect(s3.deletes).toEqual([
+			`${prefix}business-import/change@v2`,
+			`${prefix}business-import/gone@v3`,
+		]);
+		expect(rebuilt.find((u) => u.assetId === "keep")?.versionId).toBe(
+			uploaded.find((u) => u.assetId === "keep")?.versionId,
+		);
+		expect(rebuilt.find((u) => u.assetId === "change")?.versionId).toBe("v4");
+		expect(s3.objects.map((o) => o.key.slice(prefix.length))).toEqual([
+			"business-import/keep",
+			"business-import/change",
+			"business-import/new",
+		]);
+		const replay = await uploadMedia({ ...next, rebuild: true });
+		expect([...replay]).toEqual([...rebuilt]);
+		expect(replay.removed).toBe(0);
+		await assertStorageOwned(next);
+		expect([...(await uploadMedia(next))]).toEqual([...rebuilt]);
+	} finally {
+		await rm(dir, { recursive: true, force: true });
+	}
+});
+test("rebuild never deletes an object whose bytes or ownership token diverged", async () => {
+	const dir = await mkdtemp(join(tmpdir(), "business-upload-"));
+	const client = new FakeS3() as unknown as S3Client;
+	const s3 = client as unknown as FakeS3;
+	const checkpointPath = join(dir, "upload-checkpoint.json");
+	try {
+		await uploadMedia({
+			plan: plan(["gone"]),
+			prepared: await prepared(dir, { gone: "g" }),
+			client,
+			checkpointPath,
+		});
+		s3.objects[0]!.metadata = { ...s3.objects[0]!.metadata, nfeimport: "x" };
 		await expect(
 			uploadMedia({
-				...f.options,
-				afterPart: async () => {
-					throw new Error("crash");
-				},
+				plan: plan([]),
+				prepared: [],
+				client,
+				checkpointPath,
+				rebuild: true,
 			}),
-		).rejects.toThrow("crash");
-		expect(f.store.uploads.size).toBe(1);
-		const receipts = await uploadMedia(f.options);
-		expect(receipts[0]?.sha256).toBe(f.options.prepared[0]?.sha256);
-		expect(f.store.objects.length).toBe(1);
-		await uploadMedia(f.options);
-		expect(f.store.objects.length).toBe(1);
-		await assertStorageOwned(f.options);
-		await cleanupUploadedMedia(
-			f.options.plan,
-			f.options.client,
-			f.options.checkpointPath,
-		);
-		expect(f.store.objects.length).toBe(0);
-		expect(f.store.uploads.size).toBe(0);
-	} finally {
-		await rm(f.directory, { recursive: true, force: true });
-	}
-});
-test("cleanup recovers a committed upload whose receipt was lost", async () => {
-	const f = await fixture(128);
-	try {
-		f.store.lostPutReceipt = true;
-		await expect(uploadMedia(f.options)).rejects.toThrow("transport_lost");
-		expect(f.store.objects.length).toBe(1);
-		await cleanupUploadedMedia(
-			f.options.plan,
-			f.options.client,
-			f.options.checkpointPath,
-		);
-		expect(f.store.objects.length).toBe(0);
-	} finally {
-		await rm(f.directory, { recursive: true, force: true });
-	}
-});
-test("foreign versions survive cleanup and prevent a false successful result", async () => {
-	const f = await fixture(128);
-	try {
-		await uploadMedia(f.options);
-		f.store.objects.push({
-			key: `${f.options.plan.prefix}business-import/asset`,
-			version: "foreign",
-			bytes: Buffer.alloc(128),
-			type: "video/mp4",
-			metadata: {},
-		});
-		await expect(assertStorageOwned(f.options)).rejects.toThrow(
-			"uploaded_object_ownership_or_metadata_changed",
-		);
-		await expect(
-			cleanupUploadedMedia(
-				f.options.plan,
-				f.options.client,
-				f.options.checkpointPath,
-			),
 		).rejects.toThrow("uploaded_object_ownership_or_metadata_changed");
-		expect(f.store.objects.some((o) => o.version === "foreign")).toBe(true);
+		expect(s3.deletes).toEqual([]);
 	} finally {
-		await rm(f.directory, { recursive: true, force: true });
-	}
-});
-
-test("unknown multipart is retained and explicitly blocks successful cleanup", async () => {
-	const f = await fixture(128);
-	try {
-		await uploadMedia(f.options);
-		f.store.uploads.set("unowned-upload", {
-			key: `${f.options.plan.prefix}business-import/asset`,
-			parts: new Map(),
-			type: "video/mp4",
-			metadata: {},
-		});
-		await expect(assertStorageOwned(f.options)).rejects.toThrow(
-			"unknown_multipart_requires_recovery",
-		);
-		await expect(
-			cleanupUploadedMedia(
-				f.options.plan,
-				f.options.client,
-				f.options.checkpointPath,
-			),
-		).rejects.toThrow("unknown_multipart_requires_recovery");
-		expect(f.store.uploads.has("unowned-upload")).toBe(true);
-	} finally {
-		await rm(f.directory, { recursive: true, force: true });
+		await rm(dir, { recursive: true, force: true });
 	}
 });

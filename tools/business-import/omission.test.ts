@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
-import { deriveDevelopmentImport } from "./development";
 import type { MediaPlan } from "./media-plan";
+import { omitUnavailableMedia } from "./omission";
 import type { BusinessSource } from "./source";
 
 test("quarantines whole media and avatar pairs without changing other records or the source", () => {
@@ -27,7 +27,7 @@ test("quarantines whole media and avatar pairs without changing other records or
 			asset("avo", "avatar", "u"),
 		],
 	} as MediaPlan;
-	const result = deriveDevelopmentImport(source, plan, {
+	const result = omitUnavailableMedia(source, plan, {
 		prepared: [{ assetId: "m" }, { assetId: "av" }],
 		quarantine: [
 			{ assetId: "mo", urlHash: "h", reason: "http_404" },

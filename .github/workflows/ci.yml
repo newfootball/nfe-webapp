@@ -103,6 +103,24 @@ jobs:
             - name: Smoke built Start
               run: bun run smoke:start
 
+    start-image:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: docker/setup-buildx-action@v3
+            - name: Build Start production image (no push)
+              uses: docker/build-push-action@v6
+              with:
+                context: .
+                file: apps/start/Dockerfile
+                push: false
+                load: true
+                tags: nfe-start:ci
+                cache-from: type=gha,scope=start-image
+                cache-to: type=gha,scope=start-image,mode=max
+            - name: Smoke the container (health, readiness, redirect, assets, drain)
+              run: bash apps/start/scripts/image-smoke.sh nfe-start:ci
+
     migration-probe:
         runs-on: ubuntu-latest
         defaults:

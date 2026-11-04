@@ -1,0 +1,40 @@
+# Build context allowlist for apps/start/Dockerfile (Refs #64).
+# The Start build runs from the repository root because it reuses the shadcn
+# Button, the `cn` helper, the i18n messages, the global CSS and `public/`.
+# Everything else (Next app, Prisma, tools, env files, git) stays out of the image.
+*
+!package.json
+!bun.lock
+!.npmrc
+!tsconfig.json
+!src/lib/utils.ts
+!components/ui/button.tsx
+!messages
+!app/globals.css
+!public
+!apps/start
+
+# Generated service worker files and local-only public assets.
+public/sw.js*
+public/workbox*.js*
+public/swe-worker*
+
+# Start: dependencies, build output, local runtimes, evidence and secrets.
+apps/start/node_modules
+apps/start/dist
+apps/start/.tanstack
+apps/start/.local-runtime
+apps/start/.agents
+apps/start/evidence
+apps/start/local-runtime
+apps/start/scripts/.*
+apps/start/tests
+apps/start/test-results
+apps/start/playwright-report
+apps/start/playwright.*.config.ts
+apps/start/.env*
+apps/start/Dockerfile
+
+**/.DS_Store
+**/.env
+**/.env.*

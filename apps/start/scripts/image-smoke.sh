@@ -80,6 +80,12 @@ page_status="$(curl -s -o /tmp/nfe-page.$$ -w '%{http_code}' \
 [ "$page_status" = "200" ] || fail "/fr expected 200, got ${page_status}"
 grep -qi "<html" /tmp/nfe-page.$$ || fail "/fr is not an HTML document"
 grep -q "$placeholder" /tmp/nfe-page.$$ && fail "/fr leaks configuration"
+stylesheets="$(grep -oE 'href="/assets/[^"]+\.css"' /tmp/nfe-page.$$ | cut -d'"' -f2 | sort -u)"
+[ -n "$stylesheets" ] || fail "/fr links no stylesheet"
+for href in $stylesheets; do
+	css_status="$(curl -s -o /dev/null -w '%{http_code}' -H "x-forwarded-host: ${canonical_host}" "${base}${href}")"
+	[ "$css_status" = "200" ] || fail "SSR stylesheet ${href} answers ${css_status}"
+done
 rm -f /tmp/nfe-page.$$
 
 echo "7. hashed assets are immutable"

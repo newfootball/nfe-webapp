@@ -8,10 +8,12 @@ import { Thumb } from "./thumb";
 
 export function LockerRow({
 	posts,
+	suggested,
 	locale,
 	now,
 }: {
 	posts: PublicPost[];
+	suggested: boolean;
 	locale: Locale;
 	now: number;
 }) {
@@ -19,14 +21,25 @@ export function LockerRow({
 	return (
 		<section aria-labelledby="locker-title">
 			<SectionHead id="locker-title" title={t.locker}>
-				<Link
-					to="/$locale/profile/follows"
-					params={{ locale }}
-					search={{ direction: "following" }}
-					className={sectionLink}
-				>
-					{t.lockerLink}
-				</Link>
+				{suggested ? (
+					<Link
+						to="/$locale/explore"
+						params={{ locale }}
+						search={{ q: "", tab: "users" }}
+						className={sectionLink}
+					>
+						{t.lockerFresh}
+					</Link>
+				) : (
+					<Link
+						to="/$locale/profile/follows"
+						params={{ locale }}
+						search={{ direction: "following" }}
+						className={sectionLink}
+					>
+						{t.lockerLink}
+					</Link>
+				)}
 			</SectionHead>
 			{posts.length === 0 ? (
 				<p className="mx-4 flex items-center justify-between gap-4 border-y py-3 text-[13px] text-muted-foreground sm:mx-0">

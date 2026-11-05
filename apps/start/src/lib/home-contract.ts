@@ -82,6 +82,7 @@ export type HomeData = {
 	week: WeekStats | null;
 	featured: Featured | null;
 	locker: PublicPost[];
+	lockerSuggested: boolean;
 	canPin: boolean;
 };
 export type Badge = {

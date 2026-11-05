@@ -54,8 +54,12 @@ export function FeaturedHero({
 							{post.author.name}
 							{post.author.club?.name && `, ${post.author.club.name}`}
 						</span>
-						<i aria-hidden="true" className="h-2.5 w-px bg-white/50" />
-						<span className="tabular-nums">{t.viewsCount(views)}</span>
+						{featured.views > 0 && (
+							<>
+								<i aria-hidden="true" className="h-2.5 w-px bg-white/50" />
+								<span className="tabular-nums">{t.viewsCount(views)}</span>
+							</>
+						)}
 					</span>
 				</span>
 			</Link>

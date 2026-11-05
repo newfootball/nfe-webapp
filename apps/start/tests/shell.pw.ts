@@ -81,7 +81,10 @@ test("renders a recoverable error boundary when a server read fails", async ({
 }) => {
 	await page.goto("/fr/about");
 	await page.route("**/_serverFn/**", (route) => route.abort());
-	await page.getByRole("link", { name: "Accueil", exact: true }).click();
+	await page
+		.getByRole("banner")
+		.getByRole("link", { name: "Next Football Experience", exact: true })
+		.click();
 	await expect(
 		page.getByRole("heading", {
 			name: "Une erreur est survenue / Something went wrong",

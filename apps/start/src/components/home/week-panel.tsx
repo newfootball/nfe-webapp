@@ -137,10 +137,7 @@ export function JoinPanel({
 					{t.signIn}
 				</Link>
 			</div>
-			<p
-				data-testid="reader"
-				className="mt-2 text-[10px] text-muted-foreground/60"
-			>
+			<p data-testid="reader" className="sr-only">
 				{reader}
 			</p>
 		</section>

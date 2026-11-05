@@ -110,16 +110,18 @@ export function StreamPost({
 			</div>
 			<div className="px-4 pt-3 sm:px-0">
 				<ActionBar post={post} locale={locale} />
-				<h3 className="mt-2.5 font-sans text-sm leading-snug font-semibold normal-case">
-					<Link to="/$locale/post/$id" params={{ locale, id: post.id }}>
+				<p className="mt-2.5 line-clamp-3 text-sm leading-[1.45] break-words">
+					<Link
+						to="/$locale/post/$id"
+						params={{ locale, id: post.id }}
+						className="font-medium"
+					>
 						{post.title}
 					</Link>
-				</h3>
-				{post.description && (
-					<p className="mt-1 line-clamp-3 text-sm leading-[1.45] whitespace-pre-wrap break-words text-muted-foreground">
-						{post.description}
-					</p>
-				)}
+					{post.description && (
+						<span className="text-muted-foreground"> {post.description}</span>
+					)}
+				</p>
 				{canPin && (
 					<PinButton
 						id={post.id}

@@ -650,7 +650,10 @@ test("production browser: SSR hydration, network retry, FR/EN deep URLs and A/B 
 		);
 	}
 	await login(0);
-	await page.getByRole("link", { name: "Home", exact: true }).click();
+	await page
+		.getByRole("banner")
+		.getByRole("link", { name: "Next Football Experience", exact: true })
+		.click();
 	await page
 		.getByLabel("Posts and search")
 		.getByRole("link", { name: "Explore", exact: true })
@@ -666,7 +669,10 @@ test("production browser: SSR hydration, network retry, FR/EN deep URLs and A/B 
 		page.getByRole("button", { name: "Sign in", exact: true }),
 	).toBeVisible();
 	await login(1);
-	await page.getByRole("link", { name: "Home", exact: true }).click();
+	await page
+		.getByRole("banner")
+		.getByRole("link", { name: "Next Football Experience", exact: true })
+		.click();
 	await page
 		.getByLabel("Posts and search")
 		.getByRole("link", { name: "Explore", exact: true })

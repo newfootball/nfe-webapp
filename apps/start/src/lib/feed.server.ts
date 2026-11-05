@@ -481,3 +481,15 @@ export async function publishedById(ids: string[]) {
 	rows.sort((a, b) => (order.get(a.$id) ?? 0) - (order.get(b.$id) ?? 0));
 	return assemble(c, rows);
 }
+export async function latestPublished(limit: number, excludeAuthor?: string) {
+	const c = connection();
+	const rows = await list(c, c.publicDB, "posts", [
+		Query.equal("status", "PUBLISHED"),
+		...(excludeAuthor ? [Query.notEqual("userId", excludeAuthor)] : []),
+		Query.orderDesc("createdAt"),
+		Query.orderDesc("$id"),
+		Query.limit(limit),
+		Query.select(fields),
+	]);
+	return assemble(c, rows);
+}

@@ -82,6 +82,19 @@ export function ActionBar({
 			</Link>
 			<button
 				type="button"
+				aria-label={locale === "fr" ? "Partager" : "Share"}
+				onClick={() => {
+					const url = `${window.location.origin}/${locale}/post/${post.id}`;
+					if (navigator.share)
+						void navigator.share({ title: post.title, url }).catch(() => {});
+					else void navigator.clipboard?.writeText(url).catch(() => {});
+				}}
+				className={base}
+			>
+				<Icon name="share" className="size-[19px]" />
+			</button>
+			<button
+				type="button"
 				aria-pressed={saved}
 				aria-label={saved ? t.unfavorite : t.favorite}
 				disabled={!state || toggle.isPending}

@@ -11,7 +11,11 @@ import {
 	mutation,
 	type Viewer,
 } from "./auth-context.server";
-import { publishedByAuthors, publishedById } from "./feed.server";
+import {
+	latestPublished,
+	publishedByAuthors,
+	publishedById,
+} from "./feed.server";
 import { safeImage } from "./feed-contract";
 import {
 	type Badge,
@@ -214,7 +218,9 @@ async function featured(c: Connection): Promise<Featured | null> {
 			? [pinned, ...ranked.filter((id) => id !== pinned)]
 			: ranked;
 	// Hidden, withdrawn or deleted posts drop out; the next best candidate takes the slot.
-	const [post] = await publishedById(candidates.slice(0, 10));
+	const [post] = candidates.length
+		? await publishedById(candidates.slice(0, 10))
+		: await latestPublished(1);
 	if (!post) return null;
 	return {
 		post,
@@ -227,6 +233,10 @@ async function featured(c: Connection): Promise<Featured | null> {
 		weekNumber: w.weekNumber,
 		pinned: post.id === pinned,
 	};
+}
+async function suggestions(viewer: Viewer | null, skip: string | null) {
+	const posts = await latestPublished(LOCKER_SIZE + 1, viewer?.id);
+	return posts.filter((p) => p.id !== skip).slice(0, LOCKER_SIZE);
 }
 async function locker(c: Connection, viewer: Viewer) {
 	const following = await c.reader().listRows({
@@ -265,11 +275,20 @@ export function readHome() {
 			section("featured", () => featured(c), null),
 			viewer ? section("locker", () => locker(c, viewer), []) : [],
 		]);
+		const suggested = l.length === 0,
+			shelf = suggested
+				? await section(
+						"suggestions",
+						() => suggestions(viewer, f?.post.id ?? null),
+						[],
+					)
+				: l;
 		return {
 			signedIn: viewer !== null,
 			week: w,
 			featured: f,
-			locker: l,
+			locker: shelf,
+			lockerSuggested: suggested,
 			canPin: viewer?.role === "admin",
 		};
 	});

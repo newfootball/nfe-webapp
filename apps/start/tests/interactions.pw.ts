@@ -721,7 +721,10 @@ test("real interactions: A B admin anonymous, concurrent pairs, ownership, priva
 		await sameDocument();
 	};
 	const openPost = async () => {
-		await page.getByRole("link", { name: "Home", exact: true }).click();
+		await page
+			.getByRole("banner")
+			.getByRole("link", { name: "Next Football Experience", exact: true })
+			.click();
 		await page
 			.locator(`[data-post-id="${id}"]`)
 			.getByRole("link", { name: "Public social-public", exact: true })

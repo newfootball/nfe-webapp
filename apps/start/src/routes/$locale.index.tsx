@@ -30,6 +30,7 @@ const EMPTY: HomeData = {
 	week: null,
 	featured: null,
 	locker: [],
+	lockerSuggested: false,
 	canPin: false,
 };
 function Home() {
@@ -41,7 +42,8 @@ function Home() {
 	)?.dataUpdatedAt;
 	// Server and client share the fetch time, so relative ages hydrate identically.
 	const now = home.dataUpdatedAt || feedAt || 0;
-	const { signedIn, week, featured, locker, canPin } = home.data ?? EMPTY;
+	const { signedIn, week, featured, locker, lockerSuggested, canPin } =
+		home.data ?? EMPTY;
 	return (
 		<div className="rise -mx-6 flex flex-col gap-2 sm:mx-auto sm:max-w-xl">
 			{!signedIn && <JoinPanel locale={locale} reader={reader} />}
@@ -51,7 +53,14 @@ function Home() {
 					<FeaturedHero featured={featured} locale={locale} canPin={canPin} />
 				</div>
 			)}
-			{signedIn && <LockerRow posts={locker} locale={locale} now={now} />}
+			{(signedIn || locker.length > 0) && (
+				<LockerRow
+					posts={locker}
+					suggested={lockerSuggested}
+					locale={locale}
+					now={now}
+				/>
+			)}
 			<FeedStream locale={locale} now={now} canPin={canPin} />
 		</div>
 	);

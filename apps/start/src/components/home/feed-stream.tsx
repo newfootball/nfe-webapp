@@ -1,12 +1,10 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
 import { feedOptions } from "../../lib/feed";
 import { feedMessages } from "../../lib/feed-messages";
 import { homeMessages } from "../../lib/home-messages";
 import type { Locale } from "../../lib/messages";
 import { Button } from "../ui/button";
-import { Icon } from "./icon";
-import { SectionHead, sectionLink } from "./section-head";
+import { SectionHead } from "./section-head";
 import { StreamPost } from "./stream-post";
 
 export function FeedStream({
@@ -24,16 +22,7 @@ export function FeedStream({
 	const posts = query.data?.pages.flatMap((p) => p.posts) ?? [];
 	return (
 		<section aria-labelledby="feed-title">
-			<SectionHead id="feed-title" title={h.feed}>
-				<Link
-					to="/$locale/publish"
-					params={{ locale }}
-					className={`${sectionLink} inline-flex items-center gap-1`}
-				>
-					<Icon name="plus" className="size-3.5" strokeWidth={1.5} />
-					{h.publish}
-				</Link>
-			</SectionHead>
+			<SectionHead id="feed-title" title={h.feed} />
 			{query.isPending && (
 				<p
 					role="status"

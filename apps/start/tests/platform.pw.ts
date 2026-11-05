@@ -56,7 +56,7 @@ test("manifest, locale redirects, theme, responsive layout and hydration", async
 		),
 	).toBe(true);
 	await page
-		.getByRole("navigation", { name: "Navigation principale" })
+		.getByRole("navigation", { name: "Navigation secondaire" })
 		.getByRole("link", { name: "English", exact: true })
 		.click();
 	await expect(page.locator("html")).toHaveAttribute("lang", "en");

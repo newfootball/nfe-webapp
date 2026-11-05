@@ -107,7 +107,7 @@ function Page() {
 				<label>
 					{search.kind === "users" ? t.userSearch : t.reportSearch}
 					<input
-						className="ml-2 rounded border bg-background p-2"
+						className="rounded border ml-2 p-2 bg-background"
 						value={q}
 						maxLength={search.kind === "reports" ? 36 : 128}
 						onChange={(e) => setQ(e.target.value)}

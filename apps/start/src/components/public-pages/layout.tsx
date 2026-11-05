@@ -22,15 +22,15 @@ export function PublicPageLayout({
 	return (
 		<article
 			lang={locale}
-			className={`mx-auto w-full px-5 py-12 text-foreground sm:px-8 sm:py-20 ${wide ? "max-w-6xl" : "max-w-3xl"}`}
+			className={`w-full mx-auto px-5 py-12 text-foreground sm:px-8 sm:py-20 ${wide ? "max-w-6xl" : "max-w-3xl"}`}
 		>
-			<header className="mb-10 border-b border-border pb-8 sm:mb-12">
-				<div aria-hidden="true" className="mb-6 h-1 w-12 bg-primary" />
+			<header className="border-b border-border mb-10 pb-8 sm:mb-12">
+				<div aria-hidden="true" className="h-1 w-12 mb-6 bg-primary" />
 				<h1 className="max-w-3xl font-oswald text-4xl font-bold leading-tight tracking-tight text-balance sm:text-5xl">
 					{title}
 				</h1>
 				{intro && (
-					<div className="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+					<div className="max-w-2xl mt-5 text-lg leading-relaxed text-muted-foreground">
 						{intro}
 					</div>
 				)}

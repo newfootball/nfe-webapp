@@ -35,7 +35,7 @@ export function TermsPage({ locale }: PublicPageProps) {
 			))}
 			<PublicPageSection title={t["section-6-title"]}>
 				<p>{t["section-6-intro"]}</p>
-				<ul className="list-disc space-y-2 pl-6">
+				<ul className="space-y-2 pl-6 list-disc">
 					{([1, 2, 3, 4, 5] as const).map((item) => (
 						<li key={item}>{t[`section-6-item-${item}`]}</li>
 					))}

@@ -42,15 +42,15 @@ export function SplashPage({
 	return (
 		<article
 			lang={locale}
-			className="relative isolate flex min-h-svh items-center justify-center overflow-hidden bg-black px-5 py-16 text-white"
+			className="overflow-hidden relative flex items-center justify-center min-h-svh px-5 py-16 bg-black text-white isolate"
 		>
 			<img
 				src={legacySplashBehavior.imageSources[activeImage]}
 				alt=""
-				className="absolute inset-0 -z-20 h-full w-full object-cover"
+				className="object-cover absolute inset-0 h-full w-full -z-20"
 			/>
-			<div aria-hidden="true" className="absolute inset-0 -z-10 bg-black/75" />
-			<div className="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
+			<div aria-hidden="true" className="absolute inset-0 bg-black/75 -z-10" />
+			<div className="flex flex-col items-center gap-6 max-w-3xl mx-auto text-center">
 				<img src="/logo.svg" alt="" width={152} height={152} />
 				<h1 className="font-oswald text-4xl font-bold leading-tight tracking-tight text-balance sm:text-6xl">
 					{t.title}
@@ -61,7 +61,7 @@ export function SplashPage({
 				<Button
 					asChild
 					size="lg"
-					className="mt-3 min-h-12 h-auto whitespace-normal py-3 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+					className="min-h-12 h-auto mt-3 py-3 whitespace-normal focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
 				>
 					<a href={continueHref} onClick={onContinue}>
 						{t["get-started"]}

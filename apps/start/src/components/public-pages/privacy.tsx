@@ -31,7 +31,7 @@ export function PrivacyPage({ locale }: PublicPageProps) {
 			))}
 			<PublicPageSection title={t["section-5-title"]}>
 				<p>{t["section-5-intro"]}</p>
-				<ul className="list-disc space-y-2 pl-6">
+				<ul className="space-y-2 pl-6 list-disc">
 					{([1, 2, 3, 4] as const).map((item) => (
 						<li key={item}>{t[`section-5-item-${item}`]}</li>
 					))}

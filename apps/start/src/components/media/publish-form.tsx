@@ -53,7 +53,7 @@ function FrameChoice({
 		t = mediaMessages[locale];
 	return (
 		<label
-			className={`relative cursor-pointer overflow-hidden rounded-lg border-2 p-1 focus-within:ring-2 focus-within:ring-ring ${checked ? "border-primary" : "border-transparent"}`}
+			className={`overflow-hidden relative rounded-lg border-2 p-1 cursor-pointer focus-within:ring-2 focus-within:ring-ring ${checked ? "border-primary" : "border-transparent"}`}
 		>
 			<input
 				type="radio"
@@ -65,7 +65,7 @@ function FrameChoice({
 			<img
 				src={url || undefined}
 				alt={`${t.frame} ${(FRAME_FRACTIONS[index] ?? 0) * 100}%`}
-				className="aspect-video w-full rounded object-contain bg-muted"
+				className="object-contain aspect-video w-full rounded bg-muted"
 			/>
 			<span className="block py-1 text-center text-xs">
 				{(FRAME_FRACTIONS[index] ?? 0) * 100}%
@@ -222,10 +222,10 @@ function Publication({
 					publication.mutate();
 				}}
 			>
-				<div className="flex min-w-0 flex-col gap-6">
+				<div className="flex flex-col gap-6 min-w-0">
 					<fieldset
 						disabled={busy}
-						className="flex min-w-0 flex-col gap-4 rounded-2xl border bg-card p-5"
+						className="flex flex-col gap-4 min-w-0 rounded-2xl border p-5 bg-card"
 					>
 						<legend className="px-2 text-lg font-bold">01 · {t.video}</legend>
 						<label className="flex flex-col gap-2 text-sm">
@@ -285,7 +285,7 @@ function Publication({
 					</fieldset>
 					<fieldset
 						disabled={busy || preparing}
-						className="flex min-w-0 flex-col gap-4 rounded-2xl border bg-card p-5"
+						className="flex flex-col gap-4 min-w-0 rounded-2xl border p-5 bg-card"
 					>
 						<legend className="px-2 text-lg font-bold">
 							02 · {t.thumbnail}
@@ -340,7 +340,7 @@ function Publication({
 							<img
 								src={coverUrl}
 								alt={t.thumbnail}
-								className="max-h-56 w-full rounded-lg bg-muted object-contain"
+								className="object-contain max-h-56 w-full rounded-lg bg-muted"
 							/>
 						)}
 						{thumbnail && (
@@ -362,7 +362,7 @@ function Publication({
 				</div>
 				<fieldset
 					disabled={busy}
-					className="flex min-w-0 flex-col gap-5 self-start rounded-2xl border bg-card p-5"
+					className="flex flex-col gap-5 self-start min-w-0 rounded-2xl border p-5 bg-card"
 				>
 					<legend className="px-2 text-lg font-bold">
 						03 · {t.description}
@@ -391,15 +391,15 @@ function Publication({
 							maxLength={10_000}
 						/>
 					</label>
-					<details className="group border-t pt-4">
-						<summary className="cursor-pointer list-none text-sm font-medium">
+					<details className="border-t pt-4 group">
+						<summary className="list-none text-sm font-medium cursor-pointer">
 							{t.match}
-							<span className="ml-2 text-muted-foreground font-normal">
+							<span className="ml-2 font-normal text-muted-foreground">
 								{t.optional}
 							</span>
 						</summary>
-						<fieldset ref={match} className="mt-4 grid grid-cols-4 gap-3">
-							<label className="col-span-4 flex flex-col gap-2 text-sm">
+						<fieldset ref={match} className="grid grid-cols-4 gap-3 mt-4">
+							<label className="flex col-span-4 flex-col gap-2 text-sm">
 								{t.opponent}
 								<input
 									className={inputClass}
@@ -429,7 +429,7 @@ function Publication({
 									inputMode="numeric"
 								/>
 							</label>
-							<label className="col-span-2 flex flex-col gap-2 text-sm">
+							<label className="flex col-span-2 flex-col gap-2 text-sm">
 								{t.minute}
 								<input
 									className={`${inputClass} tabular-nums`}

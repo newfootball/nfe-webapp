@@ -36,7 +36,7 @@ export function NotificationBell({ locale }: { locale: Locale }) {
 			{unread > 0 && (
 				<span
 					aria-hidden="true"
-					className="absolute -top-1 -right-1.5 min-w-4 rounded-full bg-primary px-1 text-center text-[10px] leading-4 font-semibold text-primary-foreground tabular-nums"
+					className="absolute min-w-4 rounded-full px-1 text-center leading-4 font-semibold bg-primary text-[10px] text-primary-foreground -top-1 -right-1.5 tabular-nums"
 				>
 					{unread > 9 ? "9+" : unread}
 				</span>

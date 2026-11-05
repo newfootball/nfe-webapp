@@ -13,7 +13,7 @@ export function SectionHead({
 		<div className="flex items-baseline justify-between px-4 pt-6 pb-2.5 sm:px-0">
 			<h2
 				id={id}
-				className="font-display text-[13px] font-medium tracking-[0.14em] uppercase"
+				className="font-display font-medium tracking-[0.14em] uppercase text-[13px]"
 			>
 				{title}
 			</h2>

@@ -42,7 +42,9 @@
 		"media:recover": "bun scripts/media-recover.ts",
 		"local": "bun scripts/local-runtime.ts",
 		"local:proof": "bun scripts/local-runtime-proof.ts",
-		"local:repro": "bun scripts/local-runtime-repro.ts"
+		"local:repro": "bun scripts/local-runtime-repro.ts",
+		"tw": "tailwind-canonical",
+		"tw:check": "tailwind-canonical --check"
 	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "3.1159.0",
@@ -76,6 +78,7 @@
 		"@types/react-dom": "19.2.3",
 		"@vitejs/plugin-react": "6.1.2",
 		"seroval": "1.7.3",
+		"tailwind-canonical": "^0.10.0",
 		"tailwindcss": "4.3.3",
 		"typescript": "5.7.2",
 		"vite": "8.3.5",

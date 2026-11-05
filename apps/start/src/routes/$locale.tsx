@@ -8,11 +8,13 @@ import {
 import { Icon } from "../components/home/icon";
 import { Jersey } from "../components/home/jersey";
 import { NotificationBell } from "../components/notification-bell";
+import { buttonVariants } from "../components/ui/button";
 import { authMessages } from "../lib/auth-messages";
 import { publicEnv } from "../lib/env-public";
 import { badgeOptions } from "../lib/home";
 import { homeMessages } from "../lib/home-messages";
 import { type Locale, messages } from "../lib/messages";
+import { cn } from "../lib/utils";
 import { ThemeToggle } from "./__root";
 
 export const Route = createFileRoute("/$locale")({
@@ -35,7 +37,7 @@ function ViewerJersey({ locale }: { locale: Locale }) {
 				to="/$locale/sign-in"
 				params={{ locale }}
 				search={{ returnTo: "" }}
-				className="border-b border-foreground text-xs font-semibold"
+				className={buttonVariants({ variant: "link", size: "inline" })}
 			>
 				{homeMessages[locale].signInShort}
 			</Link>
@@ -63,7 +65,7 @@ function BottomBar({ locale }: { locale: Locale }) {
 	return (
 		<nav
 			aria-label={locale === "fr" ? "Navigation principale" : "Main navigation"}
-			className="fixed inset-x-0 bottom-0 z-30 flex h-[calc(68px+env(safe-area-inset-bottom))] items-start justify-around border-t border-hair bg-background/96 pt-2.5 backdrop-blur sm:hidden"
+			className="fixed inset-x-0 bottom-0 z-30 flex items-start justify-around h-[calc(68px+env(safe-area-inset-bottom))] border-t border-hair pt-2.5 bg-background/96 backdrop-blur sm:hidden"
 		>
 			<Link
 				to="/$locale"
@@ -87,7 +89,7 @@ function BottomBar({ locale }: { locale: Locale }) {
 				to="/$locale/publish"
 				params={{ locale }}
 				aria-label={t.publish}
-				className="-mt-1 grid size-[46px] place-items-center rounded-[14px] bg-primary text-primary-foreground"
+				className="grid place-items-center size-[46px] rounded-[14px] bg-primary text-primary-foreground -mt-1"
 			>
 				<Icon name="plus" className="size-[22px]" strokeWidth={1.6} />
 			</Link>
@@ -109,22 +111,28 @@ function Layout() {
 	return (
 		<div className="min-h-screen">
 			<header className="sticky top-0 z-30 border-b border-hair bg-background/95 backdrop-blur">
-				<div className="mx-auto flex h-[52px] max-w-4xl items-center gap-5 px-4 sm:px-6">
+				<div className="flex items-center gap-5 h-13 max-w-4xl mx-auto px-4 sm:px-6">
 					<Link
 						to="/$locale"
 						params={{ locale }}
 						activeOptions={{ exact: true }}
 						aria-label={publicEnv.VITE_APP_NAME}
-						className="flex items-center gap-[7px] font-display text-[21px] font-semibold tracking-[0.12em] uppercase"
+						className="flex items-center gap-2 font-display font-semibold tracking-[0.12em] uppercase text-[21px]"
 					>
-						<Icon name="ball" className="size-4 shrink-0" />
+						<img
+							src="/logo-mark.png"
+							alt=""
+							width={34}
+							height={34}
+							className="shrink-0 size-[34px]"
+						/>
 						NFE
 					</Link>
 					<nav
 						aria-label={
 							locale === "fr" ? "Navigation principale" : "Main navigation"
 						}
-						className="ml-4 hidden items-center gap-5 text-[13px] sm:flex"
+						className="hidden items-center gap-5 ml-4 text-[13px] sm:flex"
 					>
 						<Link
 							to="/$locale/explore"
@@ -142,11 +150,14 @@ function Layout() {
 							{h.messages}
 						</Link>
 					</nav>
-					<div className="ml-auto flex items-center gap-4">
+					<div className="flex items-center gap-4 ml-auto">
 						<Link
 							to="/$locale/publish"
 							params={{ locale }}
-							className="hidden items-center gap-1.5 rounded-[10px] bg-primary px-3 py-1.5 text-[13px] font-semibold text-primary-foreground sm:inline-flex"
+							className={cn(
+								buttonVariants({ size: "sm" }),
+								"hidden sm:inline-flex",
+							)}
 						>
 							<Icon name="plus" className="size-4" strokeWidth={1.6} />
 							{h.publish}
@@ -156,13 +167,13 @@ function Layout() {
 					</div>
 				</div>
 			</header>
-			<main className="mx-auto max-w-4xl px-6 pt-6 pb-28 sm:py-8">
+			<main className="max-w-4xl mx-auto px-6 pt-6 pb-28 sm:py-8">
 				<Outlet />
 				<nav
 					aria-label={
 						locale === "fr" ? "Navigation secondaire" : "Secondary navigation"
 					}
-					className="mx-auto mt-10 flex max-w-xl flex-wrap items-center gap-x-5 gap-y-2 border-t border-hair pt-4 text-[11.5px]"
+					className="flex flex-wrap items-center gap-x-5 gap-y-2 max-w-xl border-t border-hair mx-auto mt-10 pt-4 text-[11.5px]"
 				>
 					<Link to="/$locale/about" params={{ locale }} className={navLink}>
 						{t.about}

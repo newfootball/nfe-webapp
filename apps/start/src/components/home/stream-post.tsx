@@ -23,18 +23,18 @@ function BroadcastBug({ post, locale }: { post: PublicPost; locale: Locale }) {
 		.filter(Boolean)
 		.join(", ");
 	return (
-		<p className="pointer-events-none absolute top-2.5 left-2.5 flex text-[10.5px] font-semibold tracking-[0.04em] text-white tabular-nums">
+		<p className="absolute top-2.5 left-2.5 flex font-semibold tracking-[0.04em] text-[10.5px] text-white pointer-events-none tabular-nums">
 			<span className="sr-only">{said}</span>
 			<span aria-hidden="true" className="flex">
 				{own && (
-					<span className="bg-black/78 px-1.5 py-1">{teamCode(own)}</span>
+					<span className="px-1.5 py-1 bg-black/78">{teamCode(own)}</span>
 				)}
-				<span className="bg-black/78 px-1.5 py-1">
+				<span className="px-1.5 py-1 bg-black/78">
 					{m.scoreFor}–{m.scoreAgainst}
 				</span>
-				<span className="bg-black/78 px-1.5 py-1">{teamCode(m.opponent)}</span>
+				<span className="px-1.5 py-1 bg-black/78">{teamCode(m.opponent)}</span>
 				{m.minute !== null && (
-					<span className="bg-primary px-1.5 py-1 text-primary-foreground">
+					<span className="px-1.5 py-1 bg-primary text-primary-foreground">
 						{m.minute}'
 					</span>
 				)}

@@ -59,7 +59,7 @@ export function FollowControls({ id, locale }: { id: string; locale: Locale }) {
 		);
 	const state = query.data;
 	return (
-		<section className="my-4 space-y-3" aria-label={t.lists}>
+		<section className="space-y-3 my-4" aria-label={t.lists}>
 			<p data-testid="follow-counts">
 				{t.followers}: {state.followers} · {t.following}: {state.followings}
 			</p>

@@ -41,7 +41,7 @@ export function PostCard({
 }
 export function FeedPending({ locale }: { locale: Locale }) {
 	return (
-		<p role="status" className="animate-pulse p-6">
+		<p role="status" className="p-6 animate-pulse">
 			{feedMessages[locale].loading}
 		</p>
 	);
@@ -57,7 +57,7 @@ export function Posts({
 		query = useInfiniteQuery(feedOptions(locale, { authorId }));
 	const posts = query.data?.pages.flatMap((p) => p.posts) ?? [];
 	return (
-		<section aria-label={t.posts} className="mt-8 space-y-5">
+		<section aria-label={t.posts} className="space-y-5 mt-8">
 			<Button asChild variant="outline">
 				<Link to="/$locale/publish" params={{ locale }}>
 					{mediaMessages[locale].publish}

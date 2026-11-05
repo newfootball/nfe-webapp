@@ -177,7 +177,7 @@ export function SocialInteractions({
 	const s = query.data;
 	return (
 		<section
-			className="mt-4 space-y-3"
+			className="space-y-3 mt-4"
 			aria-label={t.comments}
 			data-testid="social-interactions"
 		>

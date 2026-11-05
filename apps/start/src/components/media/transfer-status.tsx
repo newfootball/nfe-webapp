@@ -20,7 +20,7 @@ export function TransferStatus({
 	const t = mediaMessages[locale],
 		phase = snapshot.phase;
 	return (
-		<div className="flex flex-col gap-3 rounded-xl border bg-muted/30 p-4">
+		<div className="flex flex-col gap-3 rounded-xl border p-4 bg-muted/30">
 			<p role="status" aria-live="polite" className="text-sm font-medium">
 				{t.phases[phase]}
 				{phase === "uploading" ? ` · ${snapshot.progress}%` : ""}

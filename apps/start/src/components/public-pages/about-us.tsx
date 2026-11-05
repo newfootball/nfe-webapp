@@ -18,13 +18,13 @@ export function AboutUsPage({ locale }: PublicPageProps) {
 			<PublicPageSection title={t["mission-title"]}>
 				<p className="max-w-3xl">{t.mission}</p>
 				<div className="flex flex-wrap gap-3 pt-2">
-					<Button asChild className="min-h-11 h-auto whitespace-normal py-3">
+					<Button asChild className="min-h-11 h-auto py-3 whitespace-normal">
 						<a href="/sign-up">{t.join}</a>
 					</Button>
 					<Button
 						asChild
 						variant="outline"
-						className="min-h-11 h-auto whitespace-normal py-3"
+						className="min-h-11 h-auto py-3 whitespace-normal"
 					>
 						<a href="/contact">{t.contact}</a>
 					</Button>
@@ -44,7 +44,7 @@ export function AboutUsPage({ locale }: PublicPageProps) {
 					).map((value) => (
 						<div
 							key={value}
-							className="rounded-lg border border-border bg-muted p-6"
+							className="rounded-lg border border-border p-6 bg-muted"
 						>
 							<h3 className="mb-3 font-oswald text-xl font-semibold">
 								{t[`value-${value}`]}

@@ -102,4 +102,4 @@ Tailwind utility: `font-oswald` (declared in `globals.css` via `@theme inline`).
 | 2026-05 | Single yellow accent, no per-type colors | Brand consistency, user preference |
 | 2026-05 | Oswald for page/section titles | Sports aesthetic, matches NFE brand |
 | 2026-05 | Notification cards: Variant C (left stripe + name/action split) | Chosen from 3-variant design challenge |
-| 2026-05 | Direct Cloudinary upload (client-side XHR) | Bypasses Vercel 4.5MB body limit |
+| 2026-05 | Direct Cloudinary upload (client-side XHR) | Avoided server body limits; superseded by B2 media in `apps/start` |

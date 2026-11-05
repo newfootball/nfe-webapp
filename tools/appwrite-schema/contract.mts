@@ -1,5 +1,6 @@
 // No Appwrite connection or secrets. Not named *.test.*: root `bun test` stays isolated.
 import assert from "node:assert/strict";
+import { homeV1Columns, homeV1Tables } from "./home-v1-contract.mts";
 import { mapping, publicProfile } from "./mapping.mts";
 import { enums, tables } from "./schema.mts";
 
@@ -60,6 +61,26 @@ assert.ok(!("url" in (tables.media?.columns ?? {})), "No canonical signed URL");
 for (const table of Object.values(tables))
 	for (const index of table.indexes)
 		for (const column of index.columns) assert.ok(table.columns[column]);
+for (const [name, extension] of Object.entries(homeV1Columns)) {
+	const existing = tables[name]?.columns;
+	assert.ok(existing, `home-v1 extends unknown table ${name}`);
+	for (const [key, column] of Object.entries(extension.columns)) {
+		assert.ok(!existing[key], `home-v1 redefines ${name}.${key}`);
+		assert.equal(
+			column.required,
+			false,
+			`home-v1 ${name}.${key} must be optional`,
+		);
+	}
+	for (const index of extension.indexes)
+		for (const column of index.columns)
+			assert.ok(existing[column] ?? extension.columns[column]);
+}
+for (const [name, table] of Object.entries(homeV1Tables)) {
+	assert.ok(!tables[name], `home-v1 table ${name} collides`);
+	for (const index of table.indexes)
+		for (const column of index.columns) assert.ok(table.columns[column]);
+}
 process.stdout.write(
 	`contract: ${Object.keys(mapping).length} models, ${Object.keys(enums).length} enums, privacy allowlist and index references passed\n`,
 );

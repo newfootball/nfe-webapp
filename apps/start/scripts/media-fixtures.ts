@@ -63,6 +63,7 @@ export async function fixtureSetup() {
 	const { provisionMediaV3 } = await import(`${schema}/media-v3.mts`);
 	await provision(db, databaseId);
 	await provisionProfileV2(db, databaseId);
+	await (await import(`${schema}/home-v1.mts`)).provisionHomeV1(db, databaseId);
 	await provisionMediaV3(db, databaseId);
 	await provisionMediaV3(db, databaseId);
 	const actors = [],

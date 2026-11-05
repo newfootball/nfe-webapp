@@ -154,6 +154,10 @@ const fields = [
 	"updatedAt",
 	"publishedAt",
 	"expiresAt",
+	"matchOpponent",
+	"matchScoreFor",
+	"matchScoreAgainst",
+	"matchMinute",
 ];
 const authorFields = [
 	"$id",
@@ -164,6 +168,9 @@ const authorFields = [
 	"position",
 	"isOnboarded",
 	"createdAt",
+	"jerseyNumber",
+	"clubId",
+	"clubName",
 ];
 async function boundary<T>(run: () => Promise<T>): Promise<FeedResult<T>> {
 	privateResponse();
@@ -442,3 +449,35 @@ export function readExplore(
 
 // Keyless connection shared with public SEO directories. Never carries a session.
 export { connection as publicReadConnection };
+// Server-only joins for the home page; parents are read keyless and re-verified by assemble.
+export async function publishedByAuthors(
+	authorIds: string[],
+	since: string,
+	limit: number,
+) {
+	if (!authorIds.length) return [];
+	const c = connection();
+	const rows = await list(c, c.publicDB, "posts", [
+		Query.equal("status", "PUBLISHED"),
+		Query.equal("userId", authorIds),
+		Query.greaterThanEqual("createdAt", since),
+		Query.orderDesc("createdAt"),
+		Query.orderDesc("$id"),
+		Query.limit(limit),
+		Query.select(fields),
+	]);
+	return assemble(c, rows);
+}
+export async function publishedById(ids: string[]) {
+	if (!ids.length) return [];
+	const c = connection();
+	const rows = await list(c, c.publicDB, "posts", [
+		Query.equal("$id", ids),
+		Query.equal("status", "PUBLISHED"),
+		Query.limit(ids.length),
+		Query.select(fields),
+	]);
+	const order = new Map(ids.map((id, i) => [id, i]));
+	rows.sort((a, b) => (order.get(a.$id) ?? 0) - (order.get(b.$id) ?? 0));
+	return assemble(c, rows);
+}

@@ -16,6 +16,7 @@ export async function fixtureSetup() {
 	const dir = resolve(import.meta.dir, "../../../tools/appwrite-schema");
 	const { provisionProfileV2 } = await import(`${dir}/profile-v2.mts`);
 	await provisionProfileV2(db, databaseId);
+	await (await import(`${dir}/home-v1.mts`)).provisionHomeV1(db, databaseId);
 	const file = Bun.file(`${state}/fixture.json`);
 	if (await file.exists()) return await file.json();
 	// Fresh project owned by this proof only; finite known probe rows, never source data.

@@ -37,6 +37,7 @@ export async function fixtures(): Promise<Fixture> {
 	}
 	await provision(db, databaseId);
 	await provisionProfileV2(db, databaseId);
+	await (await import(`${dir}/home-v1.mts`)).provisionHomeV1(db, databaseId);
 	await provisionMessaging(db, databaseId);
 	await provisionMessaging(db, databaseId);
 	await provisionNotificationV1(db, databaseId);

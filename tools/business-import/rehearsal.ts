@@ -350,6 +350,7 @@ async function provisionRehearsalSchema(db: TablesDB) {
 		["notification-v1.mts", "provisionNotificationV1"],
 		["lifecycle-v1.mts", "provisionLifecycleV1"],
 		["account-lifecycle-v1.mts", "provisionAccountLifecycleV1"],
+		["home-v1.mts", "provisionHomeV1"],
 	] as const) {
 		const module = (await import(`${directory}/${file}`)) as Record<
 			string,

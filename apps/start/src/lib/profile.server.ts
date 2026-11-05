@@ -3,7 +3,13 @@ import {
 	isAccountActive,
 } from "./account-lifecycle-anchor.server";
 import "@tanstack/react-start/server-only";
-import { AppwriteException, Permission, Role, TablesDB } from "node-appwrite";
+import {
+	AppwriteException,
+	Permission,
+	Query,
+	Role,
+	TablesDB,
+} from "node-appwrite";
 import {
 	AuthFailure,
 	client,
@@ -61,6 +67,16 @@ async function maybe(db: TablesDB, tableId: string, id: string) {
 		throw e;
 	}
 }
+async function clubLabel(profile: Record<string, unknown>) {
+	if (typeof profile.clubName === "string") return profile.clubName;
+	if (typeof profile.clubId !== "string") return null;
+	const club = await maybe(
+		new TablesDB(client(configuration())),
+		"profiles",
+		profile.clubId,
+	).catch(() => null);
+	return (club?.name as string | null | undefined) ?? null;
+}
 async function self() {
 	const context = await identity();
 	return { ...context, db: new TablesDB(context.sessionClient) };
@@ -90,6 +106,12 @@ export function readOwnProfile() {
 			email: user.email,
 			initialized: !!profile && !!privateRow,
 			profile: profile ? publicProfile(profile) : null,
+			identity: profile
+				? {
+						jerseyNumber: (profile.jerseyNumber ?? null) as number | null,
+						club: await clubLabel(profile),
+					}
+				: null,
 			details: privateRow
 				? {
 						fullName: privateRow.fullName as string | null,
@@ -236,8 +258,9 @@ export function editProfile(input: Validated<ProfileEdit>) {
 		if (!p?.isOnboarded || !d) throw new AuthFailure("forbidden");
 		const v = input.data;
 		if (
-			p.userType !== "CLUB" &&
-			(v.clubSize !== null || v.clubPosition !== null)
+			p.userType !== "CLUB"
+				? v.clubSize !== null || v.clubPosition !== null
+				: !!v.club
 		)
 			throw new AuthFailure("invalid");
 		await writePair(
@@ -249,6 +272,7 @@ export function editProfile(input: Validated<ProfileEdit>) {
 				localisation: v.localisation,
 				position: v.position,
 				foot: v.foot,
+				...(await identityPatch(v)),
 				updatedAt: new Date().toISOString(),
 			},
 			{
@@ -261,6 +285,32 @@ export function editProfile(input: Validated<ProfileEdit>) {
 		);
 		return { updated: true as const };
 	});
+}
+async function identityPatch(v: ProfileEdit) {
+	return {
+		...(v.jerseyNumber === undefined ? {} : { jerseyNumber: v.jerseyNumber }),
+		...(v.club === undefined ? {} : await clubLink(v.club)),
+	};
+}
+// A typed club name links to the matching onboarded CLUB profile when exactly one exists.
+async function clubLink(name: string | null) {
+	if (!name) return { clubId: null, clubName: null };
+	const db = new TablesDB(client(configuration()));
+	const match = await db.listRows({
+		databaseId: database(),
+		tableId: "profiles",
+		queries: [
+			Query.equal("isOnboarded", true),
+			Query.equal("userType", "CLUB"),
+			Query.equal("nameFolded", name.normalize("NFC").toLocaleLowerCase("fr")),
+			Query.select(["$id"]),
+			Query.limit(2),
+		],
+		total: false,
+	});
+	const [only, other] = match.rows;
+	// The typed name stays as a display snapshot so readers need no join.
+	return { clubId: only && !other ? only.$id : null, clubName: name };
 }
 export function readPublicProfile(input: Validated<{ id: string }>) {
 	return boundary(async () => {

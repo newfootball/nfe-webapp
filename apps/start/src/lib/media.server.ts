@@ -139,6 +139,7 @@ export function publishMedia(v: PublishPost) {
 					createdAt: now,
 					updatedAt: now,
 					publishedAt: now,
+					...matchColumns(v.match),
 				},
 			});
 			for (const a of [video, thumbnail]) {
@@ -282,4 +283,13 @@ export async function signedPostMedia(
 	const a = found.rows[0];
 	if (!a || a.ownerId !== p.userId) throw new AuthFailure("forbidden");
 	return signedMedia(a.$id);
+}
+function matchColumns(match: PublishPost["match"]) {
+	if (!match) return {};
+	return {
+		matchOpponent: match.opponent,
+		matchScoreFor: match.scoreFor,
+		matchScoreAgainst: match.scoreAgainst,
+		matchMinute: match.minute,
+	};
 }

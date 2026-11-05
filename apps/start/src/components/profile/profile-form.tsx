@@ -145,6 +145,11 @@ export function ProfileForm({
 										: null,
 								clubPosition:
 									p?.userType === "CLUB" ? nullable("clubPosition") : null,
+								jerseyNumber:
+									str("jerseyNumber") === ""
+										? null
+										: Number(str("jerseyNumber")),
+								club: p?.userType === "CLUB" ? null : nullable("club"),
 							};
 							result = await saveProfile({ data });
 						} else {
@@ -287,6 +292,31 @@ export function ProfileForm({
 								)}
 								{field("license", t.license, d?.license ?? "")}
 							</>
+						)}
+						{editing && (
+							<div className="grid grid-cols-[6rem_1fr] gap-3">
+								<label className="block space-y-2">
+									{t.jerseyNumber}
+									<input
+										className={`${inputClass} font-display tabular-nums`}
+										name="jerseyNumber"
+										type="number"
+										inputMode="numeric"
+										min={0}
+										max={99}
+										defaultValue={own.identity?.jerseyNumber ?? ""}
+									/>
+								</label>
+								{p?.userType !== "CLUB" &&
+									field(
+										"club",
+										t.club,
+										own.identity?.club ?? "",
+										"text",
+										false,
+										128,
+									)}
+							</div>
 						)}
 						{editing
 							? field("fullName", t.fullName, d?.fullName ?? "")

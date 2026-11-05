@@ -15,6 +15,10 @@ export const PostRowSchema = z.object({
 	updatedAt: isoDate,
 	publishedAt: isoDate.nullable(),
 	expiresAt: isoDate.nullable(),
+	matchOpponent: z.string().min(1).max(64).nullish(),
+	matchScoreFor: z.number().int().min(0).max(99).nullish(),
+	matchScoreAgainst: z.number().int().min(0).max(99).nullish(),
+	matchMinute: z.number().int().min(0).max(130).nullish(),
 });
 export const CountsSchema = z.strictObject({
 	likes: z.number().int().nonnegative(),
@@ -29,6 +33,9 @@ export const AuthorRowSchema = z.object({
 	position: z.array(z.string()),
 	isOnboarded: z.literal(true),
 	createdAt: z.string(),
+	jerseyNumber: z.number().int().min(0).max(99).nullish(),
+	clubId: z.string().min(1).max(36).nullish(),
+	clubName: z.string().min(1).max(128).nullish(),
 });
 export function authorDTO(value: unknown) {
 	const r = AuthorRowSchema.parse(value);
@@ -39,10 +46,29 @@ export function authorDTO(value: unknown) {
 		localisation: r.localisation,
 		userType: r.userType,
 		position: r.position,
+		jerseyNumber: r.jerseyNumber ?? null,
+		club:
+			r.clubId || r.clubName
+				? { id: r.clubId ?? null, name: r.clubName ?? null }
+				: null,
 	};
 }
 export function safeImage(value: string | null) {
 	return canonicalImage(value);
+}
+function matchDTO(p: z.infer<typeof PostRowSchema>) {
+	if (
+		!p.matchOpponent ||
+		p.matchScoreFor == null ||
+		p.matchScoreAgainst == null
+	)
+		return null;
+	return {
+		opponent: p.matchOpponent,
+		scoreFor: p.matchScoreFor,
+		scoreAgainst: p.matchScoreAgainst,
+		minute: p.matchMinute ?? null,
+	};
 }
 export function postDTO(
 	value: unknown,
@@ -65,6 +91,7 @@ export function postDTO(
 		publishedAt: p.publishedAt,
 		expiresAt: p.expiresAt,
 		author,
+		match: matchDTO(p),
 		mediaPreview: postMediaPath(p.$id, "thumbnail"),
 		_count: { likes: s.likes, comments: s.comments },
 	};

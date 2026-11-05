@@ -32,6 +32,7 @@ export async function fixtures() {
 	else if (applied.digest !== schemaDigest)
 		throw new Error("Owned fixture schema drift");
 	await provisionProfileV2(db, databaseId);
+	await (await import(`${dir}/home-v1.mts`)).provisionHomeV1(db, databaseId);
 	const saved = Bun.file(`${state}/fixture.json`);
 	if (await saved.exists()) return await saved.json();
 

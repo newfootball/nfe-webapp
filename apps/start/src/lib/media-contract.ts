@@ -39,6 +39,15 @@ export const PublishPostSchema = z.strictObject({
 	description: z.string().trim().max(10_000),
 	videoId: AssetIdSchema,
 	thumbnailId: AssetIdSchema,
+	match: z
+		.strictObject({
+			opponent: z.string().trim().min(1).max(64),
+			scoreFor: z.number().int().min(0).max(99),
+			scoreAgainst: z.number().int().min(0).max(99),
+			minute: z.number().int().min(0).max(130).nullable(),
+		})
+		.nullable()
+		.optional(),
 });
 export const MEDIA_PART_BYTES = 5 * 1024 * 1024;
 export const MEDIA_READ_TTL_SECONDS = 120;

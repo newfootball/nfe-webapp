@@ -18,10 +18,18 @@ One accent color only: **yellow**. No per-type or per-category colors in the UI 
 | Role | Font | Class |
 |---|---|---|
 | Page titles, section headers | Oswald | `font-oswald uppercase tracking-wide` |
-| Body, labels, UI text | Inter (default) | — |
+| Display numbers, hero titles | Oswald 300–500 | `font-display uppercase` |
+| Body, UI text | Barlow 400–600 | `font-sans` (default) |
+| Kickers, small caps labels | Barlow Condensed 500 | `font-label uppercase tracking-[0.16em]` |
 
-Oswald is loaded globally via `next/font/google` with CSS var `--font-oswald`.  
-Tailwind utility: `font-oswald` (declared in `globals.css` via `@theme inline`).
+Fonts are self-hosted with `@fontsource` (latin subsets) in `apps/start/src/styles.css`.
+Tailwind utilities `font-oswald`, `font-display`, `font-label` and `font-sans` are declared in `globals.css`.
+
+### Strokes and rules
+- Icons: 1.25 px stroke, round caps (`components/home/icon.tsx`).
+- Separators: 1 px hairlines (`border-hair`) instead of cards and shadows.
+- Yellow stays a highlighter: one mark, one active state or one CTA per screen.
+- Football vocabulary over generic UI: jersey number avatar, poste · club, score and minute.
 
 ### Title pattern
 ```tsx
@@ -33,8 +41,10 @@ Tailwind utility: `font-oswald` (declared in `globals.css` via `@theme inline`).
 ## Layout
 
 - **Mobile-first**, max-width container centered
-- Top nav: NFE logo centered, actions right (bell, avatar)
-- Bottom nav: Accueil / Rechercher / + (FAB yellow) / Messages / Profil
+- Top nav: ball + NFE logo left, actions right (bell, jersey avatar with yellow ring)
+- Secondary nav: text links on a hairline, active link underlined
+- Home ("D · Synthèse"): Ta semaine → L’action de la semaine → Vestiaire → Le fil
+- Videos in the feed go edge to edge on mobile, with a broadcast bug (score, minute) when match data is set
 - Page content: `<Layout>` wrapper with standard padding
 
 ## Components
@@ -103,3 +113,5 @@ Tailwind utility: `font-oswald` (declared in `globals.css` via `@theme inline`).
 | 2026-05 | Oswald for page/section titles | Sports aesthetic, matches NFE brand |
 | 2026-05 | Notification cards: Variant C (left stripe + name/action split) | Chosen from 3-variant design challenge |
 | 2026-05 | Direct Cloudinary upload (client-side XHR) | Bypasses Vercel 4.5MB body limit |
+| 2026-11 | Home "D · Synthèse", Barlow body, thin strokes and hairlines | Avoid the generic "AI" look; football broadcast cues |
+| 2026-11 | Bottom nav with FAB dropped for now | Not part of home D; publish lives in the feed header |

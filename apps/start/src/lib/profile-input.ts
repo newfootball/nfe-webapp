@@ -71,6 +71,8 @@ export const EditProfileSchema = z.strictObject({
 	license: text(255).nullable(),
 	clubSize: z.number().int().min(1).max(2147483647).nullable(),
 	clubPosition: text(255).nullable(),
+	jerseyNumber: z.number().int().min(0).max(99).nullable().optional(),
+	club: text(128).nullable().optional(),
 });
 export const ProfileIdSchema = z.strictObject({
 	id: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,35}$/),

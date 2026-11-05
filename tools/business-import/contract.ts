@@ -1,3 +1,4 @@
+import { homeV1Columns } from "../appwrite-schema/home-v1-contract.mts";
 import { mediaV3Tables } from "../appwrite-schema/media-v3-contract.mts";
 import { messagingDefinition } from "../appwrite-schema/messaging.mts";
 import { notificationV1Tables } from "../appwrite-schema/notification-v1-contract.mts";
@@ -14,6 +15,9 @@ contract.private_profiles = {
 	...contract.private_profiles,
 	...profileV2Definition.private_profiles,
 } as Record<string, Column>;
+// home-v1 only adds optional columns here; its new tables start empty and are not imported.
+for (const [name, extra] of Object.entries(homeV1Columns))
+	contract[name] = { ...contract[name], ...extra.columns };
 for (const [name, table] of Object.entries(mediaV3Tables))
 	contract[name] = table.columns;
 contract.notifications_v1 = notificationV1Tables.notifications_v1!.columns;

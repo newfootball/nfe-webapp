@@ -3,6 +3,12 @@
 
 @theme inline {
 	--font-oswald: var(--font-oswald);
+	--font-display: var(--font-oswald);
+	--font-sans: var(--font-body);
+	--font-label: var(--font-label);
+	--color-hair: var(--hair);
+	--color-amber: var(--amber);
+	--color-pitch: var(--pitch);
 }
 
 @custom-variant dark (&:is(.dark *));
@@ -31,8 +37,11 @@
 	--card-foreground: hsl(20 14.3% 4.1%);
 	--popover: hsl(0 0% 100%);
 	--popover-foreground: hsl(20 14.3% 4.1%);
-	--primary: hsl(47.9 95.8% 53.1%);
-	--primary-foreground: hsl(26 83.3% 14.1%);
+	--primary: #f5c842;
+	--primary-foreground: #1c1400;
+	--hair: rgb(21 20 19 / 0.12);
+	--amber: #b45309;
+	--pitch: #3e4f35;
 	--secondary: hsl(60 4.8% 95.9%);
 	--secondary-foreground: hsl(24 9.8% 10%);
 	--muted: hsl(60 4.8% 95.9%);
@@ -59,8 +68,11 @@
 	--card-foreground: hsl(60 9.1% 97.8%);
 	--popover: hsl(20 14.3% 4.1%);
 	--popover-foreground: hsl(60 9.1% 97.8%);
-	--primary: hsl(47.9 95.8% 53.1%);
-	--primary-foreground: hsl(26 83.3% 14.1%);
+	--primary: #f5c842;
+	--primary-foreground: #1c1400;
+	--hair: rgb(250 250 249 / 0.14);
+	--amber: #f5c842;
+	--pitch: #2c3826;
 	--secondary: hsl(12 6.5% 15.1%);
 	--secondary-foreground: hsl(60 9.1% 97.8%);
 	--muted: hsl(12 6.5% 15.1%);
@@ -123,4 +135,56 @@
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
 	--radius-xl: calc(var(--radius) + 4px);
+}
+
+@keyframes rise {
+	from {
+		opacity: 0;
+		transform: translateY(14px);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+.rise > * {
+	animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.rise > :nth-child(2) {
+	animation-delay: 0.07s;
+}
+.rise > :nth-child(3) {
+	animation-delay: 0.14s;
+}
+.rise > :nth-child(4) {
+	animation-delay: 0.21s;
+}
+.rise > :nth-child(n + 5) {
+	animation-delay: 0.28s;
+}
+.highlight {
+	background: linear-gradient(
+		transparent 60%,
+		rgb(245 200 66 / 0.75) 60%,
+		rgb(245 200 66 / 0.75) 94%,
+		transparent 94%
+	);
+}
+.icon {
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.25;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+.scrollbar-none {
+	scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+	display: none;
+}
+@media (prefers-reduced-motion: reduce) {
+	.rise > * {
+		animation: none;
+	}
 }

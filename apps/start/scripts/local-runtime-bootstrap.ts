@@ -242,6 +242,8 @@ export async function provisionLocal(credentials: Credentials) {
 		`${directory}/account-lifecycle-v1.mts`
 	);
 	await provisionAccountLifecycleV1(db, databaseId);
+	const { provisionHomeV1 } = await import(`${directory}/home-v1.mts`);
+	await provisionHomeV1(db, databaseId);
 	const fixture = await loadOrCreate(`${state}/fixture.json`, () => ({
 		id: "local-player",
 		email: "local-player@example.test",

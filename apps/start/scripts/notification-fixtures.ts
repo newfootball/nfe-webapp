@@ -26,6 +26,10 @@ export async function fixtures() {
 		await provision(db, databaseId);
 	}
 	await provisionProfileV2(db, databaseId);
+	await (await import(`${directory}/home-v1.mts`)).provisionHomeV1(
+		db,
+		databaseId,
+	);
 	const { provisionNotificationV1 } = await import(
 		`${directory}/notification-v1.mts`
 	);

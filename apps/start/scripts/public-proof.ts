@@ -17,6 +17,7 @@ const { provisionProfileV2 } = await import(`${dir}/profile-v2.mts`);
 if (!(await Bun.file(`${state}/fixtures-ready`).exists()))
 	await provision(admin, databaseId);
 await provisionProfileV2(admin, databaseId);
+await (await import(`${dir}/home-v1.mts`)).provisionHomeV1(admin, databaseId);
 const stamp = "2026-01-15T12:34:56.123Z";
 if (!(await Bun.file(`${state}/fixtures-ready`).exists())) {
 	for (let i = 0; i < 26; i++) {

@@ -97,8 +97,20 @@ function NotFound() {
 		</main>
 	);
 }
-export function ThemeToggle({ label }: { label: string }) {
+export function ThemeToggle({
+	label,
+	className,
+}: {
+	label: string;
+	className?: string;
+}) {
 	const { toggle } = usePlatformTheme();
+	if (className)
+		return (
+			<button type="button" onClick={toggle} className={className}>
+				{label}
+			</button>
+		);
 	return (
 		<Button variant="outline" type="button" onClick={toggle}>
 			{label}

@@ -39,6 +39,11 @@ export async function provisionProfiles() {
 		await provision(db, profileDatabase);
 	}
 	await provisionProfileV2(db, profileDatabase);
+	const directory = resolve(import.meta.dir, "../../../tools/appwrite-schema");
+	await (await import(`${directory}/home-v1.mts`)).provisionHomeV1(
+		db,
+		profileDatabase,
+	);
 	return c;
 }
 if (import.meta.main) {

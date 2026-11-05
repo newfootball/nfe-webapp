@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { readPostMedia } from "../../lib/media";
 import { postMediaPath } from "../../lib/media-contract";
 import { mediaMessages } from "../../lib/media-messages";
@@ -12,13 +12,31 @@ export function MediaPlayer({
 	postId,
 	locale,
 	title,
+	bleed = false,
+	onPlaying,
+	children,
 }: {
 	postId: string;
 	locale: Locale;
 	title: string;
+	// Edge-to-edge broadcast frame with an overlaid play control.
+	bleed?: boolean;
+	// Fired once per mount, on the first frame actually played.
+	onPlaying?: () => void;
+	children?: ReactNode;
 }) {
 	const t = mediaMessages[locale],
-		video = useRef<HTMLVideoElement>(null);
+		video = useRef<HTMLVideoElement>(null),
+		played = useRef(onPlaying);
+	played.current = onPlaying;
+	// biome-ignore lint/correctness/useExhaustiveDependencies: re-armed for each post on the same element.
+	useEffect(() => {
+		const element = video.current;
+		if (!element) return;
+		const once = () => played.current?.();
+		element.addEventListener("playing", once, { once: true });
+		return () => element.removeEventListener("playing", once);
+	}, [postId]);
 	const [status, setStatus] = useState<"idle" | "loading" | "ready" | "error">(
 		"idle",
 	);
@@ -197,19 +215,36 @@ export function MediaPlayer({
 		};
 	}, [postId]);
 	return (
-		<figure className="flex flex-col gap-3">
-			<video
-				ref={video}
-				controls
-				playsInline
-				preload={status === "idle" ? "none" : "auto"}
-				poster={postMediaPath(postId, "thumbnail")}
-				aria-label={title}
-				className="aspect-video w-full rounded-lg bg-muted"
-			>
-				<track kind="captions" />
-			</video>
-			{status === "idle" && (
+		<figure className={bleed ? "flex flex-col" : "flex flex-col gap-3"}>
+			<div className="relative">
+				<video
+					ref={video}
+					controls={!bleed || status !== "idle"}
+					playsInline
+					preload={status === "idle" ? "none" : "auto"}
+					poster={postMediaPath(postId, "thumbnail")}
+					aria-label={title}
+					className={
+						bleed
+							? "block aspect-video w-full bg-pitch object-cover"
+							: "aspect-video w-full rounded-lg bg-muted"
+					}
+				>
+					<track kind="captions" />
+				</video>
+				{children}
+				{bleed && status === "idle" && (
+					<button
+						type="button"
+						aria-label={t.play}
+						onClick={() => renew.current?.(true)}
+						className="group absolute top-1/2 left-1/2 grid size-13 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-white/85 transition duration-300 hover:scale-105 hover:border-primary hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-primary"
+					>
+						<span className="ml-1 border-y-8 border-l-[13px] border-y-transparent border-l-white transition-colors group-hover:border-l-primary-foreground" />
+					</button>
+				)}
+			</div>
+			{!bleed && status === "idle" && (
 				<Button
 					type="button"
 					variant="secondary"
@@ -219,14 +254,21 @@ export function MediaPlayer({
 				</Button>
 			)}
 			{status === "loading" && (
-				<p role="status" className="text-sm text-muted-foreground">
+				<p
+					role="status"
+					className={
+						bleed
+							? "px-4 pt-2 text-xs text-muted-foreground sm:px-0"
+							: "text-sm text-muted-foreground"
+					}
+				>
 					{t.loading}
 				</p>
 			)}
 			{status === "error" && (
 				<figcaption
 					role="alert"
-					className="flex flex-wrap items-center gap-3 text-sm"
+					className={`flex flex-wrap items-center gap-3 text-sm${bleed ? " px-4 pt-2 sm:px-0" : ""}`}
 				>
 					<span>{t.playbackError}</span>
 					<Button

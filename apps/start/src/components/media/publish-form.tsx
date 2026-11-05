@@ -91,7 +91,8 @@ function Publication({
 		[error, setError] = useState("");
 	const [changing, setChanging] = useState(false);
 	const title = useRef<HTMLInputElement>(null),
-		description = useRef<HTMLTextAreaElement>(null);
+		description = useRef<HTMLTextAreaElement>(null),
+		match = useRef<HTMLFieldSetElement>(null);
 	const request = useRef<{ signature: string; id: string } | null>(null);
 	const videoUpload = useTransfer(video, "video"),
 		coverUpload = useTransfer(thumbnail, "thumbnail");
@@ -140,6 +141,7 @@ function Publication({
 				description: description.current?.value.trim() ?? "",
 				videoId: videoUpload.snapshot.assetId,
 				thumbnailId: coverUpload.snapshot.assetId,
+				match: readMatch(match.current),
 			};
 			const signature = JSON.stringify(fields);
 			if (request.current?.signature !== signature)
@@ -389,6 +391,57 @@ function Publication({
 							maxLength={10_000}
 						/>
 					</label>
+					<details className="group border-t pt-4">
+						<summary className="cursor-pointer list-none text-sm font-medium">
+							{t.match}
+							<span className="ml-2 text-muted-foreground font-normal">
+								{t.optional}
+							</span>
+						</summary>
+						<fieldset ref={match} className="mt-4 grid grid-cols-4 gap-3">
+							<label className="col-span-4 flex flex-col gap-2 text-sm">
+								{t.opponent}
+								<input
+									className={inputClass}
+									name="matchOpponent"
+									maxLength={64}
+								/>
+							</label>
+							<label className="flex flex-col gap-2 text-sm">
+								{t.scoreFor}
+								<input
+									className={`${inputClass} tabular-nums`}
+									name="matchScoreFor"
+									type="number"
+									min={0}
+									max={99}
+									inputMode="numeric"
+								/>
+							</label>
+							<label className="flex flex-col gap-2 text-sm">
+								{t.scoreAgainst}
+								<input
+									className={`${inputClass} tabular-nums`}
+									name="matchScoreAgainst"
+									type="number"
+									min={0}
+									max={99}
+									inputMode="numeric"
+								/>
+							</label>
+							<label className="col-span-2 flex flex-col gap-2 text-sm">
+								{t.minute}
+								<input
+									className={`${inputClass} tabular-nums`}
+									name="matchMinute"
+									type="number"
+									min={0}
+									max={130}
+									inputMode="numeric"
+								/>
+							</label>
+						</fieldset>
+					</details>
 					{error && (
 						<p role="alert" className="text-sm text-destructive">
 							{error}
@@ -409,4 +462,21 @@ function Publication({
 			</form>
 		</section>
 	);
+}
+// Incomplete match details are dropped: the broadcast bug needs opponent and score.
+function readMatch(root: HTMLFieldSetElement | null) {
+	const value = (name: string) =>
+		root?.querySelector<HTMLInputElement>(`[name="${name}"]`)?.value.trim() ??
+		"";
+	const opponent = value("matchOpponent"),
+		scoreFor = value("matchScoreFor"),
+		scoreAgainst = value("matchScoreAgainst"),
+		minute = value("matchMinute");
+	if (!opponent || scoreFor === "" || scoreAgainst === "") return null;
+	return {
+		opponent,
+		scoreFor: Number(scoreFor),
+		scoreAgainst: Number(scoreAgainst),
+		minute: minute === "" ? null : Number(minute),
+	};
 }

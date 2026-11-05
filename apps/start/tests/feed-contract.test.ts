@@ -57,3 +57,55 @@ test("drafts, missing/negative counters and foreign authors fail closed", () => 
 	).toThrow();
 	expect(() => postDTO(post, authorDTO(author), null)).toThrow();
 });
+test("home-v1 identity and match fields are projected, absent ones are null", () => {
+	const legacy = postDTO(post, authorDTO(author), stats);
+	expect(legacy.author.jerseyNumber).toBe(null);
+	expect(legacy.author.club).toBe(null);
+	expect(legacy.match).toBe(null);
+	const result = postDTO(
+		{
+			...post,
+			matchOpponent: "AS Vénissieux",
+			matchScoreFor: 2,
+			matchScoreAgainst: 1,
+			matchMinute: 67,
+		},
+		authorDTO({ ...author, jerseyNumber: 8, clubId: "club-1", clubName: null }),
+		stats,
+	);
+	expect(result.author.jerseyNumber).toBe(8);
+	expect(result.author.club).toEqual({ id: "club-1", name: null });
+	expect(result.match).toEqual({
+		opponent: "AS Vénissieux",
+		scoreFor: 2,
+		scoreAgainst: 1,
+		minute: 67,
+	});
+	const textClub = authorDTO({ ...author, clubName: "FC Lyon U17" });
+	expect(textClub.club).toEqual({ id: null, name: "FC Lyon U17" });
+});
+test("incomplete match metadata hides the bug, out-of-range values fail closed", () => {
+	expect(
+		postDTO(
+			{ ...post, matchOpponent: "Bron", matchScoreFor: null },
+			authorDTO(author),
+			stats,
+		).match,
+	).toBe(null);
+	expect(
+		postDTO(
+			{
+				...post,
+				matchOpponent: "Bron",
+				matchScoreFor: 1,
+				matchScoreAgainst: 0,
+			},
+			authorDTO(author),
+			stats,
+		).match,
+	).toEqual({ opponent: "Bron", scoreFor: 1, scoreAgainst: 0, minute: null });
+	expect(() => authorDTO({ ...author, jerseyNumber: 100 })).toThrow();
+	expect(() =>
+		postDTO({ ...post, matchMinute: -1 }, authorDTO(author), stats),
+	).toThrow();
+});

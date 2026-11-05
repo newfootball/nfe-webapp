@@ -95,14 +95,30 @@ cache="$(curl -s -o /dev/null -w '%{http_code} %header{cache-control}' \
 	-H "x-forwarded-host: ${canonical_host}" "${base}/assets/${asset}")"
 [ "$cache" = "200 public, max-age=31536000, immutable" ] || fail "asset headers: ${cache}"
 
-echo "8. runtime is unprivileged and carries no env file or sources"
+echo "8. client diagnostics accept same-origin beacons only; access logs are redacted"
+diag_foreign="$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "x-forwarded-host: ${canonical_host}" \
+	-H "x-forwarded-proto: https" -H "origin: https://attacker.invalid" -H "content-type: application/json" \
+	--data '{"kind":"error","message":"x","path":"/"}' "${base}/_diag/client-error")"
+[ "$diag_foreign" = "403" ] || fail "foreign client error beacon answered ${diag_foreign}"
+diag_same="$(curl -s -o /dev/null -w '%{http_code}' -X POST -H "x-forwarded-host: ${canonical_host}" \
+	-H "x-forwarded-proto: https" -H "origin: https://${canonical_host}" -H "content-type: application/json" \
+	--data '{"kind":"error","message":"smoke X-Amz-Signature=smokesig","path":"/fr?token=smoketoken"}' "${base}/_diag/client-error")"
+[ "$diag_same" = "204" ] || fail "same-origin client error beacon answered ${diag_same}"
+curl -s -o /dev/null -H "x-forwarded-proto: https" -H "x-forwarded-host: ${canonical_host}" "${base}/fr?code=smokecode"
+sleep 0.5
+logs="$(docker logs "$name" 2>&1)"
+echo "$logs" | grep -q '"event":"client_error"' || fail "client error not logged"
+echo "$logs" | grep -q '"event":"request".*"path":"/fr","status":200' || fail "access log line missing"
+echo "$logs" | grep -qE "smokesig|smoketoken|smokecode" && fail "logs leak query strings or signatures"
+
+echo "9. runtime is unprivileged and carries no env file or sources"
 [ "$(docker exec "$name" id -u)" != "0" ] || fail "container runs as root"
 docker exec "$name" sh -c 'test ! -e /app/.env && test ! -e /app/src && test ! -e /app/vite.config.ts' \
 	|| fail "unexpected files in the image"
 docker exec "$name" sh -c 'command -v ffmpeg >/dev/null && command -v ffprobe >/dev/null' \
 	|| fail "ffmpeg/ffprobe missing"
 
-echo "9. SIGTERM drains and exits 0"
+echo "10. SIGTERM drains and exits 0"
 docker stop -t 15 "$name" >/dev/null
 exit_code="$(docker inspect -f '{{.State.ExitCode}}' "$name")"
 [ "$exit_code" = "0" ] || fail "exit code after SIGTERM: ${exit_code}"

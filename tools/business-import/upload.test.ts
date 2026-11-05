@@ -217,9 +217,17 @@ test("storage client matches the target environment bucket", () => {
 		"isolated_storage_required",
 	);
 });
-test("uploads accept the app production prefix but cleanup stays isolated", async () => {
+test("production uploads own only their subtree and cleanup stays isolated", async () => {
 	const dir = await mkdtemp(join(tmpdir(), "business-upload-"));
-	const client = new FakeS3() as unknown as S3Client;
+	const s3 = new FakeS3();
+	s3.objects.push({
+		key: "media/app/existing",
+		version: "app1",
+		body: Buffer.from("app"),
+		type: "image/webp",
+		metadata: {},
+	});
+	const client = s3 as unknown as S3Client;
 	const checkpointPath = join(dir, "upload-checkpoint.json");
 	const production = (ids: string[]): MediaPlan => ({
 		...plan(ids),
@@ -227,12 +235,14 @@ test("uploads accept the app production prefix but cleanup stays isolated", asyn
 		prefix: "media/",
 	});
 	try {
-		const uploaded = await uploadMedia({
+		const first = {
 			plan: production(["a"]),
 			prepared: await prepared(dir, { a: "x" }),
 			client,
 			checkpointPath,
-		});
+		};
+		await assertStorageOwned(first);
+		const uploaded = await uploadMedia(first);
 		expect(uploaded[0]?.objectKey).toBe("media/business-import/a");
 		await expect(
 			uploadMedia({
@@ -242,6 +252,21 @@ test("uploads accept the app production prefix but cleanup stays isolated", asyn
 				checkpointPath: join(dir, "other.json"),
 			}),
 		).rejects.toThrow("isolated_upload_prefix_required");
+		s3.objects.push({
+			key: "media/business-import/foreign",
+			version: "f1",
+			body: Buffer.from("f"),
+			type: "image/webp",
+			metadata: {},
+		});
+		await expect(
+			assertStorageOwned({
+				plan: production(["b"]),
+				prepared: await prepared(dir, { b: "y" }),
+				client,
+				checkpointPath: join(dir, "fresh.json"),
+			}),
+		).rejects.toThrow("foreign_storage_collision");
 		await expect(
 			cleanupUploadedMedia(production(["a"]), client, checkpointPath),
 		).rejects.toThrow("isolated_upload_prefix_required");

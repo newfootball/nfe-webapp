@@ -279,18 +279,21 @@ export async function assertStorageOwned(options: {
 				item.objectKey.startsWith(`${plan.prefix}business-import/`)
 			)
 				keys.set(item.objectKey, item.assetId);
+		const owned = productionPlan(plan)
+			? `${plan.prefix}business-import/`
+			: plan.prefix;
 		const [versions, uploads] = await Promise.all([
 			client.send(
 				new ListObjectVersionsCommand({
 					Bucket: plan.bucket,
-					Prefix: plan.prefix,
+					Prefix: owned,
 					MaxKeys: 1000,
 				}),
 			),
 			client.send(
 				new ListMultipartUploadsCommand({
 					Bucket: plan.bucket,
-					Prefix: plan.prefix,
+					Prefix: owned,
 					MaxUploads: 1000,
 				}),
 			),

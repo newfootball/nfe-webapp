@@ -12,10 +12,13 @@ import { installGracefulShutdown } from "./shutdown";
 import { serveStatic } from "./static";
 import {
 	breachedThresholds,
+	clientErrorSource,
+	createKeyedRateLimit,
 	createRateLimit,
 	createRequestMetrics,
 	jsonLine,
 	logPath,
+	maxClientErrorBytes,
 	parseClientError,
 	readResources,
 } from "./telemetry";
@@ -46,6 +49,8 @@ const handler = await import("../dist/server/server.js")
 const appwriteReady = createAppwriteProbe(config.appwriteEndpoint);
 const metrics = createRequestMetrics();
 const clientErrorBudget = createRateLimit(60, 60_000);
+const clientErrorPerSource = createKeyedRateLimit(10, 60_000);
+let clientErrorsDropped = 0;
 const metricsIntervalMs = 60_000;
 const clientErrorPath = "/_diag/client-error";
 const noStore = { "Cache-Control": "no-store" };
@@ -53,6 +58,9 @@ const noStore = { "Cache-Control": "no-store" };
 async function clientError(request: Request) {
 	if (request.method !== "POST")
 		return new Response(null, { status: 405, headers: noStore });
+	const length = Number(request.headers.get("content-length"));
+	if (!Number.isInteger(length) || length <= 0 || length > maxClientErrorBytes)
+		return new Response(null, { status: 413, headers: noStore });
 	const body = await request.text().catch(() => "");
 	const report = parseClientError(
 		body,
@@ -61,7 +69,10 @@ async function clientError(request: Request) {
 		config.origin.origin,
 	);
 	if (!report) return new Response(null, { status: 403, headers: noStore });
-	if (clientErrorBudget()) emit("client_error", report);
+	const source = clientErrorSource(request.headers, config.trustProxy);
+	if (clientErrorPerSource(source) && clientErrorBudget())
+		emit("client_error", report);
+	else clientErrorsDropped += 1;
 	return new Response(null, { status: 204, headers: noStore });
 }
 
@@ -134,7 +145,8 @@ const shutdown = installGracefulShutdown(server, { deadlineMs: 10_000, log });
 const metricsTimer = setInterval(async () => {
 	const window = metrics.flush();
 	const resources = await readResources();
-	emit("metrics", { ...window, ...resources });
+	emit("metrics", { ...window, ...resources, clientErrorsDropped });
+	clientErrorsDropped = 0;
 	for (const alert of breachedThresholds(window, resources))
 		emit("threshold_breached", { alert });
 }, metricsIntervalMs);

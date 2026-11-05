@@ -2,6 +2,7 @@
 // Usage: bun scripts/production-smoke.ts [origin] (default https://nfe-foot.com)
 // Optional: SMOKE_ALIAS_ORIGIN (default www.<host>), SMOKE_MEDIA_PATH (a public
 // /media/<id> or /post-media/<id>/<kind> path; otherwise taken from the home page).
+// Exit 1 on a failed check, 2 when a check could not run (e.g. no public media).
 // Sends GET/HEAD/OPTIONS plus one rejected cross-origin diagnostic POST. Never
 // prints signed URLs, cookies or response bodies.
 import { clientForbiddenEnvNames } from "../server/env";
@@ -226,7 +227,7 @@ async function checkBucketCors(smoke: Smoke, location: string) {
 	smoke.record(
 		"b2_cors_upload_preflight",
 		preflight.ok &&
-			(allowed === smoke.base.origin || allowed === "*") &&
+			allowed === smoke.base.origin &&
 			/PUT/i.test(preflight.headers.get("access-control-allow-methods") ?? ""),
 		`OPTIONS PUT ${preflight.status} allow-origin=${allowed === smoke.base.origin ? "origin" : allowed}`,
 	);
@@ -236,7 +237,10 @@ async function checkBucketCors(smoke: Smoke, location: string) {
 	});
 	smoke.record(
 		"b2_cors_rejects_foreign_origin",
-		foreign.headers.get("access-control-allow-origin") !== foreignOrigin,
+		!foreign.ok &&
+			!["*", foreignOrigin].includes(
+				foreign.headers.get("access-control-allow-origin") ?? "",
+			),
 		`OPTIONS from foreign origin ${foreign.status}`,
 	);
 }
@@ -281,13 +285,15 @@ if (import.meta.main) {
 			`${result.status.padEnd(7)} ${result.name.padEnd(36)} ${result.detail}`,
 		);
 	const failed = results.filter((result) => result.status === "fail");
+	const notRun = results.filter((result) => result.status === "not_run");
 	out(
 		JSON.stringify({
 			origin,
 			at: new Date().toISOString(),
-			pass: results.length - failed.length,
+			pass: results.length - failed.length - notRun.length,
 			fail: failed.length,
+			notRun: notRun.map((result) => result.name),
 		}),
 	);
-	process.exit(failed.length ? 1 : 0);
+	process.exit(failed.length ? 1 : notRun.length ? 2 : 0);
 }

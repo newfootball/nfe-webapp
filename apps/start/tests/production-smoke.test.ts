@@ -118,3 +118,24 @@ test("a leaked server name, unready Appwrite or open diagnostics fail the smoke"
 		"client_diagnostics_same_origin_only",
 	]);
 });
+
+test("a wildcard B2 CORS rule fails both CORS checks", async () => {
+	const base = fakeDeployment();
+	const wildcard = (async (input: RequestInfo | URL, init?: RequestInit) => {
+		if (String(input).includes("backblazeb2") && init?.method === "OPTIONS")
+			return new Response(null, {
+				headers: {
+					"access-control-allow-origin": "*",
+					"access-control-allow-methods": "PUT",
+				},
+			});
+		return base(input, init);
+	}) as typeof fetch;
+	const failed = (await runSmoke(origin, { fetch: wildcard }))
+		.filter((r) => r.status === "fail")
+		.map((r) => r.name);
+	expect(failed).toEqual([
+		"b2_cors_upload_preflight",
+		"b2_cors_rejects_foreign_origin",
+	]);
+});

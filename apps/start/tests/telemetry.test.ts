@@ -1,6 +1,8 @@
 import { expect, test } from "bun:test";
 import {
 	breachedThresholds,
+	clientErrorSource,
+	createKeyedRateLimit,
 	createRateLimit,
 	createRequestMetrics,
 	jsonLine,
@@ -139,4 +141,23 @@ test("rate limit resets per window", () => {
 	expect([allow(), allow(), allow()]).toEqual([true, true, false]);
 	now = 1000;
 	expect(allow()).toBe(true);
+});
+
+test("client error budgets key on the proxy-appended address and stay bounded", () => {
+	const headers = new Headers({ "x-forwarded-for": "6.6.6.6, 203.0.113.9" });
+	expect(clientErrorSource(headers, true)).toBe("203.0.113.9");
+	expect(clientErrorSource(headers, false)).toBe("direct");
+	expect(clientErrorSource(new Headers(), true)).toBe("unknown");
+	let now = 0;
+	const allow = createKeyedRateLimit(2, 1000, () => now, 3);
+	expect([allow("a"), allow("a"), allow("a"), allow("b")]).toEqual([
+		true,
+		true,
+		false,
+		true,
+	]);
+	allow("c");
+	expect(allow("a")).toBe(true);
+	now = 1000;
+	expect([allow("b"), allow("b")]).toEqual([true, true]);
 });

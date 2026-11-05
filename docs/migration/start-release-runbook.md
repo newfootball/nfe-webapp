@@ -34,9 +34,13 @@ Owner: Fahari (`mkldevops`), release and on-call. Change the owner here when it 
    same-origin-only client diagnostics, the 307 to a 120 s version-pinned signed B2 URL with
    `private, no-store` and `no-referrer`, a `Range` read (206) on B2 and the B2 CORS preflight for
    `PUT` (allowed for the app origin, refused for a foreign one). It never prints signed URLs or bodies.
+   Exit `0` = all checks passed; `1` = a check failed; `2` = a check could not run (listed in
+   `notRun`, e.g. no public media on `/fr`: set `SMOKE_MEDIA_PATH=/post-media/<id>/thumbnail`).
+   A release gate requires exit `0`.
    `prod:smoke:login` signs in with a dedicated smoke account (never a real user), checks the
    `__Host-nfe-session` cookie is `Secure`/`HttpOnly`, reads private pages through Appwrite, fails
-   on any 5xx or uncaught page error, then signs out. Without credentials it reports `skipped`.
+   on any 5xx or uncaught page error, then signs out from `/fr/private`. Without credentials it
+   reports `skipped`, which does not count as a passed gate.
 4. Watch the Coolify logs for 10 minutes (section 4). Any `threshold_breached` or failed smoke → rollback.
 
 ## 3. Roll back
@@ -58,13 +62,16 @@ to stdout, kept by Coolify (**Logs** tab, or `docker logs <container>` on the se
 | --- | --- | --- |
 | `request` | `id`, `method`, `path` (no query, max 160 chars), `status`, `ms`; `/healthz`, `/readyz` and `/assets/*` excluded | query strings, headers, cookies, bodies, IPs |
 | `request_failed` | `id`, `method`, `path`, `error` (error class name only) | message, stack, upstream body |
-| `client_error` | browser `error`/`unhandledrejection`: `kind`, redacted `message` (300 chars), `path`; same-origin beacons only, 4 KB max, 60/min | stack, query, user data |
-| `metrics` | every 60 s: `requests`, status classes, `errorRate`, `p50Ms`/`p95Ms`/`p99Ms`/`maxMs`, `inflight`, `maxInflight`, `rssBytes`, `heapUsedBytes`, `tmpFreeBytes` | — |
+| `client_error` | browser `error`/`unhandledrejection`: `kind`, redacted `message` (300 chars), `path`; `Content-Length` ≤ 4 KB (else 413), 10/min per client address and 60/min overall, excess counted in `metrics.clientErrorsDropped` | stack, query, user data |
+| `metrics` | every 60 s: `requests`, status classes, `errorRate`, `p50Ms`/`p95Ms`/`p99Ms`/`maxMs`, `inflight`, `maxInflight`, `rssBytes`, `heapUsedBytes`, `tmpFreeBytes`, `clientErrorsDropped` | — |
 | `threshold_breached` | `alert` name, emitted next to the `metrics` line that crossed it | — |
 
 Redaction (`redactText`) strips `X-Amz-Signature/Credential/Security-Token` values, `Bearer`/`Basic`
 tokens, `key|secret|password|token|session=` values and opaque strings of 48+ characters.
 Signed URLs only travel in `Location` headers, which are never logged.
+The `Origin`/`Sec-Fetch-Site` check on client beacons only stops cross-site browser posts; a
+non-browser client can forge it, so `client_error` lines are diagnostic hints, never evidence.
+A high `clientErrorsDropped` means the budget is saturated (real error storm or abuse).
 
 Diagnosis by symptom:
 
@@ -91,8 +98,10 @@ an issue. Deferred monitoring (cron, watcher) is deliberately out of scope.
 
 ## 5. Upgrade Appwrite
 
-Appwrite runs as the Coolify service `appwrite-nfe`; Start pins its behaviour to the version in
-`START_RECOVERY_INVALIDATION_CONFIRMED` (currently `2.6.2`).
+Appwrite runs as the Coolify service `appwrite-nfe` (currently `2.6.2`). Password recovery is
+gated on that exact version: `invalidationPolicy()` in `apps/start/src/lib/recovery.server.ts`
+compares `START_RECOVERY_INVALIDATION_CONFIRMED` to the literal `"2.6.2"`. Changing only the
+variable disables recovery for every user.
 
 1. Read the Appwrite release notes between the current and target versions; stop on any breaking
    change to sessions, Users, Databases or the `/health/version` route.
@@ -103,8 +112,11 @@ Appwrite runs as the Coolify service `appwrite-nfe`; Start pins its behaviour to
    the Appwrite migration command shown in the release notes (`docker compose exec appwrite migrate`).
 5. Check `https://appwrite.nfe-foot.com/v1/health/version` reports the new version, then
    `prod:smoke` and `prod:smoke:login`.
-6. Update `START_RECOVERY_INVALIDATION_CONFIRMED` to the new version only after
-   `bun run --cwd apps/start recovery:proof` passed against that version locally; redeploy `nfe-start`.
+6. Recovery: before the upgrade, ship a Start release whose `recovery.server.ts` literal is the
+   target version, after `bun run --cwd apps/start recovery:proof` passed against it locally. Until
+   Appwrite, the literal and the variable match, recovery answers `unavailable` (expected; announce
+   it). After the upgrade set `START_RECOVERY_INVALIDATION_CONFIRMED` to the new version, redeploy
+   `nfe-start`, and test a recovery request with the smoke account.
 7. Rollback: restore the previous image tags **and** the backup from step 3 (Appwrite migrations are
    not reversible). Record the outcome.
 
@@ -112,8 +124,9 @@ Appwrite runs as the Coolify service `appwrite-nfe`; Start pins its behaviour to
 
 - Keys live only in the Coolify runtime environment of `nfe-start` (`B2_*`, not build variables);
   `check:client` at build time and `prod:smoke` at run time prove they are absent from the bundle.
-- Upload is direct browser → B2 multipart with presigned parts; reads are 120 s signed redirects
-  supporting `Range` — both validated by `prod:smoke` on the final domain.
+- Upload is direct browser → B2 multipart with presigned parts; `prod:smoke` only verifies the CORS
+  preflight for `PUT` from the app origin (it is read-only and never uploads). Reads are 120 s
+  signed redirects supporting `Range`, verified by `prod:smoke` on the final domain.
 - Volume and cost: Backblaze console → **Reports** for `nfe-webapp-prod` (stored GB, downloaded GB,
   class B/C transactions). Review monthly. A CDN in front of B2 is only worth it if egress exceeds
   the free allowance (3× stored volume per month) — not the case at launch.

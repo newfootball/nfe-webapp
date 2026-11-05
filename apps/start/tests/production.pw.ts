@@ -38,6 +38,7 @@ test("login, private read, uncaught errors and logout behind the real proxy", as
 	await page.goto("/fr/notifications");
 	await expect(page).toHaveURL(/\/fr\/notifications/);
 
+	await page.goto("/fr/private");
 	await page.getByRole("button", { name: "Déconnexion", exact: true }).click();
 	await expect(page).toHaveURL(/sign-in/);
 	expect(serverErrors).toEqual([]);

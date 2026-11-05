@@ -160,6 +160,33 @@ export function jsonLine(event: string, fields: Record<string, unknown>) {
 	return `${JSON.stringify({ ts: new Date().toISOString(), event, ...fields })}\n`;
 }
 
+export const maxClientErrorBytes = 4096;
+
+// Traefik appends the peer address last; earlier values are client-supplied.
+export function clientErrorSource(headers: Headers, trustProxy: boolean) {
+	if (!trustProxy) return "direct";
+	return headers.get("x-forwarded-for")?.split(",").at(-1)?.trim() || "unknown";
+}
+
+export function createKeyedRateLimit(
+	limit: number,
+	windowMs: number,
+	now: () => number = Date.now,
+	maxKeys = 10_000,
+) {
+	let start = now();
+	let counts = new Map<string, number>();
+	return (key: string) => {
+		if (now() - start >= windowMs || counts.size >= maxKeys) {
+			start = now();
+			counts = new Map();
+		}
+		const count = (counts.get(key) ?? 0) + 1;
+		counts.set(key, count);
+		return count <= limit;
+	};
+}
+
 export type ClientErrorReport = { kind: string; message: string; path: string };
 
 // Same-origin browser beacons only; size-capped and redacted before logging.
@@ -170,7 +197,7 @@ export function parseClientError(
 	canonicalOrigin: string,
 ): ClientErrorReport | undefined {
 	if (origin ? origin !== canonicalOrigin : fetchSite !== "same-origin") return;
-	if (body.length > 4096) return;
+	if (body.length > maxClientErrorBytes) return;
 	let input: unknown;
 	try {
 		input = JSON.parse(body);

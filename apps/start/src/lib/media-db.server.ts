@@ -64,12 +64,12 @@ export async function maybeRow(db: TablesDB, tableId: string, rowId: string) {
 }
 export async function mediaSelf() {
 	const context = await identity();
-	const p = await row(
+	const p = await maybeRow(
 		new TablesDB(context.sessionClient),
 		"profiles",
 		context.viewer.id,
 	);
-	if (!p.isOnboarded) throw new AuthFailure("forbidden");
+	if (!p?.isOnboarded) throw new AuthFailure("forbidden");
 	return { ownerId: context.viewer.id, profile: p };
 }
 export function assertOwner(asset: Models.DefaultRow, ownerId: string) {

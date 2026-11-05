@@ -67,7 +67,7 @@ export function LockerRow({
 								params={{ locale, id: post.id }}
 								className="block group"
 							>
-								<span className="overflow-hidden block h-[190px] rounded-md bg-pitch">
+								<span className="overflow-hidden block h-[190px] rounded-md pitch">
 									<Thumb
 										src={post.mediaPreview}
 										lazy

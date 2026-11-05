@@ -1,143 +1,58 @@
 # Next Football Experience Web App
 
-Football social web app for players, coaches, recruiters, and clubs. The app is
-built with Next.js App Router, React, TypeScript, Prisma/PostgreSQL, better-auth,
-next-intl, Tailwind CSS v4, and shadcn/ui.
+Football social web app for players, coaches, recruiters, and clubs, built with
+TanStack Start (`apps/start`), React, TypeScript, Tailwind CSS v4, Appwrite and
+B2 media storage.
 
 ## Requirements
 
-- Bun `1.3.3` or compatible
-- Docker with Docker Compose
-- PostgreSQL is provided locally by `compose.yaml`
+- Bun `1.3.14` and Node 24
+- Docker for the persistent local runtime (Appwrite)
 
 ## Setup
 
 ```bash
 bun install
-docker compose up -d --wait
-bunx prisma generate
-bunx prisma migrate dev
-bun run prisma:seed
-bun run dev:next
+bun install --cwd apps/start
+bun run dev          # http://localhost:3501
 ```
 
-`bun run dev` now starts the TanStack Start app (`apps/start`, port `3501`);
-see [docs/migration/local-rehearsal.md](docs/migration/local-rehearsal.md).
-`bun run dev:next` uses the package script port `3500`. When using `make dev`,
-the effective port comes from `NEXT_PORT` in `.env`/`.env.local`, falling back
-to the Makefile default.
-
-## Environment
-
-`.env` is committed as the baseline local environment. `.env.local` is ignored
-and can override local values. Do not commit real local secrets.
-
-Important variables:
-
-- `DATABASE_URL`
-- `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD`,
-  `POSTGRES_CONTAINER_NAME`
-- `WEBSITE_URL` (validated as HTTPS)
-- `NEXT_PUBLIC_APP_URL`
-- `BETTER_AUTH_SECRET` or legacy `NEXTAUTH_SECRET`
-- `RESEND_API_KEY`
-- Optional Google OAuth, Google Analytics, and Cloudinary variables
-
-Validation is defined in `src/lib/env.ts`.
+For a full local stack, see the
+[persistent local runtime runbook](docs/migration/start-local-runtime.md)
+(`bun run local`).
 
 ## Development Commands
 
 ```bash
-bun run dev          # Start dev server (apps/start, port 3501)
-bun run dev:next     # Next dev server (port 3500)
-bun run build        # production build
-bun run start        # run built app
+bun run dev          # dev server (port 3501)
+bun run build        # production build + client bundle scan
+bun run start        # run the built app
+bun run typecheck    # TypeScript (build first)
+bun run test         # Bun unit tests
+bun run smoke        # Playwright smoke tests
 bun run lint         # non-mutating Biome check
 bun run lint:fix     # Biome check --write
 bun run format       # Biome format --write
-bun run typecheck    # TypeScript only
-bun run knip         # unused files/dependencies/exports
-bun run prisma:seed  # seed database
 ```
 
-Make targets are also available:
+## Production
 
-```bash
-make dev
-make build
-make lint
-make check
-make prisma-migrate
-make prisma-seed
-make prisma-studio
-make prisma-reset
-make docker-up
-make docker-down
-```
-
-Be careful with `make sync`, `make prisma-reset`, and `make docker-destroy`:
-they reset or remove local database state.
+The production image is built from the repository root with
+`docker build -f apps/start/Dockerfile .`. See
+[docs/migration/start-production.md](docs/migration/start-production.md).
 
 ## Git Hooks
 
-Lefthook installs the project's Git hooks through the `prepare` script during
-`bun install` in a developer checkout. Hook installation is skipped in CI,
-on Vercel and in source archives without `.git`. The pre-commit hook runs Biome only on staged JavaScript,
-TypeScript, JSON/JSONC and CSS files, including the isolated packages. Fixes are
-restaged automatically; unstaged changes in partially staged files are hidden
-while the hook runs and restored afterward. Biome's existing exclusions still
-apply. Lint failures block the commit.
+Lefthook installs the Git hooks through the `prepare` script during
+`bun install` in a developer checkout (skipped in CI and without `.git`). The
+pre-commit hook runs Biome on staged JavaScript, TypeScript, JSON/JSONC and CSS
+files and restages fixes. Lint failures block the commit.
 
-After switching an existing Husky checkout, run this once to replace its local
-`core.hooksPath` configuration and install Lefthook in Git's default hooks path:
+## Layout
 
-```sh
-bunx --no-install lefthook install --reset-hooks-path
-```
-
-Use `bun run prepare` to reinstall hooks, or
-`bunx --no-install lefthook run pre-commit` to check the currently staged files.
-Full lint, typecheck, build and package-specific smoke checks remain explicit
-commands and CI checks; they are not added to every commit.
-
-## Architecture
-
-- `app/(home)/(auth)`: sign-in, sign-up, forgot/reset password
-- `app/(home)/(private)`: authenticated pages
-- `app/(home)/(private)/admin`: admin-only pages
-- `app/(home)/(public)`: public feed, explore, user/post details, legal pages
-- `app/(public)`: programmatic SEO pages
-- `app/api/auth/[...all]/route.ts`: better-auth route handler
-
-Project patterns:
-
-- Mutations: `src/actions/*.action.ts` server actions
-- Database reads: `src/query/*.query.ts`
-- Auth: `src/lib/auth.ts`, `src/lib/auth-client.ts`,
-  `src/lib/auth-server.ts`
-- i18n: `messages/fr.json`, `messages/en.json`, `src/i18n/request.ts`
-- UI primitives: `components/ui`
-- Feature components: `components/feature`
-- Zustand store: `src/store`
-- Shared hooks: `src/hooks`
+- `apps/start`: the application ([README](apps/start/README.md))
+- `tools/`: Appwrite schema, import, backup and probe tooling (isolated packages)
+- `infra/`: Appwrite environment definitions
+- `docs/migration/`: migration records and runbooks
 
 For agent-specific instructions, see `AGENTS.md`.
-
-## Validation
-
-Run these before handing off code changes:
-
-```bash
-bun run typecheck
-bun run lint
-bun run build
-```
-
-For Prisma changes, also run:
-
-```bash
-bunx prisma validate
-bunx prisma generate
-```
-
-There is currently no dedicated test suite configured in `package.json`.

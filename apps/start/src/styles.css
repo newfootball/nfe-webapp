@@ -1,5 +1,4 @@
-@import "../../../app/globals.css";
-@source "../../../components/ui/button.tsx";
+@import "./globals.css";
 @source "./";
 
 :root {

@@ -4,8 +4,8 @@ import {
 	notFound,
 	Outlet,
 } from "@tanstack/react-router";
-import { Button } from "../../../../components/ui/button";
 import { NotificationBell } from "../components/notification-bell";
+import { Button } from "../components/ui/button";
 import { authMessages } from "../lib/auth-messages";
 import { publicEnv } from "../lib/env-public";
 import { type Locale, messages } from "../lib/messages";

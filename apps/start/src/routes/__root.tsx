@@ -9,8 +9,8 @@ import {
 	useRouterState,
 } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { Button } from "../../../../components/ui/button";
 import { PlatformRegistration } from "../components/platform-registration";
+import { Button } from "../components/ui/button";
 import { messages } from "../lib/messages";
 import {
 	PlatformTheme,

@@ -1,13 +1,13 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { useState } from "react";
-import { Button } from "../../../../../components/ui/button";
 import type { Locale } from "../../lib/messages";
 import { savePostText } from "../../lib/post-text";
 import { invalidatePostText } from "../../lib/post-text-cache";
 import type { OwnPost, PostTextError } from "../../lib/post-text-contract";
 import { EditPostTextSchema } from "../../lib/post-text-input";
 import { postTextMessages } from "../../lib/post-text-messages";
+import { Button } from "../ui/button";
 export function PostTextForm({
 	post,
 	locale,

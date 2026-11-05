@@ -12,9 +12,6 @@
 		"noEmit": true,
 		"esModuleInterop": true,
 		"types": ["vite/client", "bun"],
-		"paths": {
-			"@/lib/utils": ["../../src/lib/utils.ts"]
-		},
 		"allowJs": true,
 		"allowImportingTsExtensions": true
 	},

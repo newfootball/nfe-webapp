@@ -1,6 +1,6 @@
 import type { MouseEventHandler } from "react";
-import { Button } from "../../../../../components/ui/button";
 import { publicPageContent } from "../../lib/public-page-content";
+import { Button } from "../ui/button";
 import type { PublicPageProps } from "./layout";
 
 /** Integration contract from app/splash/page.tsx; the host owns effects and cookies. */

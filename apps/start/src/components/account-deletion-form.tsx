@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Button } from "../../../../components/ui/button";
 import {
 	deleteOwnAccount,
 	recoverAccountDeletion,
 } from "../lib/account-deletion";
 import { accountDeletionMessages } from "../lib/account-deletion-messages";
 import { clearIdentityCache } from "../lib/auth-cache";
+import { Button } from "./ui/button";
 
 export function AccountDeletionForm({ locale }: { locale: "fr" | "en" }) {
 	const t = accountDeletionMessages[locale];

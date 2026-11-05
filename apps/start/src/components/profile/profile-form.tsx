@@ -1,6 +1,5 @@
 import { Link, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
-import { Button } from "../../../../../components/ui/button";
 import { setPreferredLocale } from "../../lib/locale";
 import type { Locale } from "../../lib/messages";
 import { initProfile, saveOnboarding, saveProfile } from "../../lib/profile";
@@ -9,6 +8,7 @@ import { POSITIONS, USER_TYPES } from "../../lib/profile-contract";
 import type { Onboarding, ProfileEdit } from "../../lib/profile-input";
 import { positionMessages, profileMessages } from "../../lib/profile-messages";
 import { AvatarEditor } from "../media/avatar-editor";
+import { Button } from "../ui/button";
 
 const inputClass =
 	"block w-full rounded-md border bg-background px-3 py-2 text-foreground focus-visible:outline-2 focus-visible:outline-ring";

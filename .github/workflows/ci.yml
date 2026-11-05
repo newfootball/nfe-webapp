@@ -35,32 +35,13 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
+            - uses: oven-sh/setup-bun@v2
               with:
-                    fetch-depth: 0
-
-            - uses: oven-sh/setup-bun@v1
-              with:
-                bun-version: latest
-
-            - name: Cache Bun dependencies
-              uses: actions/cache@v4
-              with:
-                path: ~/.bun/install/cache
-                key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
-                restore-keys: |
-                  ${{ runner.os }}-bun-
-
+                bun-version: 1.3.14
             - name: Install
-              run: bun install
-
+              run: bun install --frozen-lockfile
             - name: Biome
               run: bun run lint
-
-            - name: Typecheck
-              run: bun run typecheck
-
-            - name: Knip
-              run: bunx knip --no-exit-code
 
     start-foundation:
         runs-on: ubuntu-latest
@@ -72,7 +53,7 @@ jobs:
             - uses: oven-sh/setup-bun@v2
               with:
                 bun-version: 1.3.14
-            - name: Install Next dependencies for shared UI
+            - name: Install root tooling (Biome)
               run: bun install --frozen-lockfile
             - name: Install Start dependencies
               run: bun install --cwd apps/start --frozen-lockfile
@@ -81,7 +62,7 @@ jobs:
             - name: Lint Start
               run: bun run --cwd apps/start lint
             - name: Build Start
-              run: bun run build:start
+              run: bun run build
             - name: Package reproducible local release (no service start)
               id: local_release
               run: bun run --cwd apps/start local:repro
@@ -96,12 +77,12 @@ jobs:
                   apps/start/.local-runtime/repro-diagnostic.json
                   apps/start/.local-runtime/releases/
             - name: Typecheck Start
-              run: bun run typecheck:start
+              run: bun run typecheck
             - name: Install smoke browser
               working-directory: apps/start
               run: bunx playwright install --with-deps chromium
             - name: Smoke built Start
-              run: bun run smoke:start
+              run: bun run smoke
 
     start-image:
         runs-on: ubuntu-latest
@@ -150,9 +131,8 @@ jobs:
             - uses: oven-sh/setup-bun@v2
               with:
                 bun-version: 1.3.14
-            - name: Install shared and isolated importer dependencies
+            - name: Install isolated importer dependencies
               run: |
-                bun install --frozen-lockfile
                 bun install --cwd tools/identity-import --frozen-lockfile --ignore-scripts
                 bun install --cwd tools/appwrite-schema --frozen-lockfile --ignore-scripts
                 bun install --cwd tools/business-import --frozen-lockfile --ignore-scripts

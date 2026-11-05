@@ -1,5 +1,5 @@
-import { Button } from "../../../../../components/ui/button";
 import { publicPageContent } from "../../lib/public-page-content";
+import { Button } from "../ui/button";
 import {
 	PublicPageLayout,
 	type PublicPageProps,

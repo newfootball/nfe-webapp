@@ -1,4 +1,4 @@
-// v1: derived from prisma/schema.prisma and src/query/*.query.ts, not Prisma DTOs.
+// v1: derived from the legacy Prisma schema (legacy/schema.prisma) and the removed Next queries, not Prisma DTOs.
 export type Column = {
 	type: "string" | "integer" | "boolean" | "datetime" | "enum";
 	required: boolean;

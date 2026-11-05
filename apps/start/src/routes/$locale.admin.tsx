@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
-import { Button } from "../../../../components/ui/button";
 import { AccountDeletionRecovery } from "../components/account-deletion-form";
+import { Button } from "../components/ui/button";
 import {
 	getAdminPage,
 	getModerationDashboard,

@@ -1,19 +1,12 @@
 ---
 paths:
-  - "src/schemas/**"
-  - "src/lib/onboarding.schemas.ts"
-  - "src/lib/env.ts"
-  - "src/actions/**"
-  - "app/api/**"
-  - "app/(home)/(auth)/**"
-  - "app/(home)/(private)/**"
-  - "components/feature/**"
-  - "apps/start/src/lib/env*.ts"
+  - "apps/start/src/lib/**"
+  - "tools/**"
 ---
 
 # Zod validation
 
-Scope: src/schemas/**, src/lib/onboarding.schemas.ts, src/lib/env.ts, src/actions/**, app/api/**, app/(home)/(auth)/**, app/(home)/(private)/**, components/feature/**, apps/start/src/lib/env*.ts
+Scope: apps/start/src/lib/**, tools/**
 
 - Validate untrusted input at system boundaries: requests, forms, environment configuration, webhooks, and third-party responses.
 - Use `parse` when invalid input should stop execution and `safeParse` when the caller must handle validation failure as data.
@@ -25,9 +18,8 @@ Scope: src/schemas/**, src/lib/onboarding.schemas.ts, src/lib/env.ts, src/action
 
 ## Local validation
 
-- Installed Zod is v4. Use `.issues` for errors and infer input types from shared
-  schemas under `src/schemas` or `src/lib/onboarding.schemas.ts` when applicable.
+- Installed Zod is v4. Use `.issues` for errors.
 - Client form validation is user feedback; repeat parsing on the server before
   persistence and keep authorization separate from schema validity.
-- Preserve `@t3-oss/env-nextjs` in `src/lib/env.ts`. Start uses separate public and
-  server environment modules; do not import root environment validation there.
+- Start uses separate public and server environment modules
+  (`src/lib/env-public.ts`, `src/lib/env.server.ts`).

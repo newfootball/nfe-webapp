@@ -5,16 +5,12 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-	publicDir: "../../public",
 	envDir: ".",
 	resolve: {
 		dedupe: ["react", "react-dom"],
 		alias: {
 			tailwindcss: fileURLToPath(
 				new URL("./node_modules/tailwindcss", import.meta.url),
-			),
-			"@/lib/utils": fileURLToPath(
-				new URL("../../src/lib/utils.ts", import.meta.url),
 			),
 		},
 	},

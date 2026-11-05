@@ -1,7 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { useRef, useState } from "react";
-import { Button } from "../../../../../components/ui/button";
 import type { Locale } from "../../lib/messages";
 import {
 	changePostMedia,
@@ -17,6 +16,7 @@ import type { OwnPost } from "../../lib/post-text-contract";
 import { postTextMessages } from "../../lib/post-text-messages";
 import { TransferStatus } from "../media/transfer-status";
 import { useIdentityGuard, useTransfer } from "../media/use-transfer";
+import { Button } from "../ui/button";
 
 export function PostLifecyclePanel({
 	post,

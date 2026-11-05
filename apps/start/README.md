@@ -13,24 +13,23 @@ From the repository root, with Bun 1.3.14 and Node 24:
 ```sh
 bun install --frozen-lockfile
 bun install --cwd apps/start --frozen-lockfile
-bun run dev:start                 # http://localhost:3501/fr
-bun run build:start
-bun run typecheck:start           # run build first to generate route types
+bun run dev                 # http://localhost:3501/fr
+bun run build
+bun run typecheck           # run build first to generate route types
 (cd apps/start && bunx playwright install chromium)
-bun run smoke:start               # owns port 3501; stop dev first
+bun run smoke               # owns port 3501; stop dev first
 ```
 
 Alternatively install the browser from `apps/start` with `bunx playwright install chromium`.
-For an existing local Chrome installation, `PLAYWRIGHT_CHANNEL=chrome bun run smoke:start`
+For an existing local Chrome installation, `PLAYWRIGHT_CHANNEL=chrome bun run smoke`
 uses that browser instead; CI installs Playwright Chromium explicitly.
 Run the built shell using `bun run --cwd apps/start start` (loopback only, port 3501).
 The production image, its runtime contract and the Coolify settings are described in
 [start-production.md](../../docs/migration/start-production.md) (`bun run image:build`, `bun run image:smoke`).
-Next stays at `bun run dev` (3500), `bun run typecheck` and `bun run build`.
-Each application has its own manifest, lockfile and TypeScript boundary. Root
-installation is also required because Start reuses the existing shadcn Button and
-its `cn` helper. Vite deduplicates React. Existing CSS tokens and public assets
-are reused; font fallback replaces Next's font loader. Only a scoped authentication/private identity page is added; no business page is ported.
+The app owns its manifest, lockfile and TypeScript boundary; the root only
+provides Biome and Lefthook. The shadcn Button (`src/components/ui`), `cn`
+(`src/lib/utils.ts`), CSS tokens (`src/globals.css`), translations
+(`src/messages`) and `public/` assets live in this package. Vite deduplicates React. Only a scoped authentication/private identity page is added; no business page is ported.
 
 Routes: `/` redirects to `/fr`; `/fr`, `/en`, and their `/about` pages.
 Unknown routes/locales return 404. The root supplies a recoverable error boundary.
@@ -46,7 +45,6 @@ values are public; never prefix credentials with `VITE_`. Private configuration
 is validated per request in `env.server.ts`; auth configuration remains server-only.
 Start loads only its own env directory. Server functions bridge isomorphic
 loaders to `.server.ts` modules; import protection fails on boundary violations.
-No root auth/Prisma/Next server module is imported.
 
 Smoke tests run against the built Bun server and cover raw SSR HTML, eight
 concurrent readers with the same query key, FR/EN, 404s, hydration, client routing
@@ -67,13 +65,13 @@ Official references (Context7 unavailable in the implementation session):
 The resumed public-page lot remains partial against whole issue #61; its isolated
 public/signup proof passes. See
 [public pages, SEO, evidence and remaining acceptance gates](../../docs/migration/start-public-pages.md).
-Use `START_SMOKE_PORT=3562 PLAYWRIGHT_CHANNEL=chrome bun run smoke:start` from
+Use `START_SMOKE_PORT=3562 PLAYWRIGHT_CHANNEL=chrome bun run smoke` from
 root when the default port 3501 is already occupied; the existing default stays
 unchanged. Production indexing is deliberately disabled throughout the shell.
 
 ## Persistent synthetic local runtime (#64/#46)
 
-Use the explicit `bun run local:start` commands from the root for the isolated
+Use the explicit `bun run local` commands from the root for the isolated
 Appwrite18464/Start3564 runtime. See the [persistent local runtime runbook](../../docs/migration/start-local-runtime.md)
 for frozen installs, immutable release packaging, health/readiness, graceful stop
 and persistence proof. Existing default commands and ports remain unchanged.

@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { Button } from "../../../../../components/ui/button";
 import { followOptions, setFollowing } from "../../lib/follow";
 import { optimisticFollow } from "../../lib/follow-contract";
 import { followMessages } from "../../lib/follow-messages";
 import type { Locale } from "../../lib/messages";
+import { Button } from "../ui/button";
 
 export function FollowControls({ id, locale }: { id: string; locale: Locale }) {
 	const client = useQueryClient(),

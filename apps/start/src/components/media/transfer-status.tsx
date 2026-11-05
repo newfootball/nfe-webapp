@@ -1,7 +1,7 @@
-import { Button } from "../../../../../components/ui/button";
 import { mediaError, mediaMessages } from "../../lib/media-messages";
 import type { TransferSnapshot } from "../../lib/media-upload";
 import type { Locale } from "../../lib/messages";
+import { Button } from "../ui/button";
 export function TransferStatus({
 	snapshot,
 	locale,

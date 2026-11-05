@@ -6,27 +6,15 @@
 ARG BUN_VERSION=1.3.14
 
 # ---------------------------------------------------------------------------
-# build: install both lockfiles, build the client and SSR bundles, scan the
+# build: install dependencies, build the client and SSR bundles, scan the
 # client bundle for server-only content.
 # ---------------------------------------------------------------------------
 FROM oven/bun:${BUN_VERSION}-slim AS build
 WORKDIR /repo
 ENV NODE_ENV=production
 
-# Root dependencies are needed because Start imports the shared Button and `cn`
-# helper from the repository root (Vite resolves their packages from there).
-# `--ignore-scripts` skips the root `prisma generate` postinstall.
-COPY package.json bun.lock .npmrc ./
-RUN bun install --frozen-lockfile --ignore-scripts
 COPY apps/start/package.json apps/start/bun.lock ./apps/start/
 RUN cd apps/start && bun install --frozen-lockfile --ignore-scripts
-
-COPY tsconfig.json ./
-COPY src/lib/utils.ts ./src/lib/utils.ts
-COPY components/ui/button.tsx ./components/ui/button.tsx
-COPY messages ./messages
-COPY app/globals.css ./app/globals.css
-COPY public ./public
 COPY apps/start ./apps/start
 
 # A value only the build knows: `check:client` fails if a bundler ever inlines
@@ -47,7 +35,7 @@ RUN bun install --frozen-lockfile --production --ignore-scripts
 # ---------------------------------------------------------------------------
 # runtime: alpine + ffmpeg (media processing spawns ffmpeg/ffprobe) + curl for
 # the container health check. Runs as the unprivileged `bun` user. No source,
-# no lockfile for the root app, no env file: configuration comes from the
+# no env file: configuration comes from the
 # environment at run time (see docs/migration/start-production.md).
 # ---------------------------------------------------------------------------
 FROM oven/bun:${BUN_VERSION}-alpine AS runtime

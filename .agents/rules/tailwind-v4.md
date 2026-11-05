@@ -1,15 +1,12 @@
 ---
 paths:
-  - "app/**/*.css"
-  - "app/**/*.tsx"
-  - "components/**/*.tsx"
   - "apps/start/src/**/*.css"
   - "apps/start/src/**/*.tsx"
 ---
 
 # Tailwind CSS
 
-Scope: app/**/*.css, app/**/*.tsx, components/**/*.tsx, apps/start/src/**/*.css, apps/start/src/**/*.tsx
+Scope: apps/start/src/**/*.css, apps/start/src/**/*.tsx
 
 - Follow the installed Tailwind version and the project's established configuration style.
 - In Tailwind v4, define utility-generating design tokens with top-level `@theme` variables; use ordinary CSS custom properties when no utility is needed.
@@ -20,11 +17,11 @@ Scope: app/**/*.css, app/**/*.tsx, components/**/*.tsx, apps/start/src/**/*.css,
 
 ## Local theme
 
-- Root Tailwind 4.2 uses PostCSS; Start Tailwind 4.3 uses the Vite plugin.
-  Do not add a v3 configuration or replace these integrations during UI work.
-- Root semantic variables and shadcn tokens live in `app/globals.css`; preserve
-  existing CSS-variable and `@theme` conventions. Start reuses the root tokens
-  through `apps/start/src/styles.css`.
-- Extend application-owned primitives in `components/ui`, retaining accessible
-  semantics, keyboard behavior and focus. Keep feature-specific UI under
-  `components/feature` and use the existing `cn` utility and lucide icons.
+- Start uses Tailwind 4.3 through the Vite plugin. Do not add a v3
+  configuration or replace this integration during UI work.
+- Semantic variables and shadcn tokens live in `apps/start/src/globals.css`,
+  imported by `apps/start/src/styles.css`; preserve existing CSS-variable and
+  `@theme` conventions.
+- Extend application-owned primitives in `apps/start/src/components/ui`,
+  retaining accessible semantics, keyboard behavior and focus. Use the existing
+  `cn` utility from `apps/start/src/lib/utils.ts`.

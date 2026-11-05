@@ -1,6 +1,6 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { Button } from "../../../../components/ui/button";
+import { Button } from "../components/ui/button";
 import { getSession } from "../lib/auth";
 import { ownFollowsOptions } from "../lib/follow";
 import { followMessages } from "../lib/follow-messages";

@@ -1,11 +1,11 @@
 import { expect, test } from "bun:test";
-import en from "../../../messages/en.json";
-import fr from "../../../messages/fr.json";
 import { detectLocale } from "../src/lib/locale-policy";
 import {
 	formatPlatformMessage,
 	translatePlatform,
 } from "../src/lib/platform-i18n";
+import en from "../src/messages/en.json";
+import fr from "../src/messages/fr.json";
 
 test("cookie wins; language quality, regions, invalid and zero weights are bounded", () => {
 	expect(detectLocale("fr", "en-US,en;q=0.8")).toBe("fr");

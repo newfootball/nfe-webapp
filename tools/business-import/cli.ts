@@ -41,7 +41,12 @@ import {
 import { assertOwnedTarget, runImport as importRows } from "./runner";
 import { type BusinessSource, projectSource } from "./source";
 import { AppwriteTarget, targetBinding } from "./target";
-import { assertStorageOwned, importStorage, uploadMedia } from "./upload";
+import {
+	assertStorageOwned,
+	importStorage,
+	PRODUCTION_STORAGE,
+	uploadMedia,
+} from "./upload";
 
 const configSchema = z.strictObject({
 	endpoint: z.string(),
@@ -219,12 +224,6 @@ export function applyRefusal(
 }
 export const mayApply = (...args: Parameters<typeof applyRefusal>) =>
 	applyRefusal(...args) === null;
-// The development bucket and prefix never back a production target; the
-// production storage binding belongs to #66.
-export const DEVELOPMENT_STORAGE = {
-	bucket: "nfe-webapp-dev",
-	prefix: "nfe-import-63/",
-};
 export function assertStorageBinding(
 	media: { bucket: string; prefix: string },
 	production: boolean,
@@ -233,8 +232,8 @@ export function assertStorageBinding(
 	if (
 		production &&
 		apply &&
-		(media.bucket === DEVELOPMENT_STORAGE.bucket ||
-			media.prefix.startsWith(DEVELOPMENT_STORAGE.prefix))
+		(media.bucket !== PRODUCTION_STORAGE.bucket ||
+			media.prefix !== PRODUCTION_STORAGE.prefix)
 	)
 		throw new Error("production_storage_binding_required");
 }
@@ -416,7 +415,7 @@ export async function execute(args: Args) {
 		identityBinding,
 		args.rebuild,
 	);
-	const client = importStorage(config.b2);
+	const client = importStorage(config.b2, resolved.production);
 	const uploadPath = join(directory, "upload-checkpoint.json");
 	try {
 		await assertStorageOwned({

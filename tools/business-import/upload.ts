@@ -53,9 +53,23 @@ type UploadCheckpoint = z.infer<typeof checkpointSchema>;
 export const contentHash = (value: string) =>
 	createHash("sha256").update(value).digest("hex");
 
-export function importStorage(config: Record<string, string>) {
+export const PRODUCTION_STORAGE = {
+	bucket: "nfe-webapp-prod",
+	prefix: "media/",
+} as const;
+const isolatedPlan = (plan: MediaPlan) =>
+	plan.bucket === "nfe-webapp-dev" &&
+	/^nfe-import-63\/[a-f0-9-]{36}\/$/.test(plan.prefix);
+const productionPlan = (plan: MediaPlan) =>
+	plan.bucket === PRODUCTION_STORAGE.bucket &&
+	plan.prefix === PRODUCTION_STORAGE.prefix;
+export function importStorage(
+	config: Record<string, string>,
+	production = false,
+) {
 	if (
-		config.B2_BUCKET_NAME !== "nfe-webapp-dev" ||
+		config.B2_BUCKET_NAME !==
+			(production ? PRODUCTION_STORAGE.bucket : "nfe-webapp-dev") ||
 		config.B2_REGION !== "eu-central-003" ||
 		config.B2_ENDPOINT !== "https://s3.eu-central-003.backblazeb2.com" ||
 		!config.B2_APPLICATION_KEY_ID ||
@@ -145,10 +159,7 @@ async function verifyObject(
 		throw new Error("uploaded_bytes_changed");
 }
 function binding(plan: MediaPlan, prepared: PreparedAsset[]) {
-	if (
-		plan.bucket !== "nfe-webapp-dev" ||
-		!/^nfe-import-63\/[a-f0-9-]{36}\/$/.test(plan.prefix)
-	)
+	if (!isolatedPlan(plan) && !productionPlan(plan))
 		throw new Error("isolated_upload_prefix_required");
 	if (
 		prepared.length !== plan.assets.length ||
@@ -577,11 +588,7 @@ export async function cleanupUploadedMedia(
 	client: S3Client,
 	checkpointPath: string,
 ) {
-	if (
-		plan.bucket !== "nfe-webapp-dev" ||
-		!/^nfe-import-63\/[a-f0-9-]{36}\/$/.test(plan.prefix)
-	)
-		throw new Error("isolated_upload_prefix_required");
+	if (!isolatedPlan(plan)) throw new Error("isolated_upload_prefix_required");
 	return withLock(checkpointPath, async () => {
 		const cp = checkpointSchema.parse(await readPrivate(checkpointPath));
 		for (const asset of plan.assets) {

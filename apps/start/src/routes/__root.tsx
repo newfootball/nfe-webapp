@@ -9,6 +9,7 @@ import {
 	useRouterState,
 } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import { ClientDiagnostics } from "../components/client-diagnostics";
 import { PlatformRegistration } from "../components/platform-registration";
 import { Button } from "../components/ui/button";
 import { messages } from "../lib/messages";
@@ -78,6 +79,7 @@ function Document({ children }: { children: ReactNode }) {
 			<body className="bg-background text-foreground">
 				<PlatformTheme>
 					<PlatformRegistration />
+					<ClientDiagnostics />
 					{children}
 				</PlatformTheme>
 				<Scripts />

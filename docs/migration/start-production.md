@@ -2,9 +2,8 @@
 
 Production artefact of `apps/start` for the Coolify server `nfe-production`
 (Traefik terminates TLS for `https://nfe-foot.com` and `https://www.nfe-foot.com`).
-This document covers the image, the runtime contract, the Coolify settings and
-the promotion/rollback procedure. It does not switch the public domain and does
-not replace the Next application as the reference.
+This document covers the image, the runtime contract and the Coolify settings.
+Operations live in [start-release-runbook.md](start-release-runbook.md).
 
 ## Artefact
 
@@ -118,13 +117,19 @@ Start does not read Resend/SMTP variables; notification delivery lives in the se
 
 - Promotion: Coolify builds the image from the chosen commit; the artefact tested in CI (`start-image` job) is the same Dockerfile and context. Deploy from a release tag to keep the mapping commit ↔ image explicit.
 - Rollback: **Application → Rollback** lists the previous images built by Coolify; selecting one restarts the container with that image without rebuilding. Environment variables are not versioned by this procedure: change them deliberately and record the change.
-- Never delete the previous deployment or the Next application while Start is being validated; the public domain switch is out of scope here.
+- Never delete the previous deployment or its image while a release is being validated.
+
+## Operations
+
+Promotion, rollback, the real-proxy smoke (`prod:smoke`, `prod:smoke:login`), redacted logs,
+metrics, thresholds, owner, Appwrite upgrade and B2 cost follow-up:
+[start-release-runbook.md](start-release-runbook.md).
 
 ## Still missing from #64
 
-- Smoke on the real proxy: SSR, login, Appwrite call, B2 media read and signed URL delivery behind Traefik (needs the Coolify application and real credentials).
-- Redacted logs beyond the server entry, client/server error diagnostics, latency/error/storage/saturation metrics, owner and thresholds.
-- Appwrite upgrade runbook and a rehearsed rollback on the production server.
+- A rehearsed rollback on the production server and a recorded `prod:smoke:login` run with a
+  dedicated smoke account.
+- The Appwrite upgrade procedure is written but not yet rehearsed; it depends on #47 (backups/DR).
 - The notification consumer and the OAuth registry file are not part of this image.
 - `public/icons` and `public/images` are git-ignored, so the image only ships committed public assets.
-- No preproduction exists; #47 (backups/DR) and #62 (localization/PWA) remain blockers for the full acceptance.
+- #47 (backups/DR) and #62 (localization/PWA) remain blockers for the full acceptance.

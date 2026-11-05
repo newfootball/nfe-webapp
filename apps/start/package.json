@@ -10,6 +10,8 @@
 		"start:production": "bun server/production.ts",
 		"image:build": "docker build --file Dockerfile --tag nfe-start:local ../..",
 		"image:smoke": "bash scripts/image-smoke.sh nfe-start:local",
+		"prod:smoke": "bun scripts/production-smoke.ts",
+		"prod:smoke:login": "playwright test --config playwright.production.config.ts",
 		"smoke": "playwright test",
 		"check:client": "bun scripts/check-client.ts",
 		"test": "bun test tests/*.test.ts src/components/media/*.test.ts",

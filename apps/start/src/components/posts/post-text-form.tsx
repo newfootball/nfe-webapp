@@ -36,7 +36,7 @@ export function PostTextForm({
 	return (
 		<form
 			key={post.revision}
-			className="flex max-w-xl flex-col gap-4"
+			className="flex flex-col gap-4 max-w-xl"
 			onSubmit={(event) => {
 				event.preventDefault();
 				setError(null);

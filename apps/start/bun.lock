@@ -36,6 +36,7 @@
         "@types/react-dom": "19.2.3",
         "@vitejs/plugin-react": "6.1.2",
         "seroval": "1.7.3",
+        "tailwind-canonical": "^0.10.0",
         "tailwindcss": "4.3.3",
         "typescript": "5.7.2",
         "vite": "8.3.5",
@@ -439,6 +440,8 @@
     "source-map-js": ["source-map-js@1.2.2", "", {}, "sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw=="],
 
     "srvx": ["srvx@1.0.8", "", { "bin": { "srvx": "./bin/srvx.mjs" } }, "sha512-ngFS/J6St4PJfHRHGjr78xkPPtbyXtdMOLNE4x/XZunEK3OhV7aGUWMHf9WTUEy6wm1U0W4okkd82ZFFWRVQTw=="],
+
+    "tailwind-canonical": ["tailwind-canonical@0.10.0", "", { "peerDependencies": { "eslint": ">=8.57.1 <11", "tailwind-merge": ">=2.0.0 <4" }, "optionalPeers": ["eslint", "tailwind-merge"], "bin": { "tailwind-canonical": "./dist/cli/index.js" } }, "sha512-ESWqBH9XWFkdpmfZuJePXYH4AXNsAWfuR7Ml0y8qfD1FIuQZkRvfPsAyIguYWx5fS0mqzu9ZliDPtmssA2FIlQ=="],
 
     "tailwind-merge": ["tailwind-merge@3.5.0", "", {}, "sha512-I8K9wewnVDkL1NTGoqWmVEIlUcB9gFriAEkXkfCjX5ib8ezGxtR3xD7iZIxrfArjEsH7F1CHD4RFUtxefdqV/A=="],
 

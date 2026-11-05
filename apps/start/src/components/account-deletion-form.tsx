@@ -86,7 +86,7 @@ export function AccountDeletionRecovery({ locale }: { locale: "fr" | "en" }) {
 			<label className="block">
 				{t.operation}
 				<input
-					className="block w-full max-w-lg rounded border bg-background p-2"
+					className="block w-full max-w-lg rounded border p-2 bg-background"
 					required
 					maxLength={36}
 					value={operationId}

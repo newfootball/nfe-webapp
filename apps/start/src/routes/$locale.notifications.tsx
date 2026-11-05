@@ -85,7 +85,7 @@ function Page() {
 				{items.map((item) => (
 					<li
 						key={item.id}
-						className="rounded-lg border p-4 space-y-2"
+						className="space-y-2 rounded-lg border p-4"
 						data-testid="notification-item"
 						data-type={item.type}
 					>

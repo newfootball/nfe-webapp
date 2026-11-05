@@ -27,7 +27,7 @@ export function AuthForm({
 	const [error, setError] = useState("");
 	const [busy, setBusy] = useState(false);
 	return (
-		<section className="max-w-md space-y-6">
+		<section className="space-y-6 max-w-md">
 			<h1 className="text-3xl font-bold">{signup ? t.signUp : t.signIn}</h1>
 			{oauth && <p role="alert">{recoveryMessages[locale].failed}</p>}
 			<form method="post" action="/oauth/google">

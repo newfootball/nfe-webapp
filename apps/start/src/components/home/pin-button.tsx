@@ -28,7 +28,7 @@ export function PinButton({
 			type="button"
 			disabled={pin.isPending}
 			onClick={() => pin.mutate()}
-			className={`inline-flex items-center gap-1.5 rounded-sm px-2 py-1 text-[11.5px] font-medium transition hover:text-foreground disabled:opacity-50 ${className}`}
+			className={`inline-flex items-center gap-1.5 rounded-sm px-2 py-1 font-medium text-[11.5px] transition hover:text-foreground disabled:opacity-50 ${className}`}
 		>
 			<Icon name="pin" className="size-4" />
 			{id ? t.pin : t.unpin}

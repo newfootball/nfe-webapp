@@ -31,7 +31,7 @@ function RecoveryPage() {
 	const [busy, setBusy] = useState(false);
 	const isSettings = flow === "settings";
 	return (
-		<section className="max-w-md space-y-5">
+		<section className="space-y-5 max-w-md">
 			<h1 className="text-3xl font-bold">{t.title}</h1>
 			{status.ok && <p>{status.value.verified ? t.verified : t.unverified}</p>}
 			<p>{t.challenge}</p>

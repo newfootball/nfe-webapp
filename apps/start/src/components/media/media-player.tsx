@@ -226,7 +226,7 @@ export function MediaPlayer({
 					aria-label={title}
 					className={
 						bleed
-							? "block aspect-video w-full bg-pitch object-cover"
+							? "object-cover block aspect-video w-full bg-pitch"
 							: "aspect-video w-full rounded-lg bg-muted"
 					}
 				>
@@ -238,9 +238,9 @@ export function MediaPlayer({
 						type="button"
 						aria-label={t.play}
 						onClick={() => renew.current?.(true)}
-						className="group absolute top-1/2 left-1/2 grid size-13 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-white/85 transition duration-300 hover:scale-105 hover:border-primary hover:bg-primary/90 focus-visible:outline-2 focus-visible:outline-primary"
+						className="absolute top-1/2 left-1/2 grid place-items-center size-13 rounded-full border border-white/85 transition duration-300 group -translate-x-1/2 -translate-y-1/2 hover:border-primary focus-visible:outline-2 focus-visible:outline-primary hover:bg-primary/90 hover:scale-105"
 					>
-						<span className="ml-1 border-y-8 border-l-[13px] border-y-transparent border-l-white transition-colors group-hover:border-l-primary-foreground" />
+						<span className="border-y-8 border-l-[13px] border-y-transparent border-l-white ml-1 transition-colors group-hover:border-l-primary-foreground" />
 					</button>
 				)}
 			</div>

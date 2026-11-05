@@ -23,10 +23,10 @@ export function ReportForm({
 		},
 	});
 	return (
-		<details className="mt-6 rounded border p-4">
+		<details className="rounded border mt-6 p-4">
 			<summary>{t.report}</summary>
 			<form
-				className="mt-4 space-y-4"
+				className="space-y-4 mt-4"
 				onSubmit={(e) => {
 					e.preventDefault();
 					change.mutate();
@@ -35,7 +35,7 @@ export function ReportForm({
 				<label className="block">
 					{t.reason}
 					<select
-						className="block rounded border bg-background p-2"
+						className="block rounded border p-2 bg-background"
 						value={reason}
 						onChange={(e) => setReason(e.target.value as ReportInput["reason"])}
 					>
@@ -49,7 +49,7 @@ export function ReportForm({
 				<label className="block">
 					{t.details}
 					<textarea
-						className="block w-full rounded border bg-background p-2"
+						className="block w-full rounded border p-2 bg-background"
 						maxLength={65535}
 						value={details}
 						onChange={(e) => setDetails(e.target.value)}

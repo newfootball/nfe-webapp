@@ -12,12 +12,12 @@ export function ProfileView({
 }) {
 	const t = profileMessages[locale];
 	return (
-		<article className="space-y-5 rounded-xl border bg-card p-6 text-card-foreground">
+		<article className="space-y-5 rounded-xl border p-6 bg-card text-card-foreground">
 			<img
 				src={canonicalImage(profile.image) ?? "/logo.svg"}
 				width="72"
 				height="72"
-				className="size-18 rounded-full object-cover"
+				className="object-cover size-18 rounded-full"
 				alt={t.avatar}
 			/>
 			<h1 className="text-3xl font-bold" data-testid="profile-name">

@@ -31,20 +31,20 @@ export function FeaturedHero({
 			<Link
 				to="/$locale/post/$id"
 				params={{ locale, id: post.id }}
-				className="group relative block h-[330px] overflow-hidden bg-pitch sm:h-[420px]"
+				className="overflow-hidden relative block h-[330px] bg-pitch group sm:h-105"
 			>
 				<Thumb
 					src={post.mediaPreview}
-					className="absolute inset-0 size-full object-cover transition-transform duration-700 ease-[cubic-bezier(.2,.7,.2,1)] group-hover:scale-[1.04]"
+					className="object-cover absolute inset-0 size-full transition-transform duration-700 ease-[cubic-bezier(.2,.7,.2,1)] group-hover:scale-104"
 				/>
 				<span className="absolute inset-0 bg-[linear-gradient(180deg,transparent_35%,rgb(0_0_0/0.72))]" />
 				<span className="absolute right-4 bottom-4 left-4 block text-white sm:right-6 sm:bottom-6 sm:left-6">
-					<span className="font-label text-[11.5px] font-medium tracking-[0.16em] text-white/75 uppercase">
+					<span className="font-label font-medium tracking-[0.16em] uppercase text-[11.5px] text-white/75">
 						{featured.pinned ? t.pinned : t.featured} · Nº {featured.weekNumber}
 					</span>
 					<h2
 						id="featured-title"
-						className="mt-2 mb-2.5 line-clamp-3 font-display text-[40px] leading-[0.92] font-normal uppercase sm:text-6xl"
+						className="mt-2 mb-2.5 line-clamp-3 font-display leading-[0.92] font-normal uppercase text-[40px] sm:text-6xl"
 					>
 						{head && <>{head} </>}
 						<span className="text-primary">{tail}</span>

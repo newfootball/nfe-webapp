@@ -26,7 +26,7 @@ export function FeedStream({
 			{query.isPending && (
 				<p
 					role="status"
-					className="animate-pulse border-t px-4 py-6 text-sm sm:px-0"
+					className="border-t px-4 py-6 text-sm animate-pulse sm:px-0"
 				>
 					{t.loading}
 				</p>
@@ -75,7 +75,7 @@ export function FeedStream({
 					!query.hasNextPage && (
 						<p
 							role="status"
-							className="font-label text-[11.5px] tracking-[0.16em] uppercase"
+							className="font-label tracking-[0.16em] uppercase text-[11.5px]"
 						>
 							{t.end}
 						</p>

@@ -30,14 +30,14 @@ export function Jersey({
 				alt=""
 				width={size}
 				height={size}
-				className={`shrink-0 rounded-full border object-cover ${ring}`}
+				className={`object-cover shrink-0 rounded-full border ${ring}`}
 				style={{ width: size, height: size }}
 			/>
 		);
 	return (
 		<span
 			aria-hidden="true"
-			className={`grid shrink-0 place-items-center rounded-full border bg-background font-display font-normal text-foreground tabular-nums ${ring}`}
+			className={`grid shrink-0 place-items-center rounded-full border font-display font-normal bg-background text-foreground tabular-nums ${ring}`}
 			style={{
 				width: size,
 				height: size,

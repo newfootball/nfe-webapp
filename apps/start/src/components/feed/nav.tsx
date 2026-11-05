@@ -21,7 +21,7 @@ export function FeedNav({
 			aria-label={
 				locale === "fr" ? "Publications et recherche" : "Posts and search"
 			}
-			className="mb-8 flex flex-wrap gap-6 text-sm underline"
+			className="flex flex-wrap gap-6 mb-8 text-sm underline"
 		>
 			<Link to="/$locale/feed" params={{ locale }}>
 				{feedMessages[locale].feed}

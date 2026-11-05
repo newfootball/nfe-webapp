@@ -95,7 +95,7 @@ function Editor({
 	});
 	return (
 		<section
-			className="flex flex-col gap-4 rounded-2xl border bg-card p-5"
+			className="flex flex-col gap-4 rounded-2xl border p-5 bg-card"
 			aria-label={t.avatar}
 		>
 			<h2 className="text-lg font-bold">{t.avatar}</h2>
@@ -105,7 +105,7 @@ function Editor({
 					type="file"
 					accept="image/*"
 					disabled={preparing || replacement.isPending || Boolean(file)}
-					className="w-full rounded-lg border bg-background p-3 focus-visible:outline-2 focus-visible:outline-ring"
+					className="w-full rounded-lg border p-3 bg-background focus-visible:outline-2 focus-visible:outline-ring"
 					onChange={async (event) => {
 						const input = event.currentTarget,
 							selected = input.files?.[0];
@@ -132,7 +132,7 @@ function Editor({
 					alt={t.avatar}
 					width={96}
 					height={96}
-					className="size-24 rounded-full object-cover"
+					className="object-cover size-24 rounded-full"
 				/>
 			}
 			{file && (

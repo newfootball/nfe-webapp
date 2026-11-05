@@ -103,7 +103,7 @@ export function ProfileForm({
 		</fieldset>
 	);
 	return (
-		<section className="mx-auto max-w-xl space-y-6">
+		<section className="space-y-6 max-w-xl mx-auto">
 			<h1 className="text-3xl font-bold">{editing ? t.edit : t.onboarding}</h1>
 			<p>{t.privateNotice}</p>
 			{editing && (

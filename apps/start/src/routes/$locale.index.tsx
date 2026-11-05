@@ -45,7 +45,7 @@ function Home() {
 	const { signedIn, week, featured, locker, lockerSuggested, canPin } =
 		home.data ?? EMPTY;
 	return (
-		<div className="rise -mx-6 flex flex-col gap-2 sm:mx-auto sm:max-w-xl">
+		<div className="flex flex-col gap-2 rise -mx-6 sm:max-w-xl sm:mx-auto">
 			{!signedIn && <JoinPanel locale={locale} reader={reader} />}
 			{week && <WeekPanel week={week} locale={locale} />}
 			{featured && (

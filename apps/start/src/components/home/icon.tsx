@@ -37,7 +37,7 @@ export function Icon({
 		<svg
 			viewBox="0 0 24 24"
 			aria-hidden="true"
-			className={`icon shrink-0 ${className}`}
+			className={`shrink-0 icon ${className}`}
 			style={{ strokeWidth }}
 		>
 			{PATHS[name].map((d) => (

@@ -28,7 +28,7 @@ function SignUpPage() {
 	const { queryClient } = Route.useRouteContext();
 	const { returnTo } = Route.useSearch();
 	return (
-		<main className="mx-auto max-w-md p-8">
+		<main className="max-w-md mx-auto p-8">
 			<AuthForm
 				locale={locale}
 				queryClient={queryClient}

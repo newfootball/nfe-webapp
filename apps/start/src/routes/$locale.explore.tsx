@@ -48,17 +48,17 @@ function Page() {
 		<>
 			<FeedNav locale={locale} page="explore" q={search.q} tab={search.tab} />
 			<h1 className="text-3xl font-bold">{t.explore}</h1>
-			<label className="my-6 block">
+			<label className="block my-6">
 				{t.search}
 				<input
 					type="search"
 					maxLength={128}
 					value={text}
 					onChange={(e) => setText(e.target.value)}
-					className="ml-3 rounded border bg-background p-2"
+					className="rounded border ml-3 p-2 bg-background"
 				/>
 			</label>
-			<nav aria-label={t.explore} className="mb-6 flex gap-6">
+			<nav aria-label={t.explore} className="flex gap-6 mb-6">
 				{(["top", "users", "posts"] as const).map((tab) => (
 					<Link
 						key={tab}

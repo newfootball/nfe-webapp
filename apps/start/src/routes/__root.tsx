@@ -89,7 +89,7 @@ function Document({ children }: { children: ReactNode }) {
 }
 function NotFound() {
 	return (
-		<main className="mx-auto max-w-4xl p-8">
+		<main className="max-w-4xl mx-auto p-8">
 			<h1>
 				{messages.fr.missing} / {messages.en.missing}
 			</h1>

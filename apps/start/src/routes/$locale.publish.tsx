@@ -6,17 +6,24 @@ import {
 } from "@tanstack/react-router";
 import { PublishForm } from "../components/media/publish-form";
 import { Button } from "../components/ui/button";
-import { getSession } from "../lib/auth";
 import { mediaMessages } from "../lib/media-messages";
+import { getOwnProfile } from "../lib/profile";
 export const Route = createFileRoute("/$locale/publish")({
 	loader: async ({ params }) => {
-		const result = await getSession();
-		if (!result.ok) throw new Error("Session unavailable");
-		if (!result.value)
+		const result = await getOwnProfile();
+		if (!result.ok) {
+			if (result.error === "unauthorized")
+				throw redirect({
+					to: "/$locale/sign-in",
+					params: { locale: params.locale },
+					search: { returnTo: `/${params.locale}/publish` },
+				});
+			throw new Error("Profile unavailable");
+		}
+		if (!result.value.initialized || !result.value.profile?.isOnboarded)
 			throw redirect({
-				to: "/$locale/sign-in",
+				to: "/$locale/onboarding",
 				params: { locale: params.locale },
-				search: { returnTo: `/${params.locale}/publish` },
 			});
 		return result.value;
 	},

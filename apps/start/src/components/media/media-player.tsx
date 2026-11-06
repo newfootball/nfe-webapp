@@ -226,7 +226,7 @@ export function MediaPlayer({
 					aria-label={title}
 					className={
 						bleed
-							? "object-cover block aspect-video w-full bg-pitch"
+							? "object-cover block aspect-video w-full pitch"
 							: "aspect-video w-full rounded-lg bg-muted"
 					}
 				>

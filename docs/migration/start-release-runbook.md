@@ -135,3 +135,4 @@ variable disables recovery for every user.
 
 For each release, keep in the PR or issue: tag, Coolify deployment time, `prod:smoke` summary
 line, `prod:smoke:login` result, and whether a rollback happened.
+The initial cutover is recorded in [production-cutover.md](production-cutover.md).

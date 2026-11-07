@@ -54,25 +54,12 @@ test("historical pages expose localized content and metadata without JavaScript"
 		);
 		const credentialForm = page.locator('form:has(input[name="password"])');
 		await expect(credentialForm).toHaveAttribute("method", "post");
-		await page.locator('input[name="name"]').fill("Synthetic NoJS");
-		await page.locator('input[name="email"]').fill("nojs@example.test");
-		await page
-			.locator('input[name="password"]')
-			.fill("Synthetic-NoJS-password");
-		const submitted = page.waitForRequest(
-			(request) =>
-				request.isNavigationRequest() && request.frame() === page.mainFrame(),
-		);
-		await credentialForm
-			.getByRole("button", {
+		await expect(
+			credentialForm.getByRole("button", {
 				name: locale === "fr" ? "Inscription" : "Sign up",
 				exact: true,
-			})
-			.click();
-		const request = await submitted;
-		expect(request.method()).toBe("POST");
-		expect(request.url()).toBe(`${baseURL}/sign-up`);
-		expect(new URL(page.url()).search).toBe("");
+			}),
+		).toBeDisabled();
 		await context.close();
 	}
 });
@@ -144,4 +131,25 @@ test("historical signup reuses the hydrated auth form in both languages", async 
 		await expect(page.locator('input[name="name"]')).toHaveCount(0);
 		await context.close();
 	}
+});
+
+test("sign-in submit stays disabled until the form is hydrated", async ({
+	browser,
+	baseURL,
+}) => {
+	const noScript = await browser.newContext({ javaScriptEnabled: false });
+	const cold = await noScript.newPage();
+	await cold.goto(`${baseURL}/fr/sign-in`);
+	await expect(
+		cold.getByRole("button", { name: "Connexion", exact: true }),
+	).toBeDisabled();
+	await noScript.close();
+
+	const context = await browser.newContext();
+	const page = await context.newPage();
+	await page.goto(`${baseURL}/fr/sign-in`);
+	await expect(
+		page.getByRole("button", { name: "Connexion", exact: true }),
+	).toBeEnabled();
+	await context.close();
 });

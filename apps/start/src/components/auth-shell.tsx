@@ -1,6 +1,11 @@
 import type { InputHTMLAttributes, ReactNode } from "react";
 import { cn } from "../lib/utils";
 
+function split(title: string) {
+	const at = title.trimEnd().lastIndexOf(" ");
+	return at > 0 ? [title.slice(0, at), title.slice(at + 1)] : ["", title];
+}
+// Same broadcast frame as the home hero: pitch, crest, last word in yellow.
 export function AuthShell({
 	eyebrow,
 	title,
@@ -12,12 +17,13 @@ export function AuthShell({
 	lead?: ReactNode;
 	children: ReactNode;
 }) {
+	const [head, tail] = split(title);
 	return (
 		<section className="w-full max-w-sm mx-auto">
-			<header className="overflow-hidden relative flex flex-col justify-end h-36 rounded-lg px-5 pb-4 text-white pitch">
+			<header className="overflow-hidden relative flex flex-col justify-end h-40 rounded-md px-5 pb-4 text-white pitch">
 				<span
 					aria-hidden="true"
-					className="absolute inset-0 bg-[linear-gradient(180deg,transparent_30%,rgb(0_0_0/0.6))]"
+					className="absolute inset-0 bg-[linear-gradient(180deg,transparent_25%,rgb(0_0_0/0.55)_55%,rgb(0_0_0/0.88))]"
 				/>
 				<img
 					src="/logo-mark.png"
@@ -26,11 +32,12 @@ export function AuthShell({
 					height={30}
 					className="absolute top-4 left-5 size-[30px]"
 				/>
-				<p className="relative mb-2 font-label tracking-[0.22em] uppercase text-[10px] text-white/75">
+				<p className="relative mb-2 font-label font-medium tracking-[0.16em] uppercase text-[11.5px] text-white/75">
 					{eyebrow}
 				</p>
-				<h1 className="relative font-display font-semibold leading-none uppercase text-[34px] [text-shadow:0_1px_12px_rgb(0_0_0/0.45)]">
-					{title}
+				<h1 className="relative font-display font-normal leading-[0.92] uppercase text-[38px] [text-shadow:0_1px_12px_rgb(0_0_0/0.45)]">
+					{head && <>{head} </>}
+					<span className="text-primary">{tail}</span>
 				</h1>
 			</header>
 			{lead && (
@@ -66,7 +73,7 @@ export function Field({
 			<input
 				id={input.name}
 				className={cn(
-					"h-11 w-full rounded-[10px] border border-hair bg-transparent px-3 text-[15px] transition-colors outline-none placeholder:text-muted-foreground/60 focus:border-foreground",
+					"h-11 w-full rounded-md border border-hair bg-transparent px-3 text-[15px] transition-colors outline-none placeholder:text-muted-foreground/60 focus:border-foreground",
 					className,
 				)}
 				{...input}

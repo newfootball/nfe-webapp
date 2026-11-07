@@ -3,22 +3,11 @@ import { compact, type WeekStats } from "../../lib/home-contract";
 import { homeMessages } from "../../lib/home-messages";
 import { type Locale, messages } from "../../lib/messages";
 import { buttonVariants } from "../ui/button";
+import { Icon } from "./icon";
 
 const kicker =
 	"font-label text-[11.5px] font-medium tracking-[0.16em] text-muted-foreground uppercase";
-function range(w: WeekStats, locale: Locale) {
-	const day = new Intl.DateTimeFormat(locale, {
-			day: "numeric",
-			timeZone: "UTC",
-		}),
-		full = new Intl.DateTimeFormat(locale, {
-			day: "numeric",
-			month: "short",
-			timeZone: "UTC",
-		});
-	return `${day.format(new Date(w.weekStart))} → ${full.format(new Date(w.weekEnd))}`;
-}
-function Stat({
+function Cell({
 	value,
 	label,
 	delta,
@@ -28,17 +17,18 @@ function Stat({
 	delta?: string | null;
 }) {
 	return (
-		<div className="py-2.5 pb-3 [&+&]:border-l [&+&]:pl-3">
-			<b className="block font-display text-3xl leading-none font-light tabular-nums">
+		<div className="flex-1 min-w-0 px-2.5 py-2 [&+&]:border-l">
+			<b className="block font-display text-lg leading-none font-normal tabular-nums">
 				{value}
 			</b>
-			<small className="tracking-wide text-[10.5px] text-muted-foreground">
+			<small className="block truncate text-[10.5px] text-muted-foreground">
 				{label}
 				{delta && <span className="ml-1 font-medium text-amber">{delta}</span>}
 			</small>
 		</div>
 	);
 }
+// Scoreboard strip: the week in one line so the featured video owns the first screen.
 export function WeekPanel({
 	week,
 	locale,
@@ -46,42 +36,46 @@ export function WeekPanel({
 	week: WeekStats;
 	locale: Locale;
 }) {
-	const t = homeMessages[locale],
-		first = week.name?.split(/\s+/)[0] ?? "",
-		line = week.topTitle && week.views > 0 ? t.rolling(week.topTitle) : t.quiet;
+	const t = homeMessages[locale];
 	const missing = week.completion.missing;
 	const trend =
 		week.viewsTrend === null
 			? null
-			: `${week.viewsTrend > 0 ? "+" : ""}${week.viewsTrend}${locale === "fr" ? " %" : "%"}`;
+			: `${week.viewsTrend > 0 ? "+" : ""}${week.viewsTrend}${locale === "fr" ? " %" : "%"}`;
 	return (
-		<section aria-labelledby="week-title" className="px-4 sm:px-0">
-			<p className={kicker}>
-				{t.week} · {range(week, locale)}
-			</p>
-			<h2
-				id="week-title"
-				className="mt-1.5 font-display leading-[1.05] font-normal uppercase text-[26px]"
-			>
-				{first ? t.hello(first) : null}
-				<br />
-				{line.before} <span className="highlight">{line.mark}</span>.
-			</h2>
-			<div className="grid grid-cols-3 border-y border-t-foreground border-b-hair mt-3.5">
-				<Stat value={String(week.posts)} label={t.videos} />
-				<Stat
-					value={compact(week.views, locale)}
-					label={t.views}
-					delta={trend}
-				/>
-				<Stat
-					value={compact(week.followers, locale)}
-					label={t.followers}
-					delta={week.newFollowers > 0 ? `+${week.newFollowers}` : null}
-				/>
+		<section aria-labelledby="week-title">
+			<div className="flex items-stretch border-b sm:border-t">
+				<h2
+					id="week-title"
+					className="grid place-items-center px-3 font-display text-[13px] tracking-[0.06em] bg-foreground text-background tabular-nums"
+				>
+					<span aria-hidden="true">{t.weekShort(week.weekNumber)}</span>
+					<span className="sr-only">{t.weekLabel(week.weekNumber)}</span>
+				</h2>
+				<div className="flex flex-1 min-w-0">
+					<Cell value={String(week.posts)} label={t.videos} />
+					<Cell
+						value={compact(week.views, locale)}
+						label={t.views}
+						delta={trend}
+					/>
+					<Cell
+						value={compact(week.followers, locale)}
+						label={t.followers}
+						delta={week.newFollowers > 0 ? `+${week.newFollowers}` : null}
+					/>
+				</div>
+				<Link
+					to="/$locale/profile"
+					params={{ locale }}
+					aria-label={t.profile}
+					className="grid place-items-center border-l px-3 text-muted-foreground transition-colors hover:text-foreground"
+				>
+					<Icon name="arrow" className="size-4.5" />
+				</Link>
 			</div>
 			{missing && (
-				<div className="flex items-center gap-3 border-b py-3 text-[13px]">
+				<div className="flex items-center gap-3 border-b px-4 py-2.5 text-[12.5px] sm:px-0">
 					<div className="flex-1">
 						{t.completion(week.completion.percent)}
 						<div className="h-0.5 mt-1.5 bg-muted">

@@ -61,6 +61,7 @@ export function completion(profile: Record<CompletionField, unknown>) {
 export type WeekStats = {
 	weekStart: string;
 	weekEnd: string;
+	weekNumber: number;
 	name: string | null;
 	jerseyNumber: number | null;
 	posts: number;

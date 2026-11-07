@@ -1,9 +1,7 @@
 export const homeMessages = {
 	fr: {
-		week: "Ta semaine",
-		hello: (name: string) => `Salut ${name},`,
-		rolling: (title: string) => ({ before: `« ${title} »`, mark: "tourne" }),
-		quiet: { before: "à toi de", mark: "jouer" },
+		weekShort: (n: number) => `S${n}`,
+		weekLabel: (n: number) => `Ta semaine ${n}`,
 		videos: "vidéos",
 		views: "vues",
 		followers: "abonnés",
@@ -45,13 +43,8 @@ export const homeMessages = {
 		profile: "Mon profil",
 	},
 	en: {
-		week: "Your week",
-		hello: (name: string) => `Hey ${name},`,
-		rolling: (title: string) => ({
-			before: `“${title}” is`,
-			mark: "taking off",
-		}),
-		quiet: { before: "your", mark: "move" },
+		weekShort: (n: number) => `W${n}`,
+		weekLabel: (n: number) => `Your week ${n}`,
 		videos: "videos",
 		views: "views",
 		followers: "followers",

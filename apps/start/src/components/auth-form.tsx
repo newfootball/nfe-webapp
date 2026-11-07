@@ -1,6 +1,6 @@
 import type { QueryClient } from "@tanstack/react-query";
 import { Link, useRouter } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { signIn, signUp } from "../lib/auth";
 import { clearIdentityCache } from "../lib/auth-cache";
 import { authMessages } from "../lib/auth-messages";
@@ -29,6 +29,8 @@ export function AuthForm({
 	const [signup, setSignup] = useState(initialSignup);
 	const [error, setError] = useState("");
 	const [busy, setBusy] = useState(false);
+	const [hydrated, setHydrated] = useState(false);
+	useEffect(() => setHydrated(true), []);
 	return (
 		<AuthShell
 			eyebrow={t.eyebrow}
@@ -123,7 +125,7 @@ export function AuthForm({
 				{error && <Notice tone="alert">{error}</Notice>}
 				<button
 					className={cn(buttonVariants({ size: "lg" }), "w-full h-11 mt-1")}
-					disabled={busy}
+					disabled={busy || !hydrated}
 					type="submit"
 				>
 					{signup ? t.signUp : t.signIn}

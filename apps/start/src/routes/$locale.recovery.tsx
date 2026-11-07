@@ -1,6 +1,9 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
+import { AuthShell, Field, Notice } from "../components/auth-shell";
+import { buttonVariants } from "../components/ui/button";
 import { clearIdentityCache } from "../lib/auth-cache";
+import { authMessages } from "../lib/auth-messages";
 import {
 	forgotPassword,
 	getVerification,
@@ -10,6 +13,10 @@ import {
 	verifyEmail,
 } from "../lib/recovery";
 import { recoveryMessages } from "../lib/recovery-messages";
+import { cn } from "../lib/utils";
+
+const recoveryLink =
+	"flex items-center justify-between border-b border-hair py-3 text-foreground/85 transition-colors hover:text-foreground after:text-muted-foreground after:content-['→']";
 export const Route = createFileRoute("/$locale/recovery")({
 	validateSearch: (input: Record<string, unknown>) => ({
 		flow: ["reset", "verify", "change", "settings", "invalid"].includes(
@@ -31,12 +38,25 @@ function RecoveryPage() {
 	const [busy, setBusy] = useState(false);
 	const isSettings = flow === "settings";
 	return (
-		<section className="space-y-5 max-w-md">
-			<h1 className="text-3xl font-bold">{t.title}</h1>
-			{status.ok && <p>{status.value.verified ? t.verified : t.unverified}</p>}
-			<p>{t.challenge}</p>
+		<AuthShell
+			eyebrow={authMessages[locale].eyebrow}
+			title={t.title}
+			lead={t.challenge}
+		>
+			{status.ok && (
+				<p className="flex items-center gap-2 text-[13px]">
+					<span
+						aria-hidden="true"
+						className={cn(
+							"size-1.5 rounded-full",
+							status.value.verified ? "bg-primary" : "bg-muted-foreground/50",
+						)}
+					/>
+					<span>{status.value.verified ? t.verified : t.unverified}</span>
+				</p>
+			)}
 			{flow === "invalid" ? (
-				<p role="alert">{t.failed}</p>
+				<Notice tone="alert">{t.failed}</Notice>
 			) : (
 				<form
 					className="flex flex-col gap-4"
@@ -92,7 +112,7 @@ function RecoveryPage() {
 						}
 					}}
 				>
-					<h2>
+					<h2 className="font-display font-medium tracking-[0.02em] uppercase text-[19px]">
 						{flow === "reset"
 							? t.reset
 							: flow === "change"
@@ -102,57 +122,53 @@ function RecoveryPage() {
 									: t.forgot}
 					</h2>
 					{flow === "forgot" && (
-						<label>
-							{t.email}
-							<input
-								className="block border p-2"
-								type="email"
-								name="email"
-								autoComplete="email"
-								maxLength={254}
-								required
-							/>
-						</label>
+						<Field
+							label={t.email}
+							type="email"
+							name="email"
+							autoComplete="email"
+							maxLength={254}
+							required
+						/>
 					)}
 					{flow === "change" && (
-						<label>
-							{t.oldPassword}
-							<input
-								className="block border p-2"
-								type="password"
-								name="oldPassword"
-								autoComplete="current-password"
-								minLength={8}
-								maxLength={256}
-								required
-							/>
-						</label>
+						<Field
+							label={t.oldPassword}
+							type="password"
+							name="oldPassword"
+							autoComplete="current-password"
+							minLength={8}
+							maxLength={256}
+							required
+						/>
 					)}
 					{(flow === "change" || flow === "reset") && (
-						<label>
-							{t.password}
-							<input
-								className="block border p-2"
-								type="password"
-								name="password"
-								autoComplete="new-password"
-								minLength={8}
-								maxLength={256}
-								required
-							/>
-						</label>
+						<Field
+							label={t.password}
+							type="password"
+							name="password"
+							autoComplete="new-password"
+							minLength={8}
+							maxLength={256}
+							required
+						/>
 					)}
-					<button type="submit" className="rounded border p-2" disabled={busy}>
+					<button
+						type="submit"
+						className={cn(buttonVariants({ size: "lg" }), "w-full h-11 mt-1")}
+						disabled={busy}
+					>
 						{flow === "forgot" || isSettings ? t.send : t.confirm}
 					</button>
 				</form>
 			)}
-			{message && <p role="status">{message}</p>}
-			<nav className="flex flex-col gap-2">
+			{message && <Notice>{message}</Notice>}
+			<nav className="flex flex-col border-t border-hair text-[13.5px]">
 				<Link
 					to="/$locale/recovery"
 					params={{ locale }}
 					search={{ flow: "forgot" }}
+					className={recoveryLink}
 				>
 					{t.forgot}
 				</Link>
@@ -160,6 +176,7 @@ function RecoveryPage() {
 					to="/$locale/recovery"
 					params={{ locale }}
 					search={{ flow: "change" }}
+					className={recoveryLink}
 				>
 					{t.change}
 				</Link>
@@ -167,6 +184,7 @@ function RecoveryPage() {
 					to="/$locale/recovery"
 					params={{ locale }}
 					search={{ flow: "settings" }}
+					className={recoveryLink}
 				>
 					{t.verify}
 				</Link>
@@ -174,10 +192,11 @@ function RecoveryPage() {
 					to="/$locale/sign-in"
 					params={{ locale }}
 					search={{ returnTo: "" }}
+					className={recoveryLink}
 				>
 					{t.signIn}
 				</Link>
 			</nav>
-		</section>
+		</AuthShell>
 	);
 }

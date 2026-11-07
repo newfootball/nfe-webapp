@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AuthForm } from "../components/auth-form";
+import { Notice } from "../components/auth-shell";
 import { accountDeletionMessages } from "../lib/account-deletion-messages";
 
 export const Route = createFileRoute("/$locale/sign-in")({
@@ -19,7 +20,9 @@ function AuthPage() {
 	return (
 		<>
 			{notice && (
-				<p role="status">{accountDeletionMessages[locale].accepted}</p>
+				<div className="max-w-sm mx-auto mb-5">
+					<Notice>{accountDeletionMessages[locale].accepted}</Notice>
+				</div>
 			)}
 			<AuthForm
 				locale={locale}

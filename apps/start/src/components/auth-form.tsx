@@ -7,6 +7,9 @@ import { authMessages } from "../lib/auth-messages";
 import { safeReturnPath } from "../lib/auth-policy";
 import type { Locale } from "../lib/messages";
 import { recoveryMessages } from "../lib/recovery-messages";
+import { cn } from "../lib/utils";
+import { AuthShell, Divider, Field, GoogleMark, Notice } from "./auth-shell";
+import { buttonVariants } from "./ui/button";
 
 export function AuthForm({
 	locale,
@@ -27,22 +30,26 @@ export function AuthForm({
 	const [error, setError] = useState("");
 	const [busy, setBusy] = useState(false);
 	return (
-		<section className="space-y-6 max-w-md">
-			<h1 className="text-3xl font-bold">{signup ? t.signUp : t.signIn}</h1>
-			{oauth && <p role="alert">{recoveryMessages[locale].failed}</p>}
+		<AuthShell
+			eyebrow={t.eyebrow}
+			title={signup ? t.signUp : t.signIn}
+			lead={signup ? t.signUpLead : t.signInLead}
+		>
+			{oauth && <Notice tone="alert">{recoveryMessages[locale].failed}</Notice>}
 			<form method="post" action="/oauth/google">
 				<input type="hidden" name="locale" value={locale} />
-				<button className="rounded border p-2" type="submit">
+				<button
+					className={cn(
+						buttonVariants({ variant: "outline", size: "lg" }),
+						"w-full h-11",
+					)}
+					type="submit"
+				>
+					<GoogleMark />
 					{recoveryMessages[locale].google}
 				</button>
 			</form>
-			<Link
-				to="/$locale/recovery"
-				params={{ locale }}
-				search={{ flow: "forgot" }}
-			>
-				{recoveryMessages[locale].forgot}
-			</Link>
+			<Divider label={t.or} />
 			<form
 				method="post"
 				className="flex flex-col gap-4"
@@ -76,57 +83,72 @@ export function AuthForm({
 				}}
 			>
 				{signup && (
-					<label>
-						{t.name}
-						<input
-							className="block border p-2"
-							name="name"
-							autoComplete="name"
-							required
-							maxLength={80}
-						/>
-					</label>
+					<Field
+						label={t.name}
+						name="name"
+						autoComplete="name"
+						required
+						maxLength={80}
+					/>
 				)}
-				<label>
-					{t.email}
-					<input
-						className="block border p-2"
-						name="email"
-						type="email"
-						autoComplete="email"
-						required
-						maxLength={254}
-					/>
-				</label>
-				<label>
-					{t.password}
-					<input
-						className="block border p-2"
-						name="password"
-						type="password"
-						autoComplete={signup ? "new-password" : "current-password"}
-						required
-						minLength={8}
-						maxLength={256}
-					/>
-				</label>
-				{error && <p role="alert">{error}</p>}
-				<button className="rounded border p-2" disabled={busy} type="submit">
+				<Field
+					label={t.email}
+					name="email"
+					type="email"
+					autoComplete="email"
+					required
+					maxLength={254}
+				/>
+				<Field
+					label={t.password}
+					name="password"
+					type="password"
+					autoComplete={signup ? "new-password" : "current-password"}
+					required
+					minLength={8}
+					maxLength={256}
+					aside={
+						!signup && (
+							<Link
+								to="/$locale/recovery"
+								params={{ locale }}
+								search={{ flow: "forgot" }}
+								className="text-[12px] text-muted-foreground transition-colors hover:text-foreground"
+							>
+								{recoveryMessages[locale].forgot}
+							</Link>
+						)
+					}
+				/>
+				{error && <Notice tone="alert">{error}</Notice>}
+				<button
+					className={cn(buttonVariants({ size: "lg" }), "w-full h-11 mt-1")}
+					disabled={busy}
+					type="submit"
+				>
 					{signup ? t.signUp : t.signIn}
 				</button>
 			</form>
-			<button
-				type="button"
-				onClick={() => {
-					setSignup(!signup);
-					setError("");
-				}}
+			<p className="flex items-center justify-center gap-2 border-t border-hair pt-5 text-[13px] text-muted-foreground">
+				{signup ? t.haveAccount : t.noAccount}
+				<button
+					type="button"
+					className={buttonVariants({ variant: "link", size: "inline" })}
+					onClick={() => {
+						setSignup(!signup);
+						setError("");
+					}}
+				>
+					{signup ? t.signIn : t.signUp}
+				</button>
+			</p>
+			<Link
+				to="/$locale/private"
+				params={{ locale }}
+				className="self-center text-[12px] text-muted-foreground transition-colors hover:text-foreground"
 			>
-				{signup ? t.signIn : t.signUp}
-			</button>
-			<Link to="/$locale/private" params={{ locale }}>
 				{t.private}
 			</Link>
-		</section>
+		</AuthShell>
 	);
 }

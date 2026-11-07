@@ -137,9 +137,9 @@ test("a refused apply never exits 0", () => {
 	).toBe(0);
 	expect(reportExitCode({ ...ok, mode: "dry-run", applied: false })).toBe(0);
 });
-test("a production apply refuses the development storage binding", () => {
+test("a production apply requires the app storage binding", () => {
 	const dev = { bucket: "nfe-webapp-dev", prefix: "nfe-import-63/run/" };
-	const prod = { bucket: "nfe-webapp-prod", prefix: "nfe-media/" };
+	const prod = { bucket: "nfe-webapp-prod", prefix: "media/" };
 	expect(() => assertStorageBinding(dev, true, true)).toThrow(
 		"production_storage_binding_required",
 	);
@@ -148,6 +148,9 @@ test("a production apply refuses the development storage binding", () => {
 	).toThrow("production_storage_binding_required");
 	expect(() =>
 		assertStorageBinding({ ...prod, prefix: "nfe-import-63/x/" }, true, true),
+	).toThrow("production_storage_binding_required");
+	expect(() =>
+		assertStorageBinding({ ...prod, prefix: "other/" }, true, true),
 	).toThrow("production_storage_binding_required");
 	expect(() => assertStorageBinding(prod, true, true)).not.toThrow();
 	expect(() => assertStorageBinding(dev, true, false)).not.toThrow();

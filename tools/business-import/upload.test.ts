@@ -6,7 +6,12 @@ import { join } from "node:path";
 import type { S3Client } from "@aws-sdk/client-s3";
 import type { PreparedAsset } from "./download";
 import type { MediaPlan } from "./media-plan";
-import { assertStorageOwned, uploadMedia } from "./upload";
+import {
+	assertStorageOwned,
+	cleanupUploadedMedia,
+	importStorage,
+	uploadMedia,
+} from "./upload";
 
 type Stored = {
 	key: string;
@@ -191,6 +196,80 @@ test("rebuild never deletes an object whose bytes or ownership token diverged", 
 			}),
 		).rejects.toThrow("uploaded_object_ownership_or_metadata_changed");
 		expect(s3.deletes).toEqual([]);
+	} finally {
+		await rm(dir, { recursive: true, force: true });
+	}
+});
+const b2 = (bucket: string) => ({
+	B2_BUCKET_NAME: bucket,
+	B2_REGION: "eu-central-003",
+	B2_ENDPOINT: "https://s3.eu-central-003.backblazeb2.com",
+	B2_APPLICATION_KEY_ID: "id",
+	B2_APPLICATION_KEY: "secret",
+});
+test("storage client matches the target environment bucket", () => {
+	expect(() => importStorage(b2("nfe-webapp-dev"))).not.toThrow();
+	expect(() => importStorage(b2("nfe-webapp-prod"), true)).not.toThrow();
+	expect(() => importStorage(b2("nfe-webapp-prod"))).toThrow(
+		"isolated_storage_required",
+	);
+	expect(() => importStorage(b2("nfe-webapp-dev"), true)).toThrow(
+		"isolated_storage_required",
+	);
+});
+test("production uploads own only their subtree and cleanup stays isolated", async () => {
+	const dir = await mkdtemp(join(tmpdir(), "business-upload-"));
+	const s3 = new FakeS3();
+	s3.objects.push({
+		key: "media/app/existing",
+		version: "app1",
+		body: Buffer.from("app"),
+		type: "image/webp",
+		metadata: {},
+	});
+	const client = s3 as unknown as S3Client;
+	const checkpointPath = join(dir, "upload-checkpoint.json");
+	const production = (ids: string[]): MediaPlan => ({
+		...plan(ids),
+		bucket: "nfe-webapp-prod",
+		prefix: "media/",
+	});
+	try {
+		const first = {
+			plan: production(["a"]),
+			prepared: await prepared(dir, { a: "x" }),
+			client,
+			checkpointPath,
+		};
+		await assertStorageOwned(first);
+		const uploaded = await uploadMedia(first);
+		expect(uploaded[0]?.objectKey).toBe("media/business-import/a");
+		await expect(
+			uploadMedia({
+				plan: { ...production(["a"]), prefix: "other/" },
+				prepared: await prepared(dir, { a: "x" }),
+				client,
+				checkpointPath: join(dir, "other.json"),
+			}),
+		).rejects.toThrow("isolated_upload_prefix_required");
+		s3.objects.push({
+			key: "media/business-import/foreign",
+			version: "f1",
+			body: Buffer.from("f"),
+			type: "image/webp",
+			metadata: {},
+		});
+		await expect(
+			assertStorageOwned({
+				plan: production(["b"]),
+				prepared: await prepared(dir, { b: "y" }),
+				client,
+				checkpointPath: join(dir, "fresh.json"),
+			}),
+		).rejects.toThrow("foreign_storage_collision");
+		await expect(
+			cleanupUploadedMedia(production(["a"]), client, checkpointPath),
+		).rejects.toThrow("isolated_upload_prefix_required");
 	} finally {
 		await rm(dir, { recursive: true, force: true });
 	}

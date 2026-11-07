@@ -117,14 +117,15 @@ function Layout() {
 						params={{ locale }}
 						activeOptions={{ exact: true }}
 						aria-label={publicEnv.VITE_APP_NAME}
-						className="flex items-center gap-2 font-display font-semibold tracking-[0.12em] uppercase text-[21px]"
+						className="relative flex items-center gap-2.5 font-display font-semibold tracking-[0.12em] uppercase text-[21px]"
 					>
+						<span aria-hidden className="shrink-0 w-[60px] sm:w-[76px]" />
 						<img
 							src="/logo-mark.png"
 							alt=""
-							width={34}
-							height={34}
-							className="shrink-0 size-[34px]"
+							width={76}
+							height={76}
+							className="absolute left-0 top-[-4px] size-[60px] sm:size-[76px] rounded-full bg-background ring-1 ring-hair shadow-[0_0_0_2px_color-mix(in_srgb,var(--primary)_18%,transparent),0_0_18px_color-mix(in_srgb,var(--primary)_22%,transparent),0_8px_20px_rgb(0_0_0/0.5)]"
 						/>
 						NFE
 					</Link>
@@ -167,7 +168,7 @@ function Layout() {
 					</div>
 				</div>
 			</header>
-			<main className="max-w-4xl mx-auto px-6 pt-6 pb-28 sm:py-8">
+			<main className="max-w-4xl mx-auto px-6 pt-8 pb-28 sm:pt-12 sm:pb-8">
 				<Outlet />
 				<nav
 					aria-label={

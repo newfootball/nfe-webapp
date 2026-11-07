@@ -9,5 +9,5 @@
 		"types": ["bun"],
 		"allowImportingTsExtensions": true
 	},
-	"include": ["*.mts"]
+	"include": ["*.mts", "prod/*.mts"]
 }

@@ -247,6 +247,9 @@ async function assemble(
 		counts(c, c.reader(), "comments", "postId", ids),
 	]);
 	const byAuthor = new Map(profiles.map((r) => [r.$id, authorDTO(r)]));
+	// A post whose author has no public onboarded profile is skipped, not fatal.
+	rows = rows.filter((r) => byAuthor.has(String(r.userId)));
+	if (!rows.length) return [];
 	// Recheck visibility after child aggregation; revocation causes a failed read,
 	// never a partial misleading page or counts from a hidden parent.
 	const visible = await list(c, c.publicDB, "posts", [

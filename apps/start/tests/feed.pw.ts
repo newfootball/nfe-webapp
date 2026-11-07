@@ -413,6 +413,30 @@ test("SDK and RPC: all actors, exact grouped counts, stable seeks, filter bindin
 			permissions: saved.$permissions,
 		});
 	}
+	// A published post by a non-onboarded author is skipped, never fatal to the page.
+	await admin.createRow({
+		databaseId,
+		tableId: "posts",
+		rowId: "feed-orphan-post",
+		data: {
+			...data,
+			userId: "hidden-profile",
+			slug: "feed-orphan-post",
+			createdAt: new Date(Date.now() + 60_000).toISOString(),
+		},
+		permissions: [Permission.read(Role.any())],
+	});
+	try {
+		expect((await feed(request, { limit: 10 })).posts.map((p) => p.id)).toEqual(
+			ids.slice(0, 9),
+		);
+	} finally {
+		await admin.deleteRow({
+			databaseId,
+			tableId: "posts",
+			rowId: "feed-orphan-post",
+		});
+	}
 	// Backend failures differ from an empty page and hidden/absent detail.
 	await admin.updateTable({
 		databaseId,

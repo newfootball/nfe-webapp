@@ -10,7 +10,13 @@ import { ActionBar } from "./action-bar";
 import { Jersey } from "./jersey";
 import { PinButton } from "./pin-button";
 
-function BroadcastBug({ post, locale }: { post: PublicPost; locale: Locale }) {
+export function BroadcastBug({
+	post,
+	locale,
+}: {
+	post: PublicPost;
+	locale: Locale;
+}) {
 	const m = post.match;
 	if (!m) return null;
 	const t = homeMessages[locale],

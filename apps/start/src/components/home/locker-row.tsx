@@ -59,25 +59,25 @@ export function LockerRow({
 					</Link>
 				</p>
 			) : (
-				<ul className="overflow-x-auto flex gap-3.5 px-4 pb-1.5 snap-x scroll-px-4 scrollbar-none sm:px-0 sm:scroll-px-0">
-					{posts.map((post) => (
-						<li key={post.id} className="shrink-0 w-[150px] snap-start">
+				<ul className="grid grid-cols-2 gap-x-3 gap-y-4 px-4 sm:px-0">
+					{posts.slice(0, 4).map((post) => (
+						<li key={post.id} className="min-w-0">
 							<Link
 								to="/$locale/post/$id"
 								params={{ locale, id: post.id }}
 								className="block group"
 							>
-								<span className="overflow-hidden block h-[190px] rounded-md pitch">
+								<span className="overflow-hidden block aspect-16/10 rounded-sm pitch">
 									<Thumb
 										src={post.mediaPreview}
 										lazy
 										className="object-cover size-full transition-transform duration-700 group-hover:scale-104"
 									/>
 								</span>
-								<b className="mt-2 line-clamp-2 leading-tight font-medium text-[12.5px]">
+								<b className="mt-1.5 line-clamp-2 leading-tight font-medium text-[12.5px]">
 									{post.title}
 								</b>
-								<small className="text-[11px] text-muted-foreground">
+								<small className="block truncate text-[11px] text-muted-foreground">
 									{post.author.name} ·{" "}
 									{ago(post.publishedAt ?? post.createdAt, locale, now)}
 								</small>

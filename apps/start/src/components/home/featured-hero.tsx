@@ -3,6 +3,7 @@ import type { Featured } from "../../lib/home-contract";
 import { homeMessages } from "../../lib/home-messages";
 import type { Locale } from "../../lib/messages";
 import { PinButton } from "./pin-button";
+import { BroadcastBug } from "./stream-post";
 import { Thumb } from "./thumb";
 
 // The last word carries the yellow, like a broadcast lower third.
@@ -37,6 +38,7 @@ export function FeaturedHero({
 					src={post.mediaPreview}
 					className="object-cover absolute inset-0 size-full transition-transform duration-700 ease-[cubic-bezier(.2,.7,.2,1)] group-hover:scale-104"
 				/>
+				<BroadcastBug post={post} locale={locale} />
 				<span className="absolute inset-0 bg-[linear-gradient(180deg,transparent_25%,rgb(0_0_0/0.55)_55%,rgb(0_0_0/0.88))]" />
 				<span className="absolute right-4 bottom-4 left-4 block text-white sm:right-6 sm:bottom-6 sm:left-6">
 					<span className="font-label font-medium tracking-[0.16em] uppercase text-[11.5px] text-white/75">

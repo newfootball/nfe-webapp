@@ -168,6 +168,7 @@ async function week(c: Connection, viewer: Viewer): Promise<WeekStats> {
 	return {
 		weekStart: w.weekStart,
 		weekEnd: w.weekEnd,
+		weekNumber: w.weekNumber,
 		name: profile.name ?? viewer.name ?? null,
 		jerseyNumber: profile.jerseyNumber ?? null,
 		posts,

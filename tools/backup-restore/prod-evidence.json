@@ -1,0 +1,99 @@
+{
+	"issue": 47,
+	"date": "2026-11-07",
+	"source": "nfe-production / appwrite-nfe (Appwrite 2.6.2, PostgreSQL 18.3)",
+	"destination": "b2://nfe-backups-prod (private, Object Lock governance 14d, SSE-B2, restricted no-delete key)",
+	"backup": {
+		"name": "daily/2026-11-07T19-44-29-023Z.nfe47",
+		"archiveBytes": 3408178,
+		"archiveSha256": "cea1ff7767cf397438910382e82564e6885c2a830ec7b05e865d050a85765528",
+		"entries": {
+			"postgres.dump": 1003672,
+			"redis.rdb": 1880967,
+			"volume-config.tar": 1536,
+			"volume-certificates.tar": 1536,
+			"volume-uploads.tar": 1536,
+			"volume-imports.tar": 1536,
+			"volume-functions.tar": 1536,
+			"volume-sites.tar": 1536,
+			"volume-builds.tar": 1536,
+			"service.tar": 92160,
+			"env-appwrite.json": 10039,
+			"env-appwrite-postgresql.json": 3698,
+			"env-appwrite-clickhouse.json": 3785,
+			"b2-inventory.json": 387007
+		},
+		"tables": 197,
+		"rows": 12935,
+		"stable": true,
+		"postgres": "18.3 (Debian 18.3-1.pgdg13+1)",
+		"media": {
+			"versions": 342,
+			"copiedNow": 0,
+			"bytes": 63003085
+		},
+		"excluded": [
+			"clickhouse usage statistics (rebuildable, owner sign-off pending)"
+		],
+		"timingsMs": {
+			"database": 3588,
+			"files": 20027,
+			"media": 2239,
+			"upload": 13397,
+			"total": 39250
+		}
+	},
+	"restore": {
+		"target": "local isolated Docker project, internal network, API on 127.0.0.1 only, SMTP blanked, no workers",
+		"archive": "daily/2026-11-07T19-44-29-023Z.nfe47",
+		"timingsMs": {
+			"download": 3581,
+			"decrypt": 6,
+			"database": 5348,
+			"appwrite": 1378,
+			"verify": 12091,
+			"destroy": 657,
+			"total": 23123
+		},
+		"checks": {
+			"archive": {
+				"name": "daily/2026-11-07T19-44-29-023Z.nfe47",
+				"sha256": "cea1ff7767cf397438910382e82564e6885c2a830ec7b05e865d050a85765528",
+				"createdAt": "2026-11-07T19:44:54.877Z",
+				"entries": 14
+			},
+			"counts": {
+				"tables": 197,
+				"rows": 12935,
+				"mismatched": 0
+			},
+			"auth": {
+				"login": 201,
+				"account": 200,
+				"anonymous": 401,
+				"wrongPassword": 401
+			},
+			"records": {
+				"post": {
+					"status": 200,
+					"published": true
+				},
+				"mediaAssets": 334,
+				"anonymousMediaAssets": 0
+			},
+			"media": {
+				"attached": 168,
+				"withBackupCopy": 168,
+				"sha256Match": 168,
+				"smokePostAssets": 2
+			}
+		}
+	},
+	"notExercised": [
+		"Redis RDB replay (sessions/cache rebuilt)",
+		"ClickHouse usage statistics (excluded)",
+		"Appwrite workers, functions, sites, realtime",
+		"DNS/TLS cutover to a new host",
+		"Restore of overwritten or deleted media versions on prod (none exist; covered by synthetic proof evidence.json)"
+	]
+}

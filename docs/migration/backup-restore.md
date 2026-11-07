@@ -1,8 +1,69 @@
 # Sauvegarde et reprise — #47
 
-**Preuve synthétique locale réussie ; #47 reste partiel.** Aucun export de source
-réelle, hôte permanent, dépôt hors hôte ou budget RPO/RTO accepté n'est couvert.
-Ne pas utiliser ce petit harnais comme sauvegarde de production.
+**Production sauvegardée et restaurée en isolation le 2026-11-07.** Voir
+[Production](#production) et la [preuve expurgée](../../tools/backup-restore/prod-evidence.json).
+Les sections suivantes décrivent la preuve synthétique historique ; ce petit
+harnais (`proof.mts`, `cli.mts`) n'est pas l'outil de production.
+
+## Production
+
+Outil : `tools/backup-restore/prod/` (`backup.mts`, `restore.mts`). Les deux
+partent en dry-run sans `--run`. Aucun ordonnanceur n'est installé.
+
+| Décision | Valeur |
+| --- | --- |
+| RPO / RTO | 24 h / 4 h (mesuré : sauvegarde 39 s, restauration vérifiée 23 s hors pull d'images) |
+| Rétention | 14 quotidiennes (`daily/`), 8 hebdomadaires (`weekly/`), lifecycle B2 |
+| Destination | `nfe-backups-prod` : privé, Object Lock gouvernance 14 j, SSE-B2 |
+| Clé d'écriture | `nfe-backups-prod-rw`, limitée au bucket, sans droit de suppression |
+| Clé d'archive | AES-256-GCM, `~/.config/nfe/backup-prod.key` (0600), à placer au coffre |
+| Responsable / déclenchement | Propriétaire NFE, manuel ; avant chaque migration ou déploiement de schéma |
+
+Contenu d'une archive `.nfe47` : `pg_dump -Fc` en ligne avec comptage exact des
+lignes avant/après (`stable`), RDB Redis (forensique, non rejoué), tar des
+volumes Appwrite, dossier de service Coolify (Compose, `.env` avec
+`_APP_OPENSSL_KEY_V1`), env des conteneurs et inventaire B2. Chaque version du
+bucket `nfe-webapp-prod` est copiée côté serveur vers `nfe-backups-prod/media/<fileId>`.
+Exclu : statistiques ClickHouse (reconstructibles ; acceptation propriétaire à signer).
+
+La copie média exige une clé B2 de compte (lecture source, écriture cible) dans
+`B2_APPLICATION_KEY_ID/KEY` ; l'archive est déposée avec la clé restreinte
+`B2_BACKUP_APPLICATION_KEY_ID/KEY`. Les deux vivent dans un `.env` protégé (0600).
+
+```sh
+cd tools/backup-restore
+bun run prod/backup.mts --env /chemin/.env.local --key ~/.config/nfe/backup-prod.key --tier daily --run
+```
+
+La restauration télécharge la dernière archive (ou `--name`), l'authentifie,
+restaure PostgreSQL et les volumes dans un projet Docker labellisé sur réseau
+interne, démarre l'API Appwrite 2.6.2 sur `127.0.0.1:19549` seulement (SMTP
+vidé, HTTPS forcé désactivé, sans workers), vérifie puis détruit tout :
+
+- comptage exact identique table par table ;
+- connexion du compte smoke (201), `/account` (200), anonyme et mauvais mot de
+  passe (401), aucun `media_assets` lisible anonymement ;
+- post smoke publié relu via son propriétaire, médias attachés liés ;
+- chaque média `ATTACHED` relu depuis la copie de sauvegarde, SHA-256 identique.
+
+```sh
+set -a; . apps/start/.env.smoke; . /chemin/restore.env; set +a
+bun run prod/restore.mts --env /chemin/.env.local --key ~/.config/nfe/backup-prod.key --run
+```
+
+`restore.env` (0600) : `RESTORE_PROJECT`, `RESTORE_DATABASE`,
+`RESTORE_MEDIA_KEY` (lecteur média de l'app), `RESTORE_POST_ID` (préfixe du post
+smoke). Rapports expurgés dans `.local/prod/` (ignoré). En cas d'échec, les logs
+des conteneurs y sont écrits avant destruction ; les supprimer après lecture.
+
+Non exercé : rejeu Redis, workers/functions/realtime, bascule DNS/TLS vers un
+nouvel hôte. Prod ne contient aucune version média écrasée ou supprimée ; ce
+cas reste couvert par la preuve synthétique.
+
+Reprise sur un nouvel hôte : recréer le service Coolify depuis `service.tar`,
+restaurer `postgres.dump` et les volumes comme `restore.mts`, garder
+`_APP_OPENSSL_KEY_V1` identique, puis recopier `media/<fileId>` vers les clés
+d'origine du bucket média selon `b2-inventory.json`.
 
 ## Preuve et limites
 
@@ -145,19 +206,12 @@ revue. Aucun ordonnanceur n'est installé.
 
 | Décision / preuve | État |
 | --- | --- |
-| Source réelle autorisée, hôte permanent et topologie déployée | Non exécutés, coordination #46/opérateur requise |
-| Dump PostgreSQL réel, médias accessibles et configuration réelle | Non exécutés |
-| Restauration synthétique du snapshot 86f2843 | Réussie localement ; renouveler avec schéma final accepté |
-| Copie chiffrée hors hôte, accès indépendant et clé séparée | Non exécutés ; destination/propriétaire à désigner |
-| RPO, fréquence, RTO et taille représentative | Inconnus ; les durées synthétiques ne valent pas acceptation |
-| Rétention, effacement de compte et lifecycle B2 | Politique à définir et signer sans modifier le bucket partagé |
-| Responsable, déclenchement et exercice périodique | À attribuer ; aucun cron, routine cloud ou suivi différé |
-
-Avant bascule, approuver ces valeurs et opérer une fenêtre sans écritures produit,
-imports et uploads : la fixture sans écrivain concurrent ne démontre pas une
-transaction globale entre PostgreSQL, Appwrite et B2. Exécuter une sauvegarde
-réelle autorisée, une copie hors hôte et une récupération avec une clé obtenue
-indépendamment. Garder #47 ouvert tant que ces preuves manquent.
+| Sauvegarde réelle prod chiffrée hors hôte | Faite le 2026-11-07 (`prod-evidence.json`) |
+| Restauration isolée vérifiée (login, ACL, liens, médias SHA-256) | Faite le 2026-11-07 |
+| RPO/RTO, rétention, destination | Validés : 24 h / 4 h, 14 + 8, `nfe-backups-prod` |
+| Clé d'archive au coffre séparé du bucket | À faire par le propriétaire |
+| Exclusion ClickHouse | Acceptation propriétaire à signer |
+| Déclenchement régulier | Manuel ; aucun cron, routine cloud ou suivi différé |
 
 Référence : [Appwrite — Backups](https://appwrite.io/docs/advanced/self-hosting/production/backups).
 La page générique mentionne d'autres moteurs ; utiliser la topologie PostgreSQL

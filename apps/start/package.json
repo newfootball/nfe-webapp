@@ -12,7 +12,7 @@
 		"image:smoke": "bash scripts/image-smoke.sh nfe-start:local",
 		"prod:smoke": "bun scripts/production-smoke.ts",
 		"prod:smoke:login": "playwright test --config playwright.production.config.ts",
-		"prod:smoke:pwa": "playwright test --config playwright.production-pwa.config.ts",
+		"prod:smoke:pwa": "playwright test --config playwright.production-pwa.config.ts production-pwa",
 		"smoke": "playwright test",
 		"check:client": "bun scripts/check-client.ts",
 		"test": "bun test tests/*.test.ts src/components/media/*.test.ts",
@@ -45,7 +45,8 @@
 		"local:proof": "bun scripts/local-runtime-proof.ts",
 		"local:repro": "bun scripts/local-runtime-repro.ts",
 		"tw": "tailwind-canonical",
-		"tw:check": "tailwind-canonical --check"
+		"tw:check": "tailwind-canonical --check",
+		"prod:smoke:media": "playwright test --config playwright.production-pwa.config.ts production-media"
 	},
 	"dependencies": {
 		"@aws-sdk/client-s3": "3.1159.0",

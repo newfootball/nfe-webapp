@@ -178,5 +178,26 @@ privacy scenario against `https://nfe-foot.com` with the dedicated smoke account
 - CacheStorage holds only `nfe-start-public-v1` with the four public entries,
   none containing the identity or cookie.
 
-Still open for #62: installed legacy Next PWA observed on a real device, B2 signed
-URL renewal after reconnect in production, and the #52/#61 dependencies.
+Still open for #62: installed legacy Next PWA observed on a real device and the
+#52/#61 dependencies.
+
+## Production B2 signed media proof (2026-11-08)
+
+Probed anonymously on a public video post, printing no signed URL or query string:
+
+- `/post-media/{id}/video` answers 307 `private, no-store`, `Vary: Cookie`, to
+  `s3.eu-central-003.backblazeb2.com`; each call carries a new signature;
+- `X-Amz-Expires=120`; the link answers 206 at once and 401 after 128 s; a tampered
+  signature answers 403;
+- `Range` + `Origin: https://nfe-foot.com` answers 206 with `content-range` exposed;
+  the preflight allows only `GET` and `range` for that origin; another origin gets
+  no `access-control-allow-origin`;
+- the worker never intercepts B2 (cross-origin), so no signed URL reaches CacheStorage;
+- the origin sends no `Content-Security-Policy`, so nothing blocks B2 media today;
+  adding a CSP later must allow `media-src`/`img-src` for the B2 host.
+
+`bun run prod:smoke:media` then drives the real player in production: it plays the
+video, sees a fresh signed source before the 120 s expiry, stays offline past the
+expiry, comes back online, seeks, and requires a new signed source, no media error,
+no error alert, and only 200/206 answers from B2.
+

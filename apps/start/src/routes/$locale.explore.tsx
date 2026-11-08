@@ -13,15 +13,34 @@ import { Button } from "../components/ui/button";
 import { exploreOptions } from "../lib/feed";
 import { SearchTextSchema } from "../lib/feed-input";
 import { feedMessages } from "../lib/feed-messages";
+import { getPublicPageContext } from "../lib/public-pages";
+import { publicHead, siteSeo } from "../lib/seo";
 export const ExploreSearchSchema = z.object({
 	q: SearchTextSchema.catch("").default(""),
 	tab: z.enum(["top", "users", "posts"]).catch("top").default("top"),
 });
 export const Route = createFileRoute("/$locale/explore")({
 	validateSearch: (value) => ExploreSearchSchema.parse(value),
-	loaderDeps: ({ search }) => search,
-	loader: ({ context, deps }) =>
-		context.queryClient.ensureQueryData(exploreOptions(context.locale, deps)),
+	loaderDeps: ({ search }) => ({ q: search.q, tab: search.tab }),
+	loader: async ({ context, deps }) => {
+		const [seo] = await Promise.all([
+			getPublicPageContext(),
+			context.queryClient.ensureQueryData(exploreOptions(context.locale, deps)),
+		]);
+		return { origin: seo.origin };
+	},
+	head: ({ loaderData, params }) => {
+		if (!loaderData) return {};
+		const locale = params.locale === "en" ? "en" : "fr";
+		const t = siteSeo[locale].explore;
+		return publicHead(
+			loaderData.origin,
+			`/${locale}/explore`,
+			locale,
+			t.title,
+			t.description,
+		);
+	},
 	headers: () => ({ "Cache-Control": "private, no-store" }),
 	pendingComponent: FeedRoutePending,
 	errorComponent: FeedRouteError,
@@ -32,7 +51,7 @@ function Page() {
 		search = Route.useSearch(),
 		navigate = Route.useNavigate();
 	const t = feedMessages[locale],
-		query = useQuery(exploreOptions(locale, search));
+		query = useQuery(exploreOptions(locale, { q: search.q, tab: search.tab }));
 	const [text, setText] = useState(search.q);
 	useEffect(() => {
 		setText(search.q);

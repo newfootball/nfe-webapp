@@ -163,3 +163,20 @@ are gone, the private fixture directory was trashed, and3572/19561 are free.
 Independent delta review and exact-head CI remain coordinator gates. This renewal
 does not establish real B2/media, actual legacy installed Next PWA on final origin,
 production hosting, or full issue62 acceptance. See the appended `renewal` evidence.
+
+## Production proof on the final origin (2026-11-08)
+
+After the 2026-11-07 cutover, `bun run prod:smoke:pwa` replays the logout/offline
+privacy scenario against `https://nfe-foot.com` with the dedicated smoke account
+(`SMOKE_EMAIL`/`SMOKE_PASSWORD`, never a real user). It passed 1/0/0 in FR and EN:
+
+- the real worker controls the page, `/sw.js` and the manifest are `no-store`;
+- private, feed, notifications, messages and profile pages are `no-store` online;
+- signed-in offline navigation returns 503 without the identity;
+- logout removes `__Host-nfe-session`; replaying the old cookie redirects to sign-in;
+- after logout every private path offline returns the public 503 fallback;
+- CacheStorage holds only `nfe-start-public-v1` with the four public entries,
+  none containing the identity or cookie.
+
+Still open for #62: installed legacy Next PWA observed on a real device, B2 signed
+URL renewal after reconnect in production, and the #52/#61 dependencies.

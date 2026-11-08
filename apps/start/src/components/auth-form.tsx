@@ -16,12 +16,14 @@ export function AuthForm({
 	queryClient,
 	returnTo = "",
 	oauth,
+	google = false,
 	initialSignup = false,
 }: {
 	locale: Locale;
 	queryClient: QueryClient;
 	returnTo?: string;
 	oauth?: string;
+	google?: boolean;
 	initialSignup?: boolean;
 }) {
 	const router = useRouter();
@@ -38,20 +40,24 @@ export function AuthForm({
 			lead={signup ? t.signUpLead : t.signInLead}
 		>
 			{oauth && <Notice tone="alert">{recoveryMessages[locale].failed}</Notice>}
-			<form method="post" action="/oauth/google">
-				<input type="hidden" name="locale" value={locale} />
-				<button
-					className={cn(
-						buttonVariants({ variant: "outline", size: "lg" }),
-						"w-full h-11",
-					)}
-					type="submit"
-				>
-					<GoogleMark />
-					{recoveryMessages[locale].google}
-				</button>
-			</form>
-			<Divider label={t.or} />
+			{google && (
+				<>
+					<form method="post" action="/oauth/google">
+						<input type="hidden" name="locale" value={locale} />
+						<button
+							className={cn(
+								buttonVariants({ variant: "outline", size: "lg" }),
+								"w-full h-11",
+							)}
+							type="submit"
+						>
+							<GoogleMark />
+							{recoveryMessages[locale].google}
+						</button>
+					</form>
+					<Divider label={t.or} />
+				</>
+			)}
 			<form
 				method="post"
 				className="flex flex-col gap-4"

@@ -31,8 +31,7 @@ const transactionSchema = z.strictObject({
 	currentId: z.string().nullable(),
 	locale: z.enum(["fr", "en"]),
 });
-function settings() {
-	const base = configuration();
+function googleCredentials(appKey: string) {
 	const id = process.env.START_GOOGLE_CLIENT_ID;
 	const secret = process.env.START_GOOGLE_CLIENT_SECRET;
 	const brokerKey = process.env.START_OAUTH_BROKER_KEY;
@@ -41,9 +40,23 @@ function settings() {
 		!id ||
 		!secret ||
 		!brokerKey ||
-		brokerKey === base.key
+		brokerKey === appKey
 	)
-		throw new Error("OAuth unavailable");
+		return null;
+	return { id, secret, brokerKey };
+}
+export function googleAvailable() {
+	try {
+		return googleCredentials(configuration().key) !== null;
+	} catch {
+		return false;
+	}
+}
+function settings() {
+	const base = configuration();
+	const credentials = googleCredentials(base.key);
+	if (!credentials) throw new Error("OAuth unavailable");
+	const { id, secret, brokerKey } = credentials;
 	return {
 		...base,
 		brokerKey,

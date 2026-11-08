@@ -1,6 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { AuthForm } from "../components/auth-form";
 import { authMessages } from "../lib/auth-messages";
+import { getGoogleAvailability } from "../lib/oauth-availability";
 import { getPublicPageContext } from "../lib/public-pages";
 import { publicHead } from "../lib/seo";
 
@@ -10,7 +11,13 @@ export const Route = createFileRoute("/sign-up")({
 		if (typeof search.returnTo !== "string") throw notFound();
 		return { returnTo: search.returnTo };
 	},
-	loader: () => getPublicPageContext(),
+	loader: async () => {
+		const [context, google] = await Promise.all([
+			getPublicPageContext(),
+			getGoogleAvailability(),
+		]);
+		return { ...context, google };
+	},
 	head: ({ loaderData }) =>
 		loaderData
 			? publicHead(
@@ -24,7 +31,7 @@ export const Route = createFileRoute("/sign-up")({
 	component: SignUpPage,
 });
 function SignUpPage() {
-	const { locale } = Route.useLoaderData();
+	const { locale, google } = Route.useLoaderData();
 	const { queryClient } = Route.useRouteContext();
 	const { returnTo } = Route.useSearch();
 	return (
@@ -33,6 +40,7 @@ function SignUpPage() {
 				locale={locale}
 				queryClient={queryClient}
 				returnTo={returnTo}
+				google={google}
 				initialSignup
 			/>
 		</main>

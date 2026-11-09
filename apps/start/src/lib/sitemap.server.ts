@@ -78,25 +78,26 @@ export async function sitemapResponse(request: Request) {
 				)
 			).filter((id): id is string => id !== null),
 		);
+		const localized = (path: string) => [`/fr${path}`, `/en${path}`];
 		const paths = [
-			"/",
+			...localized(""),
 			"/about-us",
 			"/contact",
 			"/privacy",
 			"/terms",
-			"/explore",
+			...localized("/explore"),
 			...DIRECTORY_TYPES.map((v) => `/${v}`),
 			...DIRECTORY_POSITIONS.map((v) => `/players/${v}`),
 			...DIRECTORY_CITIES.map((v) => `/players/city/${v}`),
 			...profiles.rows
 				.filter((row) => active.has(row.$id))
-				.map((row) => `/user/${encodeURIComponent(row.$id)}`),
+				.flatMap((row) => localized(`/user/${encodeURIComponent(row.$id)}`)),
 			...posts.rows
 				.filter(
 					(row) =>
 						eligible.has(String(row.userId)) && active.has(String(row.userId)),
 				)
-				.map((row) => `/post/${encodeURIComponent(row.$id)}`),
+				.flatMap((row) => localized(`/post/${encodeURIComponent(row.$id)}`)),
 		];
 		return new Response(
 			`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${paths.map((path) => `<url><loc>${escapeXml(new URL(path, origin).href)}</loc></url>`).join("")}</urlset>`,

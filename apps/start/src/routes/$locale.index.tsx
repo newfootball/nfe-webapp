@@ -11,16 +11,32 @@ import { JoinPanel, WeekPanel } from "../components/home/week-panel";
 import { feedOptions } from "../lib/feed";
 import { homeOptions } from "../lib/home";
 import type { HomeData } from "../lib/home-contract";
+import { getPublicPageContext } from "../lib/public-pages";
 import { readerOptions } from "../lib/reader";
+import { publicHead, siteSeo } from "../lib/seo";
 export const Route = createFileRoute("/$locale/")({
 	loader: async ({ context }) => {
-		await Promise.all([
+		const [seo] = await Promise.all([
+			getPublicPageContext(),
 			context.queryClient.ensureQueryData(readerOptions),
 			// Home sections are optional: a failure falls back to the signed-out page plus the feed.
 			context.queryClient.prefetchQuery(homeOptions(context.locale)),
 			// A backend failure remains a Query error with retry; the foundation is still fixture-free.
 			context.queryClient.prefetchInfiniteQuery(feedOptions(context.locale)),
 		]);
+		return { origin: seo.origin };
+	},
+	head: ({ loaderData, params }) => {
+		if (!loaderData) return {};
+		const locale = params.locale === "en" ? "en" : "fr";
+		const t = siteSeo[locale].home;
+		return publicHead(
+			loaderData.origin,
+			`/${locale}`,
+			locale,
+			t.title,
+			t.description,
+		);
 	},
 	headers: () => ({ "Cache-Control": "private, no-store" }),
 	component: Home,

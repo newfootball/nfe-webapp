@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AuthForm } from "../components/auth-form";
 import { Notice } from "../components/auth-shell";
 import { accountDeletionMessages } from "../lib/account-deletion-messages";
+import { getGoogleAvailability } from "../lib/oauth-availability";
 
 export const Route = createFileRoute("/$locale/sign-in")({
 	validateSearch: (
@@ -12,11 +13,13 @@ export const Route = createFileRoute("/$locale/sign-in")({
 		oauth: search.oauth === "failed" ? "failed" : "",
 		returnTo: typeof search.returnTo === "string" ? search.returnTo : "",
 	}),
+	loader: () => getGoogleAvailability(),
 	component: AuthPage,
 });
 function AuthPage() {
 	const { locale, queryClient } = Route.useRouteContext();
 	const { returnTo, oauth, notice } = Route.useSearch();
+	const google = Route.useLoaderData();
 	return (
 		<>
 			{notice && (
@@ -29,6 +32,7 @@ function AuthPage() {
 				queryClient={queryClient}
 				returnTo={returnTo}
 				oauth={oauth}
+				google={google}
 			/>
 		</>
 	);

@@ -1,5 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	Link,
+	stripSearchParams,
+	useRouter,
+} from "@tanstack/react-router";
 import { useState } from "react";
 import { AccountDeletionRecovery } from "../components/account-deletion-form";
 import { Button } from "../components/ui/button";
@@ -8,16 +13,30 @@ import {
 	getModerationDashboard,
 	moderateReport,
 } from "../lib/moderation";
-import { AdminPageSchema, type DecisionInput } from "../lib/moderation-input";
+import {
+	type AdminPageInput,
+	AdminPageSchema,
+	type DecisionInput,
+} from "../lib/moderation-input";
 import { moderationMessages } from "../lib/moderation-messages";
 export const Route = createFileRoute("/$locale/admin")({
-	validateSearch: (v) =>
+	validateSearch: (v: Record<string, unknown>): AdminPageInput =>
 		AdminPageSchema.parse({
 			kind: v.kind ?? "reports",
 			q: v.q ?? "",
 			status: v.status ?? "PENDING",
 			cursor: v.cursor ?? null,
 		}),
+	search: {
+		middlewares: [
+			stripSearchParams<AdminPageInput>({
+				kind: "reports",
+				q: "",
+				status: "PENDING",
+				cursor: null,
+			}),
+		],
+	},
 	loaderDeps: ({ search }) => search,
 	loader: async ({ deps }) => {
 		const summary = await getModerationDashboard();

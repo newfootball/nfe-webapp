@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, stripSearchParams } from "@tanstack/react-router";
 import { AuthForm } from "../components/auth-form";
 import { Notice } from "../components/auth-shell";
 import { accountDeletionMessages } from "../lib/account-deletion-messages";
@@ -13,6 +13,7 @@ export const Route = createFileRoute("/$locale/sign-in")({
 		oauth: search.oauth === "failed" ? "failed" : "",
 		returnTo: typeof search.returnTo === "string" ? search.returnTo : "",
 	}),
+	search: { middlewares: [stripSearchParams({ oauth: "", returnTo: "" })] },
 	loader: () => getGoogleAvailability(),
 	component: AuthPage,
 });

@@ -30,3 +30,27 @@ test("explore keeps non-default search params", () => {
 	});
 	expect(location.href).toBe("/en/explore?q=messi&tab=users");
 });
+
+for (const path of ["/fr/explore", "/fr/admin", "/fr/sign-in"]) {
+	test(`${path} server canonical adds no default search params`, () => {
+		const router = routerAt(path);
+		const location = router.buildLocation({
+			to: path,
+			search: true,
+			params: true,
+			_includeValidateSearch: true,
+		} as never);
+		expect(location.href).toBe(path);
+	});
+}
+
+test("sign-in keeps a real returnTo", () => {
+	const router = routerAt("/fr/sign-in?returnTo=%2Ffr%2Fprofile");
+	const location = router.buildLocation({
+		to: "/fr/sign-in",
+		search: true,
+		params: true,
+		_includeValidateSearch: true,
+	} as never);
+	expect(location.href).toBe("/fr/sign-in?returnTo=%2Ffr%2Fprofile");
+});

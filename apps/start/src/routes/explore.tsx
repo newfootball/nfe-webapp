@@ -1,8 +1,13 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	redirect,
+	stripSearchParams,
+} from "@tanstack/react-router";
 import { getPreferredLocale } from "../lib/locale";
-import { ExploreSearchSchema } from "./$locale.explore";
+import { ExploreSearchSchema, exploreSearchDefaults } from "./$locale.explore";
 export const Route = createFileRoute("/explore")({
-	validateSearch: (value) => ExploreSearchSchema.parse(value),
+	validateSearch: ExploreSearchSchema,
+	search: { middlewares: [stripSearchParams(exploreSearchDefaults)] },
 	beforeLoad: async ({ search }) => {
 		throw redirect({
 			to: "/$locale/explore",

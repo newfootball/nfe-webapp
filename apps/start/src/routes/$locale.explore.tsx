@@ -1,5 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	Link,
+	stripSearchParams,
+} from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { FeedNav } from "../components/feed/nav";
@@ -19,8 +23,10 @@ export const ExploreSearchSchema = z.object({
 	q: SearchTextSchema.catch("").default(""),
 	tab: z.enum(["top", "users", "posts"]).catch("top").default("top"),
 });
+export const exploreSearchDefaults = { q: "", tab: "top" } as const;
 export const Route = createFileRoute("/$locale/explore")({
-	validateSearch: (value) => ExploreSearchSchema.parse(value),
+	validateSearch: ExploreSearchSchema,
+	search: { middlewares: [stripSearchParams(exploreSearchDefaults)] },
 	loaderDeps: ({ search }) => ({ q: search.q, tab: search.tab }),
 	loader: async ({ context, deps }) => {
 		const [seo] = await Promise.all([
